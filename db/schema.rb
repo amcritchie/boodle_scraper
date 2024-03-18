@@ -20,9 +20,15 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_17_191458) do
     t.string "week"
     t.string "away_team"
     t.string "home_team"
+    t.string "winning_team"
     t.integer "away_total"
     t.integer "home_total"
+    t.boolean "primetime", default: false
+    t.boolean "overtime", default: false
+    t.string "day_of_week"
+    t.string "start_time"
     t.date "date"
+    t.integer "total_points"
     t.float "over_under"
     t.float "over_under_odds"
     t.float "away_spread"
