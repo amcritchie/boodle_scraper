@@ -42,6 +42,7 @@ class Game < ApplicationRecord
                 sportsoddshistory_scrape_game(game_row,season,week)
             end
         end
+        return "Finished"
     end
 
     def self.sportsoddshistory_scrape_game(game, season='2023', week='w1')
@@ -77,6 +78,8 @@ class Game < ApplicationRecord
         primetime = true if time_of_game.include? "8:20"    # Standard SNF
         primetime = true if time_of_game.include? "7:15"    # Two game MNF (early)
         primetime = true if time_of_game.include? "8:15"    # Two game MNF (late)
+        primetime = true if day_of_week.include? "Fri"      # Black Friday Game
+        primetime = true if day_of_week.include? "Sat"      # Saturday Games
 
         puts "-"*40
         puts day_of_week
@@ -99,7 +102,7 @@ class Game < ApplicationRecord
         puts "over_under: #{over_under}"
         puts "primetime: #{primetime}"
         puts "-"*40
-        
+
         game_date = Date.parse("#{date_of_game}")
 
         if favorite_home == "@"
@@ -157,6 +160,30 @@ class Game < ApplicationRecord
     def summary 
         puts "="*40
         puts "#{away_team} (#{away_total}) at #{home_team} (#{home_total}) in week #{week} of the #{season} season. The #{away_team} are favored by #{away_spread} over the #{home_team} with an over/under of #{over_under} points. The final score was #{away_total} to #{home_total}."
+    end
+
+    def self.primetime_under_report
+        overs = 0
+        unders = 0
+        pushes = 0
+        all.where(primetime: true).each do |game|
+            overs += 1 if game.total_points > game.over_under
+            unders += 1 if game.total_points < game.over_under
+            pushes += 1 if game.total_points == game.over_under
+        end
+        {overs: overs, unders: unders, pushes: pushes}
+    end
+
+    def self.primetime_under_report_historical
+        # Pull seasons with data
+        seasons_with_data = all.pluck(:season).uniq.sort
+        # Seach through seasons with data
+        seasons_with_data.each do |season|
+            report = Game.where(season: season).primetime_under_report
+            games = (report[:overs] + report[:unders] + report[:pushes])
+            win_percent = ((report[:unders].to_f / games) * 100).to_i
+            puts "Season: #{season} | Win %: #{win_percent}% | Games: #{games} | Unders: #{report[:unders]} | Overs: #{report[:overs]} | Pushes: #{report[:pushes]}"
+        end
     end
 
     # Map team id for sportsoddshistory
