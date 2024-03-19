@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_17_191458) do
+ActiveRecord::Schema[7.0].define(version: 2024_03_19_015929) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -44,6 +44,20 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_17_191458) do
     t.integer "away_q1"
     t.integer "home_q1"
     t.float "odds"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "teams", force: :cascade do |t|
+    t.string "slug"
+    t.boolean "active", default: true
+    t.string "division"
+    t.string "conference"
+    t.string "name"
+    t.string "name_short"
+    t.string "slug_pfr"
+    t.string "conference_pre_2002"
+    t.string "division_pre_2002"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

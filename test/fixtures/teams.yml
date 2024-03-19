@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  name_short: MyString
+  active: false
+  slug: MyString
+  slug_pfr: MyString
+  conference: MyString
+  conference_pre_2002: MyString
+  division_pre_2002: MyString
+
+two:
+  name: MyString
+  name_short: MyString
+  active: false
+  slug: MyString
+  slug_pfr: MyString
+  conference: MyString
+  conference_pre_2002: MyString
+  division_pre_2002: MyString
