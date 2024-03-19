@@ -6,6 +6,141 @@ require 'progress_bar'
 
 class Game < ApplicationRecord
 
+  # Games imported from Kaggle
+  def self.kaggle
+    where(source: :kaggle)
+  end
+  # Games imported from SportsOddsHistory
+  def self.sportsoddshistory
+    where(source: :sportsoddshistory)
+  end
+  # Filter games by primetime
+  def self.primetime
+    where(primetime: :true)
+  end
+  # Filter games by overtime
+  def self.overtime
+    where(overtime: :true)
+  end
+  # Filter games by season
+  def self.season(season=2023)
+    all.where(season: season)
+  end
+  # Pluck seasons from games
+  def self.seasons
+    all.pluck(:season).uniq.sort
+  end
+
+  def self.print_summary
+    prints = all.order(:date).map do |game|
+      obj = {away_team: game.away_team, home_team: game.home_team}
+      next obj unless home_team = Team.find_by(active: true, slug: game.home_team.upcase)
+      next obj unless away_team = Team.find_by(active: true, slug: game.away_team.upcase)
+      obj[:day_of_week] = game.day_of_week
+      obj[:start_time] = game.start_time
+      obj[:date] = game.date
+      obj[:week] = game.week
+      obj[:season] = game.season
+      obj[:away_team] = away_team.name
+      obj[:away_total] = game.away_total
+      obj[:home_team] = home_team.name
+      obj[:home_total] = game.home_total
+      obj[:total_points] = game.total_points
+      obj[:week] = game.week
+      obj
+    end
+    week = nil
+    prints.each do |p|
+      if week != p[:week]
+        puts "="*40 
+        puts "Week: #{p[:week]} " 
+        puts "-"*40
+        week = p[:week]
+      end
+      puts "#{p[:day_of_week]} @ #{p[:start_time]} on #{p[:date]} | #{p[:week]} | (#{p[:away_total]}) #{p[:away_team]} @ (#{p[:home_total]}) #{p[:home_team]}"
+    end
+    return "Done"
+  end
+
+  def over_under_result
+    if self.total_points > self.over_under
+        "Over"
+    elsif self.total_points < self.over_under
+        "Under"
+    else
+        "Push"
+    end
+  end
+
+  # Summary of game
+  def summary 
+    # Initialize output string
+    output_sting = ""
+    home_team = Team.find_by(slug: self.home_team.upcase)
+    away_team = Team.find_by(slug: self.away_team.upcase)
+    # Add primetime badge
+    output_sting += "[🏟️ Primetime Game] | " if self.primetime
+    # Date string
+    output_sting += "#{day_of_week} @ #{start_time} on #{date} | #{week} | " if self.day_of_week
+    # Add game summary
+    output_sting += "#{away_team.name} (#{away_total}) @ #{home_team.name} (#{home_total}) "
+    output_sting += "| ou: #{over_under} (#{over_under_result})" if self.over_under 
+    puts output_sting
+  end
+
+  def home_team_obj
+    Team.find_by(active: true, slug: team_attrs['team_home'])
+  end
+
+  def self.kaggle_import
+    require 'csv'
+    # Parse CSV
+    csv_text = File.read('lib/kaggle/spreadspoke_scores.csv')
+    csv = CSV.parse(csv_text, headers: true)
+
+    # Each through rows in CSV
+    csv.reverse_each do |row|
+
+      # Get team attributes from row
+      team_attrs = row.to_hash
+
+      # Validate date_of_game can be found
+      next unless date_of_game = Date.strptime(team_attrs['schedule_date'], "%m/%d/%Y") rescue nil # Date in MM/DD/YYYY format
+      # Validate home and away teams can be found
+      next unless home_team = Team.find_by(active: true, name: team_attrs['team_home'])
+      next unless away_team = Team.find_by(active: true, name: team_attrs['team_away'])
+      # Validate week and season can be found
+      next unless week = team_attrs['schedule_week']
+      next unless season = team_attrs['schedule_season']
+
+      # Find or create game.
+      game = Game.find_or_create_by(
+        source: :kaggle, 
+        season: season, 
+        week: week, 
+        home_team: home_team.slug, 
+        away_team: away_team.slug
+      )
+      # Add additional game data.
+      game.home_total = team_attrs['score_home']
+      game.away_total = team_attrs['score_away']
+      game.total_points = game.home_total + game.away_total
+      game.over_under = team_attrs['over_under_line']
+      game.over_under_odds = 0.95
+      game.date = date_of_game
+      game.day_of_week = date_of_game.strftime('%A')
+      # Get same game from sportsoddshistory
+      if sportsoddshistory_game = Game.sportsoddshistory.find_by(date: date_of_game, home_team: home_team.slug.downcase, away_team: away_team.slug.downcase)
+        game.start_time = sportsoddshistory_game.start_time
+        game.primetime = sportsoddshistory_game.primetime
+        game.overtime = sportsoddshistory_game.overtime
+      end
+      # Save game
+      game.save 
+      puts "🏈 #{game.season} | #{game.week} | #{game.away_team} at #{game.home_team} Saved"
+    end
+  end
+
     def self.sportsoddshistory_scrape_season(season='2023')
         url = "https://www.sportsoddshistory.com/nfl-game-season/?y=#{season}"
         url_text = Net::HTTP.get(URI.parse url)
@@ -106,14 +241,14 @@ class Game < ApplicationRecord
         game_date = Date.parse("#{date_of_game}")
 
         if favorite_home == "@"
-            home_team = sportsoddshistory_team_map(favorite)
+            home_team = Team.sportsoddshistory_team_name_map(favorite)
             home_total = favorite_points
-            away_team = sportsoddshistory_team_map(underdog)
+            away_team = Team.sportsoddshistory_team_name_map(underdog)
             away_total = underdog_points
         else
-            home_team = sportsoddshistory_team_map(underdog)
+            home_team = Team.sportsoddshistory_team_name_map(underdog)
             home_total = underdog_points
-            away_team = sportsoddshistory_team_map(favorite)
+            away_team = Team.sportsoddshistory_team_name_map(favorite)
             away_total = favorite_points
         end
 
@@ -154,12 +289,7 @@ class Game < ApplicationRecord
         Game.where(season: season).each do |game|
             game.summary
         end
-    end
-
-    # Summary of game
-    def summary 
-        puts "="*40
-        puts "#{away_team} (#{away_total}) at #{home_team} (#{home_total}) in week #{week} of the #{season} season. The #{away_team} are favored by #{away_spread} over the #{home_team} with an over/under of #{over_under} points. The final score was #{away_total} to #{home_total}."
+        puts "Finished"
     end
 
     def self.primetime_under_report
@@ -176,85 +306,19 @@ class Game < ApplicationRecord
 
     def self.primetime_under_report_historical
         # Pull seasons with data
-        seasons_with_data = all.pluck(:season).uniq.sort
+        seasons_with_data = all.seasons
         # Seach through seasons with data
         seasons_with_data.each do |season|
             report = Game.where(season: season).primetime_under_report
             games = (report[:overs] + report[:unders] + report[:pushes])
+            puts "="*40
+            puts report[:unders]
+            puts report[:unders].to_f
+            puts games
+            puts ((report[:unders].to_f / games) * 100)
+            puts "="*40
             win_percent = ((report[:unders].to_f / games) * 100).to_i
             puts "Season: #{season} | Win %: #{win_percent}% | Games: #{games} | Unders: #{report[:unders]} | Overs: #{report[:overs]} | Pushes: #{report[:pushes]}"
-        end
-    end
-
-    # Map team id for sportsoddshistory
-    def self.sportsoddshistory_team_map(team_name)
-        case team_name
-        when "Buffalo Bills"              # AFC East
-          :buf
-        when "New York Jets"
-          :nyj
-        when "Miami Dolphins"
-          :mia
-        when "New England Patriots"
-          :ne
-        when "Kansas City Chiefs"       # AFC West
-          :kc
-        when "Denver Broncos"
-          :den
-        when "Los Angeles Chargers"
-          :lac
-        when "Las Vegas Raiders"
-          :lv
-        when "Cincinnati Bengals"       # AFC North
-          :cin
-        when "Baltimore Ravens"
-          :bal
-        when "Pittsburgh Steelers"
-          :pit
-        when "Cleveland Browns"
-          :cle
-        when "Jacksonville Jaguars"     # AFC South
-          :jax
-        when "Houston Texans"
-          :hou
-        when "Tennessee Titans"
-          :ten
-        when "Indianapolis Colts"
-          :ind
-        when "Green Bay Packers"        # NFC North
-          :gb
-        when "Minnesota Vikings"
-          :min
-        when "Chicago Bears"
-          :chi
-        when "Detroit Lions"
-          :det
-        when "Dallas Cowboys"           # NFC EAST
-          :dal
-        when "New York Giants"
-          :nyg
-        when "Philadelphia Eagles"
-          :phi
-        when "Washington Commanders"
-          :was
-        when "Seattle Seahawks"         # NFC West
-          :sea
-        when "Los Angeles Rams"
-          :lar
-        when "San Francisco 49ers"
-          :sf
-        when "Arizona Cardinals"
-          :arz
-        when "Atlanta Falcons"          # NFC South
-          :atl
-        when "Carolina Panthers"
-          :car
-        when "Tampa Bay Buccaneers"
-          :tb
-        when "New Orleans Saints"
-          :no
-        else
-          :unknown
         end
     end
 end

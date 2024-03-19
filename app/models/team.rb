@@ -1,5 +1,15 @@
 class Team < ApplicationRecord
     
+    def self.active
+        where(active: true)
+    end
+    def self.afc
+        where(conference: :afc)
+    end
+    def self.nfc
+        where(conference: :nfc)
+    end
+
     def self.active_teams
         teams = Team.where(active: true).order(:conference, :division, :name)
         teams.each do |team|
@@ -31,10 +41,83 @@ class Team < ApplicationRecord
                 team.active = false if team.name == "Washington Football Team"
                 team.active = false if team.name == "Washington Redskins"
                 team.active = false if team.name == "San Diego Chargers"
+                team.active = false if team.name == "Los Angeles Raiders"
                 team.active = false if team.name == "Oakland Raiders"
             end
             # Output team saved
-            puts "🏈 #{team.conference} | #{team.division} | #{team.name} Saved" if team.active
+            puts "🏈 #{team.conference} | #{team.division} | (#{team.slug}) #{team.name} Saved" if team.active
+        end
+    end
+
+    # Map team id for sportsoddshistory
+    def self.sportsoddshistory_team_name_map(team_name)
+        case team_name
+        when "Buffalo Bills"              # AFC East
+          :BUF
+        when "New York Jets"
+          :NYJ
+        when "Miami Dolphins"
+          :MIA
+        when "New England Patriots"
+          :NE
+        when "Kansas City Chiefs"       # AFC West
+          :KC
+        when "Denver Broncos"
+          :DEN
+        when "Los Angeles Chargers"
+          :LAC
+        when "Las Vegas Raiders"
+          :LV
+        when "Cincinnati Bengals"       # AFC North
+          :CIN
+        when "Baltimore Ravens"
+          :BAL
+        when "Pittsburgh Steelers"
+          :PIT
+        when "Cleveland Browns"
+          :CLE
+        when "Jacksonville Jaguars"     # AFC South
+          :JAX
+        when "Houston Texans"
+          :HOU
+        when "Tennessee Titans"
+          :TEN
+        when "Indianapolis Colts"
+          :IND
+        when "Green Bay Packers"        # NFC North
+          :GB
+        when "Minnesota Vikings"
+          :MIN
+        when "Chicago Bears"
+          :CHI
+        when "Detroit Lions"
+          :DET
+        when "Dallas Cowboys"           # NFC EAST
+          :DAL
+        when "New York Giants"
+          :NYG
+        when "Philadelphia Eagles"
+          :PHI
+        when "Washington Commanders"
+          :WAS
+        when "Seattle Seahawks"         # NFC West
+          :SEA
+        when "Los Angeles Rams"
+          :LAR
+        when "San Francisco 49ers"
+          :SF
+        when "Arizona Cardinals"
+          :ARI
+        when "Atlanta Falcons"          # NFC South
+          :ATL
+        when "Carolina Panthers"
+          :CAR
+        when "Tampa Bay Buccaneers"
+          :TB
+        when "New Orleans Saints"
+          :NO
+        else
+          :unknown
         end
     end
 end
