@@ -5,7 +5,9 @@ class CreateGames < ActiveRecord::Migration[7.0]
       t.integer :season
       t.string :week
       t.string :away_team
+      t.integer :away_team_seed
       t.string :home_team
+      t.integer :home_team_seed
       t.string :winning_team
       t.integer :away_total
       t.integer :home_total

@@ -31,8 +31,12 @@ class Game < ApplicationRecord
     all.pluck(:season).uniq.sort
   end
 
-  def self.print_summary
-    prints = all.order(:date).map do |game|
+  # Summary of Kaggle games supported by SportsOddsHistory
+  def self.kaggle_summary
+    # Get games for summary
+    games = Game.kaggle.season(2023).primetime.order(:date)
+    # Create data array for processing later
+    kaggle_games_array = games.map do |game|
       obj = {away_team: game.away_team, home_team: game.home_team}
       next obj unless home_team = Team.find_by(active: true, slug: game.home_team.upcase)
       next obj unless away_team = Team.find_by(active: true, slug: game.away_team.upcase)
@@ -42,34 +46,69 @@ class Game < ApplicationRecord
       obj[:week] = game.week
       obj[:season] = game.season
       obj[:away_team] = away_team.name
+      obj[:away_team_slug] = away_team.slug
       obj[:away_total] = game.away_total
       obj[:home_team] = home_team.name
+      obj[:home_team_slug] = home_team.slug
       obj[:home_total] = game.home_total
       obj[:total_points] = game.total_points
+      obj[:over_under] = game.over_under
+      obj[:over_under_result] = game.over_under_result
       obj[:week] = game.week
       obj
     end
+
+    # Add sportsoddshistory data to kaggle games
+    kaggle_games_array.map! do |obj|
+      # Add sportsoddshistory data for game if there is some
+      if sportsoddshistory_game = Game.sportsoddshistory.find_by(date: obj[:date], home_team: obj[:home_team_slug], away_team: obj[:away_team_slug])
+        obj[:sportsoddshistory_total_points] = sportsoddshistory_game.total_points
+        obj[:sportsoddshistory_over_under] = sportsoddshistory_game.over_under
+        obj[:sportsoddshistory_over_under_result] = sportsoddshistory_game.over_under_result
+        obj[:sportsoddshistory_over_under_odds] = sportsoddshistory_game.over_under_odds
+      end
+      obj
+    end
+
+    # Initalize week for printing a change in week
     week = nil
-    prints.each do |p|
+
+    kaggle_games_array.each do |p|
       if week != p[:week]
         puts "="*40 
         puts "Week: #{p[:week]} " 
         puts "-"*40
         week = p[:week]
       end
-      puts "#{p[:day_of_week]} @ #{p[:start_time]} on #{p[:date]} | #{p[:week]} | (#{p[:away_total]}) #{p[:away_team]} @ (#{p[:home_total]}) #{p[:home_team]}"
+
+      # Day of the week
+      game_print = "#{p[:day_of_week]} @ #{p[:start_time]} on #{p[:date]} "
+
+      # NFL Week
+      game_print += " "*(32-game_print.length)
+      game_print += "| Week #{p[:week]} "
+
+      # Game
+      game_print += " "*(50-game_print.length)
+      game_print += "| (#{p[:away_total]}) #{p[:away_team]} @ (#{p[:home_total]}) #{p[:home_team]}"
+
+      # Over Under
+      game_print += " "*(110-game_print.length)
+      game_print += "| 🐙 #{p[:total_points]} #{p[:over_under_result]}, ou: #{p[:over_under]}"
+
+      # Over Under (sportsoddshistory)
+      game_print += " "*(140-game_print.length)
+      game_print += "| 🏃🏻 #{p[:sportsoddshistory_total_points]} #{p[:sportsoddshistory_over_under_result]}, ou: #{p[:sportsoddshistory_over_under]}"
+      
+      puts game_print
     end
     return "Done"
   end
 
   def over_under_result
-    if self.total_points > self.over_under
-        "Over"
-    elsif self.total_points < self.over_under
-        "Under"
-    else
-        "Push"
-    end
+    return "🔴 Over" if self.total_points > self.over_under
+    return "🟢 Under" if self.total_points < self.over_under
+    return "🌕 Push"
   end
 
   # Summary of game
@@ -129,8 +168,9 @@ class Game < ApplicationRecord
       game.over_under_odds = 0.95
       game.date = date_of_game
       game.day_of_week = date_of_game.strftime('%A')
+
       # Get same game from sportsoddshistory
-      if sportsoddshistory_game = Game.sportsoddshistory.find_by(date: date_of_game, home_team: home_team.slug.downcase, away_team: away_team.slug.downcase)
+      if sportsoddshistory_game = Game.sportsoddshistory.find_by(date: date_of_game, home_team: home_team.slug, away_team: away_team.slug)
         game.start_time = sportsoddshistory_game.start_time
         game.primetime = sportsoddshistory_game.primetime
         game.overtime = sportsoddshistory_game.overtime
@@ -142,6 +182,10 @@ class Game < ApplicationRecord
   end
 
     def self.sportsoddshistory_scrape_season(season='2023')
+
+      return "Teams not initialized.  Run `Team.kaggle_import`" unless Team.active.count == 32
+
+        # Load page
         url = "https://www.sportsoddshistory.com/nfl-game-season/?y=#{season}"
         url_text = Net::HTTP.get(URI.parse url)
         doc = Nokogiri::HTML(url_text)
@@ -180,108 +224,144 @@ class Game < ApplicationRecord
         return "Finished"
     end
 
-    def self.sportsoddshistory_scrape_game(game, season='2023', week='w1')
-        # Pull data from game row
-        day_of_week = game.css('td')[0].text.strip
-        date_of_game = game.css('td')[1].text.strip
-        time_of_game = game.css('td')[2].text.strip
-        favorite = game.css('td')[4].text.strip
-        favorite_home = game.css('td')[3].text.strip
-        score = game.css('td')[5].text.strip
-        spread = game.css('td')[6].text.strip
-        underdog = game.css('td')[8].text.strip
-        underdog_home = game.css('td')[7].text.strip
-        over_under = game.css('td')[9].text.strip
+    def self.sportsoddshistory_scrape_game(game, season=2023, week=1)
 
-        # Parse OT
-        was_there_ot = false
-        if score.include? "(OT)"
-            was_there_ot = true
-        end
+      # Pull columns from game row
+      col0 = game.css('td')[0].text.strip
+      col1 = game.css('td')[1].text.strip
+      col2 = game.css('td')[2].text.strip
+      col3 = game.css('td')[3].text.strip
+      col4 = game.css('td')[4].text.strip
+      col5 = game.css('td')[5].text.strip
+      col6 = game.css('td')[6].text.strip
+      col7 = game.css('td')[7].text.strip
+      col8 = game.css('td')[8].text.strip
+      col9 = game.css('td')[9].text.strip
+      col10 = game.css('td')[10].text.strip rescue ""
+      # Puts columns for visibility
+      puts "= Row ==================================="
+      puts "Col 0: #{col0}"
+      puts "Col 1: #{col1}"
+      puts "Col 2: #{col2}"
+      puts "Col 3: #{col3}"
+      puts "Col 4: #{col4}"
+      puts "Col 5: #{col5}"
+      puts "Col 6: #{col6}"
+      puts "Col 7: #{col7}"
+      puts "Col 8: #{col8}"
+      puts "Col 9: #{col9}"
 
-        # Parse favorite and underdog points
-        favorite_points = score.split("-").first.tr('^0-9', '')
-        underdog_points = score.split("-").last.tr('^0-9', '')
-        total_points = favorite_points.to_i + underdog_points.to_i
+      # Evaluate if game is a playoff game
+      if col0.include?("Wild") || col0.include?("Divisional") || col0.include?("Championship") || col0.include?("Super")
+        # Playoff Game
+        week = col0
+        day_of_week = col1
+        date_of_game = col2
+        time_of_game = col3
+        favorite = col5
+        favorite_home = col4
+        score = col6
+        spread = col7
+        underdog = col9
+        underdog_home = col8
+        over_under = col10
+        # Parse favorite name and seed
+        favorite_array = favorite.split("(")
+        favorite = favorite_array.first.strip
+        favorite_seed = favorite_array.last.tr('^0-9', '').to_i
+        # Parse underdog name and seed
+        underdog_array = underdog.split("(")
+        underdog = underdog_array.first.strip
+        underdog_seed = underdog_array.last.tr('^0-9', '').to_i
+      else
+        # None Playoff Game
+        week = week
+        day_of_week = col0
+        date_of_game = col1
+        time_of_game = col2
+        favorite = col4
+        favorite_home = col3
+        score = col5
+        spread = col6
+        underdog = col8
+        underdog_home = col7
+        over_under = col9
+      end
 
-        # Parse over / under (Remove non-numeric characters (plus '.') and convert to float)
-        over_under_float = over_under.tr('^0-9+\.', '').to_f
+      # Parse OT
+      was_there_ot = false
+      if score.include? "(OT)"
+          was_there_ot = true
+      end
 
-        primetime = false
-        primetime = true if day_of_week.include? "Thu"
-        primetime = true if day_of_week.include? "Mon"
-        primetime = true if time_of_game.include? "8:20"    # Standard SNF
-        primetime = true if time_of_game.include? "7:15"    # Two game MNF (early)
-        primetime = true if time_of_game.include? "8:15"    # Two game MNF (late)
-        primetime = true if day_of_week.include? "Fri"      # Black Friday Game
-        primetime = true if day_of_week.include? "Sat"      # Saturday Games
+      # Parse favorite and underdog points
+      favorite_points = score.split("-").first.tr('^0-9', '')
+      underdog_points = score.split("-").last.tr('^0-9', '')
+      total_points = favorite_points.to_i + underdog_points.to_i
 
-        puts "-"*40
-        puts day_of_week
-        puts date_of_game
-        puts time_of_game
-        puts time_of_game.inspect
-        puts "day_of_week: #{day_of_week}"
-        puts "date_of_game: #{date_of_game}"
-        puts "time_of_game: #{time_of_game}"
-        puts time_of_game.include? "8:15"
-        puts time_of_game == "8:15"
-        puts "favorite: #{favorite}"
-        puts "favorite_home: #{favorite_home}"
-        puts "favorite_points: #{favorite_points}"
-        puts "score: #{score}"
-        puts "spread: #{spread}"
-        puts "underdog: #{underdog}"
-        puts "underdog_home: #{underdog_home}"
-        puts "underdog_points: #{underdog_points}"
-        puts "over_under: #{over_under}"
-        puts "primetime: #{primetime}"
-        puts "-"*40
+      # Parse over / under (Remove non-numeric characters (plus '.') and convert to float)
+      over_under_float = over_under.tr('^0-9+\.', '').to_f
 
-        game_date = Date.parse("#{date_of_game}")
+      primetime = false
+      primetime = true if day_of_week.include? "Thu"
+      primetime = true if day_of_week.include? "Mon"
+      primetime = true if time_of_game.include? "8:20"    # Standard SNF
+      primetime = true if time_of_game.include? "7:15"    # Two game MNF (early)
+      primetime = true if time_of_game.include? "8:15"    # Two game MNF (late)
+      primetime = true if time_of_game.include? "3:00"    # AFC Championship
+      primetime = true if time_of_game.include? "6:30"    # Superbowl
+      primetime = true if day_of_week.include? "Fri"      # Black Friday Game
+      primetime = true if day_of_week.include? "Sat"      # Saturday Games
 
-        if favorite_home == "@"
-            home_team = Team.sportsoddshistory_team_name_map(favorite)
-            home_total = favorite_points
-            away_team = Team.sportsoddshistory_team_name_map(underdog)
-            away_total = underdog_points
-        else
-            home_team = Team.sportsoddshistory_team_name_map(underdog)
-            home_total = underdog_points
-            away_team = Team.sportsoddshistory_team_name_map(favorite)
-            away_total = favorite_points
-        end
+      # Get date of game
+      game_date = Date.parse("#{date_of_game}")
 
-        puts "home_team: #{home_team}"
-        puts "home_total: #{home_total}"
-        puts "away_team: #{away_team}"
-        puts "away_total: #{away_total}"
-        puts "total_points: #{total_points}"
-        puts "over_under_float: #{over_under_float}"
+      # Evaluate if favorite is home or away
+      if favorite_home == "@"
+          home_team = Team.sportsoddshistory_team_name_map(favorite)
+          home_total = favorite_points
+          home_team_seed = favorite_seed if favorite_seed
+          away_team = Team.sportsoddshistory_team_name_map(underdog)
+          away_total = underdog_points
+          away_team_seed = underdog_seed if underdog_seed
+      else
+          home_team = Team.sportsoddshistory_team_name_map(underdog)
+          home_total = underdog_points
+          home_team_seed = underdog_seed if underdog_seed
+          away_team = Team.sportsoddshistory_team_name_map(favorite)
+          away_total = favorite_points
+          away_team_seed = favorite_seed if favorite_seed
+      end
 
-        # Find or create game.
-        game = Game.find_or_create_by(
-            source: :sportsoddshistory, 
-            season: season, 
-            week: week, 
-            home_team: home_team, 
-            away_team: away_team
-        )
-        # Add additional game data.
-        game.update(
-            overtime: was_there_ot,
-            primetime: primetime,
-            home_total: home_total, 
-            away_total: away_total, 
-            total_points: total_points,
-            over_under: over_under_float, 
-            over_under_odds: 0.95,
-            date: game_date,
-            day_of_week: day_of_week,
-            start_time: time_of_game,
-        )
-        # Puts summary of game.
-        game.summary
+      puts "-"*40
+      puts "Season: #{season}"
+      puts "Week: #{week}"
+      puts "Home: (#{home_total}) #{home_team.name}"
+      puts "Away: (#{away_total}) #{away_team.name}"
+
+      # Find or create game.
+      game = Game.find_or_create_by(
+          source: :sportsoddshistory, 
+          season: season, 
+          week: week, 
+          home_team: home_team, 
+          away_team: away_team
+      )
+      # Add additional game data.
+      game.update(
+          overtime: was_there_ot,
+          primetime: primetime,
+          home_total: home_total, 
+          away_total: away_total, 
+          total_points: total_points,
+          over_under: over_under_float, 
+          over_under_odds: 0.95,
+          date: game_date,
+          day_of_week: day_of_week,
+          start_time: time_of_game,
+      )
+      # Puts summary of game.
+      game.summary
     end
 
     # Summary of season
@@ -296,12 +376,16 @@ class Game < ApplicationRecord
         overs = 0
         unders = 0
         pushes = 0
+        primetime_games = all.where(primetime: true).count
         all.where(primetime: true).each do |game|
             overs += 1 if game.total_points > game.over_under
             unders += 1 if game.total_points < game.over_under
             pushes += 1 if game.total_points == game.over_under
         end
-        {overs: overs, unders: unders, pushes: pushes}
+        win_percent = ((unders.to_f/primetime_games) * 100).to_i
+        units_won = (unders*0.95) - overs
+        puts "Win: #{win_percent}%"
+        {overs: overs, unders: unders, pushes: pushes, win_percent: win_percent, units_won: units_won}
     end
 
     def self.primetime_under_report_historical
