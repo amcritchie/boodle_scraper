@@ -68,6 +68,8 @@ class Team < ApplicationRecord
           :LAC
         when "Las Vegas Raiders"
           :LV
+        when "Oakland Raiders"
+          :LV
         when "Cincinnati Bengals"       # AFC North
           :CIN
         when "Baltimore Ravens"
@@ -99,6 +101,10 @@ class Team < ApplicationRecord
         when "Philadelphia Eagles"
           :PHI
         when "Washington Commanders"
+          :WAS
+        when "Washington Football Team"
+          :WAS
+        when "Washington Redskins"
           :WAS
         when "Seattle Seahawks"         # NFC West
           :SEA

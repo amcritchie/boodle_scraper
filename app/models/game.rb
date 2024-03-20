@@ -26,6 +26,10 @@ class Game < ApplicationRecord
   def self.season(season=2023)
     all.where(season: season)
   end
+  # Filter games by season
+  def self.last_five_years
+    all.where(season: [2023,2022,2021,2020,2019])
+  end
   # Pluck seasons from games
   def self.seasons
     all.pluck(:season).uniq.sort
@@ -109,6 +113,38 @@ class Game < ApplicationRecord
     return "🔴 Over" if self.total_points > self.over_under
     return "🟢 Under" if self.total_points < self.over_under
     return "🌕 Push"
+  end
+
+  def self.most_common_scores
+    # Initialize unsorted_scores
+    unsorted_scores = {}
+    games_csv = []
+    # Get all games
+    total_games = all.count
+    # Each through games
+    all.each do |game|
+      # Get score of game
+      score = game.total_points
+      # Create or iterate score in unsorted_scores
+      if unsorted_scores[score].nil?
+        unsorted_scores[score] = 1
+      else
+        unsorted_scores[score] += 1
+      end
+
+      games_csv.push("#{game.total_points}")
+    end
+    # Sort unsorted_scores by count of games
+    sorted_keys = unsorted_scores.keys.sort_by { |key| unsorted_scores[key] }
+    sorted_obj = {}
+    sorted_keys.reverse.each { |key| sorted_obj[key] = unsorted_scores[key] }
+    # Print sorted scores
+    sorted_obj.each do |key, val|
+      puts "Score: #{key} | Amount: #{val} | Percent: #{((val.to_f/total_games)*100).to_i}%"
+    end
+    puts games_csv
+    # Return string
+    "Complete"
   end
 
   # Summary of game
