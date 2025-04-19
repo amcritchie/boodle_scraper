@@ -217,6 +217,16 @@ class Game < ApplicationRecord
     end
   end
 
+  def self.scrape_last(years=8)
+    # Init focus year (started with 2024)
+    focus_year = 2024
+    # Each through years
+    (focus_year - years...focus_year).to_a.reverse.each do |year|
+      puts "Scraping season #{year}..."
+      sportsoddshistory_scrape_season(year)
+    end
+  end
+
   def self.sportsoddshistory_scrape_season(season='2023')
 
     return "Teams not initialized.  Run `Team.kaggle_import`" unless Team.active.count == 32
