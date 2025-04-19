@@ -154,7 +154,7 @@ class Game < ApplicationRecord
     home_team = Team.find_by(slug: self.home_team.upcase)
     away_team = Team.find_by(slug: self.away_team.upcase)
     # Add primetime badge
-    output_sting += "[🏟️ Primetime Game] | " if self.primetime
+    output_sting += "[ 🏟️  Primetime Game ] | " if self.primetime
     # Date string
     output_sting += "#{day_of_week} @ #{start_time} on #{date} | #{week} | " if self.day_of_week
     # Add game summary
@@ -335,9 +335,17 @@ class Game < ApplicationRecord
       underdog_points = score.split("-").last.tr('^0-9', '')
       total_points = favorite_points.to_i + underdog_points.to_i
 
-      # Parse over / under (Remove non-numeric characters (plus '.') and convert to float)
+      # Parse spred and over / under (Remove non-numeric characters (plus '.') and convert to float)
       over_under_float = over_under.tr('^0-9+\.', '').to_f
+      spread_float = spread.tr('^0-9+\.', '').to_f
+      half_points = over_under_float/2
 
+      # Set over/under result
+      over_under_result = "push"
+      over_under_result = "over" if over_under_float < total_points
+      over_under_result = "under" if over_under_float > total_points
+
+      # Parse Prime Time Game
       primetime = false
       primetime = true if day_of_week.include? "Thu"
       primetime = true if day_of_week.include? "Mon"
@@ -360,6 +368,12 @@ class Game < ApplicationRecord
           away_team = Team.sportsoddshistory_team_name_map(underdog)
           away_total = underdog_points
           away_team_seed = underdog_seed if underdog_seed
+          # Set spreads
+          away_spread = spread_float
+          home_spread = spread_float * -1
+          # Set implied totals
+          away_implied_total = (half_points - spread_float/2).to_i
+          home_implied_total = (half_points + spread_float/2).to_i
       else
           home_team = Team.sportsoddshistory_team_name_map(underdog)
           home_total = underdog_points
@@ -367,13 +381,22 @@ class Game < ApplicationRecord
           away_team = Team.sportsoddshistory_team_name_map(favorite)
           away_total = favorite_points
           away_team_seed = favorite_seed if favorite_seed
+          # Set spreads
+          home_spread = spread_float
+          away_spread = spread_float * -1
+          # Set implied totals
+          away_implied_total = (half_points + spread_float/2).to_i
+          home_implied_total = (half_points - spread_float/2).to_i
       end
-
+      
       puts "-"*40
       puts "Season: #{season}"
       puts "Week: #{week}"
       puts "Home: (#{home_total}) #{home_team.name}"
       puts "Away: (#{away_total}) #{away_team.name}"
+      puts "Home Lines: #{home_spread} | #{home_implied_total} #{home_team.name}"
+      puts "Away Lines: #{away_spread} | #{away_implied_total} #{away_team.name}"
+      puts "Over / Under: #{over_under_float} | #{over_under_result}"
 
       # Find or create game.
       game = Game.find_or_create_by(
@@ -392,9 +415,14 @@ class Game < ApplicationRecord
           total_points: total_points,
           over_under: over_under_float, 
           over_under_odds: 0.95,
+          over_under_result: over_under_result,
           date: game_date,
           day_of_week: day_of_week,
           start_time: time_of_game,
+          away_spread: away_spread,
+          away_implied_total: away_implied_total,
+          home_spread: home_spread,
+          home_implied_total: home_implied_total,
       )
       # Puts summary of game.
       game.summary
