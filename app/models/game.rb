@@ -23,12 +23,12 @@ class Game < ApplicationRecord
     where(overtime: :true)
   end
   # Filter games by season
-  def self.season(season=2023)
+  def self.season(season=2024)
     all.where(season: season)
   end
   # Filter games by season
   def self.last_five_years
-    all.where(season: [2023,2022,2021,2020,2019])
+    all.where(season: [2024,2023,2022,2021,2020])
   end
   # Pluck seasons from games
   def self.seasons
@@ -219,7 +219,7 @@ class Game < ApplicationRecord
 
   def self.scrape_last(years=8)
     # Init focus year (started with 2024)
-    focus_year = 2024
+    focus_year = 2025
     # Each through years
     (focus_year - years...focus_year).to_a.reverse.each do |year|
       puts "Scraping season #{year}..."
@@ -266,6 +266,8 @@ class Game < ApplicationRecord
               # Scrape game data.
               sportsoddshistory_scrape_game(game_row,season,week)
           end
+          # Set multiples
+          Game.where(source: :sportsoddshistory, season: season, week: week).set_week_multiples
       end
       return "Finished"
   end
@@ -398,7 +400,7 @@ class Game < ApplicationRecord
         away_implied_total = (half_points + spread_float/2).to_i
         home_implied_total = (half_points - spread_float/2).to_i
     end
-    
+
     puts "-"*40
     puts "Season: #{season}"
     puts "Week: #{week}"
@@ -436,6 +438,21 @@ class Game < ApplicationRecord
     )
     # Puts summary of game.
     game.summary
+    # Return game
+    game
+  end
+
+  def self.set_week_multiples
+    highest_total = all.highest_implied_total
+    # Each through games
+    all.each do |game|
+      # Calculate multiple
+      away_multiple = (highest_total / game.away_implied_total).round(2)
+      home_multiple = (highest_total / game.home_implied_total).round(2)
+      # Update game multiples
+      game.update(away_multiple: away_multiple)
+      game.update(home_multiple: home_multiple)
+    end
   end
 
   # Summary of season
@@ -521,5 +538,51 @@ class Game < ApplicationRecord
     end
 
     sorted_scores
+  end
+
+  def self.highest_implied_total
+    highest_game = all.max_by do |game|
+      [game.away_implied_total, game.home_implied_total].max
+    end
+
+    if highest_game
+      # Get highest implied total from game
+      [highest_game.away_implied_total, highest_game.home_implied_total].max
+    else
+      puts "No games found."
+      nil
+    end
+  end
+
+  def self.week_1_reports
+    # Select week 1 games
+    week_1_games = all.where(season: 2023, week: "1")
+    # Find week high
+    array = []
+    # Each through games
+    week_1_games.each do |game|
+      # Push to array
+      array.push("#{game.away_team},#{game.away_implied_total},#{game.away_multiple},#{game.week}")
+      array.push("#{game.home_team},#{game.home_implied_total},#{game.home_multiple},#{game.week}")
+    end
+    puts "Team,Implied Total,Multiple,Week"
+    puts array
+  end
+
+  def self.season_2024_report
+    # Select week 1 games
+    season_2024_games = all.where(season: 2024).order(:date)
+    # season_2024_games = all.where(season: 2024)
+    # season_2024_games = all.where(season: 2024)
+    # Find week high
+    array = []
+    # Each through games
+    season_2024_games.each do |game|
+      # Push to array
+      array.push("#{game.away_team},#{game.away_total},#{game.away_multiple},#{game.week},#{game.season}")
+      array.push("#{game.home_team},#{game.home_total},#{game.home_multiple},#{game.week},#{game.season}")
+    end
+    puts "Team,Real Total,Multiple,Week,Season"
+    puts array
   end
 end

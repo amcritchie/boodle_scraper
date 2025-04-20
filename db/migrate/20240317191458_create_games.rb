@@ -10,6 +10,8 @@ class CreateGames < ActiveRecord::Migration[7.0]
       t.float :home_spread
       t.float :away_implied_total
       t.float :home_implied_total
+      t.float :away_multiple
+      t.float :home_multiple
       t.float :over_under
       t.float :over_under_odds
       t.string :over_under_result
