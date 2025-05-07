@@ -114,6 +114,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_19_015930) do
     t.integer "week"
     t.string "game"
     t.string "team"
+    t.boolean "home"
+    t.boolean "at_home"
     t.string "o1"
     t.string "o2"
     t.string "o3"
@@ -141,6 +143,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_19_015930) do
     t.string "head_coach"
     t.string "offensive_coordinator"
     t.string "defensive_coordinator"
+    t.string "special_teams_coordinator"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

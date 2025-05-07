@@ -151,8 +151,8 @@ class Game < ApplicationRecord
   def summary 
     # Initialize output string
     output_sting = ""
-    home_team = Team.find_by(slug: self.home_team.upcase)
-    away_team = Team.find_by(slug: self.away_team.upcase)
+    home_team = Team.find_by(slug: self.home_team)
+    away_team = Team.find_by(slug: self.away_team)
     # Add primetime badge
     output_sting += "[ 🏟️  Primetime Game ] | " if self.primetime
     # Date string

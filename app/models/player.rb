@@ -9,7 +9,7 @@ class Player < ApplicationRecord
   scope :by_position, ->(position) { where(position: position) }
 
   def description
-    puts "#{player} #{team} #{position}(#{rank})"
+    puts "#{player} #{team} #{position} PFF: #{rank}"
   end
   def self.print_top_5_qbs
     top_qbs = order(overall_grade: :desc).limit(5)

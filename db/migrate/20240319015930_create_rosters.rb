@@ -5,6 +5,8 @@ class CreateRosters < ActiveRecord::Migration[7.0]
       t.integer :week
       t.string :game
       t.string :team
+      t.boolean :home
+      t.boolean :at_home
     #   t.references :team, foreign_key: true
 
       # Offensive players

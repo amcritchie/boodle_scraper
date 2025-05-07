@@ -1,33 +1,33 @@
 namespace :players do
   desc "Populate players from CSV"
   task pff_populate: :environment do
-    # # Populate QBs
-    # pff_quarterback_populate
-    # # Populate RBs
-    # pff_runningback_populate
-    # # Populate WRs
-    # pff_wide_receiver_populate
-    # # Populate TEs
-    # pff_tight_end_populate
-    # # Populate FBs
-    # pff_fullback_populate
-    # # Populate Cs
-    # pff_center_populate
-    # # Populate Gs
-    # pff_gaurd_populate
+    # Populate QBs
+    pff_quarterback_populate
+    # Populate RBs
+    pff_runningback_populate
+    # Populate WRs
+    pff_wide_receiver_populate
+    # Populate TEs
+    pff_tight_end_populate
+    # Populate FBs
+    pff_fullback_populate
+    # Populate Cs
+    pff_center_populate
+    # Populate Gs
+    pff_gaurd_populate
     # Populate Ts
     pff_tackle_populate
 
-    # # Populate DEs
-    # pff_de_populate
-    # # Populate Edges
-    # pff_edge_populate
-    # # Populate LBs
-    # pff_linebackers_populate
-    # # Populate Safeties
-    # pff_safeties_populate
-    # # Populate CBs
-    # pff_cornerback_populate
+    # Populate DEs
+    pff_de_populate
+    # Populate Edges
+    pff_edge_populate
+    # Populate LBs
+    pff_linebackers_populate
+    # Populate Safeties
+    pff_safeties_populate
+    # Populate CBs
+    pff_cornerback_populate
 
     # Total playes output
     puts "============="
@@ -42,49 +42,16 @@ def pff_populate(file_name, position)
   file_path = Rails.root.join('lib', 'pff', file_name)
 
   CSV.foreach(file_path, headers: true) do |row|
-    player_name = row['Player']
-    first_name = player_name.split.first.downcase rescue ""
-    last_name = player_name.split.last.downcase rescue ""
-    college = row['College'].downcase.gsub(' ', '-') rescue 'undrafted'
-    draft_year = row['Draft_Year']
-    slug = "#{position}-#{last_name}-#{college}-#{draft_year}"
-    puts player_name
-    puts slug
-
-    player = Player.find_or_create_by(slug: slug) do |player|
-        player.position = position
-        player.rank = row['Rank']
-        player.player = player_name
-        player.first_name = first_name
-        player.last_name = last_name
-        player.team = row['Team']
-        player.jersey = row['Jersey']
-        player.overall_grade = row['Overall_Grade']
-        player.passing_grade = row['Passing_Grade']
-        player.running_grade = row['Running_Grade']
-        player.rpo_grade = row['RPO_Grade']
-        player.dropback_grade = row['Dropback_Grade']
-        player.pocket_grade = row['Pocket_Grade']
-        player.total_snaps = row['Total_Snaps']
-        player.pass_snaps = row['Pass_Snaps']
-        player.rush_snaps = row['Rush_Snaps']
-        player.rpo_snaps = row['RPO_Snaps']
-        player.dropback_snaps = row['Dropback_Snaps']
-        player.pocket_snaps = row['Pocket_Snaps']
-        player.age = row['Age']
-        player.hand = row['Hand']
-        player.height = row['Height']
-        player.weight = row['Weight']
-        player.speed = row['Speed']
-        player.college = row['College']
-        player.draft_year = row['Draft_Year']
-        player.draft_round = row['Draft_Round']
-        player.draft_pick = row['Draft_Pick']
-    end
-    # Puts description
-    puts player.errors
-    puts player.errors.inspect
-    puts player.description
+    # ID team
+    team = row['Team'].downcase rescue "unknown"
+    team = :lar if team == "la"
+    team = :hou if team == "hst"
+    team = :bal if team == "blt"
+    team = :cle if team == "clv"
+    # Validate team found
+    next "Team not found" unless team = Team.find_by(slug: team)
+    # Import PFF player
+    team.pff_player_import(row,position)
   end
 end
 
