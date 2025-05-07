@@ -30,7 +30,7 @@ class Team < ApplicationRecord
             team = Team.find_or_create_by(name: team_attrs['team_name'], division: team_attrs['team_division']) do |team|
                 # Set attributes for team
                 team.name = team_attrs['team_name']
-                team.slug = team_attrs['team_id']
+                team.slug = team_attrs['team_id'].downcase
                 team.name_short = team_attrs['team_name_short']
                 team.slug_pfr = team_attrs['team_id_pfr']
                 team.conference = team_attrs['team_conference']

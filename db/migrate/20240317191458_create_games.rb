@@ -18,6 +18,7 @@ class CreateGames < ActiveRecord::Migration[7.0]
       t.integer :total_points
       t.integer :away_total
       t.integer :home_total
+      t.datetime :kickoff_at
       t.date :date
       t.string :start_time
       t.string :day_of_week
@@ -36,8 +37,18 @@ class CreateGames < ActiveRecord::Migration[7.0]
       t.integer :home_q2
       t.integer :away_q1
       t.integer :home_q1
+      t.string :slug, null: false, unique: true
 
       t.timestamps
     end
+
+    add_index :games, :source
+    add_index :games, :season
+    add_index :games, :week
+    add_index :games, :away_team
+    add_index :games, :home_team
+    add_index :games, :slug, unique: true
+    add_index :games, :created_at
+    add_index :games, :updated_at
   end
 end

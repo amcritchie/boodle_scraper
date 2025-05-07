@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_19_015929) do
+ActiveRecord::Schema[7.0].define(version: 2024_03_19_015930) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -32,6 +32,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_19_015929) do
     t.integer "total_points"
     t.integer "away_total"
     t.integer "home_total"
+    t.datetime "kickoff_at"
     t.date "date"
     t.string "start_time"
     t.string "day_of_week"
@@ -50,6 +51,96 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_19_015929) do
     t.integer "home_q2"
     t.integer "away_q1"
     t.integer "home_q1"
+    t.string "slug", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["away_team"], name: "index_games_on_away_team"
+    t.index ["created_at"], name: "index_games_on_created_at"
+    t.index ["home_team"], name: "index_games_on_home_team"
+    t.index ["season"], name: "index_games_on_season"
+    t.index ["slug"], name: "index_games_on_slug", unique: true
+    t.index ["source"], name: "index_games_on_source"
+    t.index ["updated_at"], name: "index_games_on_updated_at"
+    t.index ["week"], name: "index_games_on_week"
+  end
+
+  create_table "players", force: :cascade do |t|
+    t.integer "rank"
+    t.string "position"
+    t.string "player"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "team"
+    t.integer "jersey"
+    t.decimal "overall_grade", precision: 5, scale: 2
+    t.decimal "passing_grade", precision: 5, scale: 2
+    t.decimal "running_grade", precision: 5, scale: 2
+    t.decimal "rpo_grade", precision: 5, scale: 2
+    t.decimal "dropback_grade", precision: 5, scale: 2
+    t.decimal "pocket_grade", precision: 5, scale: 2
+    t.integer "total_snaps"
+    t.integer "pass_snaps"
+    t.integer "rush_snaps"
+    t.integer "rpo_snaps"
+    t.integer "dropback_snaps"
+    t.integer "pocket_snaps"
+    t.decimal "age", precision: 4, scale: 1
+    t.string "hand"
+    t.string "height"
+    t.integer "weight"
+    t.decimal "speed", precision: 4, scale: 1
+    t.string "college"
+    t.integer "draft_year"
+    t.integer "draft_round"
+    t.integer "draft_pick"
+    t.string "slug", null: false
+    t.string "import_slug"
+    t.string "import_from"
+    t.json "details"
+    t.string "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_players_on_created_at"
+    t.index ["import_slug"], name: "index_players_on_import_slug"
+    t.index ["player"], name: "index_players_on_player"
+    t.index ["position"], name: "index_players_on_position"
+    t.index ["slug"], name: "index_players_on_slug", unique: true
+    t.index ["team"], name: "index_players_on_team"
+    t.index ["updated_at"], name: "index_players_on_updated_at"
+  end
+
+  create_table "rosters", force: :cascade do |t|
+    t.integer "season"
+    t.integer "week"
+    t.string "game"
+    t.string "team"
+    t.string "o1"
+    t.string "o2"
+    t.string "o3"
+    t.string "o4"
+    t.string "o5"
+    t.string "o6"
+    t.string "o7"
+    t.string "o8"
+    t.string "o9"
+    t.string "o10"
+    t.string "o11"
+    t.string "d1"
+    t.string "d2"
+    t.string "d3"
+    t.string "d4"
+    t.string "d5"
+    t.string "d6"
+    t.string "d7"
+    t.string "d8"
+    t.string "d9"
+    t.string "d10"
+    t.string "d11"
+    t.string "place_kicker"
+    t.string "punter"
+    t.string "head_coach"
+    t.string "offensive_coordinator"
+    t.string "defensive_coordinator"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -66,6 +157,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_19_015929) do
     t.string "division_pre_2002"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_teams_on_created_at"
+    t.index ["slug"], name: "index_teams_on_slug"
+    t.index ["updated_at"], name: "index_teams_on_updated_at"
   end
 
 end

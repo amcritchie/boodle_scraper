@@ -371,6 +371,7 @@ class Game < ApplicationRecord
 
     # Get date of game
     game_date = Date.parse("#{date_of_game}")
+    kickoff_at = Game.parse_datetime(time_of_game, game_date)
 
     # Evaluate if favorite is home or away
     if favorite_home == "@"
@@ -400,6 +401,10 @@ class Game < ApplicationRecord
         away_implied_total = (half_points + spread_float/2).to_i
         home_implied_total = (half_points - spread_float/2).to_i
     end
+    # Downcase teams and slug
+    away_team = away_team.downcase
+    home_team = home_team.downcase
+    slug = "#{away_team}-#{home_team}-#{week}-#{season}".downcase
 
     puts "-"*40
     puts "Season: #{season}"
@@ -409,32 +414,34 @@ class Game < ApplicationRecord
     puts "Home Lines: #{home_spread} | #{home_implied_total} #{home_team.name}"
     puts "Away Lines: #{away_spread} | #{away_implied_total} #{away_team.name}"
     puts "Over / Under: #{over_under_float} | #{over_under_result}"
+    slug = "#{away_team}-#{home_team}-#{week}-#{season}".downcase
 
     # Find or create game.
-    game = Game.find_or_create_by(
-        source: :sportsoddshistory, 
-        season: season, 
-        week: week, 
-        home_team: home_team, 
-        away_team: away_team
-    )
+    game = Game.find_or_create_by(slug: slug)
+
     # Add additional game data.
     game.update(
-        overtime: was_there_ot,
-        primetime: primetime,
-        home_total: home_total, 
-        away_total: away_total, 
-        total_points: total_points,
-        over_under: over_under_float, 
-        over_under_odds: 0.95,
-        over_under_result: over_under_result,
-        date: game_date,
-        day_of_week: day_of_week,
-        start_time: time_of_game,
-        away_spread: away_spread,
-        away_implied_total: away_implied_total,
-        home_spread: home_spread,
-        home_implied_total: home_implied_total,
+      source: :sportsoddshistory, 
+      season: season, 
+      week: week, 
+      home_team: home_team, 
+      away_team: away_team,
+      overtime: was_there_ot,
+      primetime: primetime,
+      home_total: home_total, 
+      away_total: away_total, 
+      total_points: total_points,
+      over_under: over_under_float, 
+      over_under_odds: 0.95,
+      over_under_result: over_under_result,
+      kickoff_at: kickoff_at,
+      date: game_date,
+      day_of_week: day_of_week,
+      start_time: time_of_game,
+      away_spread: away_spread,
+      away_implied_total: away_implied_total,
+      home_spread: home_spread,
+      home_implied_total: home_implied_total,
     )
     # Puts summary of game.
     game.summary
@@ -554,16 +561,34 @@ class Game < ApplicationRecord
     end
   end
 
+  def self.s24
+    all.where(season: 2024)
+  end
+
+  def self.s25
+    all.where(season: 2025)
+  end
+
+  def self.w1
+    all.where(week: 1)
+    # all.where(week: 1).order(:kickoff_at)
+  end
+
+  def self.w2
+    all.where(season: 2)
+  end
+
+
   def self.week_1_reports
     # Select week 1 games
-    week_1_games = all.where(season: 2023, week: "1")
+    week_1_games = all.where(season: 2024, week: "1")
     # Find week high
     array = []
     # Each through games
     week_1_games.each do |game|
       # Push to array
-      array.push("#{game.away_team},#{game.away_implied_total},#{game.away_multiple},#{game.week}")
-      array.push("#{game.home_team},#{game.home_implied_total},#{game.home_multiple},#{game.week}")
+      array.push("#{game.away_team},#{game.away_total},#{game.away_implied_total},#{game.away_multiple},#{game.week}")
+      array.push("#{game.home_team},#{game.home_total},#{game.home_implied_total},#{game.home_multiple},#{game.week}")
     end
     puts "Team,Implied Total,Multiple,Week"
     puts array
@@ -585,4 +610,12 @@ class Game < ApplicationRecord
     puts "Team,Real Total,Multiple,Week,Season"
     puts array
   end
+
+  def self.parse_datetime(time_of_game, game_date)
+    # Combine game_date and time_of_game into a DateTime object in Eastern Time Zone
+    eastern_time_zone = ActiveSupport::TimeZone['Eastern Time (US & Canada)']
+    datetime_string = "#{game_date} #{time_of_game} PM" # Assume PM for NFL games
+    eastern_time_zone.parse(datetime_string)
+  end
+
 end

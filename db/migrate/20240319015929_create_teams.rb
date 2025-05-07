@@ -13,5 +13,8 @@ class CreateTeams < ActiveRecord::Migration[7.0]
 
       t.timestamps
     end
+    add_index :teams, :slug
+    add_index :teams, :created_at
+    add_index :teams, :updated_at
   end
 end
