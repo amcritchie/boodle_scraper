@@ -4,13 +4,13 @@ namespace :seed do
     
     # rake teams:populate
     Rake::Task['teams:populate'].invoke
-    # rake rosters:populate
+    # rake seasons:populate
     Rake::Task['seasons:populate'].invoke
     # rake players:populate
     Rake::Task['players:populate'].invoke
-    # rake players:populate
-    Rake::Task['contracts:populate'].invoke
-    # rake rosters:populate
-    Rake::Task['rosters:populate'].invoke
+    # # rake players:populate
+    # Rake::Task['contracts:populate'].invoke
+    # rake matchups:populate
+    Rake::Task['matchups:populate'].invoke
   end
 end

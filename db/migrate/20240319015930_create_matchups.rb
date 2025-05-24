@@ -1,6 +1,6 @@
-class CreateRosters < ActiveRecord::Migration[7.0]
+class CreateMatchups < ActiveRecord::Migration[7.0]
   def change
-    create_table :rosters do |t|
+    create_table :matchups do |t|
       t.integer :season
       t.integer :week
       t.string :game

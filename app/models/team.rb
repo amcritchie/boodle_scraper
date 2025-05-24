@@ -96,9 +96,9 @@ class Team < ApplicationRecord
       cbs = teammates.by_position(:cornerback).order(overall_grade: :desc).limit(2)
       flex_defense = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(overall_grade: :desc).where.not(id: (des.map(&:id) + edges.map(&:id) + lbs.map(&:id) + safeties.map(&:id) + cbs.map(&:id))).limit(2)
       # Find or create roster
-      roster = Roster.find_or_create_by(game: game.slug, team: slug)
+      matchup = Matchup.find_or_create_by(game: game.slug, team: slug)
       # Create roster
-      roster.update(
+      matchup.update(
           season: season,
           week: week,
           home: home,
@@ -125,8 +125,8 @@ class Team < ApplicationRecord
           d10: flex_defense[0]&.slug,
           d11: flex_defense[1]&.slug
       )
-      puts "Roster for Week #{week}, Season #{season} #{name} created successfully!"
-      ap roster
+      puts "Matchup for Week #{week}, Season #{season} #{name} created successfully!"
+      ap matchup
     end
 
     def pff_player_import(pff_row,position)
