@@ -68,7 +68,56 @@ class Team < ApplicationRecord
         end
     end
 
-    def generate_roster(week=1,season=2025)
+    def generate_offense
+      # Find team's players 
+      teammates = Player.by_team(slug)
+      # Fetch players by position
+      qb = teammates.by_position(:quarterback).order(overall_grade: :desc).first
+      rb = teammates.by_position(:runningback).order(overall_grade: :desc).first
+      wrs = teammates.by_position(:wide_receiver).order(overall_grade: :desc).limit(2)
+      te = teammates.by_position(:tight_end).order(overall_grade: :desc).first
+      flex = teammates.where(position: [:runningback, :wide_receiver, :tight_end]).order(overall_grade: :desc).where.not(id: ([rb&.id] + wrs.map(&:id) + [te&.id])).first
+      center = teammates.by_position(:center).order(overall_grade: :desc).first
+      guards = teammates.by_position(:gaurd).order(overall_grade: :desc).limit(2)
+      tackles = teammates.by_position(:tackle).order(overall_grade: :desc).limit(2)
+      # Return collection
+      return {
+        qb: qb,
+        rb: rb,
+        wrs: wrs,
+        te: te,
+        flex: flex,
+        center: center,
+        guards: guards,
+        tackles: tackles
+      }
+    end
+
+    def generate_defense
+      # Find team's players
+      teammates = Player.by_team(slug)
+      # Fetch players by position
+      des = teammates.by_position(:defensive_end).order(overall_grade: :desc).limit(2)
+      edges = teammates.by_position(:edge_rusher).order(overall_grade: :desc).limit(1)
+      lbs = teammates.by_position(:linebackers).order(overall_grade: :desc).limit(3)
+      safeties = teammates.by_position(:safeties).order(overall_grade: :desc).limit(2)
+      cbs = teammates.by_position(:cornerback).order(overall_grade: :desc).limit(2)
+      flex = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback])
+                              .order(overall_grade: :desc)
+                              .where.not(id: (des.map(&:id) + edges.map(&:id) + lbs.map(&:id) + safeties.map(&:id) + cbs.map(&:id)))
+                              .limit(1).first
+      # Return collection
+      return {
+        des: des,
+        edges: edges,
+        lbs: lbs,
+        safeties: safeties,
+        cbs: cbs,
+        flex: flex
+      }
+    end
+
+    def generate_matchup(week=1,season=2025)
       # Find game and evaluate if team is playing at home
       if game = Game.find_by(season: season, week: week, home_team: slug)
           home = true
@@ -91,10 +140,10 @@ class Team < ApplicationRecord
       # Defence
       des = teammates.by_position(:defensive_end).order(overall_grade: :desc).limit(2)
       edges = teammates.by_position(:edge_rusher).order(overall_grade: :desc).limit(1)
-      lbs = teammates.by_position(:linebackers).order(overall_grade: :desc).limit(2)
+      lbs = teammates.by_position(:linebackers).order(overall_grade: :desc).limit(3)
       safeties = teammates.by_position(:safeties).order(overall_grade: :desc).limit(2)
       cbs = teammates.by_position(:cornerback).order(overall_grade: :desc).limit(2)
-      flex_defense = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(overall_grade: :desc).where.not(id: (des.map(&:id) + edges.map(&:id) + lbs.map(&:id) + safeties.map(&:id) + cbs.map(&:id))).limit(2)
+      flex_defense = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(overall_grade: :desc).where.not(id: (des.map(&:id) + edges.map(&:id) + lbs.map(&:id) + safeties.map(&:id) + cbs.map(&:id))).limit(1)
       # Find or create roster
       matchup = Matchup.find_or_create_by(game: game.slug, team: slug)
       # Create roster

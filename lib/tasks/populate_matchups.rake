@@ -4,8 +4,21 @@ namespace :matchups do
     # Each through active teams
     Team.active.each do |team|
         # Generate Week 1 Roster
-        team.generate_roster(1,2024)
+        team.generate_matchup(1,2024)
     end
+  end
+  task populate2025: :environment do
+    # Create games
+    Game.create_games_from_csv('/Users/amcritchie/alex-apps/boodle_scraper/lib/2025/Expanded_NFL_2025_Schedule.csv')
+    # Each through games in season
+    Game.where(season: 2025, week: 1).each do |game|
+      # Generate matchups
+      game.away_matchup
+      game.home_matchup
+    end
+
+    # Eagles Index Grade (Have Fun)
+    Matchup.phi.index_grade
   end
 
   desc "Populate matchups for Week 1, Season 2025"

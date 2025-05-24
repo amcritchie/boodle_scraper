@@ -2,7 +2,7 @@ namespace :players do
   desc "Populate players from CSV"
   task populate: :environment do
     # # Populate QBs
-    # pff_quarterback_populate
+    pff_quarterback_populate
     # Populate RBs
     pff_runningback_populate
     # Populate WRs

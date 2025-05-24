@@ -34,6 +34,89 @@ class Game < ApplicationRecord
   def self.seasons
     all.pluck(:season).uniq.sort
   end
+  # Fetch the teams
+  def the_away_team
+    Team.find_by_slug(away_team)
+  end
+  def the_home_team
+    Team.find_by_slug(home_team)
+  end
+
+  def home_matchup
+    away = Team.find_by_slug(away_team)
+    home = Team.find_by_slug(home_team)
+    # Generate rosters
+    offense = home.generate_offense
+    defense = away.generate_defense
+    # Find or create matup
+    matchup = Matchup.find_or_create_by(game: self.slug, team: home.slug)
+    # Create roster
+    matchup.update(
+      season: self.season,
+      week: self.week,
+      home: false,
+      o1:   offense[:qb]&.slug,
+      o2:   offense[:rb]&.slug,
+      o3:   offense[:wrs][0]&.slug,
+      o4:   offense[:wrs][1]&.slug,
+      o5:   offense[:te]&.slug,
+      o6:   offense[:flex]&.slug,
+      o7:   offense[:center]&.slug,
+      o8:   offense[:guards][0]&.slug,
+      o9:   offense[:guards][1]&.slug,
+      o10:  offense[:tackles][0]&.slug,
+      o11:  offense[:tackles][1]&.slug,
+      d1:   defense[:des][0]&.slug,
+      d2:   defense[:des][1]&.slug,
+      d3:   defense[:edges][0]&.slug,
+      d4:   defense[:lbs][0]&.slug,
+      d5:   defense[:lbs][1]&.slug,
+      d6:   defense[:lbs][2]&.slug,
+      d7:   defense[:safeties][0]&.slug,
+      d8:   defense[:safeties][1]&.slug,
+      d9:   defense[:cbs][0]&.slug,
+      d10:  defense[:cbs][1]&.slug,
+      d11:  defense[:flex]&.slug
+    )
+  end
+
+  def away_matchup
+    away = Team.find_by_slug(away_team)
+    home = Team.find_by_slug(home_team)
+    # Generate rosters
+    offense = away.generate_offense
+    defense = home.generate_defense
+    # Find or create matup
+    matchup = Matchup.find_or_create_by(game: self.slug, team: away.slug)
+    # Create roster
+    matchup.update(
+      season: self.season,
+      week: self.week,
+      home: false,
+      o1:   offense[:qb]&.slug,
+      o2:   offense[:rb]&.slug,
+      o3:   offense[:wrs][0]&.slug,
+      o4:   offense[:wrs][1]&.slug,
+      o5:   offense[:te]&.slug,
+      o6:   offense[:flex]&.slug,
+      o7:   offense[:center]&.slug,
+      o8:   offense[:guards][0]&.slug,
+      o9:   offense[:guards][1]&.slug,
+      o10:  offense[:tackles][0]&.slug,
+      o11:  offense[:tackles][1]&.slug,
+      d1:   defense[:des][0]&.slug,
+      d2:   defense[:des][1]&.slug,
+      d3:   defense[:edges][0]&.slug,
+      d4:   defense[:lbs][0]&.slug,
+      d5:   defense[:lbs][1]&.slug,
+      d6:   defense[:lbs][2]&.slug,
+      d7:   defense[:safeties][0]&.slug,
+      d8:   defense[:safeties][1]&.slug,
+      d9:   defense[:cbs][0]&.slug,
+      d10:  defense[:cbs][1]&.slug,
+      d11:  defense[:flex]&.slug
+    )
+  end
 
   # Summary of Kaggle games supported by SportsOddsHistory
   def self.kaggle_summary
@@ -611,6 +694,50 @@ class Game < ApplicationRecord
     eastern_time_zone = ActiveSupport::TimeZone['Eastern Time (US & Canada)']
     datetime_string = "#{game_date} #{time_of_game} PM" # Assume PM for NFL games
     eastern_time_zone.parse(datetime_string)
+  end
+
+  def self.create_games_from_csv(file_path)
+    require 'csv'
+
+    csv_text = File.read(file_path)
+    csv = CSV.parse(csv_text, headers: true)
+
+    csv.each do |row|
+      # Parse row data
+      week = row['Week']
+      day_of_week = row['Day']
+      date_of_game = Date.parse(row['Date'])
+      time_of_game = row['Time_ET']
+      visitor_team_name = row['Visitor']
+      home_team_name = row['Home']
+      tv_network = row['TV']
+
+      # Find or create teams
+      visitor_team = Team.find_by(active: true, name: visitor_team_name)
+      home_team = Team.find_by(active: true, name: home_team_name)
+      next unless visitor_team && home_team
+
+      # Determine if the game is primetime
+      primetime = %w[8:20p 8:15p 7:00p 10:00p].include?(time_of_game)
+
+      # Create slug for the game
+      slug = "#{visitor_team.slug}-#{home_team.slug}-#{week}-2025".downcase
+
+      # Find or create the game
+      game = Game.find_or_create_by(slug: slug) do |g|
+        g.season = 2025
+        g.week = week
+        g.home_team = home_team.slug
+        g.away_team = visitor_team.slug
+        g.date = date_of_game
+        g.day_of_week = day_of_week
+        g.start_time = time_of_game
+        g.primetime = primetime
+        # g.tv_network = tv_network
+      end
+
+      puts "🏈 Game created: #{game.season} | Week #{game.week} | #{game.away_team} at #{game.home_team}"
+    end
   end
 
 end

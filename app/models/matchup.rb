@@ -74,6 +74,7 @@ class Matchup < ApplicationRecord
     [] # Add logic if fullbacks are included in the dataset
   end
 
+  # Stack error
   # def kicker
   #   Player.find_by_slug(self.place_kicker) # Replace `k1` with the actual key for kicker if available
   # end
@@ -83,8 +84,6 @@ class Matchup < ApplicationRecord
   # end
 
 end
-
-
 
 # o1: nil,
 # o2: "runningback-robinson-alabama-2022",

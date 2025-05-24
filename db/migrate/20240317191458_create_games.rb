@@ -22,6 +22,7 @@ class CreateGames < ActiveRecord::Migration[7.0]
       t.date :date
       t.string :start_time
       t.string :day_of_week
+      t.string :tv_network
       t.boolean :primetime, default: false
       t.boolean :overtime, default: false
       t.integer :away_team_seed
