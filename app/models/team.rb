@@ -1,4 +1,6 @@
 class Team < ApplicationRecord
+    extend TeamMapping
+    include TeamPopulations
     
     def self.active
         where(active: true)
@@ -8,6 +10,9 @@ class Team < ApplicationRecord
     end
     def self.nfc
         where(conference: :nfc)
+    end
+    def description
+      "#{self.emoji} #{self.name}"
     end
 
     def self.active_teams
@@ -26,29 +31,43 @@ class Team < ApplicationRecord
         csv.each do |row|
             # Get team attributes from row
             team_attrs = row.to_hash
-            # Find of create based on slug and division (slug: "DEN", division: "AFC West")
-            team = Team.find_or_create_by(name: team_attrs['team_name'], division: team_attrs['team_division']) do |team|
-                # Set attributes for team
-                team.name = team_attrs['team_name']
-                team.slug = team_attrs['team_id'].downcase
-                team.name_short = team_attrs['team_name_short']
-                team.slug_pfr = team_attrs['team_id_pfr']
-                team.conference = team_attrs['team_conference']
-                team.division_pre_2002 = team_attrs['team_division_pre2002']
-                team.conference_pre_2002 = team_attrs['team_conference_pre2002']
-                # Denote team as active not active if they don't have a division or other criteria.
-                team.active = false if team.division.nil? || team.division.empty?
-                team.active = false if team.name == "Washington Football Team"
-                team.active = false if team.name == "Washington Redskins"
-                team.active = false if team.name == "San Diego Chargers"
-                team.active = false if team.name == "Los Angeles Raiders"
-                team.active = false if team.name == "Oakland Raiders"
-            end
+            team_name = team_attrs['team_name']
+            puts "Team Row: | #{team_attrs}"
+            # Skip inactive teams
+            next if ["Tennessee Oilers","St. Louis Rams","St. Louis Cardinals","Phoenix Cardinals","Houston Oilers","Boston Patriots","Washington Football Team", "Washington Redskins", "San Diego Chargers", "Los Angeles Raiders", "Oakland Raiders", "Baltimore Colts"].include?(team_name)
+            # Find or create Kaggle Team
+            team = Team.kaggle_team(team_name)
+            # Populate team basic data e.g., 🦬, buf
+            team.populate
+            puts "Team Created"
+            ap team
+
+            puts "🏈 #{team.conference} | #{team.division} | (#{team.slug}) #{team.name} Saved" if team.active
+            # Update team name and other data based on Kaggle
+            team.name = team_attrs['team_name']
+            team.name_short = team_attrs['team_name_short']
+            team.conference = team_attrs['team_conference']
+            team.division = team_attrs['team_division']
+            team.slug_pfr = team_attrs['team_id_pfr']
+            team.division_pre_2002 = team_attrs['team_division_pre2002']
+            team.conference_pre_2002 = team_attrs['team_conference_pre2002']
+
+            # Denote team as active not active if they don't have a division or other criteria.
+            team.active = false if team.division.nil? || team.division.empty?
+            team.active = false if team.name == "Washington Football Team"
+            team.active = false if team.name == "Washington Redskins"
+            team.active = false if team.name == "San Diego Chargers"
+            team.active = false if team.name == "Los Angeles Raiders"
+            team.active = false if team.name == "Oakland Raiders"
+
+            team.save
+            puts "Team Updated"
+            ap team
             # Output team saved
             puts "🏈 #{team.conference} | #{team.division} | (#{team.slug}) #{team.name} Saved" if team.active
         end
     end
-
+    
     # Map team id for sportsoddshistory
     def self.sportsoddshistory_team_name_map(team_name)
         case team_name
@@ -127,20 +146,20 @@ class Team < ApplicationRecord
         end
     end
 
-    # Emoji
-    def emoji
-      emoji_map = {
-        "buf" => :🦬, "nyj" => :🛩️, "mia" => :🐬, "ne"  => :🇺🇸, # AFC East
-        "kc"  => :🏹, "den" => :🐴, "lac" => :⚡️, "lv"  => :🎲, # AFC WEST
-        "bal" => :🐦‍⬛, "pit" => :👷‍♂️, "cin" => :🐯, "cle" => :🟤, # AFC NORTH
-        "hou" => :🐂, "jax" => :🐆, "ind" => :🐎, "ten" => :🗡️, # AFC SOUTH
-        "phi" => :🦅, "dal" => :🤠, "was" => :🪖, "nyg" => :🗽, # NFC East
-        "sf"  => :🌉, "lar" => :🐏, "sea" => :‍‍🐦, "ari" => :🐤, # NFC WEST
-        "det" => :🦁, "gb"  => :🧀, "min" => :😈, "chi" => :🐻, # NFC NORTH
-        "no"  => :⚜️, "atl" => :🐦‍🔥, "tb"  => :🏴‍☠️, "car" => :🐈‍⬛ # NFC SOUTH
-      }
-      emoji_map[slug] || :unknown
-    end
+    # # Emoji
+    # def emoji
+    #   emoji_map = {
+    #     "buf" => :🦬, "nyj" => :🛩️, "mia" => :🐬, "ne"  => :🇺🇸, # AFC East
+    #     "kc"  => :🏹, "den" => :🐴, "lac" => :⚡️, "lv"  => :🎲, # AFC WEST
+    #     "bal" => :🐦‍⬛, "pit" => :👷‍♂️, "cin" => :🐯, "cle" => :🟤, # AFC NORTH
+    #     "hou" => :🐂, "jax" => :🐆, "ind" => :🐎, "ten" => :🗡️, # AFC SOUTH
+    #     "phi" => :🦅, "dal" => :🤠, "was" => :🪖, "nyg" => :🗽, # NFC East
+    #     "sf"  => :🌉, "lar" => :🐏, "sea" => :‍‍🐦, "ari" => :🐤, # NFC WEST
+    #     "det" => :🦁, "gb"  => :🧀, "min" => :😈, "chi" => :🐻, # NFC NORTH
+    #     "no"  => :⚜️, "atl" => :🐦‍🔥, "tb"  => :🏴‍☠️, "car" => :🐈‍⬛ # NFC SOUTH
+    #   }
+    #   emoji_map[slug] || :unknown
+    # end
 
     def generate_roster(week=1,season=2025)
       # Find game and evaluate if team is playing at home
@@ -213,22 +232,57 @@ class Team < ApplicationRecord
       end
       college = pff_row['College'].downcase.gsub(' ', '-') rescue 'undrafted'
       draft_year = pff_row['Draft_Year'].to_i rescue 2099
-      slug = "#{position}-#{last_name.downcase}-#{college}-#{draft_year}"
-    
-      player = Player.find_or_create_by(slug: slug) do |player|
-        player.position = position
-        player.rank = pff_row['Rank']
-        player.player = player_name
-        player.first_name = first_name
-        player.last_name = last_name
-        player.team = self.slug
-        player.jersey = pff_row['Jersey']
-        player.overall_grade = pff_row['Overall_Grade']
-        player.passing_grade = pff_row['Passing_Grade']
-        player.running_grade = pff_row['Running_Grade']
-        player.rpo_grade = pff_row['RPO_Grade']
+      player_slug = "#{position}-#{last_name.downcase}-#{college}-#{draft_year}"
+      # Populate player
+      player = Player.find_or_create_by(slug: player_slug) do |player|
+        player.position     = position
+        player.rank         = pff_row['Rank']
+        player.player       = player_name
+        player.first_name   = first_name
+        player.last_name    = last_name
+        player.team_slug    = self.slug
+        player.jersey       = pff_row['Jersey']
+        # QB
+        player.overall_grade  = pff_row['Overall_Grade']
+        player.passing_grade  = pff_row['Passing_Grade']
+        player.running_grade  = pff_row['Running_Grade']
+        player.rpo_grade      = pff_row['RPO_Grade']
         player.dropback_grade = pff_row['Dropback_Grade']
-        player.pocket_grade = pff_row['Pocket_Grade']
+        player.pocket_grade   = pff_row['Pocket_Grade']
+        # RB, WR, TE, C, G, T
+        player.pass_block_grade   = pff_row['Pass_Block_Grade']
+        player.run_block_grade    = pff_row['Run_Block_Grade']
+        player.receiving_grade    = pff_row['Receiving_Grade']
+        player.rushing_grade      = (pff_row['Rush_Grade'] || pff_row['Rushing_Grade'])
+        player.route_grade        = pff_row['Route_Grade']
+        player.yac_grade          = pff_row['YAC_Grade']
+        # Defense
+        player.coverage_grade     = pff_row['Coverage_Grade']
+        player.run_defense_grade  = pff_row['Run_Defense_Grade']
+        player.tackling_grade     = pff_row['Tackling_Grade']
+        player.pass_rush_grade    = pff_row['Pass_Rush_Grade']
+        player.screen_block_grade = pff_row['Screen_Block_Grade']
+        player.intermediate_yards = pff_row['Intermediate_Yards']
+        player.deep_yards         = pff_row['Deep_Yards']
+        player.screen_yards       = pff_row['Screen_Yards']
+        player.total_yards        = pff_row['Total_Yards']
+        player.rush_yards         = pff_row['Rush_Yards']
+        player.receiving_yards    = pff_row['Receiving_Yards']
+        player.missed_tackles_forced = pff_row['Missed_Tackles_Forced']
+        # Offense
+        player.td               = pff_row['TD']
+        player.first_downs      = pff_row['1st_Downs']
+        player.snaps            = pff_row['Snaps']
+        player.run_snaps        = pff_row['Run_Snaps']
+        player.pass_rush_snaps  = pff_row['Pass_Rush_Snaps']
+        player.coverage_snaps   = pff_row['Coverage_Snaps']
+        player.passing_snaps    = pff_row['Passing_Snaps']
+        player.routes           = pff_row['Routes']
+        player.qb_hits          = pff_row['QB_Hits']
+        player.run_block_snaps  = pff_row['Run_Block_Snaps']
+        player.pass_block_snaps = pff_row['Pass_Block_Snaps']
+        # player.total_snaps      = pff_row['Total_Snaps']
+        # Snaps
         player.total_snaps = pff_row['Total_Snaps']
         player.pass_snaps = pff_row['Pass_Snaps']
         player.rush_snaps = pff_row['Rush_Snaps']
@@ -252,6 +306,17 @@ class Team < ApplicationRecord
     unless player.errors.empty?
       puts "Errors ---------"
       ap player.errors.inspect
+    end
+  end
+
+  def populate
+    method_name = "#{slug_long}_populate"
+    puts method_name
+    if TeamPopulations.instance_methods.include?(method_name.to_sym)
+      extend TeamPopulations
+      send(method_name)
+    else
+      raise "No populate method defined for slug: #{slug}"
     end
   end
 end

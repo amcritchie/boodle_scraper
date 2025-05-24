@@ -70,7 +70,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_19_015930) do
     t.string "player"
     t.string "first_name"
     t.string "last_name"
-    t.string "team"
+    t.string "team_slug"
     t.integer "jersey"
     t.decimal "overall_grade", precision: 5, scale: 2
     t.decimal "passing_grade", precision: 5, scale: 2
@@ -78,12 +78,41 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_19_015930) do
     t.decimal "rpo_grade", precision: 5, scale: 2
     t.decimal "dropback_grade", precision: 5, scale: 2
     t.decimal "pocket_grade", precision: 5, scale: 2
+    t.decimal "pass_block_grade", precision: 5, scale: 2
+    t.decimal "run_block_grade", precision: 5, scale: 2
+    t.decimal "receiving_grade", precision: 5, scale: 2
+    t.decimal "rushing_grade", precision: 5, scale: 2
+    t.decimal "route_grade", precision: 5, scale: 2
+    t.decimal "yac_grade", precision: 5, scale: 2
+    t.decimal "coverage_grade", precision: 5, scale: 2
+    t.decimal "run_defense_grade", precision: 5, scale: 2
+    t.decimal "tackling_grade", precision: 5, scale: 2
+    t.decimal "pass_rush_grade", precision: 5, scale: 2
+    t.decimal "screen_block_grade", precision: 5, scale: 2
+    t.integer "intermediate_yards"
+    t.integer "deep_yards"
+    t.integer "screen_yards"
+    t.integer "total_yards"
+    t.integer "rush_yards"
+    t.integer "receiving_yards"
+    t.integer "missed_tackles_forced"
+    t.integer "td"
+    t.integer "first_downs"
+    t.integer "snaps"
+    t.integer "run_snaps"
+    t.integer "pass_rush_snaps"
+    t.integer "coverage_snaps"
+    t.integer "passing_snaps"
+    t.integer "routes"
+    t.integer "qb_hits"
     t.integer "total_snaps"
     t.integer "pass_snaps"
     t.integer "rush_snaps"
     t.integer "rpo_snaps"
     t.integer "dropback_snaps"
     t.integer "pocket_snaps"
+    t.integer "run_block_snaps"
+    t.integer "pass_block_snaps"
     t.decimal "age", precision: 4, scale: 1
     t.string "hand"
     t.string "height"
@@ -101,11 +130,14 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_19_015930) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_players_on_created_at"
+    t.index ["first_name"], name: "index_players_on_first_name"
     t.index ["import_slug"], name: "index_players_on_import_slug"
+    t.index ["last_name"], name: "index_players_on_last_name"
     t.index ["player"], name: "index_players_on_player"
     t.index ["position"], name: "index_players_on_position"
+    t.index ["rank"], name: "index_players_on_rank"
     t.index ["slug"], name: "index_players_on_slug", unique: true
-    t.index ["team"], name: "index_players_on_team"
+    t.index ["team_slug"], name: "index_players_on_team_slug"
     t.index ["updated_at"], name: "index_players_on_updated_at"
   end
 
