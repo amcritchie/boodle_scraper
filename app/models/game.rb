@@ -375,10 +375,10 @@ class Game < ApplicationRecord
 
     # Evaluate if favorite is home or away
     if favorite_home == "@"
-        home_team = Team.sportsoddshistory_team_name_map(favorite)
+        home_team = Team.sportsoddshistory_team(favorite)
         home_total = favorite_points
         home_team_seed = favorite_seed if favorite_seed
-        away_team = Team.sportsoddshistory_team_name_map(underdog)
+        away_team = Team.sportsoddshistory_team(underdog)
         away_total = underdog_points
         away_team_seed = underdog_seed if underdog_seed
         # Set spreads
@@ -388,10 +388,10 @@ class Game < ApplicationRecord
         away_implied_total = (half_points - spread_float/2).to_i
         home_implied_total = (half_points + spread_float/2).to_i
     else
-        home_team = Team.sportsoddshistory_team_name_map(underdog)
+        home_team = Team.sportsoddshistory_team(underdog)
         home_total = underdog_points
         home_team_seed = underdog_seed if underdog_seed
-        away_team = Team.sportsoddshistory_team_name_map(favorite)
+        away_team = Team.sportsoddshistory_team(favorite)
         away_total = favorite_points
         away_team_seed = favorite_seed if favorite_seed
         # Set spreads
@@ -401,10 +401,9 @@ class Game < ApplicationRecord
         away_implied_total = (half_points + spread_float/2).to_i
         home_implied_total = (half_points - spread_float/2).to_i
     end
-    # Downcase teams and slug
-    away_team = away_team.downcase
-    home_team = home_team.downcase
-    slug = "#{away_team}-#{home_team}-#{week}-#{season}".downcase
+    # Create slug & game
+    slug = "#{away_team.slug}-#{home_team.slug}-#{week}-#{season}".downcase
+    game = Game.find_or_create_by(slug: slug)
 
     puts "-"*40
     puts "Season: #{season}"
@@ -414,18 +413,14 @@ class Game < ApplicationRecord
     puts "Home Lines: #{home_spread} | #{home_implied_total} #{home_team.name}"
     puts "Away Lines: #{away_spread} | #{away_implied_total} #{away_team.name}"
     puts "Over / Under: #{over_under_float} | #{over_under_result}"
-    slug = "#{away_team}-#{home_team}-#{week}-#{season}".downcase
-
-    # Find or create game.
-    game = Game.find_or_create_by(slug: slug)
 
     # Add additional game data.
     game.update(
       source: :sportsoddshistory, 
       season: season, 
       week: week, 
-      home_team: home_team, 
-      away_team: away_team,
+      home_team: home_team.slug, 
+      away_team: away_team.slug,
       overtime: was_there_ot,
       primetime: primetime,
       home_total: home_total, 
