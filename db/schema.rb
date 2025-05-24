@@ -10,9 +10,47 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_19_015930) do
+ActiveRecord::Schema[7.0].define(version: 2025_03_19_015931) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "contracts", force: :cascade do |t|
+    t.string "player_slug"
+    t.integer "current_season"
+    t.integer "current_base"
+    t.integer "current_cap_hit"
+    t.integer "term_contract"
+    t.integer "term_years"
+    t.integer "average_salary"
+    t.integer "signing_bonus"
+    t.integer "total_gaurentied"
+    t.string "free_agent"
+    t.string "url"
+    t.json "year1"
+    t.json "year2"
+    t.json "year3"
+    t.json "year4"
+    t.json "year5"
+    t.json "year6"
+    t.json "year7"
+    t.json "year8"
+    t.json "year9"
+    t.json "year10"
+    t.json "year11"
+    t.json "year12"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["average_salary"], name: "index_contracts_on_average_salary"
+    t.index ["created_at"], name: "index_contracts_on_created_at"
+    t.index ["current_base"], name: "index_contracts_on_current_base"
+    t.index ["current_cap_hit"], name: "index_contracts_on_current_cap_hit"
+    t.index ["current_season"], name: "index_contracts_on_current_season"
+    t.index ["player_slug"], name: "index_contracts_on_player_slug"
+    t.index ["signing_bonus"], name: "index_contracts_on_signing_bonus"
+    t.index ["term_years"], name: "index_contracts_on_term_years"
+    t.index ["total_gaurentied"], name: "index_contracts_on_total_gaurentied"
+    t.index ["updated_at"], name: "index_contracts_on_updated_at"
+  end
 
   create_table "games", force: :cascade do |t|
     t.string "source"
@@ -64,6 +102,45 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_19_015930) do
     t.index ["week"], name: "index_games_on_week"
   end
 
+  create_table "matchups", force: :cascade do |t|
+    t.integer "season"
+    t.integer "week"
+    t.string "game_slug"
+    t.string "home_team_slug"
+    t.string "away_team_slug"
+    t.string "qb"
+    t.string "rb"
+    t.string "te"
+    t.string "wr1"
+    t.string "wr2"
+    t.string "flex"
+    t.string "c"
+    t.string "g1"
+    t.string "g2"
+    t.string "t1"
+    t.string "t2"
+    t.string "de1"
+    t.string "de2"
+    t.string "de3"
+    t.string "lb1"
+    t.string "lb2"
+    t.string "db1"
+    t.string "db2"
+    t.string "db3"
+    t.string "db4"
+    t.string "dflex1"
+    t.string "dflex2"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["away_team_slug"], name: "index_matchups_on_away_team_slug"
+    t.index ["created_at"], name: "index_matchups_on_created_at"
+    t.index ["game_slug"], name: "index_matchups_on_game_slug"
+    t.index ["home_team_slug"], name: "index_matchups_on_home_team_slug"
+    t.index ["season"], name: "index_matchups_on_season"
+    t.index ["updated_at"], name: "index_matchups_on_updated_at"
+    t.index ["week"], name: "index_matchups_on_week"
+  end
+
   create_table "players", force: :cascade do |t|
     t.integer "rank"
     t.string "position"
@@ -71,6 +148,11 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_19_015930) do
     t.string "first_name"
     t.string "last_name"
     t.string "team_slug"
+    t.string "id_sportrac"
+    t.string "slug_sportrac"
+    t.integer "current_season"
+    t.integer "current_base"
+    t.integer "current_cap_hit"
     t.integer "jersey"
     t.decimal "overall_grade", precision: 5, scale: 2
     t.decimal "passing_grade", precision: 5, scale: 2
@@ -78,17 +160,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_19_015930) do
     t.decimal "rpo_grade", precision: 5, scale: 2
     t.decimal "dropback_grade", precision: 5, scale: 2
     t.decimal "pocket_grade", precision: 5, scale: 2
-    t.decimal "pass_block_grade", precision: 5, scale: 2
-    t.decimal "run_block_grade", precision: 5, scale: 2
     t.decimal "receiving_grade", precision: 5, scale: 2
     t.decimal "rushing_grade", precision: 5, scale: 2
-    t.decimal "route_grade", precision: 5, scale: 2
     t.decimal "yac_grade", precision: 5, scale: 2
-    t.decimal "coverage_grade", precision: 5, scale: 2
-    t.decimal "run_defense_grade", precision: 5, scale: 2
-    t.decimal "tackling_grade", precision: 5, scale: 2
-    t.decimal "pass_rush_grade", precision: 5, scale: 2
-    t.decimal "screen_block_grade", precision: 5, scale: 2
+    t.decimal "route_grade", precision: 5, scale: 2
     t.integer "intermediate_yards"
     t.integer "deep_yards"
     t.integer "screen_yards"
@@ -98,6 +173,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_19_015930) do
     t.integer "missed_tackles_forced"
     t.integer "td"
     t.integer "first_downs"
+    t.decimal "pass_block_grade", precision: 5, scale: 2
+    t.decimal "run_block_grade", precision: 5, scale: 2
+    t.decimal "screen_block_grade", precision: 5, scale: 2
+    t.decimal "coverage_grade", precision: 5, scale: 2
+    t.decimal "run_defense_grade", precision: 5, scale: 2
+    t.decimal "tackling_grade", precision: 5, scale: 2
+    t.decimal "pass_rush_grade", precision: 5, scale: 2
     t.integer "snaps"
     t.integer "run_snaps"
     t.integer "pass_rush_snaps"
@@ -182,18 +264,24 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_19_015930) do
 
   create_table "teams", force: :cascade do |t|
     t.string "slug"
+    t.string "slug_long"
+    t.string "emoji"
+    t.string "name"
+    t.string "name_short"
     t.boolean "active", default: true
     t.string "division"
     t.string "conference"
-    t.string "name"
-    t.string "name_short"
     t.string "slug_pfr"
+    t.string "slug_sportrac"
     t.string "conference_pre_2002"
     t.string "division_pre_2002"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_teams_on_created_at"
     t.index ["slug"], name: "index_teams_on_slug"
+    t.index ["slug_long"], name: "index_teams_on_slug_long"
+    t.index ["slug_pfr"], name: "index_teams_on_slug_pfr"
+    t.index ["slug_sportrac"], name: "index_teams_on_slug_sportrac"
     t.index ["updated_at"], name: "index_teams_on_updated_at"
   end
 
