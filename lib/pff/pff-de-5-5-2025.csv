@@ -1,4 +1,4 @@
-Rank,Player,Team,Jersey,Overall_Grade,Run_Defense_Grade,Pass_Rush_Grade,Coverage_Grade,Snaps,Run_Snaps,Pass_Rush_Snaps,Tackles,Age,Availability,Height,Weight,Speed,College,Draft_Year,Draft_Round,Draft_Pick,,,
+Rank,Player,Team,Jersey,Overall,RushDefense,PassRush,Coverage,Snaps,RunSnaps,PassRushSnaps,CoverageSnaps,Age,Status,Height,Weight,Speed,College,DraftYear,DraftRound,DraftPick,Rank,Player,Team
 1,Chris Jones,KC,95,90.2,64.0,91.5,67.6,930,287,641,2,30.8,A,"6' 6""",310,5.0,MISS STATE,2016,2,37,,,
 2,Cameron Heyward,PIT,97,90.1,79.6,85.9,61.8,838,337,501,0,36.1,A,"6' 5""",295,,OHIO STATE,2011,1,31,,,
 3,Dexter Lawrence,NYG,97,89.9,83.8,81.4,58.5,551,217,332,2,27.4,A,"6' 4""",342,,CLEMSON,2019,1,17,,,

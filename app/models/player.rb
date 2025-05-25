@@ -18,10 +18,10 @@ class Player < ApplicationRecord
   end
 
   def self.print_top_5_qbs
-    top_qbs = order(overall_grade: :desc).limit(5)
+    top_qbs = order(offense_grade: :desc).limit(5)
     puts "Top 5 Quarterbacks:"
     top_qbs.each_with_index do |qb, index|
-      puts "#{index + 1}. #{qb.player} - Overall Grade: #{qb.overall_grade}"
+      puts "#{index + 1}. #{qb.player} - Overall Grade: #{qb.offense_grade}"
     end
   end
 end

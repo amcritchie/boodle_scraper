@@ -72,20 +72,20 @@ class Team < ApplicationRecord
       # Find team's players 
       teammates = Player.by_team(slug)
       # Fetch players by position
-      qb = teammates.by_position(:quarterback).order(overall_grade: :desc).first
-      rb = teammates.by_position(:runningback).order(overall_grade: :desc).first
-      wrs = teammates.by_position(:wide_receiver).order(overall_grade: :desc).limit(2)
-      te = teammates.by_position(:tight_end).order(overall_grade: :desc).first
-      flex = teammates.where(position: [:runningback, :wide_receiver, :tight_end]).order(overall_grade: :desc).where.not(id: ([rb&.id] + wrs.map(&:id) + [te&.id])).first
-      center = teammates.by_position(:center).order(overall_grade: :desc).first
-      guards = teammates.by_position(:gaurd).order(overall_grade: :desc).limit(2)
-      tackles = teammates.by_position(:tackle).order(overall_grade: :desc).limit(2)
+      quarterback     = teammates.by_position(:quarterback).order(offense_grade: :desc).first
+      runningback     = teammates.by_position(:runningback).order(offense_grade: :desc).first
+      wide_receivers  = teammates.by_position(:wide_receiver).order(offense_grade: :desc).limit(2)
+      tight_end       = teammates.by_position(:tight_end).order(offense_grade: :desc).first
+      flex            = teammates.where(position: [:runningback, :wide_receiver, :tight_end]).order(offense_grade: :desc).where.not(id: ([runningback&.id] + wide_receivers.map(&:id) + [tight_end&.id])).first
+      center          = teammates.by_position(:center).order(offense_grade: :desc).first
+      guards          = teammates.by_position(:gaurd).order(offense_grade: :desc).limit(2)
+      tackles         = teammates.by_position(:tackle).order(offense_grade: :desc).limit(2)
       # Return collection
       return {
-        qb: qb,
-        rb: rb,
-        wrs: wrs,
-        te: te,
+        quarterback: quarterback,
+        runningback: runningback,
+        wide_receivers: wide_receivers,
+        tight_end: tight_end,
         flex: flex,
         center: center,
         guards: guards,
@@ -97,22 +97,22 @@ class Team < ApplicationRecord
       # Find team's players
       teammates = Player.by_team(slug)
       # Fetch players by position
-      des = teammates.by_position(:defensive_end).order(overall_grade: :desc).limit(2)
-      edges = teammates.by_position(:edge_rusher).order(overall_grade: :desc).limit(1)
-      lbs = teammates.by_position(:linebackers).order(overall_grade: :desc).limit(3)
-      safeties = teammates.by_position(:safeties).order(overall_grade: :desc).limit(2)
-      cbs = teammates.by_position(:cornerback).order(overall_grade: :desc).limit(2)
-      flex = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback])
-                              .order(overall_grade: :desc)
-                              .where.not(id: (des.map(&:id) + edges.map(&:id) + lbs.map(&:id) + safeties.map(&:id) + cbs.map(&:id)))
+      defensive_ends  = teammates.by_position(:defensive_end).order(defence_grade: :desc).limit(2)
+      edge_rushers   = teammates.by_position(:edge_rusher).order(defence_grade: :desc).limit(1)
+      linebackers     = teammates.by_position(:linebackers).order(defence_grade: :desc).limit(3)
+      safeties        = teammates.by_position(:safeties).order(defence_grade: :desc).limit(2)
+      cornerbacks     = teammates.by_position(:cornerback).order(defence_grade: :desc).limit(2)
+      flex            = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback])
+                              .order(defence_grade: :desc)
+                              .where.not(id: (defensive_ends.map(&:id) + edge_rushers.map(&:id) + linebackers.map(&:id) + safeties.map(&:id) + cornerbacks.map(&:id)))
                               .limit(1).first
       # Return collection
       return {
-        des: des,
-        edges: edges,
-        lbs: lbs,
+        defensive_ends: defensive_ends,
+        edge_rushers: edge_rushers,
+        linebackers: linebackers,
         safeties: safeties,
-        cbs: cbs,
+        cornerbacks: cornerbacks,
         flex: flex
       }
     end
@@ -129,21 +129,21 @@ class Team < ApplicationRecord
       # Find team's players 
       teammates = Player.by_team(slug)
       # Fetch players by position
-      qb = teammates.by_position(:quarterback).order(overall_grade: :desc).first
-      rb = teammates.by_position(:runningback).order(overall_grade: :desc).first
-      wrs = teammates.by_position(:wide_receiver).order(overall_grade: :desc).limit(2)
-      te = teammates.by_position(:tight_end).order(overall_grade: :desc).first
-      flex = teammates.where(position: [:runningback, :wide_receiver, :tight_end]).order(overall_grade: :desc).where.not(id: ([rb&.id] + wrs.map(&:id) + [te&.id])).first
-      center = teammates.by_position(:center).order(overall_grade: :desc).first
-      guards = teammates.by_position(:gaurd).order(overall_grade: :desc).limit(2)
-      tackles = teammates.by_position(:tackle).order(overall_grade: :desc).limit(2)
+      qb = teammates.by_position(:quarterback).order(offense_grade: :desc).first
+      rb = teammates.by_position(:runningback).order(offense_grade: :desc).first
+      wrs = teammates.by_position(:wide_receiver).order(offense_grade: :desc).limit(2)
+      te = teammates.by_position(:tight_end).order(offense_grade: :desc).first
+      flex = teammates.where(position: [:runningback, :wide_receiver, :tight_end]).order(offense_grade: :desc).where.not(id: ([rb&.id] + wrs.map(&:id) + [te&.id])).first
+      center = teammates.by_position(:center).order(offense_grade: :desc).first
+      guards = teammates.by_position(:gaurd).order(offense_grade: :desc).limit(2)
+      tackles = teammates.by_position(:tackle).order(offense_grade: :desc).limit(2)
       # Defence
-      des = teammates.by_position(:defensive_end).order(overall_grade: :desc).limit(2)
-      edges = teammates.by_position(:edge_rusher).order(overall_grade: :desc).limit(1)
-      lbs = teammates.by_position(:linebackers).order(overall_grade: :desc).limit(3)
-      safeties = teammates.by_position(:safeties).order(overall_grade: :desc).limit(2)
-      cbs = teammates.by_position(:cornerback).order(overall_grade: :desc).limit(2)
-      flex_defense = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(overall_grade: :desc).where.not(id: (des.map(&:id) + edges.map(&:id) + lbs.map(&:id) + safeties.map(&:id) + cbs.map(&:id))).limit(1)
+      des = teammates.by_position(:defensive_end).order(defence_grade: :desc).limit(2)
+      edges = teammates.by_position(:edge_rusher).order(defence_grade: :desc).limit(1)
+      lbs = teammates.by_position(:linebackers).order(defence_grade: :desc).limit(3)
+      safeties = teammates.by_position(:safeties).order(defence_grade: :desc).limit(2)
+      cbs = teammates.by_position(:cornerback).order(defence_grade: :desc).limit(2)
+      flex_defense = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(defence_grade: :desc).where.not(id: (des.map(&:id) + edges.map(&:id) + lbs.map(&:id) + safeties.map(&:id) + cbs.map(&:id))).limit(1)
       # Find or create roster
       matchup = Matchup.find_or_create_by(game: game.slug, team: slug)
       # Create roster
@@ -179,72 +179,102 @@ class Team < ApplicationRecord
     end
 
     def pff_player_import(pff_row,position)
+      puts pff_row
       player_name = pff_row['Player']
       first_name = player_name.split.first
       last_name = player_name.split.last
       # Validate if last name includes
-      if last_name.include?("II")
+      if last_name.include?("II") || last_name.include?("Jr.")
         last_name = player_name.split.last(2).first rescue "invalid-last-name"
       end
       college = pff_row['College'].downcase.gsub(' ', '-') rescue 'undrafted'
-      draft_year = pff_row['Draft_Year'].to_i rescue 2099
-      player_slug = "#{position}-#{last_name.downcase}-#{college}-#{draft_year}"
+      draft_year = pff_row['DraftYear'].to_i rescue 2099
+      player_slug = "#{position}-#{first_name.downcase}-#{last_name.downcase}-#{college}-#{draft_year}"
+      puts player_slug
       # Populate player
       player = Player.find_or_create_by(slug: player_slug) do |player|
+        puts "-1"
+        ap pff_row
+
+        puts "-1"
         player.position     = position
         player.rank         = pff_row['Rank']
         player.player       = player_name
         player.first_name   = first_name
+        puts "-2"
         player.last_name    = last_name
         player.team_slug    = self.slug
         player.jersey       = pff_row['Jersey']
-        # QB
-        player.overall_grade  = pff_row['Overall_Grade']
-        player.passing_grade  = pff_row['Passing_Grade']
-        player.running_grade  = pff_row['Running_Grade']
-        player.rpo_grade      = pff_row['RPO_Grade']
-        player.dropback_grade = pff_row['Dropback_Grade']
-        player.pocket_grade   = pff_row['Pocket_Grade']
-        # RB, WR, TE, C, G, T
-        player.pass_block_grade   = pff_row['Pass_Block_Grade']
-        player.run_block_grade    = pff_row['Run_Block_Grade']
-        player.receiving_grade    = pff_row['Receiving_Grade']
-        player.rushing_grade      = (pff_row['Rush_Grade'] || pff_row['Rushing_Grade'])
-        player.route_grade        = pff_row['Route_Grade']
-        player.yac_grade          = pff_row['YAC_Grade']
+        puts "-3"
+        # Offence
+        player.offense_grade    = pff_row['Overall']
+        player.passing_grade    = pff_row['Passing']
+        player.rushing_grade    = pff_row['Rushing']
+        player.receiving_grade  = pff_row['Receiving']
+        player.run_block_grade  = pff_row['RunBlock']
+        player.pass_block_grade = pff_row['PassBlock']
+        puts "-5"
+        player.snaps_on_offense = pff_row['Snaps']
+        player.snaps_passing    = pff_row['Passes']
+        player.snaps_rushing    = pff_row['Rushes']
+        player.snaps_recieving  = pff_row['Receptions']
+        player.snaps_run_block  = pff_row['RunBlocks']
+        player.snaps_pass_block = pff_row['PassBlocks']
         # Defense
-        player.coverage_grade     = pff_row['Coverage_Grade']
-        player.run_defense_grade  = pff_row['Run_Defense_Grade']
-        player.tackling_grade     = pff_row['Tackling_Grade']
-        player.pass_rush_grade    = pff_row['Pass_Rush_Grade']
-        player.screen_block_grade = pff_row['Screen_Block_Grade']
-        player.intermediate_yards = pff_row['Intermediate_Yards']
-        player.deep_yards         = pff_row['Deep_Yards']
-        player.screen_yards       = pff_row['Screen_Yards']
-        player.total_yards        = pff_row['Total_Yards']
-        player.rush_yards         = pff_row['Rush_Yards']
-        player.receiving_yards    = pff_row['Receiving_Yards']
-        player.missed_tackles_forced = pff_row['Missed_Tackles_Forced']
-        # Offense
-        player.td               = pff_row['TD']
-        player.first_downs      = pff_row['1st_Downs']
-        player.snaps            = pff_row['Snaps']
-        player.run_snaps        = pff_row['Run_Snaps']
-        player.pass_rush_snaps  = pff_row['Pass_Rush_Snaps']
-        player.coverage_snaps   = pff_row['Coverage_Snaps']
-        player.passing_snaps    = pff_row['Passing_Snaps']
-        player.routes           = pff_row['Routes']
-        player.qb_hits          = pff_row['QB_Hits']
-        player.run_block_snaps  = pff_row['Run_Block_Snaps']
-        player.pass_block_snaps = pff_row['Pass_Block_Snaps']
-        # player.total_snaps      = pff_row['Total_Snaps']
-        # Snaps
-        player.total_snaps = pff_row['Total_Snaps']
-        player.pass_snaps = pff_row['Pass_Snaps']
-        player.rush_snaps = pff_row['Rush_Snaps']
-        player.rpo_snaps = pff_row['RPO_Snaps']
-        player.dropback_snaps = pff_row['Dropback_Snaps']
-        player.pocket_snaps = pff_row['Pocket_Snaps']
+        player.defence_grade      = pff_row['Overall']
+        player.rush_defense_grade = pff_row['RushDefense']
+        player.pass_rush_grade    = pff_row['PassRush']
+        player.coverage_grade     = pff_row['Coverage']
+        player.snaps_on_defence   = pff_row['Snaps']
+        player.snaps_rush_defense = pff_row['RunSnaps']
+        player.snaps_pass_rush    = pff_row['PassRushSnaps']
+        player.snaps_coverage     = pff_row['CoverageSnaps']
+
+
+        # player.dropback_grade = pff_row['Dropback_Grade']
+        # player.pocket_grade   = pff_row['Pocket_Grade']
+        # # RB, WR, TE, C, G, T
+        # player.pass_block_grade   = pff_row['Pass_Block_Grade']
+        # player.run_block_grade    = pff_row['Run_Block_Grade']
+        # player.receiving_grade    = pff_row['Receiving_Grade']
+        # player.rushing_grade      = (pff_row['Rush_Grade'] || pff_row['Rushing_Grade'])
+        # player.route_grade        = pff_row['Route_Grade']
+        # player.yac_grade          = pff_row['YAC_Grade']
+        # # Defense
+        # player.coverage_grade     = pff_row['Coverage_Grade']
+        # player.run_defense_grade  = pff_row['Run_Defense_Grade']
+        # player.tackling_grade     = pff_row['Tackling_Grade']
+        # player.pass_rush_grade    = pff_row['Pass_Rush_Grade']
+        # player.screen_block_grade = pff_row['Screen_Block_Grade']
+        # player.intermediate_yards = pff_row['Intermediate_Yards']
+        # player.deep_yards         = pff_row['Deep_Yards']
+        # player.screen_yards       = pff_row['Screen_Yards']
+        # player.total_yards        = pff_row['Total_Yards']
+        # player.rush_yards         = pff_row['Rush_Yards']
+        # player.receiving_yards    = pff_row['Receiving_Yards']
+        # player.missed_tackles_forced = pff_row['Missed_Tackles_Forced']
+        # # Offense
+        # player.td               = pff_row['TD']
+        # player.first_downs      = pff_row['1st_Downs']
+        # player.snaps            = pff_row['Snaps']
+        # player.run_snaps        = pff_row['Run_Snaps']
+        # player.pass_rush_snaps  = pff_row['Pass_Rush_Snaps']
+        # player.coverage_snaps   = pff_row['Coverage_Snaps']
+        # player.passing_snaps    = pff_row['Passing_Snaps']
+        # player.routes           = pff_row['Routes']
+        # player.qb_hits          = pff_row['QB_Hits']
+        # player.run_block_snaps  = pff_row['Run_Block_Snaps']
+        # player.pass_block_snaps = pff_row['Pass_Block_Snaps']
+        # # player.total_snaps      = pff_row['Total_Snaps']
+        # # Snaps
+        # player.total_snaps = pff_row['Total_Snaps']
+        # player.pass_snaps = pff_row['Pass_Snaps']
+        # player.rush_snaps = pff_row['Rush_Snaps']
+        # player.rpo_snaps = pff_row['RPO_Snaps']
+        # player.dropback_snaps = pff_row['Dropback_Snaps']
+        # player.pocket_snaps = pff_row['Pocket_Snaps']
+
+        # Player Attributes
         player.age = pff_row['Age']
         player.hand = pff_row['Hand']
         player.height = pff_row['Height']
@@ -252,8 +282,8 @@ class Team < ApplicationRecord
         player.speed = pff_row['Speed']
         player.college = college
         player.draft_year = draft_year
-        player.draft_round = pff_row['Draft_Round']
-        player.draft_pick = pff_row['Draft_Pick']
+        player.draft_round = pff_row['DraftRound']
+        player.draft_pick = pff_row['DraftPick']
     end
     # Puts description
     puts "Player Imported ==========="

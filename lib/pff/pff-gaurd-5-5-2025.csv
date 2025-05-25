@@ -1,4 +1,4 @@
-Rank,Player,Team,Number,Overall_Grade,Pass_Blocking_Grade,Run_Blocking_Grade,Total_Snaps,Pass_Snaps,Run_Snaps,Age,Status,Height,Weight,College,Draft_Year,Draft_Round,Draft_Pick,Rank,Name,Team,Number,Overall_Grade,Pass_Blocking_Grade,Run_Blocking_Grade
+Rank,Player,Team,Jersey,Overall,PassBlock,RunBlock,Snaps,PassBlock,RunBlock,Age,GradeLevel,Height,Weight,College,DraftYear,DraftRound,DraftPick
 1,Chris Lindstrom,ATL,63,93.5,68.0,94.6,1099,627,472,28.1,A,"6' 3""",307,BOSTON COL,2019,1,14,1,Chris Lindstrom,ATL,63,93.5,68.0,94.6
 2,Quinn Meinerz,DEN,77,87.3,81.4,85.7,1131,711,420,26.4,A,"6' 3""",320,WISCONSIN - WHITEWATER,2021,3,99,2,Quinn Meinerz,DEN,77,87.3,81.4,85.7
 3,Kevin Zeitler,TEN,70,86.5,70.7,87.2,1047,577,470,35.1,A,"6' 4""",340,WISCONSIN,2012,1,27,3,Kevin Zeitler,TEN,70,86.5,70.7,87.2

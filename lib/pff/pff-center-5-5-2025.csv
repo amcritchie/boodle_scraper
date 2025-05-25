@@ -1,4 +1,4 @@
-Rank,Player,Team,Jersey,Overall_Grade,Pass_Block_Grade,Run_Block_Grade,True_Pass_Set_Grade,Pass_Block_Efficiency,Run_Block_Grade_2,Total_Snaps,Pass_Block_Snaps,Run_Block_Snaps,True_Pass_Sets,Pass_Plays,Run_Plays,Age,Availability,Height,Weight,College,Draft_Year,Draft_Round,Draft_Pick
+Rank,Player,Team,Jersey,Overall,Rushing,Receiving,PassBlock,RunBlock,Snaps,Rushes,Receptions,PassBlocks,RunBlocks,Age,GradeLevel,Height,Weight,College,DraftYear,DraftRound,DraftPick
 1,Creed Humphrey,KC,52,92.4,,,91.5,90.5,1288,,,829,459,25.8,A,"6' 4""",302,OKLAHOMA,2021,2,63,,
 2,Frank Ragnow,DET,77,86.1,,,65.8,90.9,1129,,,630,499,28.9,A,"6' 5""",310,ARKANSAS,2018,1,20,,
 3,Tyler Linderbaum,BLT,64,79.9,,,64.9,85.3,1227,,,638,589,25.0,A,"6' 2""",305,IOWA,2022,1,25,,

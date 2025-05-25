@@ -1,4 +1,4 @@
-Rank,Player,Team,Jersey,Overall,Run_Defense,Pass_Rush,Coverage,Snaps,Run_Snaps,Pass_Rush_Snaps,Coverage_Snaps,Age,Status,Height,Weight,Speed,College,Draft_Year,Draft_Round,Draft_Pick,Rank,Player,Team
+Rank,Player,Team,Jersey,Overall,RushDefense,PassRush,Coverage,Snaps,RunSnaps,PassRushSnaps,CoverageSnaps,Age,Status,Height,Weight,Speed,College,DraftYear,DraftRound,DraftPick,Rank,Player,Team
 1,Zack Baun,PHI,53,90.1,79.4,74.2,90.9,1204,402,108,694,28.3,A,"6' 3""",225,,WISCONSIN,2020,3,74,1,Zack Baun,PHI
 2,Fred Warner,SF,54,89.2,82.1,63.4,88.4,997,432,37,528,28.4,A,"6' 3""",230,4.6,BYU,2018,3,70,2,Fred Warner,SF
 3,Bobby Wagner,WAS,54,88.3,91.2,90.9,63.8,1258,533,115,610,34.8,A,"6' 0""",241,,UTAH ST,2012,2,47,3,Bobby Wagner,WAS

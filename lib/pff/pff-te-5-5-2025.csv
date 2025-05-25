@@ -1,4 +1,4 @@
-Rank,Player,Team,Number,Overall_Grade,QB_Grade,Pass_Block_Grade,Receiving_Grade,Run_Block_Grade,Route_Grade,Total_Snaps,Passing_Snaps,QB_Hits,Routes,Run_Block_Snaps,Pass_Block_Snaps,Age,Tier,Height,Weight,40_Time,College,Draft_Year,Draft_Round,Draft_Pick
+Rank,Player,Team,Jersey,Overall,Passing,Rushing,Receiving,PassBlock,RunBlock,Snaps,Passes,Rushes,Receptions,PassBlocks,RunBlocks,Age,GradeLevel,Height,Weight,Speed,College,DraftYear,DraftRound,DraftPick
 1,George Kittle,SF,85,92.1,-,-,92.4,62.8,70.8,808,—,—,442,58,308,31.5,A,"6' 4""",250,4.5,IOWA,2017,5,146
 2,Trey McBride,ARZ,85,86.8,-,63.8,89.8,70.5,63.4,934,—,1,576,8,349,25.4,A,"6' 3""",246,,COLO STATE,2022,2,55
 3,Brock Bowers,LV,89,85.1,-,56.8,88.4,51.6,56.1,956,—,5,631,33,287,22.3,A,"6' 4""",240,,GEORGIA,2024,1,13

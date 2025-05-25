@@ -1,4 +1,4 @@
-Rank,Player,Team,Number,Overall_Grade,Pass_Block_Grade,Rush_Grade,Receiving_Grade,Route_Running_Grade,YAC_Grade,Total_Yards,TD,Rush_Yards,Receiving_Yards,Missed_Tackles_Forced,1st_Downs,Age,Status,Height,Weight,Speed,College,Draft_Year,Draft_Round,Draft_Position
+Rank,Player,Team,Jersey,Overall,Passing,Rushing,Receiving,PassBlock,RunBlock,Snaps,Passes,Rushes,Receptions,PassBlocks,RunBlocks,Age,GradeLevel,Height,Weight,Speed,College,DraftYear,DraftRound,DraftPick
 1,Derrick Henry,BLT,22,94.3,-,93.6,62.4,61.2,55.5,715,—,375,213,60,67,30.8,A,"6' 3""",247,4.5,ALABAMA,2016,2,45
 2,Bijan Robinson,ATL,7,92.8,-,92.8,82.2,51.6,78.8,861,—,313,418,107,23,23.2,A,"5' 11""",215,4.5,TEXAS,2023,1,8
 3,Josh Jacobs,GB,8,92.3,-,91.3,89.2,55.3,55.2,717,—,333,281,71,32,27.2,A,"5' 10""",223,,ALABAMA,2019,1,24

@@ -5,6 +5,67 @@ class Matchup < ApplicationRecord
 
   # Add methods to fetch offensive and defensive players if needed
 
+  def self.phi
+    find_by(season: 2025, week: 1, team: :phi)
+  end
+
+  def index_grade
+
+    puts "=QB=============="
+    puts qb.slug
+    puts "🏈 #{qb.passing_grade}  🏃 #{qb.rushing_grade} 🙌 #{qb.receiving_grade}"
+    puts "---------------"
+
+    puts "=O-LINE=============="
+    oline.each do |blocker|
+      puts blocker.slug
+      puts "🏈 #{blocker.pass_block_grade}  🏃 #{blocker.run_block_grade}"
+    end
+
+    puts "=RB=============="
+    puts rb.slug
+    puts "🏈 #{rb.pass_block_grade}  🏃 #{rb.rushing_grade} 🙌 #{rb.receiving_grade}"
+    puts "---------------"
+
+    puts "=Receivers=============="
+    receivers.each do |receiver|
+      puts receiver.slug
+      puts "🏈 #{receiver.receiving_grade}  🏃 #{receiver.run_block_grade}"
+    end
+
+    puts "=D-Line=============="
+    dline.each do |rusher|
+      puts rusher.slug
+      puts "🏈 #{rusher.pass_rush_grade}  🏃 #{rusher.rush_defense_grade} 🙌 #{rusher.coverage_grade}"
+    end
+    puts "=Linebackers=============="
+    linebackers.each do |lb|
+      puts lb.slug
+      puts "🏈 #{lb.pass_rush_grade}  🏃 #{lb.rush_defense_grade} 🙌 #{lb.coverage_grade}"
+    end
+    puts "=Secondary=============="
+    secondary.each do |back|
+      puts back.slug
+      puts "🏈 #{back.pass_rush_grade}  🏃 #{back.rush_defense_grade} 🙌 #{back.coverage_grade}"
+    end
+
+
+    # ap oline.first
+    # ap oline.last
+
+
+    # What is grade on Offensive Line
+
+    # What is grade on Offensive Line + RB
+
+    # What is grade on Offensive Line + WR
+
+  end
+
+  def offense_starters
+    [self.o1, self.o2, self.o3, self.o4, self.o5, self.o6, self.o7, self.o8, self.o9, self.o10, self.o11].filter_map { |slug| Player.find_by_slug(slug) }
+  end
+
   def qb
     Player.find_by_slug(self.o1)
   end
@@ -14,44 +75,23 @@ class Matchup < ApplicationRecord
   end
 
   def wide_receivers
-    positions = [self.o3, self.o4, self.o5, self.o6]
-    positions.filter_map { |slug| Player.find_by_slug(slug) if slug&.start_with?("wide_receiver") }
+    offense_starters.filter_map { |player| player if player.slug&.start_with?("wide_receiver") }
   end
 
-  def cornerbacks
-    [self.d8, self.d9, self.d11].filter_map { |slug| Player.find_by_slug(slug) if slug&.start_with?("cornerback") }
+  def tight_ends
+    offense_starters.filter_map { |player| player if player.slug&.start_with?("tight_end") }
   end
 
-  def safeties
-    [self.d6, self.d7].filter_map { |slug| Player.find_by_slug(slug) if slug&.start_with?("safeties") }
+  def fullbacks
+    [] # Add logic if fullbacks are included in the dataset
   end
 
-  def secondary
-    cornerbacks + safeties
+  def receivers
+    wide_receivers + tight_ends
   end
 
-  def linebackers
-    [self.d4, self.d5].filter_map { |slug| Player.find_by_slug(slug) if slug&.start_with?("linebackers") }
-  end
-
-  def back_7
-    secondary + linebackers
-  end
-
-  def edge_rushers
-    [self.d3, self.d10].filter_map { |slug| Player.find_by_slug(slug) if slug&.start_with?("edge_rusher") }
-  end
-
-  def defensive_ends
-    [self.d1, self.d2].filter_map { |slug| Player.find_by_slug(slug) if slug&.start_with?("defensive_end") }
-  end
-
-  def defense_starters
-    defensive_ends + edge_rushers + back_7
-  end
-
-  def offense_starters
-    [qb, rb] + wide_receivers + tight_ends + [center] + guards + tackles
+  def oline
+    [center] + guards + tackles
   end
 
   def center
@@ -59,20 +99,49 @@ class Matchup < ApplicationRecord
   end
 
   def guards
-    [self.o8, self.o9].filter_map { |slug| Player.find_by_slug(slug) if slug&.start_with?("gaurd") }
+    offense_starters.filter_map { |player| player if player.slug&.start_with?("gaurd") }
   end
 
   def tackles
-    [self.o10, self.o11].filter_map { |slug| Player.find_by_slug(slug) if slug&.start_with?("tackle") }
+    offense_starters.filter_map { |player| player if player.slug&.start_with?("tackle") }
   end
 
-  def tight_ends
-    [self.o5].filter_map { |slug| Player.find_by_slug(slug) if slug&.start_with?("tight_end") }
+  def defense_starters
+    [self.d1, self.d2, self.d3, self.d4, self.d5, self.d6, self.d7, self.d8, self.d9, self.d10, self.d11].filter_map { |slug| Player.find_by_slug(slug) }
   end
 
-  def fullbacks
-    [] # Add logic if fullbacks are included in the dataset
+  def edge_rushers
+    defense_starters.filter_map { |player| player if player.slug&.start_with?("edge_rusher") }
   end
+
+  def defensive_ends
+    defense_starters.filter_map { |player| player if player.slug&.start_with?("defensive_end") }
+  end
+
+  def dline
+    defensive_ends + edge_rushers
+  end
+
+  def linebackers
+    defense_starters.filter_map { |player| player if player.slug&.start_with?("linebackers") }
+  end
+
+  def cornerbacks
+    defense_starters.filter_map { |player| player if player.slug&.start_with?("cornerback") }
+  end
+
+  def safeties
+    defense_starters.filter_map { |player| player if player.slug&.start_with?("safeties") }
+  end
+
+  def secondary
+    cornerbacks + safeties
+  end
+
+  def back_7
+    secondary + linebackers
+  end
+
 
   # Stack error
   # def kicker

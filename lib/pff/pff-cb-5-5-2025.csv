@@ -1,4 +1,4 @@
-Rank,Player,Team,Jersey,Overall_Grade,Coverage_Grade,Run_Defense_Grade,Tackling_Grade,Snaps,Coverage_Snaps,Run_Defense_Snaps,Passing_Snaps,Age,Status,Height,Weight,College,Draft_Year,Draft_Round,Draft_Pick,Rank,Player,Team,Jersey,Overall_Grade
+Rank,Player,Team,Jersey,Overall,RushDefense,PassRush,Coverage,Snaps,RunSnaps,PassRushSnaps,CoverageSnaps,Age,Status,Height,Weight,Speed,College,DraftYear,DraftRound,DraftPick,Rank,Player,Team
 1,Cooper DeJean,PHI,33,86.3,90.4,58.7,84.2,881,261,14,606,22.2,A,"6' 1""",207,IOWA,2024,2,40,1,Cooper DeJean,PHI,33,86.3
 2,Pat Surtain II,DEN,2,83.8,81.8,42.2,85.1,1054,369,3,682,25.0,A,"6' 2""",202,ALABAMA,2021,1,9,2,Pat Surtain II,DEN,2,83.8
 3,Garrett Williams,ARZ,21,82.0,65.1,64.0,83.7,778,254,10,514,23.9,A,"5' 10""",192,SYRACUSE,2023,3,73,3,Garrett Williams,ARZ,21,82.0

@@ -1,4 +1,4 @@
-Rank,Player,Team,Jersey,Overall_Grade,Run_Block_Grade,Screen_Block_Grade,Receiving_Grade,Rushing_Grade,Pass_Block_Grade,Total_Yards,Run_Yards,Screen_Yards,Intermediate_Yards,Screen_Rec,Deep_Yards,Age,Grade_Level,Height,Weight,Speed,College,Draft_Year,Draft_Round,Draft_Pick
+Rank,Player,Team,Jersey,Overall,Passing,Rushing,Receiving,PassBlock,RunBlock,Snaps,Passes,Rushes,Receptions,PassBlocks,RunBlocks,Age,GradeLevel,Height,Weight,Speed,College,DraftYear,DraftRound,DraftPick
 1,Puka Nacua,LA,12,92.5,-,55.6,92.6,75.5,72.6,594,0,11,371,3,209,23.9,A,"6' 2""",205,,BYU,2023,5,179
 2,Nico Collins,HST,12,92.3,-,-,92.3,75.8,67.2,622,0,0,446,2,174,26.1,A,"6' 4""",215,,MICHIGAN,2021,3,90
 3,Mike Evans,TB,13,90.4,-,-,90.2,-,66.5,707,0,0,463,0,244,31.7,A,"6' 5""",231,4.5,TEXAS A&M,2014,1,7

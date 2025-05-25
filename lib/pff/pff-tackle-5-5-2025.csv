@@ -1,4 +1,4 @@
-Rank,Player,Team,Jersey,Overall,Pass_Block,TE,QB,Pass_Grade,Run_Grade,Snaps,Pos Snaps,TE_Snaps,QB_Snaps,Pass_Snaps,Run_Snaps,Age,Active,Height,Weight,40Time,College,Draft_Year,Draft_Round,Draft_Pick
+Rank,Player,Team,Jersey,Overall,Passing,Rushing,Receiving,PassBlock,RunBlock,Snaps,Passes,Rushes,Receptions,PassBlocks,RunBlocks,Age,GradeLevel,Height,Weight,Speed,College,DraftYear,DraftRound,DraftPick
 1,Jordan Mailata,PHI,68,95.2,-,-,-,90.8,94.6,1069,—,—,—,530,539,28.0,A,"6' 8""",365,,NO COLLEGE,2018,7,233
 2,Rashawn Slater,LAC,70,90.9,-,-,-,89.9,82.3,959,—,—,—,586,373,26.1,A,"6' 4""",315,,NWESTERN,2021,1,13
 3,Penei Sewell,DET,58,89.6,60.0,-,83.9,75.4,91.5,1213,1,—,0,664,548,24.5,A,"6' 5""",335,,OREGON,2021,1,7

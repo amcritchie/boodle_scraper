@@ -1,4 +1,4 @@
-Rank,Player,Team,Number,Overall_Grade,Run_Defense_Grade,Pass_Rush_Grade,Coverage_Grade,Snaps,Run_Defense_Snaps,Pass_Rush_Snaps,Coverage_Snaps,Age,Status,Height,Weight,Speed,College,Draft_Year,Draft_Round,Draft_Position,Rank,Player,Team
+Rank,Player,Team,Jersey,Overall,RushDefense,PassRush,Coverage,Snaps,RunSnaps,PassRushSnaps,CoverageSnaps,Age,Status,Height,Weight,Speed,College,DraftYear,DraftRound,DraftPick,Rank,Player,Team
 1,Aidan Hutchinson,DET,97,94.9,70.6,95.0,46.6,280,77,198,5,24.7,A,"6' 7""",268,,MICHIGAN,2022,1,2,1,Aidan Hutchinson,DET
 2,Myles Garrett,CLV,95,92.3,78.4,92.8,65.2,822,328,477,17,29.3,A,"6' 4""",272,4.6,TEXAS A&M,2017,1,1,2,Myles Garrett,CLV
 3,T.J. Watt,PIT,90,91.7,90.3,90.1,70.0,1002,370,599,33,30.5,A,"6' 4""",252,4.7,WISCONSIN,2017,1,30,3,T.J. Watt,PIT

@@ -155,47 +155,26 @@ ActiveRecord::Schema[7.0].define(version: 2025_03_19_015931) do
     t.integer "current_base"
     t.integer "current_cap_hit"
     t.integer "jersey"
-    t.decimal "overall_grade", precision: 5, scale: 2
+    t.decimal "offense_grade", precision: 5, scale: 2
     t.decimal "passing_grade", precision: 5, scale: 2
-    t.decimal "running_grade", precision: 5, scale: 2
-    t.decimal "rpo_grade", precision: 5, scale: 2
-    t.decimal "dropback_grade", precision: 5, scale: 2
-    t.decimal "pocket_grade", precision: 5, scale: 2
-    t.decimal "receiving_grade", precision: 5, scale: 2
     t.decimal "rushing_grade", precision: 5, scale: 2
-    t.decimal "yac_grade", precision: 5, scale: 2
-    t.decimal "route_grade", precision: 5, scale: 2
-    t.integer "intermediate_yards"
-    t.integer "deep_yards"
-    t.integer "screen_yards"
-    t.integer "total_yards"
-    t.integer "rush_yards"
-    t.integer "receiving_yards"
-    t.integer "missed_tackles_forced"
-    t.integer "td"
-    t.integer "first_downs"
-    t.decimal "pass_block_grade", precision: 5, scale: 2
+    t.decimal "receiving_grade", precision: 5, scale: 2
     t.decimal "run_block_grade", precision: 5, scale: 2
-    t.decimal "screen_block_grade", precision: 5, scale: 2
-    t.decimal "coverage_grade", precision: 5, scale: 2
-    t.decimal "run_defense_grade", precision: 5, scale: 2
-    t.decimal "tackling_grade", precision: 5, scale: 2
+    t.decimal "pass_block_grade", precision: 5, scale: 2
+    t.integer "snaps_on_offense"
+    t.integer "snaps_passing"
+    t.integer "snaps_rushing"
+    t.integer "snaps_recieving"
+    t.integer "snaps_run_block"
+    t.integer "snaps_pass_block"
+    t.decimal "defence_grade", precision: 5, scale: 2
+    t.decimal "rush_defense_grade", precision: 5, scale: 2
     t.decimal "pass_rush_grade", precision: 5, scale: 2
-    t.integer "snaps"
-    t.integer "run_snaps"
-    t.integer "pass_rush_snaps"
-    t.integer "coverage_snaps"
-    t.integer "passing_snaps"
-    t.integer "routes"
-    t.integer "qb_hits"
-    t.integer "total_snaps"
-    t.integer "pass_snaps"
-    t.integer "rush_snaps"
-    t.integer "rpo_snaps"
-    t.integer "dropback_snaps"
-    t.integer "pocket_snaps"
-    t.integer "run_block_snaps"
-    t.integer "pass_block_snaps"
+    t.decimal "coverage_grade", precision: 5, scale: 2
+    t.integer "snaps_on_defence"
+    t.integer "snaps_rush_defense"
+    t.integer "snaps_pass_rush"
+    t.integer "snaps_coverage"
     t.decimal "age", precision: 4, scale: 1
     t.string "hand"
     t.string "height"
