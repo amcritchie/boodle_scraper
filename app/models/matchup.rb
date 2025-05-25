@@ -62,6 +62,45 @@ class Matchup < ApplicationRecord
 
   end
 
+  def self.week1
+    matchups = {}
+    Matchup.where(season: 2025, week: 1).each do |matchup|
+      rushing_offense_score = matchup.rushing_offense_score rescue 0.0
+      rushing_defense_score = matchup.rushing_defense_score rescue 0.0
+      puts "======="
+      matchups[matchup.team] = {
+        game: matchup.game,
+        rushing_offense_score: rushing_offense_score,
+        rushing_defense_score: rushing_defense_score
+      }
+    end
+
+    puts "Matchups"
+
+    matchups.each do |k,v|
+      puts v[:game]
+      puts v[:rushing_offense_score]
+      puts v[:rushing_defense_score]
+    end
+  end
+
+  def rushing_offense_score
+    qb_rushing          = 1.0 * qb.rushing_grade
+    rb_rushing          = 1.2 * rb.rushing_grade
+    oline_blocking      = 1.0 * (oline.sum { |line| line.run_block_grade } / oline.count).round(2)
+    receivers_blocking  = 0.8 * (receivers.sum { |receiver| receiver.run_block_grade } / receivers.count).round(2)
+    # Puts 
+    "#{qb_rushing} + #{rb_rushing} + #{oline_blocking} + #{receivers_blocking}"
+  end
+
+  def rushing_defense_score
+    dline_rushing_defense       = 1.5 * (dline.sum { |line| line.rush_defense_grade } / dline.count).round(2)
+    linebackers_rushing_defense = 1.0 * (linebackers.sum { |line| line.rush_defense_grade } / linebackers.count).round(2)
+    secondary_rushing_defense   = 0.8 * (secondary.sum { |line| line.rush_defense_grade } / secondary.count).round(2)
+    # Puts 
+    "#{dline_rushing_defense} + #{linebackers_rushing_defense} + #{secondary_rushing_defense}"
+  end
+
   def offense_starters
     [self.o1, self.o2, self.o3, self.o4, self.o5, self.o6, self.o7, self.o8, self.o9, self.o10, self.o11].filter_map { |slug| Player.find_by_slug(slug) }
   end
@@ -151,28 +190,4 @@ class Matchup < ApplicationRecord
   # def punter
   #   Player.find_by_slug(self.punter) # Replace `p1` with the actual key for punter if available
   # end
-
 end
-
-# o1: nil,
-# o2: "runningback-robinson-alabama-2022",
-# o3: "wide_receiver-mclaurin-ohio-state-2019",
-# o4: "wide_receiver-samuel-s-carolina-2019",
-# o5: "tight_end-ertz-stanford-2013",
-# o6: "runningback-mcnichols-boise-st-2017",
-# o7: "center-biadasz-4-146",
-# o8: "gaurd-cosmi-texas-2021",
-# o9: "gaurd-allegretti-illinois-2019",
-# o10: "tackle-tunsil-ole-miss-2016",
-# o11: "tackle-wylie-e-michigan-2017",
-# d1: "defensive_end-day-notre-dame-2016",
-# d2: "defensive_end-kinlaw-s-carolina-2020",
-# d3: "edge_rusher-armstrong-kansas-2018",
-# d4: "linebackers-wagner-utah-st-2012",
-# d5: "linebackers-luvu-wash-state-2018",
-# d6: "safeties-martin-illinois-2023",
-# d7: "safeties-harris-boston-col-2019",
-# d8: "cornerback-sainristil-michigan-2024",
-# d9: "cornerback-jones-auburn-2016",
-# d10: "edge_rusher-jr.-arkansas-2017",
-# d11: "cornerback-lattimore-ohio-state-2017",
