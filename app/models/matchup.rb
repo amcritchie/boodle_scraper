@@ -13,6 +13,13 @@ class Matchup < ApplicationRecord
     find_by(season: 2025, week: 1, team: :ari)
   end
 
+  def team
+    Team.find_by_slug(team_slug)
+  end
+  def team_defense
+    Team.find_by_slug(team_defense_slug)
+  end
+
   def self.set_scores
     all.each do |matchup|
       matchup.set_rushing_offense_score
@@ -64,7 +71,7 @@ class Matchup < ApplicationRecord
     formatted_summary = sprintf(
       "#%-2d %-3s %-3d %s",
       index,
-      self.team,
+      self.team_slug,
       self.passing_offense_score,
       self.passing_offense_score_string
     )
@@ -75,7 +82,7 @@ class Matchup < ApplicationRecord
     formatted_summary = sprintf(
       "#%-2d %-3s %-3d %-40s %-3d %-20s",
       index,
-      self.team_defense,
+      self.team_defense_slug,
       self.sack_score,
       self.sack_factors,
       self.coverage_score,
@@ -179,6 +186,11 @@ class Matchup < ApplicationRecord
 
   def set_passing_offense_score
     qb_passing          = 4.0 * qb.passing_grade rescue 60
+    # Most Impactful Rushing Players
+    update(reciever_factors: top_three_receivers.map { |player| "#{player.receiving_grade.to_i} #{player.last_name}" })
+    oline_holes = oline.sort_by { |player| -player.pass_block_grade rescue 60 }.last(2)
+    # Most Impactful Coverage Players
+    update(pass_block_factors: oline_holes.map { |player| "#{player.pass_block_grade.to_i} #{player.last_name}" unless player.nil? })
     # WRs + TE
     receiver1 = top_three_receivers.first
     receiver2 = top_three_receivers.second
@@ -186,9 +198,14 @@ class Matchup < ApplicationRecord
     rec1_receiving      = 1.75 * receiver1.receiving_grade
     rec2_receiving      = 1.00 * receiver2.receiving_grade
     rec3_receiving      = 0.70 * receiver3.receiving_grade
+    # Set scores
+    update(passer_score: qb_passing)
+    update(reciever_score: rec1_receiving + rec2_receiving + rec3_receiving)
     # RB + OLINE
     rb_passing          = 0.5 * rb.offense_grade rescue 60
     oline_passing       = 2.0 * (oline.sum { |line| line.pass_block_grade rescue 60 } / oline.count).to_i
+    # Set Pass blocking score
+    update(pass_block_score: oline_passing + rb_passing)
     # Update Rushing Off Score
     update(
       passing_offense_score: (qb_passing + rec1_receiving + rec2_receiving + rec3_receiving + rb_passing + oline_passing),
@@ -198,9 +215,9 @@ class Matchup < ApplicationRecord
 
   def set_passing_defense_score
     # Most Impactful Rushing Players
-    update(sack_factors: pass_rush.map { |player| "#{player.last_name} #{player.pass_rush_grade}" })
+    update(sack_factors: pass_rush.map { |player| "#{player.pass_rush_grade.to_i} #{player.last_name}" })
     # Most Impactful Coverage Players
-    update(coverage_factors: nickle_package.map { |player| "#{player.last_name} #{player.coverage_grade}" })
+    update(coverage_factors: nickle_package.map { |player| "#{player.coverage_grade.to_i} #{player.last_name}" })
     
     # Calculate sack score
     rusher1 = 3.0 * (pass_rush.first.pass_rush_grade rescue 60)
@@ -214,6 +231,48 @@ class Matchup < ApplicationRecord
     average_db_score = (nickle_package.sum {|db| db.coverage_grade}) / nickle_package.count
     coverage_score = 1.5 * (average_db_score - (0.5 * (average_db_score - weakest_db_score)))
     update(coverage_score: coverage_score)
+  end
+
+  def calculate_tier(score_column)
+    matchups = Matchup.where(season: 2025, week: 1).order(score_column => :desc)
+    total = matchups.count
+    rank = matchups.index(self) + 1
+    case rank.to_f / total
+    when 0...0.1
+      "S"
+    when 0.1...0.3
+      "A"
+    when 0.3...0.5
+      "B"
+    when 0.5...0.8
+      "C"
+    else
+      "D"
+    end
+  end
+
+  def passer_tier
+    calculate_tier(:passer_score)
+  end
+
+  def reciever_tier
+    calculate_tier(:reciever_score)
+  end
+
+  def pass_block_tier
+    calculate_tier(:pass_block_score)
+  end
+
+  def sack_tier
+    calculate_tier(:sack_score)
+  end
+
+  def coverage_tier
+    calculate_tier(:coverage_score)
+  end
+  def passer_range
+    matchups = Matchup.where(season: 2025, week: 1).order(passer_score: :desc)
+    return matchups.first(2).last.passer_score, matchups.last(2).first.passer_score
   end
 
   def offense_starters

@@ -49,7 +49,7 @@ class Game < ApplicationRecord
     offense = home.generate_offense
     defense = away.generate_defense
     # Find or create matup
-    matchup = Matchup.find_or_create_by(game: self.slug, team: home.slug, team_defense: away.slug)
+    matchup = Matchup.find_or_create_by(game: self.slug, team_slug: home.slug, team_defense_slug: away.slug)
     # Create roster
     matchup.update(
       season: self.season,
@@ -87,7 +87,7 @@ class Game < ApplicationRecord
     offense = away.generate_offense
     defense = home.generate_defense
     # Find or create matup
-    matchup = Matchup.find_or_create_by(game: self.slug, team: away.slug, team_defense: home.slug)
+    matchup = Matchup.find_or_create_by(game: self.slug, team_slug: away.slug, team_defense_slug: home.slug)
     # Create roster
     matchup.update(
       season: self.season,

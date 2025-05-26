@@ -19,11 +19,11 @@ class Team < ApplicationRecord
     end
 
     def matchup
-      Matchup.find_by(season: 2025, week: 1, team: slug)
+      Matchup.find_by(season: 2025, week: 1, team_slug: slug)
     end
 
     def matchup_def
-      Matchup.find_by(season: 2025, week: 1, team_defense: slug)
+      Matchup.find_by(season: 2025, week: 1, team_defense_slug: slug)
     end
 
     def self.active_teams
@@ -156,7 +156,7 @@ class Team < ApplicationRecord
       cbs = teammates.by_position(:cornerback).order(defence_grade: :desc).limit(2)
       flex_defense = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(defence_grade: :desc).where.not(id: (des.map(&:id) + edges.map(&:id) + lbs.map(&:id) + safeties.map(&:id) + cbs.map(&:id))).limit(1)
       # Find or create roster
-      matchup = Matchup.find_or_create_by(game: game.slug, team: slug)
+      matchup = Matchup.find_or_create_by(game: game.slug, team_slug: slug)
       # Create roster
       matchup.update(
           season: season,

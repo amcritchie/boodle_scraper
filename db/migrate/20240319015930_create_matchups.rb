@@ -4,8 +4,8 @@ class CreateMatchups < ActiveRecord::Migration[7.0]
       t.integer :season
       t.integer :week
       t.string :game
-      t.string :team
-      t.string :team_defense
+      t.string :team_slug
+      t.string :team_defense_slug
       t.boolean :home
       t.boolean :at_home
       t.integer :rushing_offense_score
@@ -16,6 +16,13 @@ class CreateMatchups < ActiveRecord::Migration[7.0]
       t.string :passing_offense_score_string
       t.integer :passing_defense_score
       t.string :passing_defense_score_string
+
+
+      t.integer :passer_score
+      t.integer :reciever_score
+      t.json :reciever_factors
+      t.integer :pass_block_score
+      t.json :pass_block_factors
 
       t.integer :sack_score
       t.json :sack_factors
