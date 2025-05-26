@@ -5,8 +5,22 @@ class CreateMatchups < ActiveRecord::Migration[7.0]
       t.integer :week
       t.string :game
       t.string :team
+      t.string :team_defense
       t.boolean :home
       t.boolean :at_home
+      t.integer :rushing_offense_score
+      t.string :rushing_offense_score_string
+      t.integer :rushing_defense_score
+      t.string :rushing_defense_score_string
+      t.integer :passing_offense_score
+      t.string :passing_offense_score_string
+      t.integer :passing_defense_score
+      t.string :passing_defense_score_string
+
+      t.integer :sack_score
+      t.json :sack_factors
+      t.integer :coverage_score
+      t.json :coverage_factors
     #   t.references :team, foreign_key: true
 
       # Offensive players

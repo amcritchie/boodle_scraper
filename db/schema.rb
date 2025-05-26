@@ -108,8 +108,21 @@ ActiveRecord::Schema[7.0].define(version: 2025_03_19_015931) do
     t.integer "week"
     t.string "game"
     t.string "team"
+    t.string "team_defense"
     t.boolean "home"
     t.boolean "at_home"
+    t.integer "rushing_offense_score"
+    t.string "rushing_offense_score_string"
+    t.integer "rushing_defense_score"
+    t.string "rushing_defense_score_string"
+    t.integer "passing_offense_score"
+    t.string "passing_offense_score_string"
+    t.integer "passing_defense_score"
+    t.string "passing_defense_score_string"
+    t.integer "sack_score"
+    t.json "sack_factors"
+    t.integer "coverage_score"
+    t.json "coverage_factors"
     t.string "o1"
     t.string "o2"
     t.string "o3"
@@ -143,6 +156,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_03_19_015931) do
   end
 
   create_table "players", force: :cascade do |t|
+    t.string "slug", null: false
     t.integer "rank"
     t.string "position"
     t.string "player"
@@ -184,7 +198,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_03_19_015931) do
     t.integer "draft_year"
     t.integer "draft_round"
     t.integer "draft_pick"
-    t.string "slug", null: false
     t.string "import_slug"
     t.string "import_from"
     t.json "details"

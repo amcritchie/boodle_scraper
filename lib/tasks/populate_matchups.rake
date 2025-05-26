@@ -17,8 +17,14 @@ namespace :matchups do
       game.home_matchup
     end
 
+    matchups = Matchup.where(season: 2025, week: 1)
+    matchups.set_scores
+
     # Eagles Index Grade (Have Fun)
-    Matchup.phi.index_grade
+    Matchup.rush_defense_rank
+    Matchup.rush_offense_rank
+    Matchup.pass_offense_rank
+    Matchup.pass_defense_rank
   end
 
   desc "Populate matchups for Week 1, Season 2025"

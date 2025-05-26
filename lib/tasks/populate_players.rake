@@ -42,14 +42,17 @@ def pff_populate(file_name, position)
   file_path = Rails.root.join('lib', 'pff', file_name)
 
   CSV.foreach(file_path, headers: true) do |row|
+    puts row['Team']
     # ID team
-    team = row['Team'].downcase rescue "unknown"
-    team = :lar if team == "la"
-    team = :hou if team == "hst"
-    team = :bal if team == "blt"
-    team = :cle if team == "clv"
-    # Validate team found
-    next "Team not found" unless team = Team.find_by(slug: team)
+    team_slug = row['Team'] rescue "unknown"
+    puts "------"
+    puts team_slug
+    puts "------"
+    # Find and validate team_slug
+    unless team = Team.pff_team(team_slug)
+      puts "No Team Found for #{team}"
+      next
+    end
     # Import PFF player
     team.pff_player_import(row,position)
   end

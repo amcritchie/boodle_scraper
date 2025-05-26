@@ -49,12 +49,12 @@ class Game < ApplicationRecord
     offense = home.generate_offense
     defense = away.generate_defense
     # Find or create matup
-    matchup = Matchup.find_or_create_by(game: self.slug, team: home.slug)
+    matchup = Matchup.find_or_create_by(game: self.slug, team: home.slug, team_defense: away.slug)
     # Create roster
     matchup.update(
       season: self.season,
       week: self.week,
-      home: false,
+      home: true,
       o1:   offense[:quarterback]&.slug,
       o2:   offense[:runningback]&.slug,
       o3:   offense[:wide_receivers][0]&.slug,
@@ -69,9 +69,9 @@ class Game < ApplicationRecord
       d1:   defense[:defensive_ends][0]&.slug,
       d2:   defense[:defensive_ends][1]&.slug,
       d3:   defense[:edge_rushers][0]&.slug,
-      d4:   defense[:linebackers][0]&.slug,
-      d5:   defense[:linebackers][1]&.slug,
-      d6:   defense[:linebackers][2]&.slug,
+      d4:   defense[:edge_rushers][1]&.slug,
+      d5:   defense[:linebackers][0]&.slug,
+      d6:   defense[:linebackers][1]&.slug,
       d7:   defense[:safeties][0]&.slug,
       d8:   defense[:safeties][1]&.slug,
       d9:   defense[:cornerbacks][0]&.slug,
@@ -87,7 +87,7 @@ class Game < ApplicationRecord
     offense = away.generate_offense
     defense = home.generate_defense
     # Find or create matup
-    matchup = Matchup.find_or_create_by(game: self.slug, team: away.slug)
+    matchup = Matchup.find_or_create_by(game: self.slug, team: away.slug, team_defense: home.slug)
     # Create roster
     matchup.update(
       season: self.season,
@@ -107,9 +107,9 @@ class Game < ApplicationRecord
       d1:   defense[:defensive_ends][0]&.slug,
       d2:   defense[:defensive_ends][1]&.slug,
       d3:   defense[:edge_rushers][0]&.slug,
-      d4:   defense[:linebackers][0]&.slug,
-      d5:   defense[:linebackers][1]&.slug,
-      d6:   defense[:linebackers][2]&.slug,
+      d4:   defense[:edge_rushers][1]&.slug,
+      d5:   defense[:linebackers][0]&.slug,
+      d6:   defense[:linebackers][1]&.slug,
       d7:   defense[:safeties][0]&.slug,
       d8:   defense[:safeties][1]&.slug,
       d9:   defense[:cornerbacks][0]&.slug,

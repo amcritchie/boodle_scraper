@@ -2,6 +2,9 @@ class Team < ApplicationRecord
     extend TeamMapping
     include TeamPopulations
     
+    def players
+      Player.where(team_slug: slug)
+    end
     def self.active
         where(active: true)
     end
@@ -13,6 +16,14 @@ class Team < ApplicationRecord
     end
     def description
       "#{self.emoji} #{self.name}"
+    end
+
+    def matchup
+      Matchup.find_by(season: 2025, week: 1, team: slug)
+    end
+
+    def matchup_def
+      Matchup.find_by(season: 2025, week: 1, team_defense: slug)
     end
 
     def self.active_teams
@@ -98,8 +109,8 @@ class Team < ApplicationRecord
       teammates = Player.by_team(slug)
       # Fetch players by position
       defensive_ends  = teammates.by_position(:defensive_end).order(defence_grade: :desc).limit(2)
-      edge_rushers   = teammates.by_position(:edge_rusher).order(defence_grade: :desc).limit(1)
-      linebackers     = teammates.by_position(:linebackers).order(defence_grade: :desc).limit(3)
+      edge_rushers   = teammates.by_position(:edge_rusher).order(defence_grade: :desc).limit(2)
+      linebackers     = teammates.by_position(:linebackers).order(defence_grade: :desc).limit(2)
       safeties        = teammates.by_position(:safeties).order(defence_grade: :desc).limit(2)
       cornerbacks     = teammates.by_position(:cornerback).order(defence_grade: :desc).limit(2)
       flex            = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback])
@@ -139,8 +150,8 @@ class Team < ApplicationRecord
       tackles = teammates.by_position(:tackle).order(offense_grade: :desc).limit(2)
       # Defence
       des = teammates.by_position(:defensive_end).order(defence_grade: :desc).limit(2)
-      edges = teammates.by_position(:edge_rusher).order(defence_grade: :desc).limit(1)
-      lbs = teammates.by_position(:linebackers).order(defence_grade: :desc).limit(3)
+      edges = teammates.by_position(:edge_rusher).order(defence_grade: :desc).limit(2)
+      lbs = teammates.by_position(:linebackers).order(defence_grade: :desc).limit(2)
       safeties = teammates.by_position(:safeties).order(defence_grade: :desc).limit(2)
       cbs = teammates.by_position(:cornerback).order(defence_grade: :desc).limit(2)
       flex_defense = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(defence_grade: :desc).where.not(id: (des.map(&:id) + edges.map(&:id) + lbs.map(&:id) + safeties.map(&:id) + cbs.map(&:id))).limit(1)
@@ -165,14 +176,14 @@ class Team < ApplicationRecord
           d1: des[0]&.slug,
           d2: des[1]&.slug,
           d3: edges[0]&.slug,
-          d4: lbs[0]&.slug,
-          d5: lbs[1]&.slug,
-          d6: safeties[0]&.slug,
-          d7: safeties[1]&.slug,
-          d8: cbs[0]&.slug,
-          d9: cbs[1]&.slug,
-          d10: flex_defense[0]&.slug,
-          d11: flex_defense[1]&.slug
+          d4: edges[1]&.slug,
+          d5: lbs[0]&.slug,
+          d6: lbs[1]&.slug,
+          d7: safeties[0]&.slug,
+          d8: safeties[1]&.slug,
+          d9: cbs[0]&.slug,
+          d10: cbs[1]&.slug,
+          d11: flex_defense[0]&.slug
       )
       puts "Matchup for Week #{week}, Season #{season} #{name} created successfully!"
       ap matchup

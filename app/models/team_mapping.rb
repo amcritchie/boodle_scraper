@@ -158,6 +158,78 @@ module TeamMapping
       :unknown
     end
   end
+    
+  # Pro Football Focus Mapping
+  def pff_team(name)
+    case name
+    when "BUF"              # AFC East
+      Team.find_or_create_by(slug_long: :buffalo_bills)
+    when "NYJ"
+      Team.find_or_create_by(slug_long: :new_york_jets)
+    when "MIA"
+      Team.find_or_create_by(slug_long: :miami_dolphins)
+    when "NE"
+      Team.find_or_create_by(slug_long: :new_england_patriots)
+    when "KC"       # AFC West
+      Team.find_or_create_by(slug_long: :kansas_city_chiefs)
+    when "DEN"
+      Team.find_or_create_by(slug_long: :denver_broncos)
+    when "LAC"
+      Team.find_or_create_by(slug_long: :los_angeles_chargers)
+    when "LV"
+      Team.find_or_create_by(slug_long: :las_vegas_raiders)
+    when "CIN"       # AFC North
+      Team.find_or_create_by(slug_long: :cincinnati_bengals)
+    when "BLT"
+      Team.find_or_create_by(slug_long: :baltimore_ravens)
+    when "PIT"
+      Team.find_or_create_by(slug_long: :pittsburgh_steelers)
+    when "CLV"
+      Team.find_or_create_by(slug_long: :cleveland_browns)
+    when "JAX"     # AFC South
+      Team.find_or_create_by(slug_long: :jacksonville_jaguars)
+    when "HST"
+      Team.find_or_create_by(slug_long: :houston_texans)
+    when "TEN"
+      Team.find_or_create_by(slug_long: :tennessee_titans)
+    when "IND"
+      Team.find_or_create_by(slug_long: :indianapolis_colts)
+    when "GB"        # NFC North
+      Team.find_or_create_by(slug_long: :green_bay_packers)
+    when "MIN"
+      Team.find_or_create_by(slug_long: :minnesota_vikings)
+    when "CHI"
+      Team.find_or_create_by(slug_long: :chicago_bears)
+    when "DET"
+      Team.find_or_create_by(slug_long: :detroit_lions)
+    when "DAL"           # NFC EAST
+      Team.find_or_create_by(slug_long: :dallas_cowboys)
+    when "NYG"
+      Team.find_or_create_by(slug_long: :new_york_giants)
+    when "PHI"
+      Team.find_or_create_by(slug_long: :philadelphia_eagles)
+    when "WAS"
+      Team.find_or_create_by(slug_long: :washington_commanders)
+    when "SEA"         # NFC West
+      Team.find_or_create_by(slug_long: :seattle_seahawks)
+    when "LA"
+      Team.find_or_create_by(slug_long: :los_angeles_rams)
+    when "SF"
+      Team.find_or_create_by(slug_long: :san_francisco_49ers)
+    when "ARZ"
+      Team.find_or_create_by(slug_long: :arizona_cardinals)
+    when "ATL"          # NFC South
+      Team.find_or_create_by(slug_long: :atlanta_falcons)
+    when "CAR"
+      Team.find_or_create_by(slug_long: :carolina_panthers)
+    when "TB"
+      Team.find_or_create_by(slug_long: :tampa_bay_buccaneers)
+    when "NO"
+      Team.find_or_create_by(slug_long: :new_orleans_saints)
+    else
+      :unknown
+    end
+  end
 
   # # Emoji
   # def emoji
