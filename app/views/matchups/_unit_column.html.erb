@@ -1,0 +1,14 @@
+<td class="border border-gray-300 px-4 py-2 <%= matchup.tier_class(tier) %>">
+<h5>
+<b><%= tier %></b>
+<b class="float-right"><%= score %></b>
+  </h5>  
+  <ul class="list-disc">
+    <% players.each do |player| %>
+      <li class="flex justify-between">
+        <span><%= player.tag %></span>
+        <span class="text-right"><%= player.send(grade).to_i %></span>
+      </li>
+    <% end %>
+  </ul>
+</td>

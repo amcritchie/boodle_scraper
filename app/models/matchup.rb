@@ -204,6 +204,12 @@ class Matchup < ApplicationRecord
     # RB + OLINE
     rb_passing          = 0.5 * rb.offense_grade rescue 60
     oline_passing       = 2.0 * (oline.sum { |line| line.pass_block_grade rescue 60 } / oline.count).to_i
+    # oline grades
+    interior_grade = interior_oline.sum { |p| p.pass_block_grade rescue 60 } / interior_oline.size
+    exterior_grade = exterior_oline.sum { |p| p.pass_block_grade rescue 60 } / exterior_oline.size
+    # blocking grade
+    update(interior_pass_block_score: interior_grade)
+    update(exterior_pass_block_score: exterior_grade)
     # Set Pass blocking score
     update(pass_block_score: oline_passing + rb_passing)
     # Update Rushing Off Score
@@ -225,12 +231,25 @@ class Matchup < ApplicationRecord
     rusher3 = 1.2 * (pass_rush.third.pass_rush_grade rescue 60)
     rusher4 = 0.8 * (pass_rush.fourth.pass_rush_grade rescue 60)
     update(sack_score: rusher1 + rusher2 + rusher3 + rusher4)
-
+    # oline grades
+    interior_grade = defensive_ends.sum { |p| p.pass_rush_grade rescue 60 } / defensive_ends.size
+    exterior_grade = edge_rushers.sum { |p| p.pass_rush_grade rescue 60 } / edge_rushers.size
+    # blocking grade
+    update(interior_rush_score: interior_grade)
+    update(exterior_rush_score: exterior_grade)
     # Calculate coverage score
     weakest_db_score = nickle_package.last.coverage_grade
     average_db_score = (nickle_package.sum {|db| db.coverage_grade}) / nickle_package.count
     coverage_score = 1.5 * (average_db_score - (0.5 * (average_db_score - weakest_db_score)))
     update(coverage_score: coverage_score)
+    # oline grades
+    lb_grade = linebackers.sum { |p| p.coverage_grade rescue 60 } / linebackers.size
+    ss_grade = safeties.sum { |p| p.coverage_grade rescue 60 } / safeties.size
+    cb_grade = cornerbacks.sum { |p| p.coverage_grade rescue 60 } / cornerbacks.size
+    # blocking grade
+    update(linebacker_coverage_score: lb_grade)
+    update(safety_coverage_score: ss_grade)
+    update(corner_coverage_score: cb_grade)
   end
 
   def calculate_tier(score_column)
@@ -238,16 +257,18 @@ class Matchup < ApplicationRecord
     total = matchups.count
     rank = matchups.index(self) + 1
     case rank.to_f / total
-    when 0...0.1
+    when 0...0.15
       "S"
-    when 0.1...0.3
+    when 0.15...0.4
       "A"
-    when 0.3...0.5
+    when 0.4...0.6
       "B"
-    when 0.5...0.8
+    when 0.6...0.8
       "C"
-    else
+    when 0.8...0.9
       "D"
+    else
+      "F"
     end
   end
 
@@ -261,6 +282,30 @@ class Matchup < ApplicationRecord
 
   def pass_block_tier
     calculate_tier(:pass_block_score)
+  end
+
+  def interior_pass_block_tier
+    calculate_tier(:interior_pass_block_score)
+  end
+
+  def exterior_pass_block_tier
+    calculate_tier(:exterior_pass_block_score)
+  end
+
+  def interior_rush_tier
+    calculate_tier(:interior_rush_score)
+  end
+  def exterior_rush_tier
+    calculate_tier(:exterior_rush_score)
+  end
+  def linebacker_coverage_tier
+    calculate_tier(:linebacker_coverage_score)
+  end
+  def safety_coverage_tier
+    calculate_tier(:safety_coverage_score)
+  end
+  def corner_coverage_tier
+    calculate_tier(:corner_coverage_score)
   end
 
   def sack_tier
@@ -287,6 +332,14 @@ class Matchup < ApplicationRecord
     Player.find_by_slug(self.o2)
   end
 
+  def full_backs
+    offense_starters.filter_map { |player| player if player.slug&.start_with?("full_back") }
+  end
+
+  def running_backs
+    offense_starters.filter_map { |player| player if player.slug&.start_with?("running_back") }
+  end
+
   def wide_receivers
     offense_starters.filter_map { |player| player if player.slug&.start_with?("wide_receiver") }
   end
@@ -303,8 +356,12 @@ class Matchup < ApplicationRecord
     wide_receivers + tight_ends
   end
 
+  def skill_positions
+    full_backs + running_backs  + receivers
+  end
+
   def oline
-    [center] + guards + tackles
+    interior_oline + exterior_oline
   end
 
   def center
@@ -317,6 +374,20 @@ class Matchup < ApplicationRecord
 
   def tackles
     offense_starters.filter_map { |player| player if player.slug&.start_with?("tackle") }
+  end
+
+  def interior_oline
+    offense_starters
+    .filter_map { |player| player if player.slug&.start_with?("gaurd", "center") }
+    .sort_by { |player| -player.pass_block_grade }
+    .first(3)
+  end
+
+  def exterior_oline
+    offense_starters
+    .filter_map { |player| player if player.slug&.start_with?("tackle") }
+    .sort_by { |player| -player.pass_block_grade }
+    .first(2)
   end
 
   def defense_starters
@@ -344,17 +415,24 @@ class Matchup < ApplicationRecord
 
   # Linebackers, 2, Defence grade
   def linebackers
-    defense_starters.filter_map { |player| player if player.slug&.start_with?("linebackers") }
+    defense_starters
+    .filter_map { |player| player if player.slug&.start_with?("linebackers") }
     .sort_by { |player| -player.defence_grade }
     .first(2)
   end
 
   def cornerbacks
-    defense_starters.filter_map { |player| player if player.slug&.start_with?("cornerback") }
+    defense_starters
+    .filter_map { |player| player if player.slug&.start_with?("cornerback") }
+    .sort_by { |player| -player.coverage_grade }
+    .first(2)
   end
 
   def safeties
-    defense_starters.filter_map { |player| player if player.slug&.start_with?("safeties") }
+    defense_starters
+    .filter_map { |player| player if player.slug&.start_with?("safeties") }
+    .sort_by { |player| -player.coverage_grade }
+    .first(2)
   end
 
   def secondary
@@ -366,7 +444,7 @@ class Matchup < ApplicationRecord
   end
 
   def top_three_receivers
-    offense_starters
+    skill_positions
       .filter_map { |player| player if player.receiving_grade }
       .sort_by { |player| -player.receiving_grade }
       .first(3)
@@ -419,6 +497,25 @@ class Matchup < ApplicationRecord
     secondary.each do |back|
       puts back.slug
       puts "🏈 #{back.pass_rush_grade}  🏃 #{back.rush_defense_grade} 🙌 #{back.coverage_grade}"
+    end
+  end
+
+  def tier_class(tier)
+    case tier
+    when "S"
+      "bg-green-500 text-white"
+    when "A"
+      "bg-green-200 text-green-800"
+    when "B"
+      "bg-green-100 text-green-700"
+    when "C"
+      "bg-red-100 text-red-800"
+    when "D"
+      "bg-red-300 text-red-900"
+    when "F"
+      "bg-red-500 text-white"
+    else
+      ""
     end
   end
 

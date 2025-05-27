@@ -18,11 +18,21 @@ class CreateMatchups < ActiveRecord::Migration[7.0]
       t.string :passing_defense_score_string
 
 
-      t.integer :passer_score
-      t.integer :reciever_score
+      
+      # t.integer :reciever_score
       t.json :reciever_factors
       t.integer :pass_block_score
       t.json :pass_block_factors
+
+      t.integer :passer_score
+      t.integer :reciever_score
+      t.integer :interior_pass_block_score
+      t.integer :exterior_pass_block_score
+      t.integer :interior_rush_score
+      t.integer :exterior_rush_score
+      t.integer :linebacker_coverage_score
+      t.integer :safety_coverage_score
+      t.integer :corner_coverage_score
 
       t.integer :sack_score
       t.json :sack_factors
