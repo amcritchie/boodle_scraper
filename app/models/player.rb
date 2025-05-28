@@ -14,8 +14,44 @@ class Player < ApplicationRecord
   end
 
   def tag
-    truncated_tag = "#{position_symbol} #{last_name}"
-    truncated_tag.length > 9 ? "#{truncated_tag[0, 9]}..." : truncated_tag
+    truncated_tag = "#{last_name} #{position_symbol}"
+    # truncated_tag.length > 9 ? "#{truncated_tag[0, 9]}..." : truncated_tag
+  end
+
+  def self.run_block
+    all.sort_by { |player| -player.pass_block_grade }
+  end
+  def self.pass_block
+    all.sort_by { |player| -player.pass_block_grade }
+  end
+
+  def self.order_pass_rush
+    all.order(pass_rush_grade: :desc)
+  end
+
+  def self.order_coverage
+    all.order(coverage_grade: :desc)
+  end
+
+  def self.order_run_block
+    all.order(run_block_grade: :desc)
+  end
+
+  def self.order_pass_block
+    all.order(pass_block_grade: :desc)
+  end
+  def self.order_receiving
+    all.order(receiving_grade: :desc)
+  end
+
+  def self.order_passing
+    all.order(passing_grade: :desc)
+  end
+  def self.order_rushing
+    all.order(rushing_grade: :desc)
+  end
+  def self.order_rush_defense
+    all.order(rush_defense_grade: :desc)
   end
 
   def position_symbol
@@ -66,6 +102,84 @@ class Player < ApplicationRecord
     else
       ""
     end
+  end
+
+  def tiering(casee)
+    case casee
+    when 0...0.1
+      "A"
+    when 0.1...0.3
+      "B"
+    when 0.3...0.6
+      "C"
+    when 0.6...0.9
+      "D"
+    else
+      "D"
+    end
+  end
+
+
+
+
+  def peer_tiering(peers)
+    # Validate they are in tier list
+    return "D" if peers.index(self).nil?
+    total = peers.count
+    rank = peers.index(self) + 1
+    # tiering(rank.to_f / peers.count)
+    case rank.to_f / total
+    when 0...0.15
+      "A"
+    when 0.15...0.35
+      "B"
+    when 0.35...0.65
+      "C"
+    when 0.65...0.9
+      "D"
+    else
+      "D"
+    end
+  end
+
+  def passing_tier
+    peers = Player.where(position: [:quarterback]).order(passing_grade: :desc).limit(32)
+    peer_tiering(peers) 
+  end
+
+  def receiving_tier
+    peers = Player.where(position: [:wide_receiver, :tight_end]).order(receiving_grade: :desc).limit(96)
+    peer_tiering(peers) 
+  end
+
+  def rushing_tier
+    peers = Player.where(position: [:runningback, :quarterback]).order(rushing_grade: :desc).limit(96)
+    peer_tiering(peers) 
+  end
+
+  def rush_block_tier
+    peers = Player.where(position: [:gaurd, :center, :tackle]).order(run_block_grade: :desc).limit(160)
+    peer_tiering(peers) 
+  end
+
+  def pass_block_tier
+    peers = Player.where(position: [:gaurd, :center, :tackle]).order(pass_block_grade: :desc).limit(160)
+    peer_tiering(peers) 
+  end
+
+  def rush_defense_tier
+    peers = Player.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(rush_defense_grade: :desc).limit(352)
+    peer_tiering(peers) 
+  end
+
+  def pass_rush_tier
+    peers = Player.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(pass_rush_grade: :desc).limit(352)
+    peer_tiering(peers) 
+  end
+
+  def coverage_tier
+    peers = Player.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(coverage_grade: :desc).limit(352)
+    peer_tiering(peers) 
   end
 
   def description

@@ -166,6 +166,17 @@ class Matchup < ApplicationRecord
     rb_rushing          = 1.2 * rb.rushing_grade rescue 60
     oline_blocking      = 1.0 * (oline.sum { |line| line.run_block_grade rescue 60 } / oline.count).to_i
     receivers_blocking  = 0.8 * (receivers.sum { |receiver| receiver.run_block_grade } / receivers.count).to_i
+    
+    # Rushing Tandem RB + QB
+    rush_score = rushing_tandem.sum { |p| p.rushing_grade rescue 50 } / rushing_tandem.size
+    # blocking grade
+    update(rush_score: rush_score)
+    # oline grades
+    interior_grade = interior_oline.sum { |p| p.run_block_grade rescue 60 } / interior_oline.size
+    exterior_grade = exterior_oline.sum { |p| p.run_block_grade rescue 60 } / exterior_oline.size
+    # blocking grade
+    update(interior_rush_block_score: interior_grade)
+    update(exterior_rush_block_score: exterior_grade)
     # Update Rushing Off Score
     update(
       rushing_offense_score: (qb_rushing + rb_rushing + oline_blocking + receivers_blocking),
@@ -177,6 +188,27 @@ class Matchup < ApplicationRecord
     dline_rushing_defense       = 1.5 * (dline.sum { |line| line.rush_defense_grade } / dline.count).to_i
     linebackers_rushing_defense = 1.0 * (linebackers.sum { |line| line.rush_defense_grade } / linebackers.count).to_i
     secondary_rushing_defense   = 0.8 * (secondary.sum { |line| line.rush_defense_grade } / secondary.count).to_i
+
+
+    # Dline grades
+    interior_grade = defensive_ends
+    .sort_by { |player| -player.rush_defense_grade }
+    .sum { |p| p.rush_defense_grade rescue 60 } / defensive_ends.size
+    exterior_grade = edge_rushers
+    .sort_by { |player| -player.rush_defense_grade }
+    .sum { |p| p.rush_defense_grade rescue 60 } / edge_rushers.size
+    linebacker_grade = linebackers
+    .sort_by { |player| -player.rush_defense_grade }
+    .sum { |p| p.rush_defense_grade rescue 60 } / edge_rushers.size
+    safeties_grade = safeties
+    .sort_by { |player| -player.rush_defense_grade }
+    .sum { |p| p.rush_defense_grade rescue 60 } / edge_rushers.size
+    # blocking grade
+    update(interior_rush_defense_score: interior_grade)
+    update(exterior_rush_defense_score: exterior_grade)
+    update(linebacker_rush_defense_score: linebacker_grade)
+    update(safety_rush_defense_score: safeties_grade)
+
     # Update Rushing Def Score
     update(
       rushing_defense_score: (dline_rushing_defense + linebackers_rushing_defense + secondary_rushing_defense),
@@ -231,7 +263,7 @@ class Matchup < ApplicationRecord
     rusher3 = 1.2 * (pass_rush.third.pass_rush_grade rescue 60)
     rusher4 = 0.8 * (pass_rush.fourth.pass_rush_grade rescue 60)
     update(sack_score: rusher1 + rusher2 + rusher3 + rusher4)
-    # oline grades
+    # dline grades
     interior_grade = defensive_ends.sum { |p| p.pass_rush_grade rescue 60 } / defensive_ends.size
     exterior_grade = edge_rushers.sum { |p| p.pass_rush_grade rescue 60 } / edge_rushers.size
     # blocking grade
@@ -270,6 +302,31 @@ class Matchup < ApplicationRecord
     else
       "F"
     end
+  end
+
+  def rush_tier
+    calculate_tier(:rush_score)
+  end
+  def interior_rush_block_tier
+    calculate_tier(:interior_rush_block_score)
+  end
+  def exterior_rush_block_tier
+    calculate_tier(:exterior_rush_block_score)
+  end
+  def interior_rush_defense_tier
+    calculate_tier(:interior_rush_defense_score)
+  end
+  def exterior_rush_defense_tier
+    calculate_tier(:exterior_rush_defense_score)
+  end
+  def linebacker_rush_defense_tier
+    calculate_tier(:linebacker_rush_defense_score)
+  end
+  def safety_rush_defense_tier
+    calculate_tier(:safety_rush_defense_score)
+  end
+  def corner_rush_defense_tier
+    calculate_tier(:corner_rush_defense_score)
   end
 
   def passer_tier
@@ -321,7 +378,8 @@ class Matchup < ApplicationRecord
   end
 
   def offense_starters
-    [self.o1, self.o2, self.o3, self.o4, self.o5, self.o6, self.o7, self.o8, self.o9, self.o10, self.o11].filter_map { |slug| Player.find_by_slug(slug) }
+    Player.where(slug: [self.o1, self.o2, self.o3, self.o4, self.o5, self.o6, self.o7, self.o8, self.o9, self.o10, self.o11])
+    # [self.o1, self.o2, self.o3, self.o4, self.o5, self.o6, self.o7, self.o8, self.o9, self.o10, self.o11].filter_map { |slug| Player.find_by_slug(slug) }
   end
 
   def qb
@@ -348,9 +406,9 @@ class Matchup < ApplicationRecord
     offense_starters.filter_map { |player| player if player.slug&.start_with?("tight_end") }
   end
 
-  def fullbacks
-    [] # Add logic if fullbacks are included in the dataset
-  end
+  # def fullbacks
+  #   [] # Add logic if fullbacks are included in the dataset
+  # end
 
   def receivers
     wide_receivers + tight_ends
@@ -365,48 +423,60 @@ class Matchup < ApplicationRecord
   end
 
   def center
-    Player.find_by_slug(self.o7)
+    offense_starters
+    .where(position: [:center])
+    .limit(1).first
   end
 
   def guards
-    offense_starters.filter_map { |player| player if player.slug&.start_with?("gaurd") }
+    offense_starters
+    .where(position: [:gaurd])
+    .limit(2)
   end
 
   def tackles
-    offense_starters.filter_map { |player| player if player.slug&.start_with?("tackle") }
+    offense_starters
+    .where(position: [:tackle])
+    .limit(2)
   end
 
   def interior_oline
     offense_starters
-    .filter_map { |player| player if player.slug&.start_with?("gaurd", "center") }
-    .sort_by { |player| -player.pass_block_grade }
-    .first(3)
+    .where(position: [:gaurd, :center])
+    .limit(3)
   end
 
   def exterior_oline
     offense_starters
-    .filter_map { |player| player if player.slug&.start_with?("tackle") }
-    .sort_by { |player| -player.pass_block_grade }
-    .first(2)
+    .where(position: [:tackle])
+    .limit(2)
+  end
+
+  def rushing_tandem
+    offense_starters
+    .where(position: [:runningback, :quarterback])
+    .limit(2)
   end
 
   def defense_starters
-    [self.d1, self.d2, self.d3, self.d4, self.d5, self.d6, self.d7, self.d8, self.d9, self.d10, self.d11].filter_map { |slug| Player.find_by_slug(slug) }
+    Player.where(slug: [self.d1, self.d2, self.d3, self.d4, self.d5, self.d6, self.d7, self.d8, self.d9, self.d10, self.d11])
+      # .where("pass_rush_grade > ?", 70) # Filter players with pass_rush_grade > 70
+      # .order(pass_rush_grade: :desc)   # Order by pass_rush_grade descending
+      # .limit(2)                        # Limit to top 2 players
   end
 
   # Edge Rushers, 2, Pass Rush
   def edge_rushers
     defense_starters
-    .filter_map { |player| player if player.slug&.start_with?("edge_rusher") }
-    .sort_by { |player| -player.pass_rush_grade }
-    .first(2)
+    .where(position: [:edge_rusher])
+    .limit(2)
   end
 
   # Defensive Ends, 2, Pass Rush
   def defensive_ends
-    defense_starters.filter_map { |player| player if player.slug&.start_with?("defensive_end") }
-    .sort_by { |player| -player.pass_rush_grade }
-    .first(2)
+    defense_starters
+    .where(position: [:defensive_end])
+    .limit(2)
   end
 
   def dline
@@ -416,23 +486,20 @@ class Matchup < ApplicationRecord
   # Linebackers, 2, Defence grade
   def linebackers
     defense_starters
-    .filter_map { |player| player if player.slug&.start_with?("linebackers") }
-    .sort_by { |player| -player.defence_grade }
-    .first(2)
+    .where(position: [:linebackers])
+    .limit(2)
   end
 
   def cornerbacks
     defense_starters
-    .filter_map { |player| player if player.slug&.start_with?("cornerback") }
-    .sort_by { |player| -player.coverage_grade }
-    .first(2)
+    .where(position: [:cornerback])
+    .limit(2)
   end
 
   def safeties
     defense_starters
-    .filter_map { |player| player if player.slug&.start_with?("safeties") }
-    .sort_by { |player| -player.coverage_grade }
-    .first(2)
+    .where(position: [:safeties])
+    .limit(2)
   end
 
   def secondary
@@ -444,10 +511,10 @@ class Matchup < ApplicationRecord
   end
 
   def top_three_receivers
-    skill_positions
-      .filter_map { |player| player if player.receiving_grade }
-      .sort_by { |player| -player.receiving_grade }
-      .first(3)
+    offense_starters
+    .where(position: [:wide_receiver, :tight_end])
+    .order_receiving
+    .limit(3)
   end
 
   def nickle_package
@@ -503,17 +570,55 @@ class Matchup < ApplicationRecord
   def tier_class(tier)
     case tier
     when "S"
-      "bg-green-500 text-white"
+      "bg-green-500 hover:bg-green-600 text-white"
     when "A"
-      "bg-green-200 text-green-800"
+      "bg-green-200 hover:bg-green-300 text-green-800"
     when "B"
-      "bg-green-100 text-green-700"
+      "bg-green-100 hover:bg-green-200 text-green-700"
     when "C"
-      "bg-red-100 text-red-800"
+      "bg-red-100 hover:bg-red-200 text-red-800"
     when "D"
-      "bg-red-300 text-red-900"
+      "bg-red-300 hover:bg-red-400 text-red-900"
     when "F"
-      "bg-red-500 text-white"
+      "bg-red-500 hover:bg-red-600 text-white"
+    else
+      ""
+    end
+  end
+
+  def tier_class_offense(tier)
+    case tier
+    when "S"
+      "bg-green-500 hover:bg-green-600 text-white bold border-2 border-solid border-green-600"
+    when "A"
+      "bg-green-400 hover:bg-green-500 text-white"
+    when "B"
+      "bg-green-300 hover:bg-green-400 text-green-800"
+    when "C"
+      "bg-green-200 hover:bg-green-300 text-green-700"
+    when "D"
+      "bg-green-100 hover:bg-green-200 text-green-700"
+    when "F"
+      "bg-gray-200 hover:bg-gray-300 text-gray-500"
+    else
+      ""
+    end
+  end
+
+  def tier_class_defense(tier)
+    case tier
+    when "S"
+      "bg-gray-200 hover:bg-gray-300 text-black"
+    when "A"
+      "bg-red-300 hover:bg-red-400 text-green-900"
+    when "B"
+      "bg-red-200 hover:bg-red-300 text-green-700"
+    when "C"
+      "bg-red-300 hover:bg-red-400 text-red-700"
+    when "D"
+      "bg-red-400 hover:bg-red-500 text-white"
+    when "F"
+      "bg-red-500 hover:bg-red-600 text-white"
     else
       ""
     end

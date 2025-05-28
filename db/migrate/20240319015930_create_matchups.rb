@@ -24,6 +24,17 @@ class CreateMatchups < ActiveRecord::Migration[7.0]
       t.integer :pass_block_score
       t.json :pass_block_factors
 
+      t.integer :rush_score
+      t.integer :interior_rush_block_score
+      t.integer :exterior_rush_block_score
+      t.integer :interior_rush_defense_score
+      t.integer :exterior_rush_defense_score
+      t.integer :linebacker_rush_defense_score
+      t.integer :safety_rush_defense_score
+      t.integer :corner_rush_defense_score
+      # t.integer :safety_coverage_score
+      # t.integer :corner_coverage_score
+
       t.integer :passer_score
       t.integer :reciever_score
       t.integer :interior_pass_block_score
