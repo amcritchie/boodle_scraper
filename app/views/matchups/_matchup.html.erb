@@ -2,56 +2,45 @@
 <h1 class="text-3xl text-center"><%= matchup.team.emoji %> <%= matchup.team.slug.upcase %> Vs. <%= matchup.team_defense.emoji %> <%= matchup.team_defense.slug.upcase %></h1>
 <br>
 
-
-
-<div class="group relative inline-block">
-  <button class="px-4 py-2 bg-blue-500 text-white rounded">
-    Hover me!
-  </button>
-  <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block whitespace-nowrap rounded bg-gray-700 text-white py-1 px-2 text-sm shadow-lg">
-I'm a tooltip!
-</div>
-</div>
-
-
-
-
-<button data-tooltip-target="tooltip-hover" data-tooltip-trigger="hover" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Tooltip hover</button>
-
-<div id="tooltip-hover" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
-    Tooltip content
-    <div class="tooltip-arrow" data-popper-arrow></div>
-</div>
-
-<button data-ripple-light="true" data-tooltip-target="tooltip"
-class="select-none rounded-lg bg-gray-900 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-gray-900/10 transition-all hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
-Show Tooltip
-</button>
-<div data-tooltip="tooltip"
-class="absolute z-50 whitespace-normal break-words rounded-lg bg-black py-1.5 px-3 font-sans text-sm font-normal text-white focus:outline-none">
-Material Tailwind
-</div>
-
-
 <div class="flex flex-col md:flex-row md:justify-center gap-4">  
   <!-- First Graphic (Rushing) -->
-  <div class="w-full md:w-1/2 max-w-lg mx-auto p-6 bg-blue-50 rounded-lg shadow-lg">
+  <div class="w-full md:w-1/2 max-w-xl mx-auto p-6 bg-blue-50 rounded-lg shadow-lg">
     <h5 class="text-xl font-semibold text-center mb-6">Rushing Matchup</h5>
     <h2 class="text-2xl font-semibold text-center mb-6">4.2 Yards Per Rush</h2>
 
     <div class="grid gap-2 justify-center text-center">
+      <!-- Rushing -->
       <div class="flex justify-center">
-        <div class="group <%= matchup.tier_class_defense(matchup.safety_rush_defense_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
-          <span>S</span>
-          <%= render 'matchups/tooltip', players: matchup.safeties.order_rush_defense, tier_method: :rush_defense_tier, grade_method: :rush_defense_grade %>
+        <div class="group <%= matchup.tier_class_offense(matchup.rush_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
+          <span>Rush</span>
+          <%= render 'matchups/tooltip', players: matchup.rushing_tandem.order_rushing, tier_method: :rushing_tier, grade_method: :rushing_grade %>
         </div>
       </div>
-      <div class="flex justify-center">
-        <div class="group <%= matchup.tier_class_defense(matchup.linebacker_rush_defense_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
-          <span>LB</span>
-          <%= render 'matchups/tooltip', players: matchup.linebackers.order_rush_defense, tier_method: :rush_defense_tier, grade_method: :rush_defense_grade %>
+      <!-- O-Line -->
+      <div class="flex justify-center space-x-2">
+        <div class="group <%= matchup.tier_class_offense(matchup.exterior_rush_block_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
+          <span>RT</span>
+          <%= render 'matchups/tooltip', players: matchup.tackles.order_run_block, tier_method: :rush_block_tier, grade_method: :run_block_grade %>
+        </div>
+        <div class="group <%= matchup.tier_class_offense(matchup.interior_rush_block_tier) %> w-32 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
+          <span>Interior</span>
+          <%= render 'matchups/tooltip', players: matchup.interior_oline.order_run_block, tier_method: :rush_block_tier, grade_method: :run_block_grade %>
+        </div>
+        <div class="group <%= matchup.tier_class_offense(matchup.exterior_rush_block_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
+          <span>LT</span>
+          <%= render 'matchups/tooltip', players: matchup.tackles.order_run_block, tier_method: :rush_block_tier, grade_method: :run_block_grade %>
         </div>
       </div>
+    </div>
+    <!-- Divider -->
+    <div class="relative flex items-center justify-center my-2 container">
+        <div class="flex-1 border-t-2 border-gray-300"></div>
+        <div class="absolute -top-6 left-0 text-gray-500"><%= matchup.team.emoji %> Off</div>
+        <div class="absolute top-0 left-0 text-gray-500"><%= matchup.team_defense.emoji %> Def</div>
+    </div>
+    <!-- Defense -->
+    <div class="grid gap-2 justify-center text-center">    
+      <!-- D-Line -->
       <div class="flex justify-center space-x-2">
         <div class="group <%= matchup.tier_class_defense(matchup.exterior_rush_defense_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
           <span>EDGE</span>
@@ -66,51 +55,69 @@ Material Tailwind
           <%= render 'matchups/tooltip', players: matchup.edge_rushers.order_rush_defense, tier_method: :rush_defense_tier, grade_method: :rush_defense_grade %>
         </div>
       </div>
-      <div class="flex justify-center space-x-2">
-        <div class="group <%= matchup.tier_class_offense(matchup.exterior_rush_block_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
-          <span>RT</span>
-          <%= render 'matchups/tooltip', players: matchup.tackles, tier_method: :rush_block_tier, grade_method: :run_block_grade %>
-        </div>
-        <div class="group <%= matchup.tier_class_offense(matchup.interior_rush_block_tier) %> w-32 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
-          <span>Interior</span>
-          <%= render 'matchups/tooltip', players: matchup.interior_oline, tier_method: :rush_block_tier, grade_method: :run_block_grade %>
-        </div>
-        <div class="group <%= matchup.tier_class_offense(matchup.exterior_rush_block_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
-          <span>LT</span>
-          <%= render 'matchups/tooltip', players: matchup.tackles, tier_method: :rush_block_tier, grade_method: :run_block_grade %>
+      <!-- Linebackers -->
+      <div class="flex justify-center">
+        <div class="group <%= matchup.tier_class_defense(matchup.linebacker_rush_defense_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
+          <span>LB</span>
+          <%= render 'matchups/tooltip', players: matchup.linebackers.order_rush_defense, tier_method: :rush_defense_tier, grade_method: :rush_defense_grade %>
         </div>
       </div>
+      <!-- Safeties -->
       <div class="flex justify-center">
-        <div class="group <%= matchup.tier_class_offense(matchup.rush_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
-          <span>Rush</span>
-          <%= render 'matchups/tooltip', players: matchup.rushing_tandem, tier_method: :rushing_tier, grade_method: :rushing_grade %>
+        <div class="group <%= matchup.tier_class_defense(matchup.safety_rush_defense_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
+          <span>S</span>
+          <%= render 'matchups/tooltip', players: matchup.safeties.order_rush_defense, tier_method: :rush_defense_tier, grade_method: :rush_defense_grade %>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Second Graphic (Passing) -->
-  <div class="w-full md:w-1/2 max-w-lg mx-auto p-6 bg-blue-50 rounded-lg shadow-lg text-center">
+  <div class="w-full md:w-1/2 lg:w-full max-w-xl mx-auto p-6 bg-blue-50 rounded-lg shadow-lg text-center">
     <h5 class="text-xl font-semibold text-center mb-6">Passing Matchup</h5>
     <h2 class="text-2xl font-semibold text-center mb-4">
       3.2 Second Pocket<br/>4.2 Yards Per Attempt
     </h2>
+
     <div class="grid gap-2 justify-center">
-      <div class="flex justify-center">
-        <div class="group <%= matchup.tier_class_defense(matchup.safety_coverage_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
-          <span>S</span>
-          <%= render 'matchups/tooltip', players: matchup.safeties.order_coverage, tier_method: :coverage_tier, grade_method: :coverage_grade %>
+      <div class="flex justify-center space-x-8">
+        <div class="group ml-8 <%= matchup.tier_class_offense(matchup.passer_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
+          <span>QB</span>
+          <%= render 'matchups/tooltip', players: [matchup.qb], tier_method: :passing_tier, grade_method: :passing_grade %>
         </div>
-        <span class="w-28 px-4 py-2"></span>
-      </div>
-      <div class="flex justify-center">
-        <div class="group <%= matchup.tier_class_defense(matchup.linebacker_coverage_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
-          <span>LB</span>
-          <%= render 'matchups/tooltip', players: matchup.linebackers.order_coverage, tier_method: :coverage_tier, grade_method: :coverage_grade %>
-        </div>
-        <span class="w-28 px-4 py-2"></span>
+        <span class="w-20 px-2 py-2"></span>
       </div>
       <div class="flex justify-center space-x-2">
+        <div class="group ml-8 <%= matchup.tier_class_offense(matchup.exterior_pass_block_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
+          <span>RT</span>
+          <%= render 'matchups/tooltip', players: matchup.tackles.order_pass_block, tier_method: :pass_block_tier, grade_method: :pass_block_grade %>
+        </div>
+        <div class="group <%= matchup.tier_class_offense(matchup.interior_pass_block_tier) %> w-32 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
+          <span>Interior</span>
+          <%= render 'matchups/tooltip', players: matchup.interior_oline.order_pass_block, tier_method: :pass_block_tier, grade_method: :pass_block_grade %>
+        </div>
+        <div class="group <%= matchup.tier_class_offense(matchup.exterior_pass_block_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
+          <span>LT</span>
+          <%= render 'matchups/tooltip', players: matchup.tackles.order_pass_block, tier_method: :pass_block_tier, grade_method: :pass_block_grade %>
+        </div>
+        <span class="w-2 px-2 py-2"></span>
+        <div class="group <%= matchup.tier_class_offense(matchup.reciever_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
+          <span>WRs</span>
+          <%= render 'matchups/tooltip', players: matchup.top_three_receivers.order_receiving, tier_method: :receiving_tier, grade_method: :receiving_grade %>
+        </div>
+      </div>
+      <div class="flex justify-center">
+      </div>
+    </div>
+    <!-- Divider -->
+    <div class="relative flex items-center justify-center my-2 container">
+        <div class="flex-1 border-t-2 border-gray-300"></div>
+        <div class="absolute -top-6 left-0 text-gray-500"><%= matchup.team.emoji %> Off </div>
+        <div class="absolute top-0 left-0 text-gray-500"><%= matchup.team_defense.emoji %> Def </div>
+    </div>
+    <!-- Defense -->
+    <div class="grid gap-2 justify-center">
+      <div class="flex justify-center space-x-2 ml-8">
         <span class="w-4 px-2 py-2"></span>
         <div class="group <%= matchup.tier_class_defense(matchup.exterior_rush_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
           <span>EDGE</span>
@@ -130,33 +137,19 @@ Material Tailwind
           <%= render 'matchups/tooltip', players: matchup.cornerbacks.order_coverage, tier_method: :coverage_tier, grade_method: :coverage_grade %>
         </div>
       </div>
-      <div class="flex justify-center space-x-2">
-        <div class="group <%= matchup.tier_class_offense(matchup.exterior_pass_block_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
-          <span>RT</span>
-          <%= render 'matchups/tooltip', players: matchup.tackles.order_pass_block, tier_method: :pass_block_tier, grade_method: :pass_block_grade %>
+            <div class="flex justify-center">
+        <div class="group ml-8 <%= matchup.tier_class_defense(matchup.linebacker_coverage_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
+          <span>LB</span>
+          <%= render 'matchups/tooltip', players: matchup.linebackers.order_coverage, tier_method: :coverage_tier, grade_method: :coverage_grade %>
         </div>
-        <div class="group <%= matchup.tier_class_offense(matchup.interior_pass_block_tier) %> w-32 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
-          <span>Interior</span>
-          <%= render 'matchups/tooltip', players: matchup.interior_oline.order_pass_block, tier_method: :pass_block_tier, grade_method: :pass_block_grade %>
-        </div>
-        <div class="group <%= matchup.tier_class_offense(matchup.exterior_pass_block_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
-          <span>LT</span>
-          <%= render 'matchups/tooltip', players: matchup.tackles.order_pass_block, tier_method: :pass_block_tier, grade_method: :pass_block_grade %>
-        </div>
-        <span class="w-2 px-2 py-2"></span>
-        <div class="group <%= matchup.tier_class_offense(matchup.reciever_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
-          <span>WRs</span>
-          <%= render 'matchups/tooltip', players: matchup.top_three_receivers.order_receiving, tier_method: :receiving_tier, grade_method: :receiving_grade %>
-        </div>
-      </div>
-      <div class="flex justify-center space-x-8">
-        <div class="group <%= matchup.tier_class_offense(matchup.passer_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
-          <span>QB</span>
-          <%= render 'matchups/tooltip', players: [matchup.qb], tier_method: :passing_tier, grade_method: :passing_grade %>
-        </div>
-        <span class="w-20 px-2 py-2"></span>
+        <span class="w-28 px-4 py-2"></span>
       </div>
       <div class="flex justify-center">
+        <div class="group ml-8 <%= matchup.tier_class_defense(matchup.safety_coverage_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
+          <span>S</span>
+          <%= render 'matchups/tooltip', players: matchup.safeties.order_coverage, tier_method: :coverage_tier, grade_method: :coverage_grade %>
+        </div>
+        <span class="w-28 px-4 py-2"></span>
       </div>
     </div>
   </div>

@@ -166,7 +166,7 @@ class Matchup < ApplicationRecord
     rb_rushing          = 1.2 * rb.rushing_grade rescue 60
     oline_blocking      = 1.0 * (oline.sum { |line| line.run_block_grade rescue 60 } / oline.count).to_i
     receivers_blocking  = 0.8 * (receivers.sum { |receiver| receiver.run_block_grade } / receivers.count).to_i
-    
+
     # Rushing Tandem RB + QB
     rush_score = rushing_tandem.sum { |p| p.rushing_grade rescue 50 } / rushing_tandem.size
     # blocking grade
@@ -597,9 +597,9 @@ class Matchup < ApplicationRecord
     when "C"
       "bg-green-200 hover:bg-green-300 text-green-700"
     when "D"
-      "bg-green-100 hover:bg-green-200 text-green-700"
+      "bg-gray-200 hover:bg-gray-300 text-green-700"
     when "F"
-      "bg-gray-200 hover:bg-gray-300 text-gray-500"
+      "bg-orange-200 hover:bg-orange-300 text-gray-500"
     else
       ""
     end

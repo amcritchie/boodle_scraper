@@ -58,7 +58,7 @@ class Player < ApplicationRecord
     case position
     when "quarterback"
       :QB
-    when "running_back"
+    when "runningback"
       :RB
     when "full_back"
       :FB

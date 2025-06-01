@@ -6,7 +6,7 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-  <% @matchups.limit(32).each do |matchup| %>
+  <% @matchups.limit(3).each do |matchup| %>
       <%= render partial: 'matchup', locals: { 
           matchup: matchup,
       } %>
