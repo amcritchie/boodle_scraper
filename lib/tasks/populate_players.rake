@@ -60,10 +60,12 @@ end
 
 def pff_quarterback_populate
   pff_populate('pff-qb-5-5-2025.csv', :quarterback)
+  Team.pff_player_import_new 'lib/pff/2024-qb/passing_summary.csv'
 end
 
 def pff_runningback_populate
    pff_populate('pff-rb-5-5-2025.csv', :runningback)
+   Team.pff_player_import_new 'lib/pff/2024-flex/rushing_summary.csv'
 end
 
 def pff_wide_receiver_populate

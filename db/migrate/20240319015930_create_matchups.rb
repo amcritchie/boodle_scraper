@@ -2,7 +2,7 @@ class CreateMatchups < ActiveRecord::Migration[7.0]
   def change
     create_table :matchups do |t|
       t.integer :season
-      t.integer :week
+      t.integer :week_slug
       t.string :game
       t.string :team_slug
       t.string :team_defense_slug

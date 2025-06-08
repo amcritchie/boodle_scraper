@@ -51,6 +51,52 @@ class CreatePlayers < ActiveRecord::Migration[6.1]
       t.string :import_from
       t.json :details
       t.string :notes
+      # Add columns from rushing_summary.csv
+      t.string :player_id
+      t.string :team_name
+      t.integer :player_game_count
+      t.integer :attempts
+      t.integer :avoided_tackles
+      t.integer :breakaway_attempts
+      t.float :breakaway_percent
+      t.integer :breakaway_yards
+      t.integer :declined_penalties
+      t.integer :designed_yards
+      t.integer :drops
+      t.integer :elu_recv_mtf
+      t.integer :elu_rush_mtf
+      t.integer :elu_yco
+      t.float :elusive_rating
+      t.integer :explosive
+      t.integer :first_downs
+      t.string :franchise_id
+      t.integer :fumbles
+      t.integer :gap_attempts
+      t.float :grades_hands_fumble
+      t.float :grades_offense
+      t.float :grades_offense_penalty
+      t.float :grades_pass
+      t.float :grades_pass_block
+      t.float :grades_pass_route
+      t.float :grades_run
+      t.float :grades_run_block
+      t.integer :longest
+      t.integer :penalties
+      t.integer :rec_yards
+      t.integer :receptions
+      t.integer :routes
+      t.integer :run_plays
+      t.integer :scramble_yards
+      t.integer :scrambles
+      t.integer :targets
+      t.integer :total_touches
+      t.integer :touchdowns
+      t.integer :yards
+      t.integer :yards_after_contact
+      t.float :yco_attempt
+      t.float :ypa
+      t.float :yprr
+      t.integer :zone_attempts
 
       t.timestamps
     end

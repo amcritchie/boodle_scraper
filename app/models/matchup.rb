@@ -1,16 +1,16 @@
 class Matchup < ApplicationRecord
 #   belongs_to :team
 
-  validates :season, :week, :game, :team, presence: true
+  validates :season, :week_slug, :game, :team, presence: true
 
   # Add methods to fetch offensive and defensive players if needed
 
   def self.phi
-    find_by(season: 2025, week: 1, team: :phi)
+    find_by(season: 2025, week_slug: 1, team: :phi)
   end
 
   def self.ari
-    find_by(season: 2025, week: 1, team: :ari)
+    find_by(season: 2025, week_slug: 1, team: :ari)
   end
 
   def team
@@ -34,11 +34,11 @@ class Matchup < ApplicationRecord
   end
 
   def self.w1
-    where(week: 1)
+    where(week_slug: 1)
   end
 
   def self.w2
-    where(week: 2)
+    where(week_slug: 2)
   end
 
   def self.pass_offense_rank
@@ -140,7 +140,7 @@ class Matchup < ApplicationRecord
 
   def self.week1
     matchups_hash = {}
-    matchups = Matchup.where(season: 2025, week: 1)
+    matchups = Matchup.where(season: 2025, week_slug: 1)
     matchups.set_scores
     matchups.order(:rushing_offense_score).each do |matchup|
       rushing_offense_score = matchup.rushing_offense_score rescue 0.0
@@ -285,7 +285,7 @@ class Matchup < ApplicationRecord
   end
 
   def calculate_tier(score_column)
-    matchups = Matchup.where(season: 2025, week: 1).order(score_column => :desc)
+    matchups = Matchup.where(season: 2025, week_slug: 1).order(score_column => :desc)
     total = matchups.count
     rank = matchups.index(self) + 1
     case rank.to_f / total
@@ -373,7 +373,7 @@ class Matchup < ApplicationRecord
     calculate_tier(:coverage_score)
   end
   def passer_range
-    matchups = Matchup.where(season: 2025, week: 1).order(passer_score: :desc)
+    matchups = Matchup.where(season: 2025, week_slug: 1).order(passer_score: :desc)
     return matchups.first(2).last.passer_score, matchups.last(2).first.passer_score
   end
 

@@ -1,7 +1,11 @@
+require 'csv'
+
 class Team < ApplicationRecord
     extend TeamMapping
     include TeamPopulations
     
+    has_many :players
+
     def players
       Player.where(team_slug: slug)
     end
@@ -34,7 +38,6 @@ class Team < ApplicationRecord
     end
 
     def self.kaggle_import
-        require 'csv'
         # Parse CSV
         csv_text = File.read('lib/kaggle/nfl_teams.csv')
         csv = CSV.parse(csv_text, headers: true)
@@ -56,7 +59,7 @@ class Team < ApplicationRecord
             puts "🏈 #{team.conference} | #{team.division} | (#{team.slug}) #{team.name} Saved" if team.active
             # Update team name and other data based on Kaggle
             team.name = team_attrs['team_name']
-            team.name_short = team_attrs['team_name_short']
+            team.alias = team_attrs['team_name_short']
             team.conference = team_attrs['team_conference']
             team.division = team_attrs['team_division']
             team.slug_pfr = team_attrs['team_id_pfr']
@@ -129,10 +132,13 @@ class Team < ApplicationRecord
     end
 
     def generate_matchup(week=1,season=2025)
+      puts "Generating matchup for #{slug} in week #{week} of season #{season}"
+      ap Game.find_by(season: season, week_slug: week)
+      puts "Generating matchup for #{slug} in week #{week} of season #{season}"
       # Find game and evaluate if team is playing at home
-      if game = Game.find_by(season: season, week: week, home_team: slug)
+      if game = Game.find_by(season: season, week_slug: week, home_slug: slug)
           home = true
-      elsif game = Game.find_by(season: season, week: week, away_team: slug)
+      elsif game = Game.find_by(season: season, week_slug: week, away_slug: slug)
           home = false
       else
           raise "Game not found"
@@ -160,7 +166,7 @@ class Team < ApplicationRecord
       # Create roster
       matchup.update(
           season: season,
-          week: week,
+          week_slug: week.to_s,
           home: home,
           o1: qb&.slug,
           o2: rb&.slug,
@@ -187,6 +193,23 @@ class Team < ApplicationRecord
       )
       puts "Matchup for Week #{week}, Season #{season} #{name} created successfully!"
       ap matchup
+    end
+
+    def self.pff_player_import_new(csv_path)
+      CSV.foreach(csv_path, headers: true) do |row|
+        attrs = row.to_h.slice(*Player.column_names)
+        # player = Player.find_or_initialize_by(slug: row['player'].parameterize)
+        # ap Player.where(position: [:runningback]).first
+        player = Player.find_or_initialize_by(player: attrs["player"])
+        # ap Player.find_by(player: attrs["player_id"])
+        player.assign_attributes(attrs)
+        ap attrs
+        ap attrs["player_id"]
+        ap attrs["touchdowns"]
+        ap player
+        player.save! rescue nil
+        # player.save!
+      end
     end
 
     def pff_player_import(pff_row,position)

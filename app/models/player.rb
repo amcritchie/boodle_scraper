@@ -1,8 +1,12 @@
 class Player < ApplicationRecord
-  validates :slug, presence: true, uniqueness: true
+  belongs_to :team
+  has_many :player_seasons
+  has_many :seasons, through: :player_seasons
+
+  # validates :slug, presence: true, uniqueness: true
 
   # Additional validations can be added as needed
-  validates :rank, :player, :team, :college, :draft_year, presence: true
+  # validates :rank, :player, :team, :college, :draft_year, presence: true
 
   # Scopes for querying
   scope :by_team, ->(team) { where(team_slug: team) }
@@ -16,6 +20,20 @@ class Player < ApplicationRecord
   def tag
     truncated_tag = "#{last_name} #{position_symbol}"
     # truncated_tag.length > 9 ? "#{truncated_tag[0, 9]}..." : truncated_tag
+  end
+
+  # 1.6176470588235294
+  # Player.where(position: [:quarterback, :QB, :runningback, :HB]).sum{|b| b.touchdowns }.to_f/(16*17)
+
+  # 2.9338235294117645
+  # Player.runningbacks.sum{|b| b.touchdowns }.to_f/(16*17)
+  
+  def self.quarterbacks
+    all.where(position: [:quarterback, :QB])
+  end
+
+  def self.runningbacks
+    all.where(position: [:runningback, :HB])
   end
 
   def self.run_block
@@ -192,5 +210,9 @@ class Player < ApplicationRecord
     top_qbs.each_with_index do |qb, index|
       puts "#{index + 1}. #{qb.player} - Overall Grade: #{qb.offense_grade}"
     end
+  end
+
+  def full_name
+    "#{first_name} #{last_name}"
   end
 end

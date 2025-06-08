@@ -11,13 +11,13 @@ namespace :matchups do
     # Create games
     Game.create_games_from_csv('/Users/amcritchie/alex-apps/boodle_scraper/lib/2025/Expanded_NFL_2025_Schedule.csv')
     # Each through games in season
-    Game.where(season: 2025, week: 1).each do |game|
+    Game.where(season: 2025, week_slug: 1).each do |game|
       # Generate matchups
       game.away_matchup
       game.home_matchup
     end
 
-    matchups = Matchup.where(season: 2025, week: 1)
+    matchups = Matchup.where(season: 2025, week_slug: 1)
     matchups.set_scores
 
     # Eagles Index Grade (Have Fun)

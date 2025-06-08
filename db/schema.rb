@@ -10,54 +10,61 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_03_19_015931) do
+ActiveRecord::Schema[7.0].define(version: 2024_07_20_000011) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "contracts", force: :cascade do |t|
-    t.string "player_slug"
-    t.integer "current_season"
-    t.integer "current_base"
-    t.integer "current_cap_hit"
-    t.integer "term_contract"
-    t.integer "term_years"
-    t.integer "average_salary"
-    t.integer "signing_bonus"
-    t.integer "total_gaurentied"
-    t.string "free_agent"
-    t.string "url"
-    t.json "year1"
-    t.json "year2"
-    t.json "year3"
-    t.json "year4"
-    t.json "year5"
-    t.json "year6"
-    t.json "year7"
-    t.json "year8"
-    t.json "year9"
-    t.json "year10"
-    t.json "year11"
-    t.json "year12"
+  create_table "broadcasts", force: :cascade do |t|
+    t.bigint "game_id", null: false
+    t.string "network", null: false
+    t.string "internet"
+    t.string "satellite"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["average_salary"], name: "index_contracts_on_average_salary"
-    t.index ["created_at"], name: "index_contracts_on_created_at"
-    t.index ["current_base"], name: "index_contracts_on_current_base"
-    t.index ["current_cap_hit"], name: "index_contracts_on_current_cap_hit"
-    t.index ["current_season"], name: "index_contracts_on_current_season"
-    t.index ["player_slug"], name: "index_contracts_on_player_slug"
-    t.index ["signing_bonus"], name: "index_contracts_on_signing_bonus"
-    t.index ["term_years"], name: "index_contracts_on_term_years"
-    t.index ["total_gaurentied"], name: "index_contracts_on_total_gaurentied"
-    t.index ["updated_at"], name: "index_contracts_on_updated_at"
+    t.index ["game_id"], name: "index_broadcasts_on_game_id"
+  end
+
+  create_table "drives", force: :cascade do |t|
+    t.string "team_slug", null: false
+    t.string "game_slug", null: false
+    t.string "sportsradar_id", null: false
+    t.string "start_reason", default: "Kickoff"
+    t.string "end_reason", default: "End of Game"
+    t.integer "play_count", null: false
+    t.string "duration", null: false
+    t.integer "first_downs", default: 0
+    t.integer "gain", default: 0
+    t.integer "penalty_yards", default: 0
+    t.integer "team_sequence"
+    t.string "start_clock"
+    t.string "end_clock"
+    t.integer "first_drive_yardline"
+    t.integer "last_drive_yardline"
+    t.integer "farthest_drive_yardline"
+    t.integer "net_yards"
+    t.integer "pat_points_attempted", default: 0
+    t.json "payload"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sportsradar_id", "team_sequence"], name: "index_drives_on_sportsradar_id_and_team_sequence", unique: true
   end
 
   create_table "games", force: :cascade do |t|
     t.string "source"
+    t.string "title"
     t.integer "season"
-    t.string "week"
-    t.string "away_team"
-    t.string "home_team"
+    t.string "week_slug"
+    t.string "away_slug"
+    t.string "home_slug"
+    t.string "venue_slug"
+    t.datetime "scheduled"
+    t.string "status"
+    t.integer "attendance"
+    t.string "entry_mode"
+    t.string "slug_sportsradar"
+    t.string "game_type"
+    t.boolean "conference_game"
+    t.string "duration"
     t.float "away_spread"
     t.float "home_spread"
     t.float "away_implied_total"
@@ -75,8 +82,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_03_19_015931) do
     t.string "start_time"
     t.string "day_of_week"
     t.string "tv_network"
-    t.boolean "primetime", default: false
-    t.boolean "overtime", default: false
+    t.boolean "primetime"
+    t.boolean "overtime"
     t.integer "away_team_seed"
     t.integer "home_team_seed"
     t.string "winning_team"
@@ -93,19 +100,20 @@ ActiveRecord::Schema[7.0].define(version: 2025_03_19_015931) do
     t.string "slug", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["away_team"], name: "index_games_on_away_team"
+    t.index ["away_slug"], name: "index_games_on_away_slug"
     t.index ["created_at"], name: "index_games_on_created_at"
-    t.index ["home_team"], name: "index_games_on_home_team"
+    t.index ["home_slug"], name: "index_games_on_home_slug"
     t.index ["season"], name: "index_games_on_season"
     t.index ["slug"], name: "index_games_on_slug", unique: true
     t.index ["source"], name: "index_games_on_source"
     t.index ["updated_at"], name: "index_games_on_updated_at"
-    t.index ["week"], name: "index_games_on_week"
+    t.index ["venue_slug"], name: "index_games_on_venue_slug"
+    t.index ["week_slug"], name: "index_games_on_week_slug"
   end
 
   create_table "matchups", force: :cascade do |t|
     t.integer "season"
-    t.integer "week"
+    t.integer "week_slug"
     t.string "game"
     t.string "team_slug"
     t.string "team_defense_slug"
@@ -175,6 +183,39 @@ ActiveRecord::Schema[7.0].define(version: 2025_03_19_015931) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "periods", force: :cascade do |t|
+    t.bigint "scoring_id", null: false
+    t.string "period_type", null: false
+    t.integer "number", null: false
+    t.integer "sequence", null: false
+    t.integer "home_points", default: 0, null: false
+    t.integer "away_points", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["scoring_id", "sequence"], name: "index_periods_on_scoring_id_and_sequence", unique: true
+    t.index ["scoring_id"], name: "index_periods_on_scoring_id"
+  end
+
+  create_table "player_seasons", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "season_id", null: false
+    t.bigint "team_id"
+    t.integer "passing_touchdowns", default: 0
+    t.integer "rushing_touchdowns", default: 0
+    t.integer "receiving_touchdowns", default: 0
+    t.integer "field_goals_made", default: 0
+    t.integer "tackles", default: 0
+    t.integer "interceptions", default: 0
+    t.integer "sacks", default: 0
+    t.integer "return_touchdowns", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "season_id"], name: "index_player_seasons_on_player_id_and_season_id", unique: true
+    t.index ["player_id"], name: "index_player_seasons_on_player_id"
+    t.index ["season_id"], name: "index_player_seasons_on_season_id"
+    t.index ["team_id"], name: "index_player_seasons_on_team_id"
+  end
+
   create_table "players", force: :cascade do |t|
     t.string "slug", null: false
     t.integer "rank"
@@ -222,6 +263,51 @@ ActiveRecord::Schema[7.0].define(version: 2025_03_19_015931) do
     t.string "import_from"
     t.json "details"
     t.string "notes"
+    t.string "player_id"
+    t.string "team_name"
+    t.integer "player_game_count"
+    t.integer "attempts"
+    t.integer "avoided_tackles"
+    t.integer "breakaway_attempts"
+    t.float "breakaway_percent"
+    t.integer "breakaway_yards"
+    t.integer "declined_penalties"
+    t.integer "designed_yards"
+    t.integer "drops"
+    t.integer "elu_recv_mtf"
+    t.integer "elu_rush_mtf"
+    t.integer "elu_yco"
+    t.float "elusive_rating"
+    t.integer "explosive"
+    t.integer "first_downs"
+    t.string "franchise_id"
+    t.integer "fumbles"
+    t.integer "gap_attempts"
+    t.float "grades_hands_fumble"
+    t.float "grades_offense"
+    t.float "grades_offense_penalty"
+    t.float "grades_pass"
+    t.float "grades_pass_block"
+    t.float "grades_pass_route"
+    t.float "grades_run"
+    t.float "grades_run_block"
+    t.integer "longest"
+    t.integer "penalties"
+    t.integer "rec_yards"
+    t.integer "receptions"
+    t.integer "routes"
+    t.integer "run_plays"
+    t.integer "scramble_yards"
+    t.integer "scrambles"
+    t.integer "targets"
+    t.integer "total_touches"
+    t.integer "touchdowns"
+    t.integer "yards"
+    t.integer "yards_after_contact"
+    t.float "yco_attempt"
+    t.float "ypa"
+    t.float "yprr"
+    t.integer "zone_attempts"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_players_on_created_at"
@@ -236,27 +322,124 @@ ActiveRecord::Schema[7.0].define(version: 2025_03_19_015931) do
     t.index ["updated_at"], name: "index_players_on_updated_at"
   end
 
+  create_table "plays", force: :cascade do |t|
+    t.string "team_slug", null: false
+    t.string "game_slug", null: false
+    t.string "sportsradar_id", null: false
+    t.string "clock"
+    t.integer "home_points"
+    t.integer "away_points"
+    t.string "play_type"
+    t.datetime "wall_clock"
+    t.text "description"
+    t.boolean "official", default: false
+    t.boolean "scoring_play", default: false
+    t.string "score_type", default: "f"
+    t.string "score_points", default: "f"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sportsradar_id", "game_slug"], name: "index_plays_on_sportsradar_id_and_game_slug", unique: true
+  end
+
+  create_table "scorings", force: :cascade do |t|
+    t.bigint "game_id", null: false
+    t.integer "home_points", default: 0, null: false
+    t.integer "away_points", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["game_id"], name: "index_scorings_on_game_id"
+  end
+
+  create_table "seasons", force: :cascade do |t|
+    t.integer "year", null: false
+    t.string "season_type", null: false
+    t.string "name", null: false
+    t.integer "passing_touchdowns", default: 0
+    t.integer "rushing_touchdowns", default: 0
+    t.integer "field_goals", default: 0
+    t.integer "total_touchdowns", default: 0
+    t.integer "total_scoring_plays", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["year", "season_type"], name: "index_seasons_on_year_and_season_type", unique: true
+  end
+
   create_table "teams", force: :cascade do |t|
     t.string "slug"
     t.string "slug_long"
     t.string "emoji"
     t.string "name"
-    t.string "name_short"
+    t.string "location"
+    t.string "alias"
     t.boolean "active", default: true
     t.string "division"
     t.string "conference"
     t.string "slug_pfr"
     t.string "slug_sportrac"
+    t.string "slug_sportsradar"
     t.string "conference_pre_2002"
     t.string "division_pre_2002"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_teams_on_active"
+    t.index ["alias"], name: "index_teams_on_alias"
     t.index ["created_at"], name: "index_teams_on_created_at"
+    t.index ["location"], name: "index_teams_on_location"
+    t.index ["name"], name: "index_teams_on_name"
     t.index ["slug"], name: "index_teams_on_slug"
     t.index ["slug_long"], name: "index_teams_on_slug_long"
     t.index ["slug_pfr"], name: "index_teams_on_slug_pfr"
     t.index ["slug_sportrac"], name: "index_teams_on_slug_sportrac"
+    t.index ["slug_sportsradar"], name: "index_teams_on_slug_sportsradar"
     t.index ["updated_at"], name: "index_teams_on_updated_at"
   end
 
+  create_table "venues", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "city", null: false
+    t.string "state", null: false
+    t.string "country", null: false
+    t.string "zip"
+    t.string "address"
+    t.integer "capacity"
+    t.string "surface"
+    t.string "roof_type"
+    t.string "sr_id", null: false
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sr_id"], name: "index_venues_on_sr_id", unique: true
+  end
+
+  create_table "weathers", force: :cascade do |t|
+    t.bigint "game_id", null: false
+    t.string "condition", null: false
+    t.integer "humidity"
+    t.integer "temperature", null: false
+    t.integer "wind_speed", null: false
+    t.string "wind_direction", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["game_id"], name: "index_weathers_on_game_id"
+  end
+
+  create_table "weeks", force: :cascade do |t|
+    t.bigint "season_id", null: false
+    t.integer "sequence", null: false
+    t.string "title", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["season_id", "sequence"], name: "index_weeks_on_season_id_and_sequence", unique: true
+    t.index ["season_id"], name: "index_weeks_on_season_id"
+  end
+
+  add_foreign_key "broadcasts", "games"
+  add_foreign_key "periods", "scorings"
+  add_foreign_key "player_seasons", "players"
+  add_foreign_key "player_seasons", "seasons"
+  add_foreign_key "player_seasons", "teams"
+  add_foreign_key "scorings", "games"
+  add_foreign_key "weathers", "games"
+  add_foreign_key "weeks", "seasons"
 end
