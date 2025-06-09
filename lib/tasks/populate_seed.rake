@@ -13,6 +13,6 @@ namespace :seed do
     # # rake matchups:populate
     # Rake::Task['matchups:populate'].invoke
     # rake matchups:populate2025
-    Rake::Task['matchups:populate2025'].invoke
+    # Rake::Task['matchups:populate2025'].invoke
   end
 end

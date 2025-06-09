@@ -1,33 +1,33 @@
 namespace :players do
   desc "Populate players from CSV"
   task populate: :environment do
-    # # Populate QBs
+    # Populate QBs
     pff_quarterback_populate
     # Populate RBs
     pff_runningback_populate
     # Populate WRs
     pff_wide_receiver_populate
-    # Populate TEs
-    pff_tight_end_populate
-    # Populate FBs
-    pff_fullback_populate
-    # Populate Cs
-    pff_center_populate
-    # Populate Gs
-    pff_gaurd_populate
-    # Populate Ts
-    pff_tackle_populate
+    # # Populate TEs
+    # pff_tight_end_populate
+    # # Populate FBs
+    # pff_fullback_populate
+    # # Populate Cs
+    # pff_center_populate
+    # # Populate Gs
+    # pff_gaurd_populate
+    # # Populate Ts
+    # pff_tackle_populate
 
-    # Populate DEs
-    pff_de_populate
-    # Populate Edges
-    pff_edge_populate
-    # Populate LBs
-    pff_linebackers_populate
-    # Populate Safeties
-    pff_safeties_populate
-    # Populate CBs
-    pff_cornerback_populate
+    # # Populate DEs
+    # pff_de_populate
+    # # Populate Edges
+    # pff_edge_populate
+    # # Populate LBs
+    # pff_linebackers_populate
+    # # Populate Safeties
+    # pff_safeties_populate
+    # # Populate CBs
+    # pff_cornerback_populate
 
     # Total playes output
     puts "============="
@@ -59,17 +59,18 @@ def pff_populate(file_name, position)
 end
 
 def pff_quarterback_populate
-  pff_populate('pff-qb-5-5-2025.csv', :quarterback)
-  Team.pff_player_import_new 'lib/pff/2024-qb/passing_summary.csv'
+  # pff_populate('pff-qb-5-5-2025.csv', :quarterback)
+  Team.pff_passer_import 'lib/pff/2024-qb/passing_summary.csv'
 end
 
 def pff_runningback_populate
-   pff_populate('pff-rb-5-5-2025.csv', :runningback)
-   Team.pff_player_import_new 'lib/pff/2024-flex/rushing_summary.csv'
+  #  pff_populate('pff-rb-5-5-2025.csv', :runningback)
+   Team.pff_rusher_import 'lib/pff/2024-flex/rushing_summary.csv'
 end
 
 def pff_wide_receiver_populate
-  pff_populate('pff-wr-5-5-2025.csv', :wide_receiver)
+  # pff_populate('pff-wr-5-5-2025.csv', :wide_receiver)
+  Team.pff_receiver_import 'lib/pff/2024-flex/receiving_summary.csv'
 end
 
 def pff_tight_end_populate

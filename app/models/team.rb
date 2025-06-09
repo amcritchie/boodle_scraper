@@ -1,4 +1,5 @@
 require 'csv'
+require 'httparty'
 
 class Team < ApplicationRecord
     extend TeamMapping
@@ -35,6 +36,25 @@ class Team < ApplicationRecord
         teams.each do |team|
             puts "#{team.conference} - #{team.division} - #{team.name} - #{team.active}"
         end
+    end
+
+    def fetch_sportradar_roster
+      # "0d855753-ea21-4953-89f9-0e20aff9eb73"
+      response = HTTParty.get(
+        "https://api.sportradar.com/nfl/official/trial/v7/en/teams/#{slug_sportsradar}/full_roster.json",
+        headers: {
+          'accept' => 'application/json',
+          'x-api-key' => 'dBqzgfZiBp0sTpz06FIx3AjcLzCA2EzwFID6ZCl0'
+        }
+      )
+      
+      ap response
+      if response.success?
+        JSON.parse(response.body)
+      else
+        Rails.logger.error "Failed to fetch SportRadar roster: #{response.code} - #{response.message}"
+        nil
+      end
     end
 
     def self.kaggle_import
@@ -77,6 +97,20 @@ class Team < ApplicationRecord
             team.save
             puts "Team Updated"
             ap team
+            # Fetch SportRadar roster
+            team_sportsradar = team.fetch_sportradar_roster
+            sleep(5)
+            ap team_sportsradar
+            team_sportsradar["venue"]
+            team_sportsradar["coaches"]
+            team_sportsradar["players"]
+            # Each through players
+            team_sportsradar["players"].each do |player_sportsradar|
+              # Find or create player
+              player = Player.sportsradar_find_or_create(player_sportsradar, team.slug)
+              # Puts player
+              ap player
+            end
             # Output team saved
             puts "🏈 #{team.conference} | #{team.division} | (#{team.slug}) #{team.name} Saved" if team.active
         end
@@ -195,25 +229,232 @@ class Team < ApplicationRecord
       ap matchup
     end
 
-    def self.pff_player_import_new(csv_path)
+    def self.pff_passer_import(csv_path)
       CSV.foreach(csv_path, headers: true) do |row|
-        attrs = row.to_h.slice(*Player.column_names)
-        # player = Player.find_or_initialize_by(slug: row['player'].parameterize)
-        # ap Player.where(position: [:runningback]).first
-        player = Player.find_or_initialize_by(player: attrs["player"])
-        # ap Player.find_by(player: attrs["player_id"])
-        player.assign_attributes(attrs)
-        ap attrs
-        ap attrs["player_id"]
-        ap attrs["touchdowns"]
+        # attrs = row.to_h.slice(*Player.column_names)
+        attrs = row.to_h
+        # Fetch important columns
+        slug_pff = attrs["player_id"]
+        player_name = attrs["player"]
+        team_name = attrs["team_name"]
+        position = Player.pff_position(attrs["position"]) rescue "unknown"
+        team = Team.pff_team(team_name) rescue "unknown"
+        # Create player slug
+        slug_player = "#{position}-#{player_name}".downcase.gsub(' ', '-')
+        # Find or create player
+        unless player = Player.find_by(slug_pff: slug_pff)
+          player = Player.find_or_create_by(slug: slug_player) do |player|
+            player.slug_pff = slug_pff
+          end
+        end
+        # Update player
+        player.update(
+          player_game_count:    attrs["player_game_count"],
+          passing_yards_per_attempt:   attrs["ypa"].to_f,
+          passing_attempts:     attrs["attempts"],
+          passing_touchdowns:   attrs["touchdowns"],
+          passing_yards:        attrs["yards"],
+          franchise_id:         attrs["franchise_id"],
+          grades_offense:       attrs["grades_offense"].to_f,
+          grades_pass:          attrs["grades_pass"].to_f,
+          grades_run:           attrs["grades_run"].to_f,
+          penalties:            attrs["penalties"],
+          scrambles:            attrs["scrambles"],
+          accuracy_percent:       attrs["accuracy_percent"],
+          aimed_passes:           attrs["aimed_passes"],
+          avg_depth_of_target:    attrs["avg_depth_of_target"],
+          avg_time_to_throw:      attrs["avg_time_to_throw"],
+          turnover_worthy_plays:  attrs["turnover_worthy_plays"],
+          turnover_worthy_rate:   attrs["twp_rate"],
+          batted_passes:          attrs["bats"],
+          big_time_throws:        attrs["big_time_throws"],
+          btt_rate:               attrs["btt_rate"],
+          completion_percent:     attrs["completion_percent"],
+          completions:            attrs["completions"],
+          declined_penalties:     attrs["declined_penalties"],
+          def_gen_pressures:      attrs["def_gen_pressures"],
+          drop_rate:              attrs["drop_rate"],
+          dropbacks:              attrs["dropbacks"],
+          drops:                  attrs["drops"].to_i,
+          first_downs:            attrs["first_downs"],
+          grades_hands_fumble:    attrs["grades_hands_fumble"],
+          hit_as_threw:           attrs["hit_as_threw"],
+          interceptions:          attrs["interceptions"],
+          passing_snaps:          attrs["passing_snaps"],
+          penalties:              attrs["penalties"].to_i,
+          pressure_to_sack_rate:  attrs["pressure_to_sack_rate"],
+          qb_rating:              attrs["qb_rating"],
+          sack_percent:           attrs["sack_percent"],
+          sacks:                  attrs["sacks"],
+          scrambles:              attrs["scrambles"],
+          spikes_thrown:          attrs["spikes"],
+          thrown_aways:           attrs["thrown_aways"],
+          team_slug:              team.slug,
+          position:               position
+        )
+        puts "-lala----"
+        ap attrs['player']
+        puts "-----"
         ap player
-        player.save! rescue nil
-        # player.save!
+        puts "-----"
+      end
+    end
+
+    def self.pff_rusher_import(csv_path)
+      CSV.foreach(csv_path, headers: true) do |row|
+        # Get row
+        attrs = row.to_h
+        # Fetch important columns
+        slug_pff = attrs["player_id"]
+        player_name = attrs["player"]
+        team_name = attrs["team_name"]
+        position = Player.pff_position(attrs["position"]) rescue "unknown"
+        team = Team.pff_team(team_name) rescue "unknown"
+        # Create player slug
+        slug_player = "#{position}-#{player_name}".downcase.gsub(' ', '-')
+        # Find or create player
+        unless player = Player.find_by(slug_pff: slug_pff)
+          player = Player.find_or_create_by(slug: slug_player) do |player|
+            player.slug_pff = slug_pff
+          end
+        end
+        # Update player
+        player.update(
+          player_game_count:                  attrs["player_game_count"],
+          rushing_attempts:                   attrs["attempts"],
+          avoided_tackles:                    attrs["avoided_tackles"],
+          breakaway_attempts:                 attrs["breakaway_attempts"],
+          breakaway_percent:                  attrs["breakaway_percent"].to_f,
+          breakaway_yards:                    attrs["breakaway_yards"],
+          declined_penalties:                 attrs["declined_penalties"],
+          designed_yards:                     attrs["designed_yards"],
+          drops:                              attrs["drops"],
+          elusive_recv_missed_tackles_forced: attrs["elu_recv_mtf"].to_i,
+          elusive_rush_missed_tackles_forced: attrs["elu_rush_mtf"].to_i,
+          elu_yco:                            attrs["elu_yco"].to_i,
+          elusive_rating:                     attrs["elusive_rating"].to_f,
+          explosive:                          attrs["explosive"].to_i,
+          first_downs:                        attrs["first_downs"],
+          franchise_id:                       attrs["franchise_id"],
+          fumbles:                            attrs["fumbles"].to_i,
+          gap_attempts:                       attrs["gap_attempts"],
+          grades_hands_fumble:                attrs["grades_hands_fumble"].to_f,
+          grades_offense:                     attrs["grades_offense"].to_f,
+          grades_offense_penalty:             attrs["grades_offense_penalty"].to_f,
+          grades_pass:                        attrs["grades_pass"].to_f,
+          grades_run:                         attrs["grades_run"].to_f,
+          grades_pass_block:                  attrs["grades_pass_block"].to_f,
+          grades_run_block:                   attrs["grades_run_block"].to_f,
+          longest:                            attrs["longest"].to_i,
+          rec_yards:                          attrs["rec_yards"].to_i,
+          receptions:                         attrs["receptions"].to_i,
+          routes:                             attrs["routes"].to_i,
+          run_plays:                          attrs["run_plays"].to_i,
+          scramble_yards:                     attrs["scramble_yards"].to_i,
+          scrambles:                          attrs["scrambles"].to_i,
+          targets:                            attrs["targets"].to_i,
+          total_touches:                      attrs["total_touches"].to_i,
+          rushing_touchdowns:                 attrs["touchdowns"].to_i,
+          rushing_yards:                      attrs["yards"],
+          yards_after_contact:                attrs["yards_after_contact"],
+          yards_after_contact_attempt:        attrs["yco_attempt"],
+          rushing_yards_per_attempt:          attrs["ypa"],
+          yards_per_route_run:                attrs["yprr"],
+          zone_attempts:                      attrs["zone_attempts"],
+          team_slug:            team.slug,
+          position:             position
+        )
+        puts "-margot----"
+        ap attrs['player']
+        puts "-----"
+        ap player
+        puts "-----"
+      end
+    end
+
+    def self.pff_receiver_import(csv_path)
+      CSV.foreach(csv_path, headers: true) do |row|
+        # Get row
+        attrs = row.to_h
+        # Fetch important columns
+        slug_pff = attrs["player_id"]
+        player_name = attrs["player"]
+        team_name = attrs["team_name"]
+        position = Player.pff_position(attrs["position"]) rescue "unknown"
+        team = Team.pff_team(team_name) rescue "unknown"
+        # Create player slug
+        slug_player = "#{position}-#{player_name}".downcase.gsub(' ', '-')
+        # Find or create player
+        unless player = Player.find_by(slug_pff: slug_pff)
+          player = Player.find_or_create_by(slug: slug_player) do |player|
+            player.slug_pff = slug_pff
+          end
+        end
+
+  
+
+        # Update player
+        player.update(
+          player_game_count:                attrs["player_game_count"],
+          avg_depth_of_target:              attrs["avg_depth_of_target"],
+          avoided_tackles:                  attrs["avoided_tackles"],
+          caught_percent:                   attrs["caught_percent"],
+          contested_catch_rate:             attrs["contested_catch_rate"],
+          contested_receptions:             attrs["contested_receptions"],
+          contested_targets:                attrs["contested_targets"],
+          declined_penalties:               attrs["declined_penalties"],
+          drops:                            attrs["drops"],
+          first_downs:                      attrs["first_downs"],
+          franchise_id:                     attrs["franchise_id"],
+          fumbles:                          attrs["fumbles"].to_i,
+          grades_hands_drop:                attrs["grades_hands_drop"].to_i,
+          grades_hands_fumble:              attrs["grades_hands_fumble"].to_i,
+          grades_offense:                   attrs["grades_offense"].to_f,
+          grades_pass_block:                attrs["grades_pass_block"].to_f,
+          grades_pass_route:                attrs["grades_pass_route"].to_f,
+          inline_rate:                      attrs["inline_rate"].to_f,
+          inline_snaps:                     attrs["inline_snaps"].to_i,
+          interceptions:                    attrs["interceptions"].to_i,
+          longest:                          attrs["longest"].to_i,
+          pass_block_rate:                  attrs["pass_block_rate"].to_i,
+          pass_blocks:                      attrs["pass_blocks"].to_i,
+          pass_plays:                       attrs["pass_plays"].to_i,
+          penalties:                        attrs["penalties"].to_i,
+          receptions:                       attrs["receptions"].to_i,
+          route_rate:                       attrs["route_rate"].to_i,
+          routes:                           attrs["routes"].to_i,
+          slot_rate:                        attrs["slot_rate"].to_i,
+          slot_snaps:                       attrs["slot_snaps"].to_i,
+          targeted_qb_rating:               attrs["targeted_qb_rating"].to_i,
+          longest:                          attrs["longest"].to_i,
+          receiving_touchdowns:             attrs["touchdowns"].to_i,
+          receiving_yards:                  attrs["yards"],
+          receiving_yards:                  attrs["wide_rate"],
+          receiving_yards:                  attrs["wide_snaps"],
+          yards_after_catch:                attrs["yards_after_catch"],
+          yards_after_catch_per_reception:  attrs["yards_after_catch_per_reception"],
+          receiving_yards:                  attrs["yards_per_reception"],
+          yards_per_route_run:              attrs["yprr"],
+          wide_rate:                        attrs["wide_rate"],
+          wide_snaps:                       attrs["wide_snaps"],
+          receiving_yards:                  attrs["yards"],
+          yards_after_contact:              attrs["yards_after_contact"],
+          yards_after_contact_attempt:      attrs["yco_attempt"],
+          rushing_yards_per_attempt:        attrs["ypa"],
+          yards_per_route_run:              attrs["yprr"],
+          zone_attempts:                    attrs["zone_attempts"],
+          team_slug:                        team.slug,
+          position:                         position
+        )
+        puts "-margo2----"
+        ap attrs['player']
+        puts "-----"
+        ap player
+        puts "-----"
       end
     end
 
     def pff_player_import(pff_row,position)
-      puts pff_row
       player_name = pff_row['Player']
       first_name = player_name.split.first
       last_name = player_name.split.last
@@ -223,7 +464,7 @@ class Team < ApplicationRecord
       end
       college = pff_row['College'].downcase.gsub(' ', '-') rescue 'undrafted'
       draft_year = pff_row['DraftYear'].to_i rescue 2099
-      player_slug = "#{position}-#{first_name.downcase}-#{last_name.downcase}-#{college}-#{draft_year}"
+      player_slug = "#{position}-#{first_name.downcase}-#{last_name.downcase}-#{college}"
       puts player_slug
       # Populate player
       player = Player.find_or_create_by(slug: player_slug) do |player|

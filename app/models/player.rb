@@ -137,8 +137,135 @@ class Player < ApplicationRecord
     end
   end
 
+  def self.sportsradar_position(position)
+    case position
+    when "QB"
+      "quarterback"
+    when "RB"
+      "runningback"
+    when "HB"
+      "runningback"
+    when "FB"
+      "full_back"
+    when "WR"
+      "wide_receiver"
+    when "TE"
+      "tight_end"
+    when "C"
+      "center"
+    when "G"
+      "gaurd"
+    when "OL"
+      "gaurd"
+    when "T"
+      "tackle"
+    when "DL"
+      "defensive_end"
+    when "DE"
+      "defensive_end"
+    when "EDGE"
+      "edge_rusher"
+    when "OLB"
+      "linebackers"
+    when "LB"
+      "linebackers"
+    when "S"
+      "safeties"
+    when "CB"
+      "cornerback"
+    else
+      "place_kicker"
+    end
+  end
+
+  def self.pff_position(position)
+    case position
+    when "QB"
+      "quarterback"
+    when "HB"
+      "runningback"
+    when "FB"
+      "full_back"
+    when "WR"
+      "wide_receiver"
+    when "TE"
+      "tight_end"
+    when "C"
+      "center"
+    when "G"
+      "gaurd"
+    when "OL"
+      "gaurd"
+    when "T"
+      "tackle"
+    when "DL"
+      "defensive_end"
+    when "DE"
+      "defensive_end"
+    when "EDGE"
+      "edge_rusher"
+    when "OLB"
+      "linebackers"
+    when "LB"
+      "linebackers"
+    when "S"
+      "safeties"
+    when "CB"
+      "cornerback"
+    else
+      "place_kicker"
+    end
+  end
+
+  def self.sportsradar_find_or_create(player_sportsradar, team_slug)
+    # Fetch slug data
+    position = sportsradar_position(player_sportsradar["position"])
+    college = player_sportsradar["college"].downcase.gsub(' ', '-') rescue 'undrafted'
+    player_slug = "#{position}-#{player_sportsradar['first_name'].downcase}-#{player_sportsradar['last_name'].downcase}-#{college}"
+    # Valdate if Player already exists
+    unless player = Player.find_by(slug_sportsradar: player_sportsradar["id"])
+      player = Player.find_or_create_by(slug: player_slug) do |player|
+        player.slug_sportsradar = player_sportsradar["id"]
+        slug_sportsradar = player_sportsradar["id"]
+      end
+    end
+    # Update Player with SportsRadar data
+    player.update(
+      position: position,
+      team_slug: team_slug,
+      first_name: player_sportsradar["first_name"],
+      last_name: player_sportsradar["last_name"],
+      jersey: player_sportsradar["jersey"]
+    )
+    # Return player
+    player
+  end
 
 
+  def self.pff_general(pff_row, position)
+    puts "MASON"
+    ap pff_row
+    puts "MASON1"
+    # Fetch Player Name
+    player_name = pff_row['Player']
+    first_name = player_name.split.first
+    last_name = player_name.split.last
+    # Validate if last name includes
+    if last_name.include?("II") || last_name.include?("Jr.")
+      last_name = player_name.split.last(2).first rescue "invalid-last-name"
+    end
+    college = pff_row['College'].downcase.gsub(' ', '-') rescue 'undrafted'
+    draft_year = pff_row['DraftYear'].to_i rescue 2099
+    player_slug = "#{position}-#{first_name.downcase}-#{last_name.downcase}-#{college}"
+    puts player_slug
+
+    # Valdate if Player already exists
+    player = Player.find_or_create_by(slug: player_slug) do |player|
+      player.slug_pff = 1
+    end
+    # Return player
+    player
+  end
 
   def peer_tiering(peers)
     # Validate they are in tier list
