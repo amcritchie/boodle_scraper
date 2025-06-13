@@ -32,8 +32,8 @@ class Player < ApplicationRecord
     all.where(position: [:quarterback, :QB])
   end
 
-  def self.runningbacks
-    all.where(position: [:runningback, :HB])
+  def self.running_backs
+    all.where(position: ['running-back', :HB])
   end
 
   def self.run_block
@@ -76,11 +76,11 @@ class Player < ApplicationRecord
     case position
     when "quarterback"
       :QB
-    when "runningback"
+    when "running-back"
       :RB
-    when "full_back"
+    when "full-back"
       :FB
-    when "wide_receiver"
+    when "wide-receiver"
       :WR
     when "tight_end"
       :TE
@@ -92,11 +92,11 @@ class Player < ApplicationRecord
       :T
     when "defensive_end"
       :DE
-    when "edge_rusher"
+    when "edge-rusher"
       :EDGE
-    when "linebackers"
+    when "linebacker"
       :LB
-    when "safeties"
+    when "safety"
       :S
     when "cornerback"
       :CB
@@ -142,15 +142,15 @@ class Player < ApplicationRecord
     when "QB"
       "quarterback"
     when "RB"
-      "runningback"
+      "running-back"
     when "HB"
-      "runningback"
+      "running-back"
     when "FB"
-      "full_back"
+      "full-back"
     when "WR"
-      "wide_receiver"
+      "wide-receiver"
     when "TE"
-      "tight_end"
+      "tight-end"
     when "C"
       "center"
     when "G"
@@ -160,21 +160,21 @@ class Player < ApplicationRecord
     when "T"
       "tackle"
     when "DL"
-      "defensive_end"
+      "defensive-end"
     when "DE"
-      "defensive_end"
+      "defensive-end"
     when "EDGE"
-      "edge_rusher"
+      "edge-rusher"
     when "OLB"
-      "linebackers"
+      "linebacker"
     when "LB"
-      "linebackers"
+      "linebacker"
     when "S"
-      "safeties"
+      "safety"
     when "CB"
       "cornerback"
     else
-      "place_kicker"
+      "place-kicker"
     end
   end
 
@@ -183,13 +183,13 @@ class Player < ApplicationRecord
     when "QB"
       "quarterback"
     when "HB"
-      "runningback"
+      "running-back"
     when "FB"
-      "full_back"
+      "full-back"
     when "WR"
-      "wide_receiver"
+      "wide-receiver"
     when "TE"
-      "tight_end"
+      "tight-end"
     when "C"
       "center"
     when "G"
@@ -199,21 +199,21 @@ class Player < ApplicationRecord
     when "T"
       "tackle"
     when "DL"
-      "defensive_end"
+      "defensive-end"
     when "DE"
-      "defensive_end"
+      "defensive-end"
     when "EDGE"
-      "edge_rusher"
+      "edge-rusher"
     when "OLB"
-      "linebackers"
+      "linebacker"
     when "LB"
-      "linebackers"
+      "linebacker"
     when "S"
-      "safeties"
+      "safety"
     when "CB"
       "cornerback"
     else
-      "place_kicker"
+      "place-kicker"
     end
   end
 
@@ -221,21 +221,33 @@ class Player < ApplicationRecord
     # Fetch slug data
     position = sportsradar_position(player_sportsradar["position"])
     college = player_sportsradar["college"].downcase.gsub(' ', '-') rescue 'undrafted'
-    player_slug = "#{position}-#{player_sportsradar['first_name'].downcase}-#{player_sportsradar['last_name'].downcase}-#{college}"
+    player_slug = "#{position}-#{player_sportsradar['first_name'].downcase}-#{player_sportsradar['last_name'].downcase}"
     # Valdate if Player already exists
-    unless player = Player.find_by(slug_sportsradar: player_sportsradar["id"])
-      player = Player.find_or_create_by(slug: player_slug) do |player|
-        player.slug_sportsradar = player_sportsradar["id"]
-        slug_sportsradar = player_sportsradar["id"]
+    unless player = Player.find_by(sportsradar_id: player_sportsradar["id"])
+      unless player = Player.find_by(sportsradar_slug: player_sportsradar["sr_id"])
+        player = Player.find_or_create_by(slug: player_slug)
       end
     end
     # Update Player with SportsRadar data
     player.update(
-      position: position,
-      team_slug: team_slug,
-      first_name: player_sportsradar["first_name"],
-      last_name: player_sportsradar["last_name"],
-      jersey: player_sportsradar["jersey"]
+      slug:               player_slug,  
+      position:           position,
+      team_slug:          team_slug,
+      player:             "#{player_sportsradar['first_name']} #{player_sportsradar['last_name']}",
+      first_name:         player_sportsradar["first_name"],
+      last_name:          player_sportsradar["last_name"],
+      jersey:             player_sportsradar["jersey"],
+      weight_pounds:      player_sportsradar["weight"],
+      height_inches:      player_sportsradar["height"],
+      birth_date:         player_sportsradar["birth_date"],
+      birth_place:        player_sportsradar["birth_place"],
+      high_school:        player_sportsradar["high_school"],
+      college_conf:       player_sportsradar["college_conf"],
+      rookie_year:        player_sportsradar["rookie_year"],
+      status:             player_sportsradar["status"],
+      sportsradar_id:     player_sportsradar["id"],
+      sportsradar_slug:   player_sportsradar["sr_id"],
+      season_experience:  player_sportsradar["experience"]
     )
     # Return player
     player

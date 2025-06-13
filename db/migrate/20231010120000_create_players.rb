@@ -1,17 +1,28 @@
 class CreatePlayers < ActiveRecord::Migration[6.1]
   def change
     create_table :players do |t|
-      t.string :slug, null: false, unique: true
+      t.string  :slug, null: false, unique: true
       t.integer :rank
-      t.string :position
-      t.string :player
-      t.string :first_name
-      t.string :last_name
-      t.string :team_slug
-      t.string :id_sportrac       # spotrac.com/nfl/player/_/id/29036/kyler-murray
-      t.string :slug_sportrac     # spotrac.com/nfl/player/_/id/29036/kyler-murray
-      t.string :slug_pff          # pff.com/player/kyler-murray
-      t.string :slug_sportsradar  # 4254d319-1bc7-4f81-b4ab-b5e6f3402b69
+      t.string  :position
+      t.string  :player
+      t.string  :first_name
+      t.string  :last_name
+      t.string  :team_slug
+      t.string  :sportsradar_id     # 4254d319-1bc7-4f81-b4ab-b5e6f3402b69
+      t.string  :sportsradar_slug   # sr:player:2197894
+      t.date    :birth_date
+      t.string  :birth_place
+      t.string  :high_school
+      t.string  :college_conf
+      t.integer :rookie_year
+      t.string  :status
+      t.integer :season_experience
+      t.integer :height_inches
+      t.float  :weight_pounds
+
+      t.string  :id_sportrac       # spotrac.com/nfl/player/_/id/29036/kyler-murray
+      t.string  :slug_sportrac     # spotrac.com/nfl/player/_/id/29036/kyler-murray
+      t.string  :slug_pff          # pff.com/player/kyler-murray
       t.integer :current_season
       t.integer :current_base
       t.integer :current_cap_hit
@@ -56,7 +67,7 @@ class CreatePlayers < ActiveRecord::Migration[6.1]
       # PFF General
       t.string  :player_id
       t.string  :team_name
-      t.integer :player_game_count
+      t.integer :player_game_count, default: 0
       t.string  :franchise_id
       t.integer :declined_penalties
       # PFF Passing

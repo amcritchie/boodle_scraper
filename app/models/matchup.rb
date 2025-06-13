@@ -164,7 +164,7 @@ class Matchup < ApplicationRecord
   def set_rushing_offense_score
     qb_rushing          = 0.8 * qb.rushing_grade rescue 60
     rb_rushing          = 1.2 * rb.rushing_grade rescue 60
-    oline_blocking      = 1.0 * (oline.sum { |line| line.run_block_grade rescue 60 } / oline.count).to_i
+    # oline_blocking      = 1.0 * (oline.sum { |line| line.run_block_grade rescue 60 } / oline.count).to_i
     receivers_blocking  = 0.8 * (receivers.sum { |receiver| receiver.run_block_grade } / receivers.count).to_i
 
     # Rushing Tandem RB + QB

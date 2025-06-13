@@ -38,7 +38,7 @@ class Team < ApplicationRecord
         end
     end
 
-    def fetch_sportradar_roster
+    def fetch_roster_sportradar
       # "0d855753-ea21-4953-89f9-0e20aff9eb73"
       response = HTTParty.get(
         "https://api.sportradar.com/nfl/official/trial/v7/en/teams/#{slug_sportsradar}/full_roster.json",
@@ -50,14 +50,23 @@ class Team < ApplicationRecord
       
       ap response
       if response.success?
-        JSON.parse(response.body)
+        team_sportsradar = JSON.parse(response.body)
+
+        team_sportsradar["venue"]
+        team_sportsradar["coaches"]
+        team_sportsradar["players"]
+        # Each through players
+        team_sportsradar["players"].each do |player_sportsradar|
+          # Find or create player
+          player = Player.sportsradar_find_or_create(player_sportsradar, self.slug)
+        end
       else
         Rails.logger.error "Failed to fetch SportRadar roster: #{response.code} - #{response.message}"
         nil
       end
     end
 
-    def self.kaggle_import
+    def self.kaggle_import_teams
         # Parse CSV
         csv_text = File.read('lib/kaggle/nfl_teams.csv')
         csv = CSV.parse(csv_text, headers: true)
@@ -97,20 +106,6 @@ class Team < ApplicationRecord
             team.save
             puts "Team Updated"
             ap team
-            # Fetch SportRadar roster
-            team_sportsradar = team.fetch_sportradar_roster
-            sleep(5)
-            ap team_sportsradar
-            team_sportsradar["venue"]
-            team_sportsradar["coaches"]
-            team_sportsradar["players"]
-            # Each through players
-            team_sportsradar["players"].each do |player_sportsradar|
-              # Find or create player
-              player = Player.sportsradar_find_or_create(player_sportsradar, team.slug)
-              # Puts player
-              ap player
-            end
             # Output team saved
             puts "🏈 #{team.conference} | #{team.division} | (#{team.slug}) #{team.name} Saved" if team.active
         end
