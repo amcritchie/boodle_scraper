@@ -3,7 +3,7 @@ class PlayerSeason < ApplicationRecord
   belongs_to :season
   belongs_to :team, optional: true
 
-  validates :player_id, uniqueness: { scope: :season_id }
+  validates :player_id, uniqueness: { scope: :season_year }
   validates :passing_touchdowns, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :rushing_touchdowns, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :receiving_touchdowns, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true

@@ -41,7 +41,7 @@ class Team < ApplicationRecord
     def fetch_roster_sportradar
       # "0d855753-ea21-4953-89f9-0e20aff9eb73"
       response = HTTParty.get(
-        "https://api.sportradar.com/nfl/official/trial/v7/en/teams/#{slug_sportsradar}/full_roster.json",
+        "https://api.sportradar.com/nfl/official/trial/v7/en/teams/#{sportsradar_id}/full_roster.json",
         headers: {
           'accept' => 'application/json',
           'x-api-key' => 'dBqzgfZiBp0sTpz06FIx3AjcLzCA2EzwFID6ZCl0'

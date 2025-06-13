@@ -57,11 +57,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_20_000011) do
     t.string "away_slug"
     t.string "home_slug"
     t.string "venue_slug"
+    t.string "sportsradar_id"
+    t.string "sportsradar_slug"
     t.datetime "scheduled"
-    t.string "status"
     t.integer "attendance"
+    t.string "status"
     t.string "entry_mode"
-    t.string "slug_sportsradar"
     t.string "game_type"
     t.boolean "conference_game"
     t.string "duration"
@@ -232,10 +233,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_20_000011) do
     t.string "college_conf"
     t.integer "rookie_year"
     t.string "status"
-    t.string "sr_id"
     t.integer "season_experience"
-    t.integer "draft_number"
-    t.string "draft_team"
     t.integer "height_inches"
     t.float "weight_pounds"
     t.string "id_sportrac"
@@ -440,6 +438,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_20_000011) do
     t.string "conference"
     t.string "slug_pfr"
     t.string "slug_sportrac"
+    t.string "sportsradar_id"
     t.string "slug_sportsradar"
     t.string "conference_pre_2002"
     t.string "division_pre_2002"
@@ -489,13 +488,14 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_20_000011) do
   end
 
   create_table "weeks", force: :cascade do |t|
-    t.bigint "season_id", null: false
-    t.integer "sequence", null: false
-    t.string "title", null: false
+    t.integer "season_year", null: false
+    t.string "sequence", null: false
+    t.string "title"
+    t.string "sportsradar_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["season_id", "sequence"], name: "index_weeks_on_season_id_and_sequence", unique: true
-    t.index ["season_id"], name: "index_weeks_on_season_id"
+    t.index ["season_year"], name: "index_weeks_on_season_year"
+    t.index ["sequence"], name: "index_weeks_on_sequence"
   end
 
   add_foreign_key "broadcasts", "games"
@@ -505,5 +505,4 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_20_000011) do
   add_foreign_key "player_seasons", "teams"
   add_foreign_key "scorings", "games"
   add_foreign_key "weathers", "games"
-  add_foreign_key "weeks", "seasons"
 end

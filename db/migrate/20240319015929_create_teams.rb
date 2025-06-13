@@ -12,6 +12,7 @@ class CreateTeams < ActiveRecord::Migration[7.0]
       t.string :conference
       t.string :slug_pfr
       t.string :slug_sportrac           # https://www.spotrac.com/nfl/arizona-cardinals/cap/#
+      t.string :sportsradar_id
       t.string :slug_sportsradar        # https://www.spotrac.com/nfl/arizona-cardinals/cap/#
       t.string :conference_pre_2002
       t.string :division_pre_2002

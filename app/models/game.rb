@@ -199,8 +199,8 @@ class Game < ApplicationRecord
   end
 
   def over_under_result
-    return "🔴 Over" if self.total_points > self.over_under
-    return "🟢 Under" if self.total_points < self.over_under
+    return "🔴 Over" if self.total_points.to_i > self.over_under.to_i
+    return "🟢 Under" if self.total_points.to_i < self.over_under.to_i
     return "🌕 Push"
   end
 

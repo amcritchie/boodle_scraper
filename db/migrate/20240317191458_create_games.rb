@@ -1,18 +1,19 @@
 class CreateGames < ActiveRecord::Migration[7.0]
   def change
     create_table :games do |t|
-      t.string  :source       # "kaggle","sportsoddshistory","sportsradar"
-      t.string  :title        # "Super Bowl LVII"
-      t.integer :season      # 2025
-      t.string  :week_slug  # "1"
-      t.string  :away_slug    # "buf"
-      t.string  :home_slug    # "kc"
-      t.string  :venue_slug   # "glendale_arizona"
+      t.string    :slug, null: false, unique: true
+      t.integer   :season       # 2025
+      t.string    :week_slug    # "1"
+      t.string    :away_slug    # "buf"
+      t.string    :home_slug    # "kc"
+      t.string    :title        # "Super Bowl LVII"
+      t.string    :sportsradar_id     # 4254d319-1bc7-4f81-b4ab-b5e6f3402b69
+      t.string    :sportsradar_slug   # sr:player:2197894
       t.datetime  :scheduled  # "2025-09-08T13:00:00.000Z"
-      t.string  :status       # "final"
       t.integer :attendance               # 69142
+      t.string  :venue_slug   # "glendale_arizona"
+      t.string  :status       # "final"
       t.string  :entry_mode                # "closed"
-      t.string  :slug_sportsradar  # "abc-123-def-456"
       t.string  :game_type    # "regular"
       t.boolean :conference_game         # true
       t.string  :duration                # "4:25"
@@ -48,7 +49,7 @@ class CreateGames < ActiveRecord::Migration[7.0]
       t.integer :home_q2
       t.integer :away_q1
       t.integer :home_q1
-      t.string  :slug, null: false, unique: true
+      t.string  :source       # "kaggle","sportsoddshistory","sportsradar"
 
       t.timestamps
     end
