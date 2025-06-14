@@ -12,10 +12,10 @@ namespace :seed do
     # rake seasons:populate             | Sports Radar | 2024
     Rake::Task['seasons:populate2024'].invoke
     # rake seasons:populate             | Sports Odds History | 2017 - 2024
-    Rake::Task['seasons:populate2017'].invoke
+    # Rake::Task['seasons:populate2017'].invoke
 
     # rake seasons:matchups             | Sports Radar | 2024 | Past matchups
-    Rake::Task['seasons:matchups2024'].invoke
+    Rake::Task['matchups:populate2024'].invoke
     # rake seasons:matchups             | Sports Radar | 2025 | Coming matchups
     # Rake::Task['seasons:matchups2025'].invoke
 

@@ -50,17 +50,17 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_20_000011) do
   end
 
   create_table "games", force: :cascade do |t|
-    t.string "source"
-    t.string "title"
+    t.string "slug", null: false
     t.integer "season"
     t.string "week_slug"
     t.string "away_slug"
     t.string "home_slug"
-    t.string "venue_slug"
+    t.string "title"
     t.string "sportsradar_id"
     t.string "sportsradar_slug"
     t.datetime "scheduled"
     t.integer "attendance"
+    t.string "venue_slug"
     t.string "status"
     t.string "entry_mode"
     t.string "game_type"
@@ -98,7 +98,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_20_000011) do
     t.integer "home_q2"
     t.integer "away_q1"
     t.integer "home_q1"
-    t.string "slug", null: false
+    t.string "source"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["away_slug"], name: "index_games_on_away_slug"
@@ -492,6 +492,14 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_20_000011) do
     t.string "sequence", null: false
     t.string "title"
     t.string "sportsradar_id"
+    t.integer "rushing_touchdowns", default: 0
+    t.integer "passing_touchdowns", default: 0
+    t.integer "field_goals", default: 0
+    t.integer "extra_points", default: 0
+    t.integer "two_point_conversions", default: 0
+    t.integer "interceptions", default: 0
+    t.integer "fumbles", default: 0
+    t.integer "sacks", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["season_year"], name: "index_weeks_on_season_year"
