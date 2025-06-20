@@ -339,9 +339,9 @@ class Player < ApplicationRecord
     peer_tiering(peers) 
   end
 
-  def description
-    puts "#{team.description} #{player} #{position} PFF: #{rank}"
-  end
+  # def description
+  #   puts "#{position.rjust(15)} | #{player.rjust(25)} (#{jersey.to_s.rjust(2)}) | Grade: #{offense_grade.to_s.rjust(6)} /#{defence_grade.to_s.rjust(6)} | #{team.description.ljust(30)}"
+  # end
 
   def self.print_top_5_qbs
     top_qbs = order(offense_grade: :desc).limit(5)

@@ -1,7 +1,8 @@
 class Scoring < ApplicationRecord
   belongs_to :game
-  has_many :periods, dependent: :destroy
+  belongs_to :player
 
-  validates :home_points, presence: true, numericality: { greater_than_or_equal_to: 0 }
-  validates :away_points, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  def self.create_from_event(event)
+    ap event
+  end
 end 

@@ -1,5 +1,5 @@
 class Period < ApplicationRecord
-  belongs_to :scoring
+  # belongs_to :scoring
 
   validates :period_type, presence: true
   validates :number, presence: true, numericality: { greater_than: 0 }

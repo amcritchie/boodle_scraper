@@ -39,16 +39,21 @@ class Team < ApplicationRecord
     end
 
     def fetch_roster_sportradar
+
+      # api_key = 'dBqzgfZiBp0sTpz06FIx3AjcLzCA2EzwFID6ZCl0' # amcr
+      # api_key = 'xtsJqdNDRcvoGeXZ5kcG7iVYVJkpX4umc8bxIoGh' # free@b
+      api_key = 'HmAyXEUSsvWllyEVSCaniv3cnq8cLxKExAr2oAQD' # laurenalexm@g
+      api_key = 'c9IaDr6BFd7tSrQdEDbtIclRe6gqHexujsLdevJw' # alex@boodle
+
       # "0d855753-ea21-4953-89f9-0e20aff9eb73"
       response = HTTParty.get(
         "https://api.sportradar.com/nfl/official/trial/v7/en/teams/#{sportsradar_id}/full_roster.json",
         headers: {
           'accept' => 'application/json',
-          'x-api-key' => 'dBqzgfZiBp0sTpz06FIx3AjcLzCA2EzwFID6ZCl0'
+          'x-api-key' => api_key
         }
       )
       
-      ap response
       if response.success?
         team_sportsradar = JSON.parse(response.body)
 
@@ -61,8 +66,10 @@ class Team < ApplicationRecord
           player = Player.sportsradar_find_or_create(player_sportsradar, self.slug)
         end
       else
-        Rails.logger.error "Failed to fetch SportRadar roster: #{response.code} - #{response.message}"
-        nil
+        puts "Response: #{response.code}"
+        puts "Response: #{response.body}"
+        puts "--------------------------------"
+        sleep(30)
       end
     end
 
@@ -460,22 +467,15 @@ class Team < ApplicationRecord
       college = pff_row['College'].downcase.gsub(' ', '-') rescue 'undrafted'
       draft_year = pff_row['DraftYear'].to_i rescue 2099
       player_slug = "#{position}-#{first_name.downcase}-#{last_name.downcase}-#{college}"
-      puts player_slug
       # Populate player
       player = Player.find_or_create_by(slug: player_slug) do |player|
-        puts "-1"
-        ap pff_row
-
-        puts "-1"
         player.position     = position
         player.rank         = pff_row['Rank']
         player.player       = player_name
         player.first_name   = first_name
-        puts "-2"
         player.last_name    = last_name
         player.team_slug    = self.slug
         player.jersey       = pff_row['Jersey']
-        puts "-3"
         # Offence
         player.offense_grade    = pff_row['Overall']
         player.passing_grade    = pff_row['Passing']
@@ -483,7 +483,6 @@ class Team < ApplicationRecord
         player.receiving_grade  = pff_row['Receiving']
         player.run_block_grade  = pff_row['RunBlock']
         player.pass_block_grade = pff_row['PassBlock']
-        puts "-5"
         player.snaps_on_offense = pff_row['Snaps']
         player.snaps_passing    = pff_row['Passes']
         player.snaps_rushing    = pff_row['Rushes']
@@ -556,9 +555,8 @@ class Team < ApplicationRecord
         player.draft_pick = pff_row['DraftPick']
     end
     # Puts description
-    puts "Player Imported ==========="
-    puts player.description
-    ap player
+    puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.offense_grade.to_s.rjust(6)} /#{player.defence_grade.to_s.rjust(6)} | #{player.team.description.ljust(30)}"
+    
     unless player.errors.empty?
       puts "Errors ---------"
       ap player.errors.inspect

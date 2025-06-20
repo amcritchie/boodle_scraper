@@ -45,9 +45,6 @@ def pff_populate(file_name, position)
     puts row['Team']
     # ID team
     team_slug = row['Team'] rescue "unknown"
-    puts "------"
-    puts team_slug
-    puts "------"
     # Find and validate team_slug
     unless team = Team.pff_team(team_slug)
       puts "No Team Found for #{team}"
