@@ -5,11 +5,24 @@ require 'nokogiri'
 require 'progress_bar'
 
 class Game < ApplicationRecord
-  # belongs_to :week
+  include SportRadarConcern
+  
+  # belongs_to :week, # ->where(season_year: game.season, sequence: game.week_slug), optional: true
   # belongs_to :venue
   has_one :weather, dependent: :destroy
   has_one :broadcast, dependent: :destroy
   has_one :scoring, dependent: :destroy
+  has_many :plays, foreign_key: :game_slug, primary_key: :slug, dependent: :destroy
+
+  after_create :init_enum_values
+
+  def init_enum_values
+    self.away_scores = []
+    self.home_scores = []
+    self.events_array = []
+    self.stangest_events = []
+    self.save!
+  end
 
   # Games imported from Kaggle
   def self.kaggle
@@ -44,7 +57,7 @@ class Game < ApplicationRecord
     Team.find_by_slug(away_slug)
   end
   def the_home_team
-    Team.find_by_slug(home_team)
+    Team.find_by_slug(home_slug)
   end
 
   def home_matchup
@@ -255,114 +268,6 @@ class Game < ApplicationRecord
   def home_team_obj
     Team.find_by(active: true, slug: team_attrs['team_home'])
   end
-
-  def self.sportsradar_import(game_uuid="abc-123-def-456")
-    superbowl_json = "lib/sportradar/2024-game-superbowl-play-by-play.json"
-    json_data = JSON.parse(File.read(Rails.root.join(superbowl_json)))
-
-    json_data['periods'].each do |period|
-
-      # puts "======"
-      # puts "New Period"
-      # puts "======"
-      # ap period
-      # puts "------"
-      puts "================================="
-      puts "🪙 #{period['number']} Quarter"
-      # puts "================================="
-
-# {
-#     "period_type" => "quarter",
-#              "id" => "e6f42e4b-0146-4143-b24c-f97f991455e8",
-#          "number" => 4,
-#        "sequence" => 4,
-#         "scoring" => {
-#         "home" => {
-#                 "id" => "386bdbf9-9eea-4869-bb9a-274b0bc66e80",
-#               "name" => "Eagles",
-#             "market" => "Philadelphia",
-#              "alias" => "PHI",
-#              "sr_id" => "sr:competitor:4428",
-#             "points" => 6
-#         },
-#         "away" => {
-#                 "id" => "6680d28d-d4d2-49f6-aace-5292d3ec02c2",
-#               "name" => "Chiefs",
-#             "market" => "Kansas City",
-#              "alias" => "KC",
-#              "sr_id" => "sr:competitor:4422",
-#             "points" => 16
-#         }
-
-
-      period['pbp'].each do |drive|
-
-        # puts "======"
-        # puts "New Drive"
-        # puts "======"
-        # ap drive
-        # puts "---------------------------------"
-        puts "================================="
-        puts "🚙 Drive | #{drive['start_clock']}"
-
-
-        if drive['events'].nil?
-          puts "No events for drive"
-          next
-        end
-
-        drive['events'].each do |play|
-          # puts "======"
-          # puts "New Play"
-          # puts "======"
-          # ap play["description"]
-          # ap play
-          # puts "------"
-
-
-          if play['play_type'] == "kickoff"
-            type = "🦶 Kickoff"
-          elsif play['play_type'] == "rush"
-            type = "🏃🏻 Rush"
-          elsif play['play_type'] == "pass"
-            type = "🏈 Pass"
-          elsif play['play_type'] == "field_goal"
-            type = "🎯 Field Goal"
-          elsif play['play_type'] == "extra_point"
-            type = "🏆 Extra Point"
-          elsif play['play_type'] == "conversion"
-            type = "🏆 Two Point Conversion"
-          else
-            type = "🔴 Unknown"
-          end
-
-          # puts "#%-2d | %-50s | %-15s" % [type, play['description'], play['play_type']]
-
-          puts "%-30s | %-10s | %-50s" % [type, play['play_type'], play['description']]
-
-        end
-
-        # Play.create(
-          # game_uuid: game_uuid,
-          # play_uuid: play['id'],
-          # play_type: play['type'])
-      end
-    end
-
-    "Done"
-    
-    # # Create or update the season record
-    # season_record = find_or_initialize_by(
-    #   year: json_data['year'],
-    #   season_type: json_data['type']
-    # )
-    
-    # season_record.name = json_data['name']
-    # season_record.save!
-    
-    # season_record
-  end
-
 
   def home_team
     Team.find_by(slug: home_slug)
@@ -862,4 +767,7 @@ class Game < ApplicationRecord
     end
   end
 
+  def week
+    Week.find_by(season_year: self.season, sequence: self.week_slug)
+  end
 end

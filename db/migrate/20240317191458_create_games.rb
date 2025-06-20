@@ -6,6 +6,10 @@ class CreateGames < ActiveRecord::Migration[7.0]
       t.string    :week_slug    # "1"
       t.string    :away_slug    # "buf"
       t.string    :home_slug    # "kc"
+      t.string    :away_score, default: 0   # 10
+      t.string    :home_score, default: 0   # 17
+      t.jsonb     :away_scores  # []
+      t.jsonb     :home_scores  # []
       t.string    :title        # "Super Bowl LVII"
       t.string    :sportsradar_id     # 4254d319-1bc7-4f81-b4ab-b5e6f3402b69
       t.string    :sportsradar_slug   # sr:player:2197894
@@ -50,6 +54,9 @@ class CreateGames < ActiveRecord::Migration[7.0]
       t.integer :away_q1
       t.integer :home_q1
       t.string  :source       # "kaggle","sportsoddshistory","sportsradar"
+      t.jsonb   :events_array
+      t.jsonb   :stangest_events
+      # t.references :week, null: false, foreign_key: { to_table: :weeks }, index: false
 
       t.timestamps
     end
@@ -63,6 +70,7 @@ class CreateGames < ActiveRecord::Migration[7.0]
     add_index :games, :slug, unique: true
     add_index :games, :created_at
     add_index :games, :updated_at
+    add_index :games, [:season, :week_slug], name: 'index_games_on_season_and_week_slug'
   end
 end
 
@@ -88,4 +96,4 @@ end
 
 #     add_index :games, :sr_id, unique: true
 #   end
-# end 
+# end
