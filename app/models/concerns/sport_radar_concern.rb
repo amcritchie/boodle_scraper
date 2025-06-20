@@ -89,7 +89,7 @@ module SportRadarConcern
         # Each Through Periods
         json_data['periods'].each do |period_json|
           # Get period emoji
-          period_emoji = self.initialize_period(period_json)
+          self.initialize_period(period_json)
           # Each Through Drives
           period_json['pbp'].each do |drive|
             # Pull data
@@ -111,13 +111,13 @@ module SportRadarConcern
             
             # Is drive a play or set of events
             if drive['type'] == "event"
-              self.process_event_sport_radar(drive, self.week, period_emoji)
+              self.process_event_sport_radar(drive)
             elsif drive['type'] == "play"
-              self.process_event_sport_radar(drive, self.week, period_emoji)
+              self.process_event_sport_radar(drive)
             else
               drive['events'].each do |event|
                 # Process event
-                self.process_event_sport_radar(event, self.week, period_emoji)
+                self.process_event_sport_radar(event)
                 # Sleep timer
                 sleep(0.1)
                 # Error During Event
@@ -171,12 +171,16 @@ module SportRadarConcern
     # Get plays
     plays = self.plays.order(sport_radar_sequence: :asc)
     plays.each do |play|
+        # Update period if it changed
+        if play.period != @@period
+            @@period = play.period
+        end
         # Process play
-        process_event_sport_radar(play.sport_radar_event, play.week_slug, play.period)
+        process_event_sport_radar(play.sport_radar_event)
     end
   end
 
-  def process_event_sport_radar(event_json, week, period_emoji="❓")
+  def process_event_sport_radar(event_json)
     # Set event type
     result              = "weird-event"
     @@sport_radar_event = event_json
@@ -219,7 +223,6 @@ module SportRadarConcern
     @@detail1       = @@details.first                   rescue {"category": nil}
     @@detail2       = @@details.second                  rescue {"category": nil}
     @@detaillast    = @@details.last                    rescue {"category": nil}
-    @@period        = period_emoji
     @@turnover      = false
     @@no_play       = (@@detaillast["category"] == "no_play")
     @@scoring_play  = @@sport_radar_event['scoring_play']
@@ -324,35 +327,37 @@ module SportRadarConcern
 
     # Format play result
     result_puts = result.rjust(@@result_slug_max_length)
+    # Reload
+    week.reload
 
     running_count = ""
     if result == "rushing-touchdown"
         result_puts = result_puts.light_green
-        running_count = week.rushing_touchdowns.to_i + 1
+        running_count = week.rushing_touchdowns.to_i
     end
     if result == "passing-touchdown"
         result_puts = result_puts.light_green
-        running_count = week.passing_touchdowns.to_i + 1
+        running_count = week.passing_touchdowns.to_i
     end
     if result == "successful-field-goal"
         result_puts = result_puts.light_green
-        running_count = week.field_goals.to_i + 1
+        running_count = week.field_goals.to_i
     end
     if result == "successful-extra-point"
         result_puts = result_puts.green
-        running_count = week.extra_points.to_i + 1
+        running_count = week.extra_points.to_i
     end
     if result == "two-point-conversion"
         result_puts = result_puts.on_green
-        running_count = week.two_point_conversions.to_i + 1
+        running_count = week.two_point_conversions.to_i
     end
     if result == "defensive-touchdown"
         result_puts = result_puts.on_green
-        running_count = week.defensive_touchdowns.to_i + 1
+        running_count = week.defensive_touchdowns.to_i
     end
     if result == "special-teams-touchdown" || result == "kickoff-touchdown" || result == "punt-return-touchdown" || result == "punt-recovery-touchdown"
         result_puts = result_puts.on_green
-        running_count = week.special_teams_touchdowns.to_i + 1
+        running_count = week.special_teams_touchdowns.to_i
     end
     # result_puts = result_puts.light_green     if result == "rushing-touchdown"
     # result_puts = result_puts.light_green     if result == "passing-touchdown"
@@ -531,7 +536,7 @@ module SportRadarConcern
     period_id       = period_json['id']
     
     # Period Data
-    period_emoji = case period_number
+    @@period = case period_number
     when 1 
       "1️⃣"
     when 2 
@@ -544,9 +549,9 @@ module SportRadarConcern
       "❓"
     end
 
-    puts "#{period_emoji}  | New Period | #{period_type}-#{period_number}-#{period_sequence} | #{period_id}"
+    puts "#{@@period}  | New Period | #{period_type}-#{period_number}-#{period_sequence} | #{period_id}"
     puts "--------------------------------"
-    return period_emoji
+    # return period_emoji
   end
 
   def fetch_sport_radar_pbp
