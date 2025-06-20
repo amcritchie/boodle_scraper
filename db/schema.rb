@@ -396,8 +396,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_20_000011) do
     t.bigint "sport_radar_sequence"
     t.string "event_type"
     t.string "play_type"
-    t.string "possession_slug"
-    t.string "end_possession_slug"
     t.string "down"
     t.string "period"
     t.string "category"
@@ -519,6 +517,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_20_000011) do
     t.integer "field_goals", default: 0
     t.integer "extra_points", default: 0
     t.integer "two_point_conversions", default: 0
+    t.integer "safeties", default: 0
     t.integer "interceptions", default: 0
     t.integer "fumbles", default: 0
     t.integer "sacks", default: 0

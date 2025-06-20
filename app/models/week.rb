@@ -6,7 +6,7 @@ class Week < ApplicationRecord
     Game.where(season: season_year, week_slug: sequence).where.not(sportsradar_id: nil)
   end
 
-  @@only_one_game = true
+  @@only_one_game = false
 
   def sport_radar_week
       puts "================================================"
@@ -17,7 +17,7 @@ class Week < ApplicationRecord
       # Each through games in week
       self.games.each do |game|
 
-        next unless game.slug == "sf-ari-18-2024"
+        # next unless game.slug == "sf-ari-18-2024" # Just one game
 
         # Iterate game count
         self.games_count += 1

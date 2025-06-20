@@ -16,6 +16,7 @@ class CreateWeeks < ActiveRecord::Migration[7.0]
       t.integer :field_goals,               default: 0 # 3pt
       t.integer :extra_points,              default: 0 # 1pt
       t.integer :two_point_conversions,     default: 0 # 2pt
+      t.integer :safeties,                  default: 0 # 2pt
       t.integer :interceptions,             default: 0 # 1pt
       t.integer :fumbles,                   default: 0 # 1pt
       t.integer :sacks,                     default: 0 # 1pt
