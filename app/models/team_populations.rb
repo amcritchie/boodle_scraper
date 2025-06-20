@@ -13,7 +13,7 @@ module TeamPopulations
   def new_york_jets_populate
     self.slug = :nyj
     self.slug_long = :new_york_jets
-    self.emoji = '🛩️'
+    self.emoji = '🛩️ '
     self.slug_sportrac = 'new-york-jets'
     self.sportsradar_id = '5fee86ae-74ab-4bdd-8416-42a9dd9964f3'
     self.active = true
@@ -35,7 +35,7 @@ module TeamPopulations
   def new_england_patriots_populate
     self.slug = :ne
     self.slug_long = :new_england_patriots
-    self.emoji = '🇺🇸'
+    self.emoji = '🇺🇸 '
     self.slug_sportrac = 'new-england-patriots'
     self.sportsradar_id = '97354895-8c77-4fd4-a860-32e62ea7382a'
     self.active = true
@@ -156,7 +156,7 @@ module TeamPopulations
   def tennessee_titans_populate
     self.slug = :ten
     self.slug_long = :tennessee_titans
-    self.emoji = '🗡️'
+    self.emoji = '🗡️ '
     self.slug_sportrac = 'tennessee-titans'
     self.sportsradar_id = 'd26a1ca5-722d-4274-8f97-c92e49c96315'
     self.active = true
@@ -343,7 +343,7 @@ module TeamPopulations
   def new_orleans_saints_populate
     self.slug = :no
     self.slug_long = :new_orleans_saints
-    self.emoji = '⚜️'
+    self.emoji = '⚜️ '
     self.slug_sportrac = 'new-orleans-saints'
     self.sportsradar_id = '0d855753-ea21-4953-89f9-0e20aff9eb73'
     self.active = true
