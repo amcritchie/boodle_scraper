@@ -19,6 +19,7 @@ module SportRadarConcern
   @@no_play                = false
   @@touchdown              = false
   @@safety                 = false
+  @@extra_point            = false
 
   # Class methods
   class_methods do
@@ -227,8 +228,10 @@ module SportRadarConcern
     @@no_play       = (@@detaillast["category"] == "no_play")
     @@scoring_play  = @@sport_radar_event['scoring_play']
     @@touchdown     = @@details.find { |detail| detail["result"] == "touchdown" }
-    @@safety        = @@details.find { |detail| detail["result"] == "safety" }
-    @@score         = @@touchdown || @@safety
+    @@safety        = @@details.find { |detail| detail["category"] == "safety" }
+    @@field_goal    = @@details.find { |detail| detail["category"] == "field_goal" && detail["result"] == "good" }
+    @@extra_point   = @@details.find { |detail| detail["category"] == "extra_point_attempt" && detail["result"] == "good" }
+    @@score         = @@touchdown || @@safety || @@field_goal || @@extra_point
 
     if @@no_play
       puts "no-play | ".rjust(@@result_slug_max_short).bold
@@ -339,11 +342,11 @@ module SportRadarConcern
         result_puts = result_puts.light_green
         running_count = week.passing_touchdowns.to_i
     end
-    if result == "successful-field-goal"
+    if result == "field-goal"
         result_puts = result_puts.light_green
         running_count = week.field_goals.to_i
     end
-    if result == "successful-extra-point"
+    if result == "extra-point"
         result_puts = result_puts.green
         running_count = week.extra_points.to_i
     end
@@ -355,15 +358,20 @@ module SportRadarConcern
         result_puts = result_puts.on_green
         running_count = week.defensive_touchdowns.to_i
     end
+    if result == "safety"
+        result_puts = result_puts.on_green
+        running_count = week.safeties.to_i
+    end
     if result == "special-teams-touchdown" || result == "kickoff-touchdown" || result == "punt-return-touchdown" || result == "punt-recovery-touchdown"
         result_puts = result_puts.on_green
         running_count = week.special_teams_touchdowns.to_i
     end
     # result_puts = result_puts.light_green     if result == "rushing-touchdown"
     # result_puts = result_puts.light_green     if result == "passing-touchdown"
-    result_puts = result_puts.on_green        if result == "safety"
+    # result_puts = result_puts.on_green        if result == "safety"
+    result_puts = result_puts.on_blue        if result == "defensive-conversion"
     result_puts = result_puts.green           if result == "successful-extra-point"
-    result_puts = result_puts.light_blue      if result == "successful-field-goal"
+    result_puts = result_puts.light_blue      if result == "field-goal"
     result_puts = result_puts.on_red          if result == "failed-field-goal" || result == "failed-extra-point"
     result_puts = result_puts.blue.on_yellow  if result == "weird-field-goal" || result == "weird-extra-point"
     result_puts = result_puts.on_red          if result == "failed-two-point-conversion"
@@ -373,7 +381,7 @@ module SportRadarConcern
 
     # Result of events
     begin
-      puts  "#{@@period}  | #{clock.to_s.rjust(5)} > #{end_clock.to_s.rjust(5)}| #{offense_team.emoji} > #{defence_team.emoji} | #{@@down} | #{@@play_type.rjust(11)} | #{result_puts} #{running_count.to_s.rjust(3)} | #{description.truncate(130).rjust(130)}"
+      puts  "#{@@period}  | #{clock.to_s.rjust(5)} > #{end_clock.to_s.rjust(5)}| #{offense_team.emoji} > #{defence_team.emoji} | #{@@down} | #{@@play_type.rjust(11)} | #{result_puts} #{running_count.to_s.rjust(3)} | Play.find(#{@@play.id}) #{description.truncate(130).rjust(130)}"
     rescue => e
       puts "margot - Event Error 2"
       puts "Error: #{e}"
@@ -384,7 +392,7 @@ module SportRadarConcern
     end
   end
 
-  def long_strange_event(result_slug)
+  def log_strange_event(result_slug)
     puts "mason - strange event - #{result_slug}"
     ap @@sport_radar_event
     # Save special teams touchdown if not another event
@@ -394,8 +402,13 @@ module SportRadarConcern
 
   def process_conversion
     if @@scoring_play
-      result_slug = "two-point-conversion"
-      week.increment!(:two_point_conversions)
+        if @@turnover
+            result_slug = "defensive-conversion"
+            log_strange_event(result_slug)
+        else
+            result_slug = "two-point-conversion"
+            week.increment!(:two_point_conversions)
+        end
     else  
       result_slug = "failed-two-point-conversion"
     end
@@ -403,46 +416,40 @@ module SportRadarConcern
   end
 
   def process_extra_point
-    if @@detail1["category"] == "extra_point_attempt"
-      if @@detail1["result"] == "good"
-        result_slug = "successful-extra-point"
-        week.increment!(:extra_points)
-      elsif @@detail1["result"] == "no good"
-        result_slug = "failed-extra-point"
-      else
-        result_slug = "weird-field-goal"
-        long_strange_event(result_slug)
-      end
+    if @@scoring_play
+        if @@extra_point
+            result_slug = "extra-point"
+            week.increment!(:extra_points)
+        elsif @@turnover
+            result_slug = "defensive-conversion"
+            log_strange_event(result_slug)
+        else
+            result_slug = "two-point-conversion"
+            week.increment!(:two_point_conversions)
+        end
     else
-      # Weird
-      result_slug = "weird-field-goal"
-      long_strange_event(result_slug)
+        result_slug = "failed-extra-point"
     end
     return result_slug
   end
 
   def process_field_goal
-    if @@detail1["category"] == "field_goal"
-      if @@detail1["result"] == "good"
-        result_slug = "successful-field-goal"
+    if @@field_goal
+        result_slug = "field-goal"
         week.increment!(:field_goals)
-      elsif @@detail1["result"] == "no good"
-        result_slug = "failed-field-goal"
-      elsif @@detail1["result"] == "block"
-        if @@scoring_play
+    elsif @@touchdown
+        if @@turnover
             result_slug = "defensive-touchdown"
             week.increment!(:defensive_touchdowns)
+        elsif @@safety
+            week.increment!(:safeties)
+            result_slug = "safety"
         else
-            result_slug = "blocked-field-goal"
+            result_slug = "passing-touchdown"
+            week.increment!(:passing_touchdowns)
         end
-      else
-        result_slug = "weird-field-goal"
-        long_strange_event(result_slug)
-      end
     else
-      # Weird
-      result_slug = "weird-field-goal"
-      long_strange_event(result_slug)
+        result_slug = "failed-field-goal"
     end
     return result_slug
   end
@@ -452,6 +459,9 @@ module SportRadarConcern
       if @@turnover
         result_slug = "defensive-touchdown"
         week.increment!(:defensive_touchdowns)
+      elsif @@safety
+        week.increment!(:safeties)
+        result_slug = "safety"
       else
         result_slug = "passing-touchdown"
         week.increment!(:passing_touchdowns)
@@ -467,6 +477,9 @@ module SportRadarConcern
       if @@turnover
         result_slug = "defensive-touchdown"
         week.increment!(:defensive_touchdowns)
+      elsif @@safety
+        week.increment!(:safeties)
+        result_slug = "safety"
       else
         result_slug = "rushing-touchdown"
         week.increment!(:rushing_touchdowns)
@@ -478,7 +491,7 @@ module SportRadarConcern
   end
 
   def process_punt
-    if @@touchdown == 1
+    if @@touchdown
         if @@turnover
             week.increment!(:special_teams_touchdowns)
             result_slug = "punt-return-touchdown"
@@ -486,7 +499,7 @@ module SportRadarConcern
             week.increment!(:special_teams_touchdowns)
             result_slug = "punt-recovery-touchdown"
         end
-    elsif @@safety == 1
+    elsif @@safety
         week.increment!(:safeties)
         result_slug = "safety"
     else
@@ -496,37 +509,20 @@ module SportRadarConcern
   end
 
   def process_kickoff
-    result_slug = "weird-kickoff"
-    if @@detail1["category"] == "kick_off"
-      if @@detail2["category"] == "kick_off_return"
-        if @@touchdown
-          week.increment!(:special_teams_touchdowns)
-          result_slug = "kickoff-touchdown"
-        else
-          result_slug = "kickoff"
-        end
-      elsif @@detail2["category"] == "downed"
-        result_slug = "kickoff"
-      elsif @@detail2["category"] == "touchback"
-        result_slug = "kickoff"
-      elsif @@detail2["category"] == "out_of_bounds"
-        result_slug = "kickoff"
-      else
-        result_slug = "weird-kickoff"
-        long_strange_event(result_slug)
-      end
-    elsif @@detail1["category"] == "onside_kick_off"
-        if @@touchdown
+    if @@touchdown
+        if @@turnover
             week.increment!(:special_teams_touchdowns)
             result_slug = "kickoff-touchdown"
         else
-            result_slug = "kickoff"
+            week.increment!(:special_teams_touchdowns)
+            result_slug = "kicking-team-touchdown"
         end
+    elsif @@safety
+        week.increment!(:safeties)
+        result_slug = "safety"
     else
-      result_slug = "weird-kickoff"
-      long_strange_event(result_slug)
+      result_slug = "kickoff"
     end
-    return result_slug
   end
 
   def initialize_period(period_json)

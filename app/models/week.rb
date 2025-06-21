@@ -14,6 +14,7 @@ class Week < ApplicationRecord
       # Initialize week population
       self.initialize_population
 
+      time_start = Time.now
       # Each through games in week
       self.games.each do |game|
 
@@ -33,6 +34,13 @@ class Week < ApplicationRecord
         # Only process game
         break if @@only_one_game
       end
+
+      time_end = Time.now
+      puts "="*100
+      puts "==== Week Finished ===="
+      puts "="*100
+      puts "Time taken: #{time_end - time_start} seconds - #{self.games_count} games - #{self.sequence} #{self.season_year}"
+      puts "------------------------------------------------"
   end
 
   def initialize_population
