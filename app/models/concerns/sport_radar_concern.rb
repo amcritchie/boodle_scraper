@@ -200,7 +200,7 @@ module SportRadarConcern
     @@play.save!
     
     # Skip on non-play events
-    if ['period_end','tv_timeout','timeout','two_minute_warning','game_over'].include?(@@event_type)
+    if ['period_end','tv_timeout','timeout','two_minute_warning','game_over','setup'].include?(@@event_type)
       result = @@event_type
       puts "#{@@event_type} | ".rjust(@@result_slug_max_short).bold
 
@@ -568,7 +568,8 @@ module SportRadarConcern
     # api_key = 'dBqzgfZiBp0sTpz06FIx3AjcLzCA2EzwFID6ZCl0' # amcr
     # api_key = 'xtsJqdNDRcvoGeXZ5kcG7iVYVJkpX4umc8bxIoGh' # free@b
     # api_key = 'HmAyXEUSsvWllyEVSCaniv3cnq8cLxKExAr2oAQD' # laurenalexm@g
-    api_key = 'c9IaDr6BFd7tSrQdEDbtIclRe6gqHexujsLdevJw' # alex@boodle
+    # api_key = 'c9IaDr6BFd7tSrQdEDbtIclRe6gqHexujsLdevJw' # alex@boodle
+    api_key = 'df3az0RfvWZa3xu2fxJlrafnqpMIiLC5IrGudJf6' # alex@leaguef
     
     # Fetch data from SportRadar API
     response = HTTParty.get(url_string,
