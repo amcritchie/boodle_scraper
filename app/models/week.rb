@@ -59,7 +59,7 @@ class Week < ApplicationRecord
   end
 
   def self.scoring_summary
-    csv = ['games,season,week,field_goals,rushing_tds,passing_tds,defensive_tds,special_teams_tds']
+    csv = ['games,season,week,field_goals,fgpg,rushing_tds,rushing_tdpg,passing_tds,passing_tdpg,defensive_tds,defensive_tdpg,special_teams_tds,special_teams_tdpg']
     all.each do |week|
       # Get per game stats
       field_goals_per_game              = (week.field_goals.to_f / week.games_count).round(2)
@@ -68,7 +68,7 @@ class Week < ApplicationRecord
       defensive_touchdowns_per_game     = (week.defensive_touchdowns.to_f / week.games_count).round(2)
       special_teams_touchdowns_per_game = (week.special_teams_touchdowns.to_f / week.games_count).round(2)
       # Push to CSV
-      csv.push("#{week.games_count.to_i},#{week.season_year.to_i},#{week.sequence.to_i},#{field_goals_per_game},#{rushing_touchdowns_per_game},#{passing_touchdowns_per_game},#{defensive_touchdowns_per_game},#{special_teams_touchdowns_per_game}")
+      csv.push("#{week.games_count.to_i},#{week.season_year.to_i},#{week.sequence.to_i},#{week.field_goals},#{field_goals_per_game},#{rushing_touchdowns_per_game},#{rushing_touchdowns_per_game},#{passing_touchdowns_per_game},#{passing_touchdowns_per_game},#{defensive_touchdowns_per_game},#{defensive_touchdowns_per_game},#{special_teams_touchdowns_per_game},#{special_teams_touchdowns_per_game}")
     end
       puts csv.join("\n")
   end

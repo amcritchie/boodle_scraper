@@ -9,7 +9,7 @@ namespace :seed do
       # # rake players:populate         | Pro Football Focus | Player Stats
     Rake::Task['players:populate'].invoke
 
-    one_season = true 
+    one_season = false 
     
     if one_season
       # rake seasons:populate             | Sports Radar | 2024

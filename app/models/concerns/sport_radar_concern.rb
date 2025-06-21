@@ -434,20 +434,24 @@ module SportRadarConcern
   end
 
   def process_field_goal
-    if @@field_goal
-        result_slug = "field-goal"
-        week.increment!(:field_goals)
-    elsif @@touchdown
-        if @@turnover
-            result_slug = "defensive-touchdown"
-            week.increment!(:defensive_touchdowns)
-        elsif @@safety
-            week.increment!(:safeties)
-            result_slug = "safety"
-        else
-            result_slug = "passing-touchdown"
-            week.increment!(:passing_touchdowns)
-        end
+    if @@scoring_play
+      if @@field_goal
+          result_slug = "field-goal"
+          week.increment!(:field_goals)
+      elsif @@touchdown
+          if @@turnover
+              result_slug = "defensive-touchdown"
+              week.increment!(:defensive_touchdowns)
+          elsif @@safety
+              week.increment!(:safeties)
+              result_slug = "safety"
+          else
+              result_slug = "passing-touchdown"
+              week.increment!(:passing_touchdowns)
+          end
+      else
+          result_slug = "failed-field-goal"
+      end
     else
         result_slug = "failed-field-goal"
     end
@@ -491,17 +495,21 @@ module SportRadarConcern
   end
 
   def process_punt
-    if @@touchdown
-        if @@turnover
-            week.increment!(:special_teams_touchdowns)
-            result_slug = "punt-return-touchdown"
-        else
-            week.increment!(:special_teams_touchdowns)
-            result_slug = "punt-recovery-touchdown"
-        end
-    elsif @@safety
-        week.increment!(:safeties)
-        result_slug = "safety"
+    if @@scoring_play
+      if @@touchdown
+          if @@turnover
+              week.increment!(:special_teams_touchdowns)
+              result_slug = "punt-return-touchdown"
+          else
+              week.increment!(:special_teams_touchdowns)
+              result_slug = "punt-recovery-touchdown"
+          end
+      elsif @@safety
+          week.increment!(:safeties)
+          result_slug = "safety"
+      else
+        result_slug = "punt"
+      end
     else
       result_slug = "punt"
     end

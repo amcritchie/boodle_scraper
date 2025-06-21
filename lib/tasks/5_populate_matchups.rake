@@ -10,18 +10,14 @@ namespace :matchups do
 
   desc "Populate matchups for Seasons 2022-2024"
   task populate2021t2024: :environment do
-    seasons = [2022,2023,2024]
-    # seasons = [2021,2022,2023,2024]
+    # seasons = [2022,2023,2024]
+    seasons = [2020,2021,2022]
     # Get collection of weeks
     weeks = Week.where(season_year: seasons).where.not(sportsradar_id: nil).order(sequence: :desc)
     # Each through weeks collection
     weeks.each do |week|
-      
-      week.increment!(:rushing_touchdowns)
-      week.save
       # Each trough games and populate
-      # week.sport_radar_week
-      ap week
+      week.sport_radar_week
     end
     # puts summary
     weeks.scoring_summary_puts
@@ -29,7 +25,8 @@ namespace :matchups do
 
   desc "Populate matchups for Season 2024"
   task populate2024: :environment do
-    seasons = [2024]
+    # seasons = [2024]
+    seasons = [2023]
     # Get collection of weeks
     weeks = Week.where(season_year: seasons).where.not(sportsradar_id: nil).order(sequence: :desc)
     # Week.where(season_year: 2024, sequence: 2).where.not(sportsradar_id: nil).order(sequence: :asc).limit(1).each do |week|
