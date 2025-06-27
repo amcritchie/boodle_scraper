@@ -381,6 +381,24 @@ class Game < ApplicationRecord
       return "Finished"
   end
 
+  def self.check_play_count
+    # Get all games
+    games = Game.all
+    # Each through games
+    games.each do |game|
+      # Get play count
+      play_count = Play.where(game: game).count
+      if play_count < 100
+        puts "="*40
+        puts "Game: #{game.id} | #{game.home_team} #{game.away_team} | #{play_count}"
+        puts "="*40
+        game.sport_radar_play_by_play
+        sleep(5)
+      end
+    end
+    return "Finished"
+  end
+
   def self.sportsoddshistory_scrape_game(game, season=2023, week=1)
 
     # Pull columns from game row

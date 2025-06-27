@@ -8,10 +8,10 @@ namespace :matchups do
     end
   end
 
-  desc "Populate matchups for Seasons 2022-2024"
-  task populate2021t2024: :environment do
+  desc "Populate matchups for Seasons 2020-2024"
+  task populate2020t2024: :environment do
     # seasons = [2022,2023,2024]
-    seasons = [2020,2021,2022]
+    seasons = [2020,2021,2022,2023,2024]
     # Get collection of weeks
     weeks = Week.where(season_year: seasons).where.not(sportsradar_id: nil).order(sequence: :desc)
     # Each through weeks collection

@@ -83,10 +83,17 @@ module SportRadarConcern
       response = self.fetch_sport_radar_pbp
       # Print game info
       puts "Game | #{self.slug} | #{self.away_team.emoji} @ #{self.home_team.emoji}"
+      ap response
       # Check if response is successful
       if response.success?
         # Parse response
         json_data = JSON.parse(response.body)
+
+        if json_data['status'] == "postponed"
+          puts "Game Postponed"
+          return "postponed"
+        end
+
         # Each Through Periods
         json_data['periods'].each do |period_json|
           # Get period emoji
@@ -200,7 +207,7 @@ module SportRadarConcern
     @@play.save!
     
     # Skip on non-play events
-    if ['period_end','tv_timeout','timeout','two_minute_warning','game_over','setup'].include?(@@event_type)
+    if ['period_end','tv_timeout','timeout','two_minute_warning','game_over','setup','comment'].include?(@@event_type)
       result = @@event_type
       puts "#{@@event_type} | ".rjust(@@result_slug_max_short).bold
 
@@ -220,10 +227,10 @@ module SportRadarConcern
 
     # Set Variables
     @@play_type     = @@sport_radar_event['play_type']       # pass    
-    @@details       = @@sport_radar_event["details"]    rescue []
-    @@detail1       = @@details.first                   rescue {"category": nil}
-    @@detail2       = @@details.second                  rescue {"category": nil}
-    @@detaillast    = @@details.last                    rescue {"category": nil}
+    @@details       = @@sport_radar_event["details"]    || []
+    @@detail1       = @@details.first                   || {}
+    @@detail2       = @@details.second                  || {}
+    @@detaillast    = @@details.last                    || {}
     @@turnover      = false
     @@no_play       = (@@detaillast["category"] == "no_play")
     @@scoring_play  = @@sport_radar_event['scoring_play']
@@ -380,16 +387,18 @@ module SportRadarConcern
     result_puts = result_puts.on_yellow       if result == "penalty"
 
     # Result of events
-    begin
-      puts  "#{@@period}  | #{clock.to_s.rjust(5)} > #{end_clock.to_s.rjust(5)}| #{offense_team.emoji} > #{defence_team.emoji} | #{@@down} | #{@@play_type.rjust(11)} | #{result_puts} #{running_count.to_s.rjust(3)} | Play.find(#{@@play.id}) #{description.truncate(130).rjust(130)}"
-    rescue => e
-      puts "margot - Event Error 2"
-      puts "Error: #{e}"
-      e.backtrace.each{ |line| puts line }
-      puts "--------------------------------"
-      ap event_json
-      ap event_json['start_situation']
-    end
+    
+    puts  "#{@@period}  | #{clock.to_s.rjust(5)} > #{end_clock.to_s.rjust(5)}| #{offense_team.emoji} > #{defence_team.emoji} | #{@@down} | #{@@play_type.rjust(11)} | #{result_puts} #{running_count.to_s.rjust(3)} | Play.find(#{@@play.id}) #{description.truncate(130).rjust(130)}"
+  rescue => e
+    puts "margot - Event Error"
+    puts "Error: #{e}"
+    e.backtrace.each{ |line| puts line }
+    puts "--------------------------------"
+    puts "Event"
+    puts "--------------------------------"
+    ap @@sport_radar_event
+    puts "--------------------------------"
+    sleep(5)
   end
 
   def log_strange_event(result_slug)

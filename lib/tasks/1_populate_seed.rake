@@ -20,7 +20,7 @@ namespace :seed do
       # rake seasons:populate             | Sports Radar | 2024, 2023, 2022, 2021
       Rake::Task['seasons:populate2021t2024'].invoke
       # rake seasons:matchups             | Sports Radar | 2024, 2023, 2022, 2021
-      Rake::Task['matchups:populate2021t2024'].invoke
+      Rake::Task['matchups:populate2020t2024'].invoke
     end
     # Rake::Task['seasons:populate2021t2024'].invoke
     # rake seasons:populate             | Sports Odds History | 2017 - 2024
