@@ -24,6 +24,43 @@ class Game < ApplicationRecord
     self.save!
   end
 
+  def initialize_scoring_fields
+    self.home_passing_touchdowns = 0
+    self.home_rushing_touchdowns = 0
+    self.home_field_goals = 0
+    self.home_extra_points = 0
+    self.away_passing_touchdowns = 0
+    self.away_rushing_touchdowns = 0
+    self.away_field_goals = 0
+    self.away_extra_points = 0
+    self.alt_points = 0
+    self.save!
+  end
+
+  def scoring_summary
+    {
+      home_team: home_team&.name,
+      away_team: away_team&.name,
+      home_passing_touchdowns: home_passing_touchdowns,
+      away_passing_touchdowns: away_passing_touchdowns,
+      home_rushing_touchdowns: home_rushing_touchdowns,
+      away_rushing_touchdowns: away_rushing_touchdowns,
+      home_field_goals: home_field_goals,
+      away_field_goals: away_field_goals,
+      home_extra_points: home_extra_points,
+      away_extra_points: away_extra_points,
+      alt_points: alt_points
+    }
+  end
+
+  def home_total_points
+    home_passing_touchdowns + home_rushing_touchdowns + home_field_goals + home_extra_points
+  end
+
+  def away_total_points
+    away_passing_touchdowns + away_rushing_touchdowns + away_field_goals + away_extra_points
+  end
+
   # Games imported from Kaggle
   def self.kaggle
     where(source: :kaggle)

@@ -20,6 +20,8 @@ module SportRadarConcern
   @@touchdown              = false
   @@safety                 = false
   @@extra_point            = false
+  @@start_team             = nil
+  @@end_team               = nil
 
   # Class methods
   class_methods do
@@ -80,7 +82,17 @@ module SportRadarConcern
 
   def sport_radar_play_by_play
       # Get play by play from SportRadar
-      response = self.fetch_sport_radar_pbp
+      response = self.fetch_sport_radar_pbp rescue 'tcp-crash'
+
+      if response == 'tcp-crash'
+        ap self 
+        puts "TCP Crash - Retrying"
+        sleep(10)
+        response = self.fetch_sport_radar_pbp rescue 'tcp-crash'
+        puts "TCP Crash - Retrying"
+        return "tcp-crash" if response == 'tcp-crash'
+      end
+
       # Print game info
       puts "Game | #{self.slug} | #{self.away_team.emoji} @ #{self.home_team.emoji}"
       ap response
@@ -248,9 +260,9 @@ module SportRadarConcern
     # Set turnover
     start_situation = @@sport_radar_event['start_situation']
     end_situation   = @@sport_radar_event['end_situation']
-    start_team      = Team.find_by(sportsradar_id: start_situation['possession']['id']) rescue nil
-    end_team        = Team.find_by(sportsradar_id: end_situation['possession']['id']) rescue nil
-    @@turnover       = (start_team.slug != end_team.slug)
+    @@start_team    = Team.find_by(sportsradar_id: start_situation['possession']['id']) rescue nil
+    @@end_team      = Team.find_by(sportsradar_id: end_situation['possession']['id']) rescue nil
+    @@turnover       = (@@start_team.slug != @@end_team.slug)
     
     # Set down emoji
     @@down = "〰️"
@@ -277,7 +289,7 @@ module SportRadarConcern
     details         = @@sport_radar_event['details']
 
     # Set teams for print
-    offense_team = start_team
+    offense_team = @@start_team
     if offense_team == the_home_team
       defence_team = the_away_team
     else
@@ -288,8 +300,8 @@ module SportRadarConcern
     @@play.down                       = @@down
     @@play.period                     = @@period
     @@play.turnover                   = @@turnover
-    @@play.possession_start_team_slug = start_team.slug
-    @@play.possession_end_team_slug   = end_team.slug
+    @@play.possession_start_team_slug = @@start_team.slug
+    @@play.possession_end_team_slug   = @@end_team.slug
     @@play.clock_start_time           = start_clock
     @@play.clock_end_time             = end_clock
     @@play.save!
@@ -324,8 +336,8 @@ module SportRadarConcern
     end
 
     @@play.score                      = @@score
-    @@play.possession_start_team_slug = start_team.slug if start_team.present?
-    @@play.possession_end_team_slug   = end_team.slug if end_team.present?
+    @@play.possession_start_team_slug = @@start_team.slug if @@start_team.present?
+    @@play.possession_end_team_slug   = @@end_team.slug if @@end_team.present?
     @@play.category                   = @@sport_radar_event["category"]
     @@play.description                = @@sport_radar_event["description"]
     @@play.result                     = result
@@ -413,9 +425,11 @@ module SportRadarConcern
     if @@scoring_play
         if @@turnover
             result_slug = "defensive-conversion"
+            self.increment!(:alt_points)
             log_strange_event(result_slug)
         else
             result_slug = "two-point-conversion"
+            self.increment!(:alt_points)
             week.increment!(:two_point_conversions)
         end
     else  
@@ -428,12 +442,20 @@ module SportRadarConcern
     if @@scoring_play
         if @@extra_point
             result_slug = "extra-point"
+            if self.home_team.slug == @@end_team.slug
+              self.increment!(:home_extra_points)
+            else
+              self.increment!(:away_extra_points)
+            end       
+              
             week.increment!(:extra_points)
         elsif @@turnover
             result_slug = "defensive-conversion"
+            self.increment!(:alt_points)
             log_strange_event(result_slug)
         else
             result_slug = "two-point-conversion"
+            self.increment!(:alt_points)
             week.increment!(:two_point_conversions)
         end
     else
@@ -446,16 +468,32 @@ module SportRadarConcern
     if @@scoring_play
       if @@field_goal
           result_slug = "field-goal"
+
+          if self.home_team.slug == @@end_team.slug
+            self.increment!(:home_field_goals, 3)
+          else
+            self.increment!(:away_field_goals, 3)
+          end
+
           week.increment!(:field_goals)
       elsif @@touchdown
           if @@turnover
               result_slug = "defensive-touchdown"
+              self.increment!(:alt_points, 6)
               week.increment!(:defensive_touchdowns)
           elsif @@safety
               week.increment!(:safeties)
+              self.increment!(:alt_points, 2)
               result_slug = "safety"
           else
               result_slug = "passing-touchdown"
+
+              if self.home_team.slug == @@end_team.slug
+                self.increment!(:home_passing_touchdowns, 6)
+              else
+                self.increment!(:away_passing_touchdowns, 6)
+              end
+
               week.increment!(:passing_touchdowns)
           end
       else
@@ -471,12 +509,21 @@ module SportRadarConcern
     if @@scoring_play
       if @@turnover
         result_slug = "defensive-touchdown"
+        self.increment!(:alt_points, 6)
         week.increment!(:defensive_touchdowns)
       elsif @@safety
         week.increment!(:safeties)
+        self.increment!(:alt_points, 2)
         result_slug = "safety"
       else
         result_slug = "passing-touchdown"
+
+        if self.home_team.slug == @@end_team.slug
+          self.increment!(:home_passing_touchdowns, 6)
+        else
+          self.increment!(:away_passing_touchdowns, 6)
+        end
+
         week.increment!(:passing_touchdowns)
       end
     else
@@ -489,12 +536,21 @@ module SportRadarConcern
     if @@scoring_play
       if @@turnover
         result_slug = "defensive-touchdown"
+        self.increment!(:alt_points, 6)
         week.increment!(:defensive_touchdowns)
       elsif @@safety
         week.increment!(:safeties)
+        self.increment!(:alt_points, 2)
         result_slug = "safety"
       else
         result_slug = "rushing-touchdown"
+
+        if self.home_team.slug == @@end_team.slug
+          self.increment!(:home_rushing_touchdowns, 6)
+        else
+          self.increment!(:away_rushing_touchdowns, 6)
+        end
+
         week.increment!(:rushing_touchdowns)
       end
     else
@@ -508,13 +564,16 @@ module SportRadarConcern
       if @@touchdown
           if @@turnover
               week.increment!(:special_teams_touchdowns)
+              self.increment!(:alt_points, 6)
               result_slug = "punt-return-touchdown"
           else
               week.increment!(:special_teams_touchdowns)
+              self.increment!(:alt_points, 6)
               result_slug = "punt-recovery-touchdown"
           end
       elsif @@safety
           week.increment!(:safeties)
+          self.increment!(:alt_points, 2)
           result_slug = "safety"
       else
         result_slug = "punt"
@@ -529,13 +588,16 @@ module SportRadarConcern
     if @@touchdown
         if @@turnover
             week.increment!(:special_teams_touchdowns)
+            self.increment!(:alt_points, 6)
             result_slug = "kickoff-touchdown"
         else
             week.increment!(:special_teams_touchdowns)
+            self.increment!(:alt_points, 6)
             result_slug = "kicking-team-touchdown"
         end
     elsif @@safety
         week.increment!(:safeties)
+        self.increment!(:alt_points, 2)
         result_slug = "safety"
     else
       result_slug = "kickoff"

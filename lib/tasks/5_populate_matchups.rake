@@ -10,17 +10,32 @@ namespace :matchups do
 
   desc "Populate matchups for Seasons 2020-2024"
   task populate2020t2024: :environment do
+
+    $score_summary = ["season,week,team,passingTDs,rushingTDs,fieldGoals,extraPoints,altPoints"]
+    $week_summary = ["season,week,passingGames,rushingGames,fgGames,+4passingTDs,3passingTDs,2passingTDs,1passingTD,0passingTDs,+4rushingTDs,3rushingTDs,2rushingTDs,1rushingTDs,0rushingTDs,5fieldGoals,4fieldGoals,3fieldGoals,2fieldGoals,1fieldGoals,0fieldGoals"]
     # seasons = [2022,2023,2024]
     seasons = [2020,2021,2022,2023,2024]
+    # seasons = [2024,2023]
     # Get collection of weeks
     weeks = Week.where(season_year: seasons).where.not(sportsradar_id: nil).order(sequence: :desc)
     # Each through weeks collection
     weeks.each do |week|
+
       # Each trough games and populate
       week.sport_radar_week
+
+      # Get summary data using the helper method
+      summary = week.scoring_categories_summary
+
+      $week_summary.push("#{week.season_year},#{week.sequence},#{summary[:passing_games]},#{summary[:rushing_games]},#{summary[:fg_games]},#{week.passing_tds_4},#{week.passing_tds_3},#{week.passing_tds_2},#{week.passing_tds_1},#{week.passing_tds_0},#{week.rushing_tds_4},#{week.rushing_tds_3},#{week.rushing_tds_2},#{week.rushing_tds_1},#{week.rushing_tds_0},#{week.field_goals_5},#{week.field_goals_4},#{week.field_goals_3},#{week.field_goals_2},#{week.field_goals_1},#{week.field_goals_0}")
     end
+
+    
     # puts summary
     weeks.scoring_summary_puts
+
+    puts $score_summary
+    puts $week_summary
   end
 
   desc "Populate matchups for Season 2024"

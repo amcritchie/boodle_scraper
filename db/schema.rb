@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_07_20_000011) do
+ActiveRecord::Schema[7.0].define(version: 2025_07_05_163756) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -107,6 +107,15 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_20_000011) do
     t.jsonb "stangest_events"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "home_passing_touchdowns", default: 0
+    t.integer "home_rushing_touchdowns", default: 0
+    t.integer "home_field_goals", default: 0
+    t.integer "home_extra_points", default: 0
+    t.integer "away_passing_touchdowns", default: 0
+    t.integer "away_rushing_touchdowns", default: 0
+    t.integer "away_field_goals", default: 0
+    t.integer "away_extra_points", default: 0
+    t.integer "alt_points", default: 0
     t.index ["away_slug"], name: "index_games_on_away_slug"
     t.index ["created_at"], name: "index_games_on_created_at"
     t.index ["home_slug"], name: "index_games_on_home_slug"
@@ -523,6 +532,22 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_20_000011) do
     t.integer "sacks", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "passing_tds_4", default: 0
+    t.integer "passing_tds_3", default: 0
+    t.integer "passing_tds_2", default: 0
+    t.integer "passing_tds_1", default: 0
+    t.integer "passing_tds_0", default: 0
+    t.integer "rushing_tds_4", default: 0
+    t.integer "rushing_tds_3", default: 0
+    t.integer "rushing_tds_2", default: 0
+    t.integer "rushing_tds_1", default: 0
+    t.integer "rushing_tds_0", default: 0
+    t.integer "field_goals_5", default: 0
+    t.integer "field_goals_4", default: 0
+    t.integer "field_goals_3", default: 0
+    t.integer "field_goals_2", default: 0
+    t.integer "field_goals_1", default: 0
+    t.integer "field_goals_0", default: 0
     t.index ["season_year"], name: "index_weeks_on_season_year"
     t.index ["sequence"], name: "index_weeks_on_sequence"
     t.index ["sportsradar_id"], name: "index_weeks_on_sportsradar_id"

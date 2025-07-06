@@ -20,6 +20,9 @@ class Week < ApplicationRecord
 
         # next unless game.slug == "sf-ari-18-2024" # Just one game
 
+        # Initialize game scoring fields
+        game.initialize_scoring_fields
+
         # Iterate game count
         self.games_count += 1
         self.save!
@@ -30,6 +33,98 @@ class Week < ApplicationRecord
 
         game.sport_radar_play_by_play_seed
 
+        # Reload game to get updated scoring data
+        game.reload
+
+        # Update passing touchdown categories for home team
+        if game.home_passing_touchdowns >= 24
+          self.passing_tds_4 += 1
+        elsif game.home_passing_touchdowns >= 18
+          self.passing_tds_3 += 1
+        elsif game.home_passing_touchdowns >= 12
+          self.passing_tds_2 += 1
+        elsif game.home_passing_touchdowns >= 6
+          self.passing_tds_1 += 1
+        else
+          self.passing_tds_0 += 1
+        end
+
+        # Update passing touchdown categories for away team
+        if game.away_passing_touchdowns >= 24
+          self.passing_tds_4 += 1
+        elsif game.away_passing_touchdowns >= 18
+          self.passing_tds_3 += 1
+        elsif game.away_passing_touchdowns >= 12
+          self.passing_tds_2 += 1
+        elsif game.away_passing_touchdowns >= 6
+          self.passing_tds_1 += 1
+        else
+          self.passing_tds_0 += 1
+        end
+
+        # Update rushing touchdown categories for home team
+        if game.home_rushing_touchdowns >= 24
+          self.rushing_tds_4 += 1
+        elsif game.home_rushing_touchdowns >= 18
+          self.rushing_tds_3 += 1
+        elsif game.home_rushing_touchdowns >= 12
+          self.rushing_tds_2 += 1
+        elsif game.home_rushing_touchdowns >= 6
+          self.rushing_tds_1 += 1
+        else
+          self.rushing_tds_0 += 1
+        end
+
+        # Update rushing touchdown categories for away team
+        if game.away_rushing_touchdowns >= 24
+          self.rushing_tds_4 += 1
+        elsif game.away_rushing_touchdowns >= 18
+          self.rushing_tds_3 += 1
+        elsif game.away_rushing_touchdowns >= 12
+          self.rushing_tds_2 += 1
+        elsif game.away_rushing_touchdowns >= 6
+          self.rushing_tds_1 += 1
+        else
+          self.rushing_tds_0 += 1
+        end
+
+        # Update field goal categories for home team
+        if game.home_field_goals >= 15
+          self.field_goals_5 += 1
+        elsif game.home_field_goals >= 12
+          self.field_goals_4 += 1
+        elsif game.home_field_goals >= 9
+          self.field_goals_3 += 1
+        elsif game.home_field_goals >= 6
+          self.field_goals_2 += 1
+        elsif game.home_field_goals >= 3
+          self.field_goals_1 += 1
+        else
+          self.field_goals_0 += 1
+        end
+
+        # Update field goal categories for away team
+        if game.away_field_goals >= 15
+          self.field_goals_5 += 1
+        elsif game.away_field_goals >= 12 
+          self.field_goals_4 += 1
+        elsif game.away_field_goals >= 9
+          self.field_goals_3 += 1
+        elsif game.away_field_goals >= 6
+          self.field_goals_2 += 1
+        elsif game.away_field_goals >= 3
+          self.field_goals_1 += 1
+        else
+          self.field_goals_0 += 1
+        end
+
+        # Save the updated counts
+        self.save!
+
+        # Add to score summary
+        $score_summary.push("#{self.season_year},#{self.sequence},#{game.home_team.slug},#{game.home_passing_touchdowns},#{game.home_rushing_touchdowns},#{game.home_field_goals},#{game.home_extra_points},#{game.alt_points}")
+        $score_summary.push("#{self.season_year},#{self.sequence},#{game.away_team.slug},#{game.away_passing_touchdowns},#{game.away_rushing_touchdowns},#{game.away_field_goals},#{game.away_extra_points},0")
+        
         sleep(1)
         # Only process game
         break if @@only_one_game
@@ -55,6 +150,27 @@ class Week < ApplicationRecord
     self.interceptions            = 0 # 1pt
     self.fumbles                  = 0 # 1pt
     self.sacks                    = 0 # 1pt
+    
+    # Initialize scoring category counters
+    self.passing_tds_4 = 0
+    self.passing_tds_3 = 0
+    self.passing_tds_2 = 0
+    self.passing_tds_1 = 0
+    self.passing_tds_0 = 0
+    
+    self.rushing_tds_4 = 0
+    self.rushing_tds_3 = 0
+    self.rushing_tds_2 = 0
+    self.rushing_tds_1 = 0
+    self.rushing_tds_0 = 0
+    
+    self.field_goals_5 = 0
+    self.field_goals_4 = 0
+    self.field_goals_3 = 0
+    self.field_goals_2 = 0
+    self.field_goals_1 = 0
+    self.field_goals_0 = 0
+    
     self.save!
   end
 
@@ -86,6 +202,39 @@ class Week < ApplicationRecord
       puts "Field Goals:              #{week.field_goals}"
       puts "Extra Points:             #{week.extra_points}"
       puts "Games:                    #{week.games_count}"
+      puts "Passing TD Categories:    #{week.passing_tds_0}/#{week.passing_tds_1}/#{week.passing_tds_2}/#{week.passing_tds_3}/#{week.passing_tds_4}"
+      puts "Rushing TD Categories:    #{week.rushing_tds_0}/#{week.rushing_tds_1}/#{week.rushing_tds_2}/#{week.rushing_tds_3}/#{week.rushing_tds_4}"
+      puts "Field Goal Categories:    #{week.field_goals_0}/#{week.field_goals_1}/#{week.field_goals_2}/#{week.field_goals_3}/#{week.field_goals_4}/#{week.field_goals_5}"
     end
+  end
+
+  def scoring_categories_summary
+    {
+      passing_games: passing_tds_4 + passing_tds_3 + passing_tds_2 + passing_tds_1 + passing_tds_0,
+      rushing_games: rushing_tds_4 + rushing_tds_3 + rushing_tds_2 + rushing_tds_1 + rushing_tds_0,
+      fg_games: field_goals_5 + field_goals_4 + field_goals_3 + field_goals_2 + field_goals_1 + field_goals_0,
+      passing_tds: {
+        tds_4: passing_tds_4,
+        tds_3: passing_tds_3,
+        tds_2: passing_tds_2,
+        tds_1: passing_tds_1,
+        tds_0: passing_tds_0
+      },
+      rushing_tds: {
+        tds_4: rushing_tds_4,
+        tds_3: rushing_tds_3,
+        tds_2: rushing_tds_2,
+        tds_1: rushing_tds_1,
+        tds_0: rushing_tds_0
+      },
+      field_goals: {
+        fg_5: field_goals_5,
+        fg_4: field_goals_4,
+        fg_3: field_goals_3,
+        fg_2: field_goals_2,
+        fg_1: field_goals_1,
+        fg_0: field_goals_0
+      }
+    }
   end
 end
