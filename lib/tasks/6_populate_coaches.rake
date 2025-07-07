@@ -1,6 +1,6 @@
-namespace :populate do
+namespace :coaches do
   desc "Populate coaches with 2025 NFL offensive play callers"
-  task coaches: :environment do
+  task populate: :environment do
     puts "Populating coaches with 2025 NFL offensive play callers..."
     
     coaches_data = [

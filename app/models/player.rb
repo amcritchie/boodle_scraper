@@ -253,7 +253,6 @@ class Player < ApplicationRecord
     player
   end
 
-
   def self.pff_general(pff_row, position)
     puts "MASON"
     ap pff_row

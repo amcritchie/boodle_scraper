@@ -244,61 +244,56 @@ class Team < ApplicationRecord
         # Create player slug
         slug_player = "#{position}-#{player_name}".downcase.gsub(' ', '-')
         # Find or create player
-        unless player = Player.find_by(slug_pff: slug_pff)
-          player = Player.find_or_create_by(slug: slug_player) do |player|
-            player.slug_pff = slug_pff
-          end
-        end
+        player = Player.find_or_create_by(slug: slug_player) 
         # Update player
-        player.update(
-          player_game_count:    attrs["player_game_count"],
-          passing_yards_per_attempt:   attrs["ypa"].to_f,
-          passing_attempts:     attrs["attempts"],
-          passing_touchdowns:   attrs["touchdowns"],
-          passing_yards:        attrs["yards"],
-          franchise_id:         attrs["franchise_id"],
-          grades_offense:       attrs["grades_offense"].to_f,
-          grades_pass:          attrs["grades_pass"].to_f,
-          grades_run:           attrs["grades_run"].to_f,
-          penalties:            attrs["penalties"],
-          scrambles:            attrs["scrambles"],
-          accuracy_percent:       attrs["accuracy_percent"],
-          aimed_passes:           attrs["aimed_passes"],
-          avg_depth_of_target:    attrs["avg_depth_of_target"],
-          avg_time_to_throw:      attrs["avg_time_to_throw"],
-          turnover_worthy_plays:  attrs["turnover_worthy_plays"],
-          turnover_worthy_rate:   attrs["twp_rate"],
-          batted_passes:          attrs["bats"],
-          big_time_throws:        attrs["big_time_throws"],
-          btt_rate:               attrs["btt_rate"],
-          completion_percent:     attrs["completion_percent"],
-          completions:            attrs["completions"],
-          declined_penalties:     attrs["declined_penalties"],
-          def_gen_pressures:      attrs["def_gen_pressures"],
-          drop_rate:              attrs["drop_rate"],
-          dropbacks:              attrs["dropbacks"],
-          drops:                  attrs["drops"].to_i,
-          first_downs:            attrs["first_downs"],
-          grades_hands_fumble:    attrs["grades_hands_fumble"],
-          hit_as_threw:           attrs["hit_as_threw"],
-          interceptions:          attrs["interceptions"],
-          passing_snaps:          attrs["passing_snaps"],
-          penalties:              attrs["penalties"].to_i,
-          pressure_to_sack_rate:  attrs["pressure_to_sack_rate"],
-          qb_rating:              attrs["qb_rating"],
-          sack_percent:           attrs["sack_percent"],
-          sacks:                  attrs["sacks"],
-          scrambles:              attrs["scrambles"],
-          spikes_thrown:          attrs["spikes"],
-          thrown_aways:           attrs["thrown_aways"],
-          team_slug:              team.slug,
-          position:               position
-        )
-        puts "-lala----"
-        ap attrs['player']
-        puts "-----"
-        ap player
-        puts "-----"
+        player.slug_pff = slug_pff
+        player.player   = player_name
+        # Passer Details
+        player.player_game_count          = attrs["player_game_count"]
+        player.passing_yards_per_attempt  = attrs["ypa"].to_f.round(2)
+        player.passing_attempts           = attrs["attempts"]
+        player.passing_touchdowns         = attrs["touchdowns"]
+        player.passing_yards              = attrs["yards"]
+        player.franchise_id               = attrs["franchise_id"]
+        player.grades_offense             = attrs["grades_offense"].to_f
+        player.grades_pass                = attrs["grades_pass"].to_f
+        player.grades_run                 = attrs["grades_run"].to_f
+        player.penalties                  = attrs["penalties"]
+        player.scrambles                  = attrs["scrambles"]
+        player.accuracy_percent           = attrs["accuracy_percent"]
+        player.aimed_passes               = attrs["aimed_passes"]
+        player.avg_depth_of_target        = attrs["avg_depth_of_target"]
+        player.avg_time_to_throw          = attrs["avg_time_to_throw"].to_f
+        player.turnover_worthy_plays      = attrs["turnover_worthy_plays"]
+        player.turnover_worthy_rate       = attrs["twp_rate"].to_f
+        player.batted_passes              = attrs["bats"]
+        player.big_time_throws            = attrs["big_time_throws"]
+        player.btt_rate                   = attrs["btt_rate"].to_f
+        player.completion_percent         = attrs["completion_percent"].to_f
+        player.completions                = attrs["completions"]
+        player.declined_penalties         = attrs["declined_penalties"]
+        player.def_gen_pressures          = attrs["def_gen_pressures"]
+        player.drop_rate                  = attrs["drop_rate"].to_f
+        player.dropbacks                  = attrs["dropbacks"]
+        player.drops                      = attrs["drops"].to_i
+        player.first_downs                = attrs["first_downs"]
+        player.grades_hands_fumble        = attrs["grades_hands_fumble"]
+        player.hit_as_threw               = attrs["hit_as_threw"]
+        player.interceptions              = attrs["interceptions"]
+        player.passing_snaps              = attrs["passing_snaps"]
+        player.penalties                  = attrs["penalties"].to_i
+        player.pressure_to_sack_rate      = attrs["pressure_to_sack_rate"].to_f
+        player.qb_rating                  = attrs["qb_rating"].to_f
+        player.sack_percent               = attrs["sack_percent"].to_f
+        player.sacks                      = attrs["sacks"]
+        player.scrambles                  = attrs["scrambles"]
+        player.spikes_thrown              = attrs["spikes"]
+        player.thrown_aways               = attrs["thrown_aways"]
+        player.team_slug                  = team.slug
+        player.position                   = position
+        player.save!
+        # Puts details
+        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.offense_grade.to_s.rjust(6)} /#{player.grades_pass.to_s.rjust(6)} 🏈 | #{player.team.description.ljust(30)}"
       end
     end
 
@@ -315,62 +310,57 @@ class Team < ApplicationRecord
         # Create player slug
         slug_player = "#{position}-#{player_name}".downcase.gsub(' ', '-')
         # Find or create player
-        unless player = Player.find_by(slug_pff: slug_pff)
-          player = Player.find_or_create_by(slug: slug_player) do |player|
-            player.slug_pff = slug_pff
-          end
-        end
+        player = Player.find_or_create_by(slug: slug_player) 
         # Update player
-        player.update(
-          player_game_count:                  attrs["player_game_count"],
-          rushing_attempts:                   attrs["attempts"],
-          avoided_tackles:                    attrs["avoided_tackles"],
-          breakaway_attempts:                 attrs["breakaway_attempts"],
-          breakaway_percent:                  attrs["breakaway_percent"].to_f,
-          breakaway_yards:                    attrs["breakaway_yards"],
-          declined_penalties:                 attrs["declined_penalties"],
-          designed_yards:                     attrs["designed_yards"],
-          drops:                              attrs["drops"],
-          elusive_recv_missed_tackles_forced: attrs["elu_recv_mtf"].to_i,
-          elusive_rush_missed_tackles_forced: attrs["elu_rush_mtf"].to_i,
-          elu_yco:                            attrs["elu_yco"].to_i,
-          elusive_rating:                     attrs["elusive_rating"].to_f,
-          explosive:                          attrs["explosive"].to_i,
-          first_downs:                        attrs["first_downs"],
-          franchise_id:                       attrs["franchise_id"],
-          fumbles:                            attrs["fumbles"].to_i,
-          gap_attempts:                       attrs["gap_attempts"],
-          grades_hands_fumble:                attrs["grades_hands_fumble"].to_f,
-          grades_offense:                     attrs["grades_offense"].to_f,
-          grades_offense_penalty:             attrs["grades_offense_penalty"].to_f,
-          grades_pass:                        attrs["grades_pass"].to_f,
-          grades_run:                         attrs["grades_run"].to_f,
-          grades_pass_block:                  attrs["grades_pass_block"].to_f,
-          grades_run_block:                   attrs["grades_run_block"].to_f,
-          longest:                            attrs["longest"].to_i,
-          rec_yards:                          attrs["rec_yards"].to_i,
-          receptions:                         attrs["receptions"].to_i,
-          routes:                             attrs["routes"].to_i,
-          run_plays:                          attrs["run_plays"].to_i,
-          scramble_yards:                     attrs["scramble_yards"].to_i,
-          scrambles:                          attrs["scrambles"].to_i,
-          targets:                            attrs["targets"].to_i,
-          total_touches:                      attrs["total_touches"].to_i,
-          rushing_touchdowns:                 attrs["touchdowns"].to_i,
-          rushing_yards:                      attrs["yards"],
-          yards_after_contact:                attrs["yards_after_contact"],
-          yards_after_contact_attempt:        attrs["yco_attempt"],
-          rushing_yards_per_attempt:          attrs["ypa"],
-          yards_per_route_run:                attrs["yprr"],
-          zone_attempts:                      attrs["zone_attempts"],
-          team_slug:            team.slug,
-          position:             position
-        )
-        puts "-margot----"
-        ap attrs['player']
-        puts "-----"
-        ap player
-        puts "-----"
+        player.slug_pff = slug_pff
+        player.player   = player_name
+        # Passer Details
+        player.player_game_count                  = attrs["player_game_count"]
+        player.rushing_attempts                   = attrs["attempts"]
+        player.avoided_tackles                    = attrs["avoided_tackles"]
+        player.breakaway_attempts                 = attrs["breakaway_attempts"]
+        player.breakaway_percent                  = attrs["breakaway_percent"].to_f
+        player.breakaway_yards                    = attrs["breakaway_yards"]
+        player.declined_penalties                 = attrs["declined_penalties"]
+        player.designed_yards                     = attrs["designed_yards"]
+        player.drops                              = attrs["drops"].to_i
+        player.elusive_recv_missed_tackles_forced = attrs["elu_recv_mtf"].to_i
+        player.elusive_rush_missed_tackles_forced = attrs["elu_rush_mtf"].to_i
+        player.elu_yco                            = attrs["elu_yco"].to_i
+        player.elusive_rating                     = attrs["elusive_rating"].to_f
+        player.explosive                          = attrs["explosive"].to_i
+        player.first_downs                        = attrs["first_downs"]
+        player.franchise_id                       = attrs["franchise_id"]
+        player.fumbles                            = attrs["fumbles"].to_i
+        player.gap_attempts                       = attrs["gap_attempts"].to_i
+        player.grades_hands_fumble                = attrs["grades_hands_fumble"].to_f
+        player.grades_offense                     = attrs["grades_offense"].to_f
+        player.grades_offense_penalty             = attrs["grades_offense_penalty"].to_f
+        player.grades_pass                       = attrs["grades_pass"].to_f
+        player.grades_run                        = attrs["grades_run"].to_f
+        player.grades_pass_block                 = attrs["grades_pass_block"].to_f
+        player.grades_run_block                  = attrs["grades_run_block"].to_f
+        player.longest                           = attrs["longest"].to_i
+        player.rec_yards                         = attrs["rec_yards"].to_i
+        player.receptions                        = attrs["receptions"].to_i
+        player.routes                            = attrs["routes"].to_i
+        player.run_plays                         = attrs["run_plays"].to_i
+        player.scramble_yards                    = attrs["scramble_yards"].to_i
+        player.scrambles                         = attrs["scrambles"].to_i
+        player.targets                           = attrs["targets"].to_i
+        player.total_touches                     = attrs["total_touches"].to_i
+        player.rushing_touchdowns                = attrs["touchdowns"].to_i
+        player.rushing_yards                     = attrs["yards"]
+        player.yards_after_contact               = attrs["yards_after_contact"]
+        player.yards_after_contact_attempt       = attrs["yco_attempt"]
+        player.rushing_yards_per_attempt         = attrs["ypa"]
+        player.yards_per_route_run               = attrs["yprr"]
+        player.zone_attempts                     = attrs["zone_attempts"].to_i
+        player.team_slug                         = team.slug
+        player.position                          = position
+        player.save!
+        # Puts details
+        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.offense_grade.to_s.rjust(6)} /#{player.grades_run.to_s.rjust(6)} 👟 | #{player.team.description.ljust(30)}"
       end
     end
 
@@ -387,72 +377,60 @@ class Team < ApplicationRecord
         # Create player slug
         slug_player = "#{position}-#{player_name}".downcase.gsub(' ', '-')
         # Find or create player
-        unless player = Player.find_by(slug_pff: slug_pff)
-          player = Player.find_or_create_by(slug: slug_player) do |player|
-            player.slug_pff = slug_pff
-          end
-        end
-
-  
-
+        player = Player.find_or_create_by(slug: slug_player) 
         # Update player
-        player.update(
-          player_game_count:                attrs["player_game_count"],
-          avg_depth_of_target:              attrs["avg_depth_of_target"],
-          avoided_tackles:                  attrs["avoided_tackles"],
-          caught_percent:                   attrs["caught_percent"],
-          contested_catch_rate:             attrs["contested_catch_rate"],
-          contested_receptions:             attrs["contested_receptions"],
-          contested_targets:                attrs["contested_targets"],
-          declined_penalties:               attrs["declined_penalties"],
-          drops:                            attrs["drops"],
-          first_downs:                      attrs["first_downs"],
-          franchise_id:                     attrs["franchise_id"],
-          fumbles:                          attrs["fumbles"].to_i,
-          grades_hands_drop:                attrs["grades_hands_drop"].to_i,
-          grades_hands_fumble:              attrs["grades_hands_fumble"].to_i,
-          grades_offense:                   attrs["grades_offense"].to_f,
-          grades_pass_block:                attrs["grades_pass_block"].to_f,
-          grades_pass_route:                attrs["grades_pass_route"].to_f,
-          inline_rate:                      attrs["inline_rate"].to_f,
-          inline_snaps:                     attrs["inline_snaps"].to_i,
-          interceptions:                    attrs["interceptions"].to_i,
-          longest:                          attrs["longest"].to_i,
-          pass_block_rate:                  attrs["pass_block_rate"].to_i,
-          pass_blocks:                      attrs["pass_blocks"].to_i,
-          pass_plays:                       attrs["pass_plays"].to_i,
-          penalties:                        attrs["penalties"].to_i,
-          receptions:                       attrs["receptions"].to_i,
-          route_rate:                       attrs["route_rate"].to_i,
-          routes:                           attrs["routes"].to_i,
-          slot_rate:                        attrs["slot_rate"].to_i,
-          slot_snaps:                       attrs["slot_snaps"].to_i,
-          targeted_qb_rating:               attrs["targeted_qb_rating"].to_i,
-          longest:                          attrs["longest"].to_i,
-          receiving_touchdowns:             attrs["touchdowns"].to_i,
-          receiving_yards:                  attrs["yards"],
-          receiving_yards:                  attrs["wide_rate"],
-          receiving_yards:                  attrs["wide_snaps"],
-          yards_after_catch:                attrs["yards_after_catch"],
-          yards_after_catch_per_reception:  attrs["yards_after_catch_per_reception"],
-          receiving_yards:                  attrs["yards_per_reception"],
-          yards_per_route_run:              attrs["yprr"],
-          wide_rate:                        attrs["wide_rate"],
-          wide_snaps:                       attrs["wide_snaps"],
-          receiving_yards:                  attrs["yards"],
-          yards_after_contact:              attrs["yards_after_contact"],
-          yards_after_contact_attempt:      attrs["yco_attempt"],
-          rushing_yards_per_attempt:        attrs["ypa"],
-          yards_per_route_run:              attrs["yprr"],
-          zone_attempts:                    attrs["zone_attempts"],
-          team_slug:                        team.slug,
-          position:                         position
-        )
-        puts "-margo2----"
-        ap attrs['player']
-        puts "-----"
-        ap player
-        puts "-----"
+        player.slug_pff = slug_pff
+        player.player   = player_name
+        # Passer Details
+        player.player_game_count                = attrs["player_game_count"]
+        player.avg_depth_of_target              = attrs["avg_depth_of_target"]
+        player.avoided_tackles                  = attrs["avoided_tackles"]
+        player.caught_percent                   = attrs["caught_percent"]
+        player.contested_catch_rate             = attrs["contested_catch_rate"]
+        player.contested_receptions             = attrs["contested_receptions"]
+        player.contested_targets                = attrs["contested_targets"]
+        player.declined_penalties               = attrs["declined_penalties"]
+        player.drops                            = attrs["drops"].to_i
+        player.first_downs                      = attrs["first_downs"]
+        player.franchise_id                     = attrs["franchise_id"]
+        player.fumbles                          = attrs["fumbles"].to_i
+        player.grades_hands_drop                = attrs["grades_hands_drop"].to_i
+        player.grades_hands_fumble              = attrs["grades_hands_fumble"].to_i
+        player.grades_offense                   = attrs["grades_offense"].to_f
+        player.grades_pass_block                = attrs["grades_pass_block"].to_f
+        player.grades_pass_route                = attrs["grades_pass_route"].to_f
+        player.inline_rate                      = attrs["inline_rate"].to_f
+        player.inline_snaps                     = attrs["inline_snaps"].to_i
+        player.interceptions                    = attrs["interceptions"].to_i
+        player.longest                          = attrs["longest"].to_i
+        player.pass_block_rate                  = attrs["pass_block_rate"].to_i
+        player.pass_blocks                      = attrs["pass_blocks"].to_i
+        player.pass_plays                       = attrs["pass_plays"].to_i
+        player.penalties                        = attrs["penalties"].to_i
+        player.receptions                       = attrs["receptions"].to_i
+        player.route_rate                       = attrs["route_rate"].to_i
+        player.routes                           = attrs["routes"].to_i
+        player.slot_rate                        = attrs["slot_rate"].to_i
+        player.slot_snaps                       = attrs["slot_snaps"].to_i
+        player.targeted_qb_rating               = attrs["targeted_qb_rating"].to_i
+        player.longest                          = attrs["longest"].to_i
+        player.receiving_touchdowns             = attrs["touchdowns"].to_i
+        player.receiving_yards                  = attrs["yards"]
+        player.wide_rate                        = attrs["wide_rate"]
+        player.wide_snaps                       = attrs["wide_snaps"].to_i
+        player.yards_after_catch                = attrs["yards_after_catch"]
+        player.yards_after_catch_per_reception  = attrs["yards_after_catch_per_reception"]
+        player.receiving_yards                  = attrs["yards_per_reception"]
+        player.yards_after_contact              = attrs["yards_after_contact"]
+        player.yards_after_contact_attempt      = attrs["yco_attempt"]
+        player.rushing_yards_per_attempt        = attrs["ypa"]
+        player.yards_per_route_run              = attrs["yprr"]
+        player.zone_attempts                    = attrs["zone_attempts"]
+        player.team_slug                        = team.slug
+        player.position                         = position
+        player.save!
+        # Puts details
+        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.offense_grade.to_s.rjust(6)} /#{player.grades_pass_route.to_s.rjust(6)} 🙌 | #{player.team.description.ljust(30)}"
       end
     end
 
@@ -466,9 +444,11 @@ class Team < ApplicationRecord
       end
       college = pff_row['College'].downcase.gsub(' ', '-') rescue 'undrafted'
       draft_year = pff_row['DraftYear'].to_i rescue 2099
-      player_slug = "#{position}-#{first_name.downcase}-#{last_name.downcase}-#{college}"
+      player_slug = "#{position}-#{first_name.downcase}-#{last_name.downcase}"
+      # Find or create player
+      player = Player.find_or_create_by(slug: player_slug)
       # Populate player
-      player = Player.find_or_create_by(slug: player_slug) do |player|
+      # player = Player.find_or_create_by(slug: player_slug) do |player|
         player.position     = position
         player.rank         = pff_row['Rank']
         player.player       = player_name
@@ -553,7 +533,10 @@ class Team < ApplicationRecord
         player.draft_year = draft_year
         player.draft_round = pff_row['DraftRound']
         player.draft_pick = pff_row['DraftPick']
-    end
+        player.save!
+    # end
+
+    # ap player
     # Puts description
     puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.offense_grade.to_s.rjust(6)} /#{player.defence_grade.to_s.rjust(6)} | #{player.team.description.ljust(30)}"
     

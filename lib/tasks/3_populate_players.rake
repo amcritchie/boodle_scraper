@@ -6,7 +6,7 @@ namespace :players do
     # Populate RBs
     pff_runningback_populate
     # Populate WRs
-    pff_wide_receiver_populate
+    pff_receiver_populate
     # # Populate TEs
     # pff_tight_end_populate
     # # Populate FBs
@@ -33,42 +33,43 @@ namespace :players do
     puts "============="
     puts "Players: #{Player.count}"
     puts "============="
-  end
-end
-
-def pff_populate(file_name, position)
-  puts "Populating #{position.to_s.upcase}s"
-  require 'csv'
-  file_path = Rails.root.join('lib', 'pff', file_name)
-
-  CSV.foreach(file_path, headers: true) do |row|
-    puts row['Team']
-    # ID team
-    team_slug = row['Team'] rescue "unknown"
-    # Find and validate team_slug
-    unless team = Team.pff_team(team_slug)
-      puts "No Team Found for #{team}"
-      next
-    end
-    # Import PFF player
-    team.pff_player_import(row,position)
+    # ap Player.where.not(sportsradar_id: nil).where(first_name: "Lamar")
   end
 end
 
 def pff_quarterback_populate
-  # pff_populate('pff-qb-5-5-2025.csv', :quarterback)
   Team.pff_passer_import 'lib/pff/2024-qb/passing_summary.csv'
+  # pff_populate('pff-qb-5-5-2025.csv', :quarterback) # First Version
 end
 
 def pff_runningback_populate
-  #  pff_populate('pff-rb-5-5-2025.csv', :runningback)
-   Team.pff_rusher_import 'lib/pff/2024-flex/rushing_summary.csv'
+  Team.pff_rusher_import 'lib/pff/2024-flex/rushing_summary.csv'
+  # pff_populate('pff-rb-5-5-2025.csv', :runningback) # First Version
 end
 
-def pff_wide_receiver_populate
-  # pff_populate('pff-wr-5-5-2025.csv', :wide_receiver)
+def pff_receiver_populate
   Team.pff_receiver_import 'lib/pff/2024-flex/receiving_summary.csv'
+  # pff_populate('pff-wr-5-5-2025.csv', :wide_receiver) # First Version
 end
+
+# def pff_populate(file_name, position)
+#   puts "Populating #{position.to_s.upcase}s"
+#   require 'csv'
+#   file_path = Rails.root.join('lib', 'pff', file_name)
+
+#   CSV.foreach(file_path, headers: true) do |row|
+#     puts row['Team']
+#     # ID team
+#     team_slug = row['Team'] rescue "unknown"
+#     # Find and validate team_slug
+#     unless team = Team.pff_team(team_slug)
+#       puts "No Team Found for #{team}"
+#       next
+#     end
+#     # Import PFF player
+#     team.pff_player_import(row,position)
+#   end
+# end
 
 def pff_tight_end_populate
   pff_populate('pff-te-5-5-2025.csv', :tight_end)
