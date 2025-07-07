@@ -153,12 +153,20 @@ class Player < ApplicationRecord
       "tight-end"
     when "C"
       "center"
+    when "OG"
+      "gaurd"
     when "G"
       "gaurd"
     when "OL"
       "gaurd"
     when "T"
       "tackle"
+    when "OT"
+      "tackle"
+    when "NT" # T'Vondre Sweat
+      "defensive-end"
+    when "DT" # Fabien Lovett Sr.
+      "defensive-end"
     when "DL"
       "defensive-end"
     when "DE"
@@ -169,10 +177,22 @@ class Player < ApplicationRecord
       "linebacker"
     when "LB"
       "linebacker"
-    when "S"
+    when "MLB"
+      "linebacker"
+    when "FS"
+      "safety"
+    when "SAF"
+      "safety"
+    when "DB"  # In some cases like kevin-byard-iii
       "safety"
     when "CB"
       "cornerback"
+    when "P"
+      "punter"
+    when "K"
+      "place-kicker"
+    when "LS" # Long snapper
+      "long-snapper"
     else
       "place-kicker"
     end
@@ -218,10 +238,12 @@ class Player < ApplicationRecord
   end
 
   def self.sportsradar_find_or_create(player_sportsradar, team_slug)
+
     # Fetch slug data
-    position = sportsradar_position(player_sportsradar["position"])
-    college = player_sportsradar["college"].downcase.gsub(' ', '-') rescue 'undrafted'
-    player_slug = "#{position}-#{player_sportsradar['first_name'].downcase}-#{player_sportsradar['last_name'].downcase}"
+    name      = player_sportsradar["name"]
+    position  = sportsradar_position(player_sportsradar["position"])
+    college   = player_sportsradar["college"].downcase.gsub(' ', '-') rescue 'undrafted'
+    player_slug = "#{position}-#{name}".downcase.gsub(' ', '-')
     # Valdate if Player already exists
     unless player = Player.find_by(sportsradar_id: player_sportsradar["id"])
       unless player = Player.find_by(sportsradar_slug: player_sportsradar["sr_id"])
@@ -233,7 +255,7 @@ class Player < ApplicationRecord
       slug:               player_slug,  
       position:           position,
       team_slug:          team_slug,
-      player:             "#{player_sportsradar['first_name']} #{player_sportsradar['last_name']}",
+      player:             player_sportsradar["name"],
       first_name:         player_sportsradar["first_name"],
       last_name:          player_sportsradar["last_name"],
       jersey:             player_sportsradar["jersey"],

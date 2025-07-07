@@ -40,10 +40,10 @@ class Team < ApplicationRecord
 
     def fetch_roster_sportradar
 
-      # api_key = 'dBqzgfZiBp0sTpz06FIx3AjcLzCA2EzwFID6ZCl0' # amcr
+      api_key = 'dBqzgfZiBp0sTpz06FIx3AjcLzCA2EzwFID6ZCl0' # amcr
       # api_key = 'xtsJqdNDRcvoGeXZ5kcG7iVYVJkpX4umc8bxIoGh' # free@b
-      api_key = 'HmAyXEUSsvWllyEVSCaniv3cnq8cLxKExAr2oAQD' # laurenalexm@g
-      api_key = 'c9IaDr6BFd7tSrQdEDbtIclRe6gqHexujsLdevJw' # alex@boodle
+      # api_key = 'HmAyXEUSsvWllyEVSCaniv3cnq8cLxKExAr2oAQD' # laurenalexm@g
+      # api_key = 'c9IaDr6BFd7tSrQdEDbtIclRe6gqHexujsLdevJw' # alex@boodle
 
       # "0d855753-ea21-4953-89f9-0e20aff9eb73"
       response = HTTParty.get(
@@ -60,6 +60,7 @@ class Team < ApplicationRecord
         team_sportsradar["venue"]
         team_sportsradar["coaches"]
         team_sportsradar["players"]
+
         # Each through players
         team_sportsradar["players"].each do |player_sportsradar|
           # Find or create player

@@ -4,7 +4,7 @@ namespace :seed do
     
     # rake teams:populate               | Kaggle | 32 Teams
     Rake::Task['teams:populate'].invoke
-    # rake teams:roster                 | Sports Radar | +2900 Players (Add Final Rosters for 2025 season)
+    # rake teams:roster                 | Sports Radar | +1600 Players (Add Final Rosters for 2025 season)
     Rake::Task['teams:roster'].invoke
       # # rake players:populate         | Pro Football Focus | Player Stats
     Rake::Task['players:populate'].invoke
@@ -26,9 +26,9 @@ namespace :seed do
 
     # # rake players:populate | Kaggle | 10s
     # Rake::Task['contracts:populate'].invoke
-    # rake matchups:populate
-    Rake::Task['matchups:populate'].invoke
-    # rake matchups:populate2025
-    Rake::Task['matchups:populate2025'].invoke
+    # # rake matchups:populate
+    # Rake::Task['matchups:populate'].invoke
+    # # rake matchups:populate2025
+    # Rake::Task['matchups:populate2025'].invoke
   end
 end
