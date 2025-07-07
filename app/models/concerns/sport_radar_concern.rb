@@ -262,7 +262,7 @@ module SportRadarConcern
     end_situation   = @@sport_radar_event['end_situation']
     @@start_team    = Team.find_by(sportsradar_id: start_situation['possession']['id']) rescue nil
     @@end_team      = Team.find_by(sportsradar_id: end_situation['possession']['id']) rescue nil
-    @@turnover       = (@@start_team.slug != @@end_team.slug)
+    @@turnover      = (@@start_team.slug != @@end_team.slug)
     
     # Set down emoji
     @@down = "〰️"

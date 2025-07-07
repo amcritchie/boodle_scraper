@@ -43,7 +43,12 @@ class Season < ApplicationRecord
     season_record
   end
 
-  def self.sport_radar(year=2024)
+  def self.sport_radar_season(year=2024)
+
+    season = find_or_initialize_by(year: year)
+    season.name = "#{year} NFL Season"
+    season.save!
+
     # api_key = 'dBqzgfZiBp0sTpz06FIx3AjcLzCA2EzwFID6ZCl0' # amcr
     # api_key = 'xtsJqdNDRcvoGeXZ5kcG7iVYVJkpX4umc8bxIoGh' # free@b
     # api_key = 'HmAyXEUSsvWllyEVSCaniv3cnq8cLxKExAr2oAQD' # laurenalexm@g
