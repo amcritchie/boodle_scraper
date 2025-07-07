@@ -24,6 +24,31 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_05_163756) do
     t.index ["game_id"], name: "index_broadcasts_on_game_id"
   end
 
+  create_table "coaches", force: :cascade do |t|
+    t.string "team_slug", null: false
+    t.integer "season", null: false
+    t.string "sportsradar_id"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "position"
+    t.integer "offensive_play_caller_rank"
+    t.integer "pace_of_play_rank"
+    t.integer "run_heavy_rank"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_coaches_on_created_at"
+    t.index ["first_name", "last_name"], name: "index_coaches_on_first_name_and_last_name"
+    t.index ["offensive_play_caller_rank"], name: "index_coaches_on_offensive_play_caller_rank"
+    t.index ["pace_of_play_rank"], name: "index_coaches_on_pace_of_play_rank"
+    t.index ["position"], name: "index_coaches_on_position"
+    t.index ["run_heavy_rank"], name: "index_coaches_on_run_heavy_rank"
+    t.index ["season"], name: "index_coaches_on_season"
+    t.index ["sportsradar_id"], name: "index_coaches_on_sportsradar_id"
+    t.index ["team_slug", "season"], name: "index_coaches_on_team_slug_and_season", unique: true
+    t.index ["team_slug"], name: "index_coaches_on_team_slug"
+    t.index ["updated_at"], name: "index_coaches_on_updated_at"
+  end
+
   create_table "drives", force: :cascade do |t|
     t.string "team_slug", null: false
     t.string "game_slug", null: false
