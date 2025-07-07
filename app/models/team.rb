@@ -293,7 +293,7 @@ class Team < ApplicationRecord
         player.position                   = position
         player.save!
         # Puts details
-        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.offense_grade.to_s.rjust(6)} /#{player.grades_pass.to_s.rjust(6)} 🏈 | #{player.team.description.ljust(30)}"
+        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_offense.to_s.rjust(6)} /#{player.grades_pass.to_s.rjust(6)} 🏈 | #{player.team.description.ljust(30)}"
       end
     end
 
@@ -360,7 +360,7 @@ class Team < ApplicationRecord
         player.position                          = position
         player.save!
         # Puts details
-        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.offense_grade.to_s.rjust(6)} /#{player.grades_run.to_s.rjust(6)} 👟 | #{player.team.description.ljust(30)}"
+        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_offense.to_s.rjust(6)} /#{player.grades_run.to_s.rjust(6)} 👟 | #{player.team.description.ljust(30)}"
       end
     end
 
@@ -430,7 +430,7 @@ class Team < ApplicationRecord
         player.position                         = position
         player.save!
         # Puts details
-        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.offense_grade.to_s.rjust(6)} /#{player.grades_pass_route.to_s.rjust(6)} 🙌 | #{player.team.description.ljust(30)}"
+        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_offense.to_s.rjust(6)} /#{player.grades_pass_route.to_s.rjust(6)} 🙌 | #{player.team.description.ljust(30)}"
       end
     end
 
@@ -534,9 +534,7 @@ class Team < ApplicationRecord
         player.draft_round = pff_row['DraftRound']
         player.draft_pick = pff_row['DraftPick']
         player.save!
-    # end
 
-    # ap player
     # Puts description
     puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.offense_grade.to_s.rjust(6)} /#{player.defence_grade.to_s.rjust(6)} | #{player.team.description.ljust(30)}"
     
