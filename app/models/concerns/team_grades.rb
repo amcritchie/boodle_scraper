@@ -1,6 +1,55 @@
 module TeamGrades
   extend ActiveSupport::Concern
 
+  def starting_qb
+    # Team RBs
+    quarterbacks = players.quarterbacks.offense_grade
+    # Return highest offense grade RB
+    quarterbacks.first
+  end
+  def starting_rb
+    # Team RBs
+    running_backs = players.running_backs.offense_grade
+    # Return highest offense grade RB
+    running_backs.first
+  end
+  def starting_wrs
+    # Team WRs
+    wide_receivers = players.wide_receivers.offense_grade
+    # Return highest offense graded WRs
+    wide_receivers.limit(2)
+  end
+  def starting_te
+    # Team TEs
+    tight_ends = players.tight_ends.offense_grade
+    # Return highest offense grade TE
+    tight_ends.first
+  end
+  def starting_flex_offense
+    # Team Flex
+    flex = players.flex.offense_grade.where.not(id: ([starting_rb&.id] + starting_wrs.map(&:id) + [starting_te&.id]))
+    # Return highest offense grade Flex
+    flex.first
+  end
+  def starting_center
+    # Team Center
+    center = players.center.offense_grade
+    # Return highest offense grade Center
+    center.first
+  end
+  def starting_guards
+    # Team Guards
+    guards = players.guards.offense_grade
+    # Return highest offense grade Guards
+    guards.limit(2)
+  end
+  def starting_tackles
+    # Team Tackles  
+    tackles = players.tackles.offense_grade
+    # Return highest offense grade Tackles
+    tackles.limit(2)
+  end
+
   def qb_passing_grade
     # Get this team's starting QB
     team_qb = starting_qb
@@ -22,20 +71,6 @@ module TeamGrades
     
     # Return the RB's rushing grade, or nil if no RB found
     team_rb&.rushing_grade
-  end
-
-  def starting_qb
-    # Team RBs
-    quarterbacks = players.quarterbacks.offense_grade
-    # Return highest offense grade RB
-    quarterbacks.first
-  end
-
-  def starting_rb
-    # Team RBs
-    runningbacks = players.running_backs.offense_grade
-    # Return highest offense grade RB
-    runningbacks.first
   end
 
   class_methods do

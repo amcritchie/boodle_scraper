@@ -123,26 +123,16 @@ class Team < ApplicationRecord
     def generate_offense
       # Find team's players 
       teammates = Player.by_team(slug)
-      # Fetch players by position
-      quarterback     = self.starting_qb
-      # quarterback     = teammates.by_position(:quarterback).order(offense_grade: :desc).first
-      runningback     = teammates.by_position(:runningback).order(offense_grade: :desc).first
-      wide_receivers  = teammates.by_position(:wide_receiver).order(offense_grade: :desc).limit(2)
-      tight_end       = teammates.by_position(:tight_end).order(offense_grade: :desc).first
-      flex            = teammates.where(position: [:runningback, :wide_receiver, :tight_end]).order(offense_grade: :desc).where.not(id: ([runningback&.id] + wide_receivers.map(&:id) + [tight_end&.id])).first
-      center          = teammates.by_position(:center).order(offense_grade: :desc).first
-      guards          = teammates.by_position(:gaurd).order(offense_grade: :desc).limit(2)
-      tackles         = teammates.by_position(:tackle).order(offense_grade: :desc).limit(2)
       # Return collection
       return {
-        quarterback: quarterback,
-        runningback: runningback,
-        wide_receivers: wide_receivers,
-        tight_end: tight_end,
-        flex: flex,
-        center: center,
-        guards: guards,
-        tackles: tackles
+        quarterback:    self.starting_qb,
+        runningback:    self.starting_rb,
+        wide_receivers: self.starting_wrs,
+        tight_end:      self.starting_te,
+        flex:           self.starting_flex_offense,
+        center:         self.starting_center,
+        guards:         self.starting_guards,
+        tackles:        self.starting_tackles
       }
     end
 

@@ -22,18 +22,30 @@ class Player < ApplicationRecord
     # truncated_tag.length > 9 ? "#{truncated_tag[0, 9]}..." : truncated_tag
   end
 
-  # 1.6176470588235294
-  # Player.where(position: [:quarterback, :QB, :runningback, :HB]).sum{|b| b.touchdowns }.to_f/(16*17)
-
-  # 2.9338235294117645
-  # Player.runningbacks.sum{|b| b.touchdowns }.to_f/(16*17)
   
   def self.quarterbacks
-    all.where(position: [:quarterback, :QB])
+    all.where(position: ['quarterback'])
   end
-
   def self.running_backs
-    all.where(position: ['running-back', :HB])
+    all.where(position: ['running-back'])
+  end
+  def self.wide_receivers
+    all.where(position: ['wide-receiver'])
+  end
+  def self.tight_ends
+    all.where(position: ['tight-end'])
+  end
+  def self.flex
+    all.where(position: ['running-back', 'wide-receiver', 'tight-end'])
+  end
+  def self.center
+    all.where(position: ['center'])
+  end
+  def self.guards
+    all.where(position: ['gaurd'])
+  end
+  def self.tackles
+    all.where(position: ['tackle'])
   end
 
   def self.run_block

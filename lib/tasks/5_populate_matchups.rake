@@ -32,6 +32,7 @@ namespace :matchups do
     end
 
     ap last_home_matchup
+    ap last_home_matchup.team.players
   end
 
   desc "Populate matchups for Week 1, Season 2025 Buffalo Bills"
