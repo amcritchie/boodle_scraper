@@ -320,6 +320,22 @@ class Player < ApplicationRecord
     end
   end
 
+  def self.with_offense_grade
+    all.where.not(grades_offense: nil)
+  end
+
+  def self.offense_grade
+    all.with_offense_grade.order(grades_offense: :desc)
+  end
+
+  def self.quarterback
+    Player.where(position: [:quarterback])
+  end
+
+  def self.jay
+    all.where(first_name: "Jayden")
+  end
+
   def passing_tier
     peers = Player.where(position: [:quarterback]).order(passing_grade: :desc).limit(32)
     peer_tiering(peers) 

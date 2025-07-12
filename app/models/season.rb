@@ -1,11 +1,18 @@
 class Season < ApplicationRecord
-  has_many :weeks
+  has_many :weeks, -> { order(:sequence) }, foreign_key: :season_year, primary_key: :year
   has_many :player_seasons
   has_many :players, through: :player_seasons
 
   validates :year, presence: true, uniqueness: { scope: :season_type }
   validates :season_type, presence: true
   validates :name, presence: true
+
+  def self.s2025
+    find_by(year: 2025, season_type: :nfl)
+  end
+  def self.s2024
+    find_by(year: 2024, season_type: :nfl)
+  end
 
   def increment_passing_touchdowns!(amount = 1)
     increment!(:passing_touchdowns, amount)
@@ -46,6 +53,7 @@ class Season < ApplicationRecord
   def self.sport_radar_season(year=2024)
 
     season = find_or_initialize_by(year: year)
+    season.season_type = :nfl
     season.name = "#{year} NFL Season"
     season.save!
 

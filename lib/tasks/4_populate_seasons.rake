@@ -1,5 +1,11 @@
 namespace :seasons do
 
+  desc "Populate 2025 season (Sport Radar)"
+  task populate_2025: :environment do
+    # 60s | 2025
+    Season.sport_radar_season(2025)
+  end
+  
   desc "Populate 2024-2020 season (Sport Radar)"
   task populate_2024_2020: :environment do
     # 60s | 2021 → 2024 

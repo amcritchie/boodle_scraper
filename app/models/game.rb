@@ -13,6 +13,7 @@ class Game < ApplicationRecord
   has_one :broadcast, dependent: :destroy
   has_one :scoring, dependent: :destroy
   has_many :plays, foreign_key: :game_slug, primary_key: :slug, dependent: :destroy
+  has_many :matchups, foreign_key: :game_slug, primary_key: :slug, dependent: :destroy
 
   after_create :init_enum_values
 
@@ -98,80 +99,23 @@ class Game < ApplicationRecord
   end
 
   def home_matchup
-    away = Team.find_by_slug(away_slug)
-    home = Team.find_by_slug(home_slug)
-    # Generate rosters
-    offense = home.generate_offense
-    defense = away.generate_defense
-    # Find or create matup
-    matchup = Matchup.find_or_create_by(game: self.slug, team_slug: home.slug, team_defense_slug: away.slug)
-    # Create roster
-    matchup.update(
-      season: self.season,
-      week_slug: self.week_slug,
-      home: true,
-      o1:   offense[:quarterback]&.slug,
-      o2:   offense[:runningback]&.slug,
-      o3:   offense[:wide_receivers][0]&.slug,
-      o4:   offense[:wide_receivers][1]&.slug,
-      o5:   offense[:tight_end]&.slug,
-      o6:   offense[:flex]&.slug,
-      o7:   offense[:center]&.slug,
-      o8:   offense[:guards][0]&.slug,
-      o9:   offense[:guards][1]&.slug,
-      o10:  offense[:tackles][0]&.slug,
-      o11:  offense[:tackles][1]&.slug,
-      d1:   defense[:defensive_ends][0]&.slug,
-      d2:   defense[:defensive_ends][1]&.slug,
-      d3:   defense[:edge_rushers][0]&.slug,
-      d4:   defense[:edge_rushers][1]&.slug,
-      d5:   defense[:linebackers][0]&.slug,
-      d6:   defense[:linebackers][1]&.slug,
-      d7:   defense[:safeties][0]&.slug,
-      d8:   defense[:safeties][1]&.slug,
-      d9:   defense[:cornerbacks][0]&.slug,
-      d10:  defense[:cornerbacks][1]&.slug,
-      d11:  defense[:flex]&.slug
-    )
+    # Find or create matchup
+    matchup = matchups.find_or_create_by(team_slug: home_team.slug, team_defense_slug: away_team.slug)
+    # Update matchup if roster is empty
+    # matchup.update_home_roster if matchup.o1.nil?
+    matchup.update_home_roster
+    # Return matchup
+    matchup
   end
 
   def away_matchup
-    away = Team.find_by_slug(away_slug)
-    home = Team.find_by_slug(home_slug)
-    # Generate rosters
-    offense = away.generate_offense
-    defense = home.generate_defense
-
-    # Find or create matup
-    matchup = Matchup.find_or_create_by(game: self.slug, team_slug: away.slug, team_defense_slug: home.slug)
-    # Create roster
-    matchup.update(
-      season: self.season,
-      week_slug: self.week_slug,
-      home: false,
-      o1:   offense[:quarterback]&.slug,
-      o2:   offense[:runningback]&.slug,
-      o3:   offense[:wide_receivers][0]&.slug,
-      o4:   offense[:wide_receivers][1]&.slug,
-      o5:   offense[:tight_end]&.slug,
-      o6:   offense[:flex]&.slug,
-      o7:   offense[:center]&.slug,
-      o8:   offense[:guards][0]&.slug,
-      o9:   offense[:guards][1]&.slug,
-      o10:  offense[:tackles][0]&.slug,
-      o11:  offense[:tackles][1]&.slug,
-      d1:   defense[:defensive_ends][0]&.slug,
-      d2:   defense[:defensive_ends][1]&.slug,
-      d3:   defense[:edge_rushers][0]&.slug,
-      d4:   defense[:edge_rushers][1]&.slug,
-      d5:   defense[:linebackers][0]&.slug,
-      d6:   defense[:linebackers][1]&.slug,
-      d7:   defense[:safeties][0]&.slug,
-      d8:   defense[:safeties][1]&.slug,
-      d9:   defense[:cornerbacks][0]&.slug,
-      d10:  defense[:cornerbacks][1]&.slug,
-      d11:  defense[:flex]&.slug
-    )
+    # Find or create matchup
+    matchup = matchups.find_or_create_by(team_slug: away_team.slug, team_defense_slug: home_team.slug)
+    # Update matchup if roster is empty
+    # matchup.update_away_roster if matchup.o1.nil?
+    matchup.update_away_roster
+    # Return matchup
+    matchup
   end
 
   # Summary of Kaggle games supported by SportsOddsHistory

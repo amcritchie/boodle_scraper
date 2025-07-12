@@ -1,5 +1,5 @@
 class Week < ApplicationRecord
-  has_many :games, ->(week) { where(season: week.season_year, week_slug: week.sequence) }
+  has_many :games, ->(week) { where(season: week.season_year, week_slug: week.sequence).order(:scheduled) }
 
   def games
     return 'no-sports-radar-id' if sportsradar_id.blank?

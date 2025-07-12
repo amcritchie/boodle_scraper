@@ -21,8 +21,8 @@ namespace :seed do
 
 
     # rake seasons:matchups             | Sports Radar | 2025 | Coming matchups
-    # Rake::Task['seasons:matchups2025'].invoke
-
+    Rake::Task['seasons:populate_2025'].invoke
+    Rake::Task['matchups:populate_2025_week_1'].invoke
 
     # # rake players:populate | Kaggle | 10s
     # Rake::Task['contracts:populate'].invoke

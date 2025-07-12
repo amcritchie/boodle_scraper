@@ -4,15 +4,16 @@ require 'httparty'
 class Team < ApplicationRecord
     extend TeamMapping
     include TeamPopulations
+    include TeamGrades
     
-    has_many :players
+    has_many :players, foreign_key: :team_slug, primary_key: :slug
 
-    def players
-      Player.where(team_slug: slug)
-    end
+
     def self.active
         where(active: true)
     end
+    
+
     def self.afc
         where(conference: :afc)
     end
@@ -123,7 +124,8 @@ class Team < ApplicationRecord
       # Find team's players 
       teammates = Player.by_team(slug)
       # Fetch players by position
-      quarterback     = teammates.by_position(:quarterback).order(offense_grade: :desc).first
+      quarterback     = self.starting_qb
+      # quarterback     = teammates.by_position(:quarterback).order(offense_grade: :desc).first
       runningback     = teammates.by_position(:runningback).order(offense_grade: :desc).first
       wide_receivers  = teammates.by_position(:wide_receiver).order(offense_grade: :desc).limit(2)
       tight_end       = teammates.by_position(:tight_end).order(offense_grade: :desc).first
@@ -293,6 +295,12 @@ class Team < ApplicationRecord
         player.team_slug                  = team.slug
         player.position                   = position
         player.save!
+
+        puts "="*80
+        ap attrs
+        puts "-"*80
+        ap player
+        puts "-"*80
         # Puts details
         puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_offense.to_s.rjust(6)} /#{player.grades_pass.to_s.rjust(6)} 🏈 | #{player.team.description.ljust(30)}"
       end

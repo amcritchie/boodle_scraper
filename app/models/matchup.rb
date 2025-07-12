@@ -1,7 +1,8 @@
 class Matchup < ApplicationRecord
+  belongs_to :game, foreign_key: :game_slug, primary_key: :slug, optional: true
 #   belongs_to :team
 
-  validates :season, :week_slug, :game, :team, presence: true
+  validates :season, :week_slug, :game_slug, :team, presence: true
 
   # Add methods to fetch offensive and defensive players if needed
 
@@ -132,7 +133,7 @@ class Matchup < ApplicationRecord
     formatted_summary = sprintf(
       "#%-2d %-3s %-3d %s",
       index,
-      self.game,
+      self.game_slug,
       self.rushing_defense_score,
       self.rushing_defense_score_string
     )
@@ -146,7 +147,7 @@ class Matchup < ApplicationRecord
       rushing_offense_score = matchup.rushing_offense_score rescue 0.0
       rushing_defense_score = matchup.rushing_defense_score rescue 0.0
       matchups_hash[matchup.team] = {
-        game: matchup.game,
+        game: matchup.game_slug,
         rushing_offense_score: rushing_offense_score,
         rushing_defense_score: rushing_defense_score
       }
@@ -155,7 +156,7 @@ class Matchup < ApplicationRecord
     puts "Matchups"
 
     matchups_hash.each do |k,v|
-      puts v[:game]
+      puts v[:game_slug]
       puts v[:rushing_offense_score]
       puts v[:rushing_defense_score]
     end
@@ -632,4 +633,240 @@ class Matchup < ApplicationRecord
   # def punter
   #   Player.find_by_slug(self.punter) # Replace `p1` with the actual key for punter if available
   # end
+
+  def predict_passing_touchdowns
+    # Calculate offensive and defensive composite scores
+    offensive_score = calculate_offensive_passing_score
+    defensive_score = calculate_defensive_passing_score
+    
+    # Base prediction using historical distribution
+    base_prediction = calculate_base_prediction(offensive_score, defensive_score)
+    
+    # Apply weekly adjustments based on rankings
+    adjusted_prediction = apply_weekly_adjustments(base_prediction)
+    
+    # Ensure prediction stays within realistic bounds (0.0 to 5.0)
+    [adjusted_prediction, 0.0].max.round(1)
+  end
+
+  def calculate_offensive_passing_score
+    # Convert rankings to scores (1-32 scale, where 1 is best)
+    # Higher offensive score = better passing offense
+    qb_score = (33 - qb_ranking) / 32.0 * 100
+    receiver_score = (33 - receiver_ranking) / 32.0 * 100
+    pass_blocking_score = (33 - pass_blocking_raking) / 32.0 * 100
+    play_caller_score = (33 - play_caller_ranking) / 32.0 * 100
+    pace_score = (33 - pace_of_play_ranking) / 32.0 * 100
+    
+    # Weighted offensive composite (QB most important, then receivers, etc.)
+    (qb_score * 0.35 + receiver_score * 0.25 + pass_blocking_score * 0.20 + 
+     play_caller_score * 0.15 + pace_score * 0.05)
+  end
+
+  def calculate_defensive_passing_score
+    # Convert rankings to scores (1-32 scale, where 1 is best defense)
+    # Higher defensive score = worse passing defense (easier to pass against)
+    coverage_score = (33 - coverage_ranking) / 32.0 * 100
+    pass_rush_score = (33 - pas_rush_ranking) / 32.0 * 100
+    
+    # Weighted defensive composite (coverage slightly more important than pass rush)
+    (coverage_score * 0.60 + pass_rush_score * 0.40)
+  end
+
+  def calculate_base_prediction(offensive_score, defensive_score)
+    # Combine offensive and defensive scores
+    # Higher offensive + higher defensive = more passing TDs
+    combined_score = (offensive_score * 0.7 + defensive_score * 0.3)
+    
+    # Map combined score to historical distribution
+    case combined_score
+    when 85..100
+      4.0  # Top tier (2 games per week)
+    when 70..84
+      3.0  # High tier (3 games per week)
+    when 55..69
+      2.0  # Mid tier (9 games per week)
+    when 40..54
+      1.0  # Low tier (11 games per week)
+    else
+      0.0  # Bottom tier (7 games per week)
+    end
+  end
+
+  def apply_weekly_adjustments(base_prediction)
+    # Adjust for run-heavy tendencies (reduces passing TDs)
+    run_heavy_adjustment = (run_heavy_ranking - 16.5) / 16.5 * 0.5
+    # Positive adjustment = more run-heavy = fewer passing TDs
+    
+    # Adjust for pace of play (faster pace = more opportunities)
+    pace_adjustment = (16.5 - pace_of_play_ranking) / 16.5 * 0.3
+    # Positive adjustment = faster pace = more passing TDs
+    
+    # Apply adjustments
+    adjusted = base_prediction - run_heavy_adjustment + pace_adjustment
+    
+    # Add some randomness/variance (±0.2 TDs)
+    variance = (rand - 0.5) * 0.4
+    adjusted + variance
+  end
+
+  def passing_touchdowns
+    predict_passing_touchdowns
+  end
+
+  def rushing_touchdowns
+    # Placeholder for rushing touchdowns prediction
+    # Similar logic can be implemented here
+  end
+
+  def offense_coach
+    Coach.find_by(team_slug: team_slug, season: season)
+  end
+  def defense_coach
+    Coach.find_by(team_slug: team_defense_slug, season: season)
+  end
+
+  # Coach-based ranking methods
+  def play_caller_ranking
+    offense_coach&.offensive_play_caller_rank || 16
+  end
+
+  def pace_of_play_ranking
+    offense_coach&.pace_of_play_rank || 16
+  end
+
+  def run_heavy_ranking
+    offense_coach&.run_heavy_rank || 16
+  end
+
+  # Player-based ranking methods
+  def qb_ranking
+    # Use the team's QB ranking method
+    team&.qb_passing_grade || 16
+  end
+
+  def receiver_ranking
+    16  # Default to middle rank
+  end
+
+  def coverage_ranking
+    16  # Default to middle rank
+  end
+
+  def pass_blocking_raking
+    16  # Default to middle rank
+  end
+
+  def pas_rush_ranking
+    16  # Default to middle rank
+  end
+
+  # # Returns the Game object for this matchup, matching on slug, or by team/defense/season/week if needed
+  # def game
+  #   # Try to find by slug if present
+  #   g = Game.find_by(slug: self.game_slug)
+  #   return g if g
+
+  #   # Fallback: try to find by season, week, and teams (home/away can be in either order)
+  #   Game.find_by(
+  #     season: season,
+  #     week_slug: week_slug,
+  #     home_slug: team_slug,
+  #     away_slug: team_defense_slug
+  #   ) || Game.find_by(
+  #     season: season,
+  #     week_slug: week_slug,
+  #     home_slug: team_defense_slug,
+  #     away_slug: team_slug
+  #   )
+  # end
+
+  # Update matchup with home team roster
+  def update_home_roster
+    return unless game_slug
+    
+    home_team = game.home_team
+    away_team = game.away_team
+    
+    # Generate rosters
+    offense = home_team.generate_offense
+    defense = away_team.generate_defense
+
+
+    puts "-1"*100
+    ap offense
+    puts "-2"*100
+    
+    # Update roster
+    update(
+      season: game.season,
+      week_slug: game.week_slug,
+      home: true,
+      o1:   offense[:quarterback]&.slug,
+      o2:   offense[:runningback]&.slug,
+      o3:   offense[:wide_receivers][0]&.slug,
+      o4:   offense[:wide_receivers][1]&.slug,
+      o5:   offense[:tight_end]&.slug,
+      o6:   offense[:flex]&.slug,
+      o7:   offense[:center]&.slug,
+      o8:   offense[:guards][0]&.slug,
+      o9:   offense[:guards][1]&.slug,
+      o10:  offense[:tackles][0]&.slug,
+      o11:  offense[:tackles][1]&.slug,
+      d1:   defense[:defensive_ends][0]&.slug,
+      d2:   defense[:defensive_ends][1]&.slug,
+      d3:   defense[:edge_rushers][0]&.slug,
+      d4:   defense[:edge_rushers][1]&.slug,
+      d5:   defense[:linebackers][0]&.slug,
+      d6:   defense[:linebackers][1]&.slug,
+      d7:   defense[:safeties][0]&.slug,
+      d8:   defense[:safeties][1]&.slug,
+      d9:   defense[:cornerbacks][0]&.slug,
+      d10:  defense[:cornerbacks][1]&.slug,
+      d11:  defense[:flex]&.slug
+    )
+  end
+
+  # Update matchup with away team roster
+  def update_away_roster
+    return unless game_slug
+    
+    home_team = game.home_team
+    away_team = game.away_team
+    
+    # Generate rosters
+    offense = away_team.generate_offense
+    defense = home_team.generate_defense
+    
+    # Update roster
+    update(
+      season: game.season,
+      week_slug: game.week_slug,
+      home: false,
+      o1:   offense[:quarterback]&.slug,
+      o2:   offense[:runningback]&.slug,
+      o3:   offense[:wide_receivers][0]&.slug,
+      o4:   offense[:wide_receivers][1]&.slug,
+      o5:   offense[:tight_end]&.slug,
+      o6:   offense[:flex]&.slug,
+      o7:   offense[:center]&.slug,
+      o8:   offense[:guards][0]&.slug,
+      o9:   offense[:guards][1]&.slug,
+      o10:  offense[:tackles][0]&.slug,
+      o11:  offense[:tackles][1]&.slug,
+      d1:   defense[:defensive_ends][0]&.slug,
+      d2:   defense[:defensive_ends][1]&.slug,
+      d3:   defense[:edge_rushers][0]&.slug,
+      d4:   defense[:edge_rushers][1]&.slug,
+      d5:   defense[:linebackers][0]&.slug,
+      d6:   defense[:linebackers][1]&.slug,
+      d7:   defense[:safeties][0]&.slug,
+      d8:   defense[:safeties][1]&.slug,
+      d9:   defense[:cornerbacks][0]&.slug,
+      d10:  defense[:cornerbacks][1]&.slug,
+      d11:  defense[:flex]&.slug
+    )
+  end
+
+  private
 end
