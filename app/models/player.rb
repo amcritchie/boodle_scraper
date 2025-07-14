@@ -23,6 +23,14 @@ class Player < ApplicationRecord
     # truncated_tag.length > 9 ? "#{truncated_tag[0, 9]}..." : truncated_tag
   end
 
+  def self.print_grade
+    puts "Player".to_s.ljust(23) + "Position".to_s.ljust(18) + "Offense".to_s.ljust(5) + "Pass".to_s.ljust(5) + "Run".to_s.ljust(5) + "Pass Block".to_s.ljust(5) + "Run Block".to_s.ljust(5)
+    all.sort_by { |p| (p.grades_offense || 0) }.each do |player|
+      puts "#{player.player.to_s.ljust(20)} - #{player.position.to_s.ljust(15)} - #{player.grades_offense.to_s.ljust(5)} - #{player.grades_pass.to_s.ljust(5)} - #{player.grades_run.to_s.ljust(5)} - #{player.grades_pass_block.to_s.ljust(5)} - #{player.grades_run_block.to_s.ljust(5)}"
+    end
+    return nil
+  end
+
   
   def self.quarterbacks
     all.where(position: ['quarterback'])
@@ -42,6 +50,9 @@ class Player < ApplicationRecord
   end
   def self.flex
     all.where(position: ['running-back', 'wide-receiver', 'tight-end'])
+  end
+  def self.oline
+    all.where(position: ['center', 'gaurd', 'tackle'])
   end
   def self.center
     all.where(position: ['center'])

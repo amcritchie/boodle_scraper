@@ -654,7 +654,7 @@ class Matchup < ApplicationRecord
     # Higher offensive score = better passing offense
     qb_score = (33 - qb_ranking) / 32.0 * 100
     receiver_score = (33 - receiver_ranking) / 32.0 * 100
-    pass_blocking_score = (33 - pass_blocking_raking) / 32.0 * 100
+    pass_blocking_score = (33 - pass_blocking_ranking) / 32.0 * 100
     play_caller_score = (33 - play_caller_ranking) / 32.0 * 100
     pace_score = (33 - pace_of_play_ranking) / 32.0 * 100
     
@@ -743,29 +743,14 @@ class Matchup < ApplicationRecord
   def qb_ranking
     # Get this matchup's QB passing grade
     qb_passing_grade = qb&.grades_pass
-
-    puts "=QB=============="
-    ap qb
-    puts '-----------------'
-    puts qb.grades_pass
-    puts '-----------------'
-
-    
     # Return default rank if no QB or passing grade
-    return 16 unless qb_passing_grade
-    puts '-----------------'
-    
+    return 16 unless qb_passing_grade    
     # Get all teams' QB passing grades sorted by grade (highest first)
     qb_rankings = Team.qb_pass_grades
-    
     # Find the rank of this QB's passing grade
     # Note: qb_rankings is sorted highest to lowest, so we need to find where this grade fits
     rank = 1
     qb_rankings.each do |team_slug, data|
-      puts '----------------3'
-      ap team_slug
-      ap data
-      puts '----------------4'
       team_qb_grade = data[:grades_pass]
       # Skip teams without QB grades
       next unless team_qb_grade
@@ -788,11 +773,36 @@ class Matchup < ApplicationRecord
     16  # Default to middle rank
   end
 
-  def pass_blocking_raking
-    16  # Default to middle rank
+  def pass_blocking_ranking
+    # Get this matchup's offensive line average pass block grade
+    oline_players = oline.compact
+    return 16 unless oline_players.any? # Return default rank if no offensive line players
+    
+    # Calculate average pass block grade for this matchup's offensive line
+    avg_pass_block_grade = oline_players.sum { |player| player.grades_pass_block || 60 } / oline_players.size.to_f
+    
+    # Get all teams' offensive line pass block grades sorted by grade (highest first)
+    oline_rankings = Team.oline_pass_block_grades
+    
+    # Find the rank of this offensive line's average pass block grade
+    # Note: oline_rankings is sorted highest to lowest, so we need to find where this grade fits
+    rank = 1
+    oline_rankings.each do |team_slug, data|
+      team_avg_grade = data[:avg_pass_block_grade]
+      # Skip teams without offensive line grades
+      next unless team_avg_grade
+      
+      # If this team's average grade is higher than our offensive line's average grade, increment rank
+      if team_avg_grade > avg_pass_block_grade
+        rank += 1
+      end
+    end
+    
+    # Return the rank (1-32, where 1 is best)
+    rank
   end
 
-  def pas_rush_ranking
+  def pass_rush_ranking
     16  # Default to middle rank
   end
 

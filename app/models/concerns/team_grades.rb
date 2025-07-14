@@ -34,6 +34,66 @@ module TeamGrades
     # Return highest offense grade Flex
     flex.first
   end
+  def starting_oline
+    # Get all oline players ordered by offense grade
+    oline_players = players.oline.offense_grade.to_a
+    
+    # Get the top 5 players
+    top_5 = oline_players.first(5)
+    
+        # Check if there's a center in the top 5
+    has_center_in_top_5 = top_5.any? { |player| player.position == 'center' }
+    
+    # Count centers in top 5
+    centers_in_top_5 = top_5.count { |player| player.position == 'center' }
+    
+    # Fix for Tampa Bay Oline Starters
+    # If no center in top 5, check 6th and 7th players for a center
+    if !has_center_in_top_5 && oline_players.length >= 6
+      # Look for a center in positions 6 and 7
+      [5, 6].each do |index|
+        next if index >= oline_players.length
+        
+        player = oline_players[index]
+        
+        if player.position == 'center'
+          # Swap this center with the 5th player
+          top_5[4] = player
+          break
+        end
+      end
+    end
+    
+    # Cheifs have two centers in top 5
+    # If there are 2 centers in top 5, replace the lower-graded center with next best guard/tackle
+    if centers_in_top_5 >= 2 && oline_players.length >= 6
+      # Find the centers in top 5 and their grades
+      centers_with_grades = top_5.each_with_index.select { |player, _| player.position == 'center' }
+                                 .map { |player, index| { player: player, index: index, grade: player.grades_offense || 0 } }
+      
+      # Sort by grade to find the lower-graded center
+      centers_with_grades.sort_by! { |center| center[:grade] }
+      lower_center = centers_with_grades.first
+      
+      # Find the next best guard or tackle (position 6 onwards)
+      replacement_player = nil
+      (5...oline_players.length).each do |index|
+        player = oline_players[index]
+        if player.position == 'guard' || player.position == 'tackle'
+          replacement_player = player
+          break
+        end
+      end
+      
+      # Replace the lower-graded center with the replacement player
+      if replacement_player
+        top_5[lower_center[:index]] = replacement_player
+      end
+    end
+    
+    # Return the modified top 5
+    Player.where(id: top_5.map(&:id))
+  end
   def starting_center
     # Team Center
     center = players.center.offense_grade
@@ -137,6 +197,55 @@ module TeamGrades
       
       # Return sorted by QB grade (highest first)
       qb_grades.sort_by { |_, data| -(data[:grades_pass] || 0) }
+    end
+
+    def oline_pass_block_grades
+      # Get all active teams with their starting offensive line pass block grades
+      active_teams = Team.active.includes(:players)
+      
+      oline_grades = {}
+      # grades_pass_block_total = 0
+      active_teams.each do |team|
+        # Get starting offensive line (best 5 linemen regardless of position)
+        oline_players = team.starting_oline
+        grades_pass_block_total = oline_players.sum { |player| player.grades_pass_block || 60 }
+        grades_run_block_total  = oline_players.sum { |player| player.grades_run_block || 60 }
+        
+        if oline_players.any?
+          avg_pass_block_grade = oline_players.sum { |player| player.grades_pass_block || 60 } / oline_players.size.to_f
+        else
+          avg_pass_block_grade = 60 # Default grade if no offensive line players found
+        end
+        
+        pass_block_total = 0
+        run_block_total = 0
+
+        oline_grades[team.slug] = {
+          team_name: team.name,
+          oline_players: oline_players.map { |player| 
+            pass_block_grade = player.grades_pass_block || 60 
+            pass_block_grade = 60 if pass_block_grade.to_i < 1
+            run_block_grade = player.grades_run_block || 60 
+            run_block_grade = 60 if run_block_grade.to_i < 1
+            pass_block_total += pass_block_grade
+            run_block_total += run_block_grade
+            { 
+              slug: player.slug,
+              pass_block_grade: pass_block_grade,
+              run_block_grade: run_block_grade
+            }},
+          avg_pass_block_grade: pass_block_total/5,
+          avg_run_block_grade: run_block_total/5,
+          grades_pass_block_total: grades_pass_block_total,
+          grades_pass_block_total_s: "#{oline_players.map { |player| player.grades_pass_block }.join(", ")}",
+          grades_run_block_total: pass_block_total
+        }
+      end
+
+      ap oline_grades
+      
+      # Return sorted by average pass block grade (highest first)
+      oline_grades.sort_by { |_, data| -(data[:avg_pass_block_grade] || 0) }
     end
 
     def rush_grades

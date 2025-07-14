@@ -33,6 +33,7 @@ namespace :matchups do
 
     ap last_home_matchup
     ap last_home_matchup.qb_ranking
+    ap last_home_matchup.pass_blocking_ranking
   end
 
   desc "Populate matchups for Week 1, Season 2025 Buffalo Bills"
