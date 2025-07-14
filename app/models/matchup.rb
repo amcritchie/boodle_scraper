@@ -741,8 +741,43 @@ class Matchup < ApplicationRecord
 
   # Player-based ranking methods
   def qb_ranking
-    # Use the team's QB ranking method
-    team&.qb_passing_grade || 16
+    # Get this matchup's QB passing grade
+    qb_passing_grade = qb&.grades_pass
+
+    puts "=QB=============="
+    ap qb
+    puts '-----------------'
+    puts qb.grades_pass
+    puts '-----------------'
+
+    
+    # Return default rank if no QB or passing grade
+    return 16 unless qb_passing_grade
+    puts '-----------------'
+    
+    # Get all teams' QB passing grades sorted by grade (highest first)
+    qb_rankings = Team.qb_pass_grades
+    
+    # Find the rank of this QB's passing grade
+    # Note: qb_rankings is sorted highest to lowest, so we need to find where this grade fits
+    rank = 1
+    qb_rankings.each do |team_slug, data|
+      puts '----------------3'
+      ap team_slug
+      ap data
+      puts '----------------4'
+      team_qb_grade = data[:grades_pass]
+      # Skip teams without QB grades
+      next unless team_qb_grade
+      
+      # If this team's QB grade is higher than our QB's grade, increment rank
+      if team_qb_grade > qb_passing_grade
+        rank += 1
+      end
+    end
+    
+    # Return the rank (1-32, where 1 is best)
+    rank
   end
 
   def receiver_ranking
@@ -761,26 +796,6 @@ class Matchup < ApplicationRecord
     16  # Default to middle rank
   end
 
-  # # Returns the Game object for this matchup, matching on slug, or by team/defense/season/week if needed
-  # def game
-  #   # Try to find by slug if present
-  #   g = Game.find_by(slug: self.game_slug)
-  #   return g if g
-
-  #   # Fallback: try to find by season, week, and teams (home/away can be in either order)
-  #   Game.find_by(
-  #     season: season,
-  #     week_slug: week_slug,
-  #     home_slug: team_slug,
-  #     away_slug: team_defense_slug
-  #   ) || Game.find_by(
-  #     season: season,
-  #     week_slug: week_slug,
-  #     home_slug: team_defense_slug,
-  #     away_slug: team_slug
-  #   )
-  # end
-
   # Update matchup with home team roster
   def update_home_roster
     return unless game_slug
@@ -791,11 +806,6 @@ class Matchup < ApplicationRecord
     # Generate rosters
     offense = home_team.generate_offense
     defense = away_team.generate_defense
-
-
-    puts "-1"*100
-    ap offense
-    puts "-2"*100
     
     # Update roster
     update(

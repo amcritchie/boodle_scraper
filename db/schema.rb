@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_07_12_170639) do
+ActiveRecord::Schema[7.0].define(version: 2025_07_13_235020) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -410,6 +410,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_12_170639) do
     t.integer "yards_per_reception"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "starter", default: false
     t.index ["created_at"], name: "index_players_on_created_at"
     t.index ["first_name"], name: "index_players_on_first_name"
     t.index ["import_slug"], name: "index_players_on_import_slug"

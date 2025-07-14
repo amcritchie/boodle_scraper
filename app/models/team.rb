@@ -62,10 +62,49 @@ class Team < ApplicationRecord
         team_sportsradar["coaches"]
         team_sportsradar["players"]
 
+        # Hardcoded starting QB slugs for 2025 season
+        starting_qb_slugs = [
+          'quarterback-patrick-mahomes',  # AFC West
+          'quarterback-bo-nix',
+          'quarterback-justin-herbert',
+          'quarterback-geno-smith',
+          'quarterback-josh-allen',       # AFC East
+          'quarterback-drake-maye',
+          'quarterback-tua-tagovailoa',
+          'quarterback-justin-fields',
+          'quarterback-lamar-jackson',    # AFC North
+          'quarterback-joe-burrow',
+          'quarterback-aaron-rodgers',
+          'quarterback-joe-flacco',
+          'quarterback-cj-stroud',        # AFC South
+          'quarterback-trevor-lawrence',
+          'quarterback-will-levis',
+          'quarterback-daniel-jones',
+          'quarterback-jared-goff',        # NFC North
+          'quarterback-jordan-love',
+          'quarterback-caleb-williams',
+          'quarterback-j.j.-mccarthy',
+          'quarterback-bryce-young',      # NFC South
+          'quarterback-baker-mayfield',
+          'quarterback-michael-penix-jr.',
+          'quarterback-tyler-shough',
+          'quarterback-dak-prescott',     # NFC East
+          'quarterback-jalen-hurts',
+          'quarterback-jayden-daniels',
+          'quarterback-russell-wilson',
+          'quarterback-brock-purdy',      # NFC West
+          'quarterback-kyler-murray',
+          'quarterback-matthew-stafford',
+          'quarterback-sam-darnold'
+        ]
+
         # Each through players
         team_sportsradar["players"].each do |player_sportsradar|
           # Find or create player
           player = Player.sportsradar_find_or_create(player_sportsradar, self.slug)
+          
+          # Mark as starter if QB slug is in the starter list
+          player.update(starter: true) if starting_qb_slugs.include?(player.slug)
         end
       else
         puts "Response: #{response.code}"
@@ -74,6 +113,8 @@ class Team < ApplicationRecord
         sleep(30)
       end
     end
+
+
 
     def self.kaggle_import_teams
         # Parse CSV
@@ -137,26 +178,16 @@ class Team < ApplicationRecord
     end
 
     def generate_defense
-      # Find team's players
+      # Find team's players 
       teammates = Player.by_team(slug)
-      # Fetch players by position
-      defensive_ends  = teammates.by_position(:defensive_end).order(defence_grade: :desc).limit(2)
-      edge_rushers   = teammates.by_position(:edge_rusher).order(defence_grade: :desc).limit(2)
-      linebackers     = teammates.by_position(:linebackers).order(defence_grade: :desc).limit(2)
-      safeties        = teammates.by_position(:safeties).order(defence_grade: :desc).limit(2)
-      cornerbacks     = teammates.by_position(:cornerback).order(defence_grade: :desc).limit(2)
-      flex            = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback])
-                              .order(defence_grade: :desc)
-                              .where.not(id: (defensive_ends.map(&:id) + edge_rushers.map(&:id) + linebackers.map(&:id) + safeties.map(&:id) + cornerbacks.map(&:id)))
-                              .limit(1).first
       # Return collection
       return {
-        defensive_ends: defensive_ends,
-        edge_rushers: edge_rushers,
-        linebackers: linebackers,
-        safeties: safeties,
-        cornerbacks: cornerbacks,
-        flex: flex
+        defensive_ends: self.starting_defensive_ends,
+        edge_rushers: self.starting_edge_rushers,
+        linebackers: self.starting_linebackers,
+        safeties: self.starting_safeties,
+        cornerbacks: self.starting_cornerbacks,
+        flex: self.starting_flex_defense
       }
     end
 
@@ -430,6 +461,84 @@ class Team < ApplicationRecord
         player.save!
         # Puts details
         puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_offense.to_s.rjust(6)} /#{player.grades_pass_route.to_s.rjust(6)} 🙌 | #{player.team.description.ljust(30)}"
+      end
+    end
+    
+    def self.pff_blocker_import(csv_path)
+      CSV.foreach(csv_path, headers: true) do |row|
+        # Get row
+        attrs = row.to_h
+        # Fetch important columns
+        slug_pff = attrs["player_id"]
+        player_name = attrs["player"]
+        team_name = attrs["team_name"]
+        position = Player.pff_position(attrs["position"]) rescue "unknown"
+        team = Team.pff_team(team_name) rescue "unknown"
+        # Create player slug
+        slug_player = "#{position}-#{player_name}".downcase.gsub(' ', '-')
+        # Find or create player
+        player = Player.find_or_create_by(slug: slug_player) 
+        # Update player
+        player.slug_pff = slug_pff
+        player.player   = player_name
+        # Offensive Line Details - only using fields that exist in schema
+        player.player_game_count                = attrs["player_game_count"]
+        player.declined_penalties               = attrs["declined_penalties"].to_i
+        player.franchise_id                     = attrs["franchise_id"]
+        player.grades_offense                   = attrs["grades_offense"].to_f
+        player.grades_pass_block                = attrs["grades_pass_block"].to_f
+        player.grades_run_block                 = attrs["grades_run_block"].to_f
+        player.penalties                        = attrs["penalties"].to_i
+        player.snaps_on_offense                 = attrs["snap_counts_offense"].to_i
+        player.snaps_pass_block                 = attrs["snap_counts_pass_block"].to_i
+        player.snaps_run_block                  = attrs["snap_counts_run_block"].to_i
+        player.team_slug                        = team.slug
+        player.position                         = position
+        player.save!
+        # Puts details
+        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_offense.to_s.rjust(6)} /#{player.grades_pass_block.to_s.rjust(6)} 🛡️ | #{player.team.description.ljust(30)}"
+      end
+    end
+
+    def self.pff_defense_import(csv_path)
+      CSV.foreach(csv_path, headers: true) do |row|
+        # Get row
+        attrs = row.to_h
+        # Fetch important columns
+        slug_pff = attrs["player_id"]
+        player_name = attrs["player"]
+        team_name = attrs["team_name"]
+        position = Player.pff_position(attrs["position"]) rescue "unknown"
+        team = Team.pff_team(team_name) rescue "unknown"
+        # Create player slug
+        slug_player = "#{position}-#{player_name}".downcase.gsub(' ', '-')
+        # Find or create player
+        player = Player.find_or_create_by(slug: slug_player) 
+        # Update player
+        player.slug_pff = slug_pff
+        player.player   = player_name
+        # Defense Details - only using fields that exist in schema
+        player.player_game_count                = attrs["player_game_count"]
+        player.declined_penalties               = attrs["declined_penalties"].to_i
+        player.franchise_id                     = attrs["franchise_id"]
+        player.defence_grade                    = attrs["grades_defense"].to_f
+        player.rush_defense_grade               = attrs["grades_run_defense"].to_f
+        player.pass_rush_grade                  = attrs["grades_pass_rush_defense"].to_f
+        player.coverage_grade                   = attrs["grades_coverage_defense"].to_f
+        # player.tackles                          = attrs["tackles"].to_i
+        player.sacks                            = attrs["sacks"].to_i
+        player.interceptions                    = attrs["interceptions"].to_i
+        player.fumbles                          = attrs["fumbles"].to_i
+        player.penalties                        = attrs["penalties"].to_i
+        player.snaps_on_defence                 = attrs["snap_counts_defense"].to_i
+        player.snaps_rush_defense               = attrs["snap_counts_run_defense"].to_i
+        player.snaps_pass_rush                  = attrs["snap_counts_pass_rush"].to_i
+        player.snaps_coverage                   = attrs["snap_counts_coverage"].to_i
+        player.team_slug                        = team.slug
+        player.position                         = position
+        player.save!
+        # Puts details
+        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.defence_grade.to_s.rjust(6)} /#{player.coverage_grade.to_s.rjust(6)} 🏈 | #{player.team.description.ljust(30)}"
       end
     end
 

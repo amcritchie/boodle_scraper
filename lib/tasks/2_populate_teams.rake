@@ -11,7 +11,7 @@ namespace :teams do
     Team.active.reverse.each do |team| 
       team.fetch_roster_sportradar
       # Puts roster info
-      puts "2025 Roster added #{team.name.rjust(22)} #{team.emoji} | Players: #{team.players.length.to_s.rjust(4)} | QBs: #{team.players.quarterbacks.select(:last_name).pluck("last_name").join(", ").ljust(40)}"
+      puts "2025 Roster added #{team.name.rjust(22)} #{team.emoji} | Players: #{team.players.length.to_s.rjust(4)} | QB: #{team.starting_qb.player.ljust(40)}"
       sleep(0.5)
     end
   end

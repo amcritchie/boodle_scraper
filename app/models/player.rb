@@ -11,6 +11,7 @@ class Player < ApplicationRecord
   # Scopes for querying
   scope :by_team, ->(team) { where(team_slug: team) }
   scope :by_position, ->(position) { where(position: position) }
+  scope :starters, -> { where(starter: true) }
 
   def team
     # Find active team
@@ -25,6 +26,10 @@ class Player < ApplicationRecord
   
   def self.quarterbacks
     all.where(position: ['quarterback'])
+  end
+  
+  def self.starting_quarterbacks
+    quarterbacks.starters
   end
   def self.running_backs
     all.where(position: ['running-back'])
@@ -46,6 +51,30 @@ class Player < ApplicationRecord
   end
   def self.tackles
     all.where(position: ['tackle'])
+  end
+
+  def self.defensive_ends
+    all.where(position: ['defensive-end'])
+  end
+
+  def self.edge_rushers
+    all.where(position: ['edge-rusher'])
+  end
+
+  def self.linebackers
+    all.where(position: ['linebacker'])
+  end
+
+  def self.safeties
+    all.where(position: ['safety'])
+  end
+
+  def self.cornerbacks
+    all.where(position: ['cornerback'])
+  end
+
+  def self.flex_defense
+    all.where(position: ['defensive-end', 'edge-rusher', 'linebacker', 'safety', 'cornerback'])
   end
 
   def self.run_block
@@ -183,6 +212,8 @@ class Player < ApplicationRecord
       "defensive-end"
     when "DE"
       "defensive-end"
+    when "DI"
+      "defensive-end"
     when "EDGE"
       "edge-rusher"
     when "OLB"
@@ -234,6 +265,10 @@ class Player < ApplicationRecord
       "defensive-end"
     when "DE"
       "defensive-end"
+    when "DI"
+      "defensive-end"
+    when "ED"
+      "edge-rusher"
     when "EDGE"
       "edge-rusher"
     when "OLB"
@@ -338,6 +373,14 @@ class Player < ApplicationRecord
 
   def self.offense_grade
     all.with_offense_grade.order(grades_offense: :desc)
+  end
+
+  def self.with_defence_grade
+    all.where.not(defence_grade: nil)
+  end
+
+  def self.defence_grade
+    all.with_defence_grade.order(defence_grade: :desc)
   end
 
   def self.quarterback
