@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Week 1 Rosters - Season 2025</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-center mb-8">Week 1 Rosters - Season 2025</h1>
+    
+    <!-- Grade Legend -->
+    <div class="mb-6 bg-white p-4 rounded-lg shadow-lg">
+      <h3 class="text-lg font-semibold mb-3 text-gray-800">Grade Legend</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">🖐️</span>
+          <span>Passing/Pass Block</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">🏃</span>
+          <span>Rushing/Run Block</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">🤲</span>
+          <span>Receiving</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">🛡️</span>
+          <span>Blocking/Defense</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">💨</span>
+          <span>Pass Rush</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">👁️</span>
+          <span>Coverage</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mb-6">
+      <a href="<%= matchups_2025_week1_path %>" class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        ← Back to Matchups
+      </a>
+    </div>
+
+    <!-- Offensive Rosters -->
+    <div class="mb-12">
+      <h2 class="text-2xl font-bold mb-6 text-green-800">Offensive Rosters</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-300 shadow-lg">
+          <thead>
+            <tr class="bg-green-100">
+              <th class="border border-gray-300 px-4 py-3 text-left">Team</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">QB</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">RB</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">WR1</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">WR2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">TE</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">Flex</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">LT</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">LG</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">C</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">RG</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">RT</th>
+            </tr>
+          </thead>
+          <tbody>
+          <%= @matchups.first.inspect %>
+            <% @matchups.each do |matchup| %>
+              <tr class="hover:bg-gray-50">
+                <td class="border border-gray-300 px-4 py-3 font-semibold">
+                  <%= matchup.team&.emoji %> <%= matchup.team_slug&.upcase %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: matchup.qb,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🖐️',
+                      grade1_method: 'grades_pass',
+                      grade2_icon: '🏃',
+                      grade2_method: 'grades_run' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: matchup.rb,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🏃',
+                      grade1_method: 'grades_run',
+                      grade2_icon: '🤲',
+                      grade2_method: 'grades_pass_route' %>
+                </td>
+                <% matchup.wide_receivers.first(2).each do |wr| %>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <%= render 'matchups/player_cell', 
+                        player: wr,
+                        grade0: 'grades_offense',
+                        grade1_icon: '🤲',
+                        grade1_method: 'grades_pass_route',
+                        grade2_icon: '🛡️',
+                        grade2_method: 'grades_pass_block' %>
+                  </td>
+                <% end %>
+                <% (2 - matchup.wide_receivers.first(2).count).times do %>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <span class="text-gray-400">-</span>
+                  </td>
+                <% end %>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: matchup.tight_ends.first,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🤲',
+                      grade1_method: 'grades_pass_route',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'grades_pass_block' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: matchup.off_flex,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🤲',
+                      grade1_method: 'grades_pass_route',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'grades_pass_block' %>
+                </td>
+                <% matchup.oline.each do |tackle| %>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <%= render 'matchups/player_cell', 
+                        player: tackle,
+                        grade0: 'grades_offense',
+                        grade1_icon: '🏃',
+                        grade1_method: 'grades_run_block',
+                        grade2_icon: '🛡️',  
+                        grade2_method: 'grades_pass_block' %>
+                  </td>
+                <% end %>
+                <% (2 - matchup.exterior_oline.count).times do %>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <span class="text-gray-400">-</span>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Defensive Rosters -->
+    <div class="mb-12">
+      <h2 class="text-2xl font-bold mb-6 text-red-800">Defensive Rosters</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-300 shadow-lg">
+          <thead>
+            <tr class="bg-red-100">
+              <th class="border border-gray-300 px-4 py-3 text-left">Team</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">DE1</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">DE2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">DT1</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">DT2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">LB1</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">LB2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">CB1</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">CB2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">S1</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">S2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">Flex</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @matchups.each do |matchup| %>
+              <tr class="hover:bg-gray-50">
+                <td class="border border-gray-300 px-4 py-3 font-semibold">
+                  <%= matchup.team_defense&.emoji %> <%= matchup.team_defense_slug&.upcase %>
+                </td>
+
+
+                player.defence_grade                    = attrs["grades_defense"].to_f
+                player.rush_defense_grade               = attrs["grades_run_defense"].to_f
+                player.pass_rush_grade                  = attrs["grades_pass_rush_defense"].to_f
+                player.coverage_grade                   = attrs["grades_coverage_defense"].to_f
+
+
+                <% matchup.edge_rushers.first(2).each do |edge| %>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <%= render 'matchups/player_cell', 
+                        player: edge,
+                        grade0: 'defence_grade',
+                        grade1_icon: '💨',
+                        grade1_method: 'pass_rush_grade',
+                        grade2_icon: '🛡️',
+                        grade2_method: 'rush_defense_grade' %>
+                  </td>
+                <% end %>
+                <% (2 - matchup.edge_rushers.first(2).count).times do %>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <span class="text-gray-400">-</span>
+                  </td>
+                <% end %>
+                <% matchup.defensive_ends.first(2).each do |de| %>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <%= render 'matchups/player_cell', 
+                        player: de,
+                        grade0: 'defence_grade',
+                        grade1_icon: '💨',
+                        grade1_method: 'pass_rush_grade',
+                        grade2_icon: '🛡️',
+                        grade2_method: 'rush_defense_grade' %>
+                  </td>
+                <% end %>
+                <% (2 - matchup.defensive_ends.first(2).count).times do %>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <span class="text-gray-400">-</span>
+                  </td>
+                <% end %>
+                <% matchup.linebackers.first(2).each do |lb| %>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <%= render 'matchups/player_cell', 
+                        player: lb,
+                        grade0: 'defence_grade',
+                        grade1_icon: '👁️',
+                        grade1_method: 'coverage_grade',
+                        grade2_icon: '🛡️',
+                        grade2_method: 'rush_defense_grade' %>
+                  </td>
+                <% end %>
+                <% (2 - matchup.linebackers.first(2).count).times do %>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <span class="text-gray-400">-</span>
+                  </td>
+                <% end %>
+                <% matchup.cornerbacks.first(2).each do |cb| %>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <%= render 'matchups/player_cell', 
+                        player: cb,
+                        grade0: 'defence_grade',
+                        grade1_icon: '👁️',
+                        grade1_method: 'coverage_grade',
+                        grade2_icon: '🛡️',
+                        grade2_method: 'rush_defense_grade' %>
+                  </td>
+                <% end %>
+                <% (2 - matchup.cornerbacks.first(2).count).times do %>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <span class="text-gray-400">-</span>
+                  </td>
+                <% end %>
+                <% matchup.safeties.first(2).each do |safety| %>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <%= render 'matchups/player_cell', 
+                        player: safety,
+                        grade0: 'defence_grade',
+                        grade1_icon: '👁️',
+                        grade1_method: 'coverage_grade',
+                        grade2_icon: '🛡️',
+                        grade2_method: 'rush_defense_grade' %>
+                  </td>
+                <% end %>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: matchup.def_flex,
+                      grade0: 'defence_grade',
+                      grade1_icon: '👁️',
+                      grade1_method: 'coverage_grade',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'rush_defense_grade' %>
+                </td>
+                <% (2 - matchup.safeties.first(2).count).times do %>
+                  <td class="border border-gray-300 px-4 py-3">
+                    <span class="text-gray-400">-</span>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-lg font-semibold mb-4 text-blue-800">Offensive Summary</h3>
+        <div class="space-y-2">
+          <div class="flex justify-between">
+            <span>Total Teams:</span>
+            <span class="font-semibold"><%= @matchups.count %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Total Offensive Players:</span>
+            <span class="font-semibold"><%= @matchups.count * 11 %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>QB Coverage:</span>
+            <span class="font-semibold"><%= @matchups.count { |m| m.qb.present? } %>/<%= @matchups.count %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-lg font-semibold mb-4 text-purple-800">Defensive Summary</h3>
+        <div class="space-y-2">
+          <div class="flex justify-between">
+            <span>Total Teams:</span>
+            <span class="font-semibold"><%= @matchups.count %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Total Defensive Players:</span>
+            <span class="font-semibold"><%= @matchups.count * 11 %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Complete Rosters:</span>
+            <span class="font-semibold"><%= @matchups.count { |m| m.defense_starters.count == 11 } %>/<%= @matchups.count %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-lg font-semibold mb-4 text-green-800">Quick Links</h3>
+        <div class="space-y-2">
+          <a href="<%= matchups_2025_week1_path %>" class="block text-blue-600 hover:text-blue-800">
+            ← Back to Matchups
+          </a>
+          <div class="text-sm text-gray-600">
+            View detailed matchup analysis and scoring
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html> 

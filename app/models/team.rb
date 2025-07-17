@@ -62,6 +62,10 @@ class Team < ApplicationRecord
         team_sportsradar["coaches"]
         team_sportsradar["players"]
 
+        puts "--------------------------------"
+        ap team_sportsradar["coaches"]
+        puts "--------------------------------"
+        
         # Hardcoded starting QB slugs for 2025 season
         starting_qb_slugs = [
           'quarterback-patrick-mahomes',  # AFC West
@@ -83,10 +87,10 @@ class Team < ApplicationRecord
           'quarterback-jared-goff',        # NFC North
           'quarterback-jordan-love',
           'quarterback-caleb-williams',
-          'quarterback-j.j.-mccarthy',
+          'quarterback-jj-mccarthy',
           'quarterback-bryce-young',      # NFC South
           'quarterback-baker-mayfield',
-          'quarterback-michael-penix-jr.',
+          'quarterback-michael-penix-jr',
           'quarterback-tyler-shough',
           'quarterback-dak-prescott',     # NFC East
           'quarterback-jalen-hurts',
@@ -171,9 +175,10 @@ class Team < ApplicationRecord
         wide_receivers: self.starting_wrs,
         tight_end:      self.starting_te,
         flex:           self.starting_flex_offense,
-        center:         self.starting_center,
-        guards:         self.starting_guards,
-        tackles:        self.starting_tackles
+        oline:          self.starting_oline
+        # center:         self.starting_center,
+        # guards:         self.starting_guards,
+        # tackles:        self.starting_tackles
       }
     end
 
@@ -255,20 +260,53 @@ class Team < ApplicationRecord
       ap matchup
     end
 
+    def self.extract_last_name(full_name)
+      suffixes = %w[jr. sr. ii iii iv v]
+      parts = full_name.strip.split
+    
+      return '' if parts.empty?
+    
+      # Check for and remove suffix if present
+      suffix = ''
+      if suffixes.include?(parts.last.downcase)
+        suffix = parts.pop
+      end
+    
+      last_name = parts.last || ''
+      [last_name, suffix].reject(&:empty?).join(' ')
+    end
+
+    def self.pff_player(player_name,position)
+      # Fetch important columns
+      # slug_pff        = attrs["player_id"]
+      # player_name     = attrs["player"]
+      # team_name       = attrs["team_name"]
+      # position        = Player.pff_position(attrs["position"]) rescue "unknown"
+      position_class  = Player.position_class(position) rescue "unknown"
+      last_name = extract_last_name(player_name)
+
+      # team            = Team.pff_team(team_name) rescue "unknown"
+      # Create player slug
+      slug_player = "#{position_class}-#{player_name}".downcase.gsub(' ', '-').gsub('.', '')
+      # Find or create player
+      player = Player.find_or_create_by(slug: slug_player) 
+      player.last_name = last_name
+      player.save!
+      player
+    end
+
     def self.pff_passer_import(csv_path)
       CSV.foreach(csv_path, headers: true) do |row|
         # attrs = row.to_h.slice(*Player.column_names)
         attrs = row.to_h
         # Fetch important columns
-        slug_pff = attrs["player_id"]
-        player_name = attrs["player"]
-        team_name = attrs["team_name"]
-        position = Player.pff_position(attrs["position"]) rescue "unknown"
-        team = Team.pff_team(team_name) rescue "unknown"
-        # Create player slug
-        slug_player = "#{position}-#{player_name}".downcase.gsub(' ', '-')
+        slug_pff        = attrs["player_id"]
+        player_name     = attrs["player"]
+        team_name       = attrs["team_name"]
+        position        = Player.pff_position(attrs["position"]) rescue "unknown"
+        team            = Team.pff_team(team_name) rescue "unknown"
         # Find or create player
-        player = Player.find_or_create_by(slug: slug_player) 
+        player = pff_player(player_name,position)
         # Update player
         player.slug_pff = slug_pff
         player.player   = player_name
@@ -337,10 +375,8 @@ class Team < ApplicationRecord
         team_name = attrs["team_name"]
         position = Player.pff_position(attrs["position"]) rescue "unknown"
         team = Team.pff_team(team_name) rescue "unknown"
-        # Create player slug
-        slug_player = "#{position}-#{player_name}".downcase.gsub(' ', '-')
         # Find or create player
-        player = Player.find_or_create_by(slug: slug_player) 
+        player = pff_player(player_name,position)
         # Update player
         player.slug_pff = slug_pff
         player.player   = player_name
@@ -404,10 +440,8 @@ class Team < ApplicationRecord
         team_name = attrs["team_name"]
         position = Player.pff_position(attrs["position"]) rescue "unknown"
         team = Team.pff_team(team_name) rescue "unknown"
-        # Create player slug
-        slug_player = "#{position}-#{player_name}".downcase.gsub(' ', '-')
         # Find or create player
-        player = Player.find_or_create_by(slug: slug_player) 
+        player = pff_player(player_name,position)
         # Update player
         player.slug_pff = slug_pff
         player.player   = player_name
@@ -474,10 +508,8 @@ class Team < ApplicationRecord
         team_name = attrs["team_name"]
         position = Player.pff_position(attrs["position"]) rescue "unknown"
         team = Team.pff_team(team_name) rescue "unknown"
-        # Create player slug
-        slug_player = "#{position}-#{player_name}".downcase.gsub(' ', '-')
         # Find or create player
-        player = Player.find_or_create_by(slug: slug_player) 
+        player = pff_player(player_name,position)
         # Update player
         player.slug_pff = slug_pff
         player.player   = player_name
@@ -510,10 +542,8 @@ class Team < ApplicationRecord
         team_name = attrs["team_name"]
         position = Player.pff_position(attrs["position"]) rescue "unknown"
         team = Team.pff_team(team_name) rescue "unknown"
-        # Create player slug
-        slug_player = "#{position}-#{player_name}".downcase.gsub(' ', '-')
         # Find or create player
-        player = Player.find_or_create_by(slug: slug_player) 
+        player = pff_player(player_name,position)
         # Update player
         player.slug_pff = slug_pff
         player.player   = player_name
@@ -552,9 +582,8 @@ class Team < ApplicationRecord
       end
       college = pff_row['College'].downcase.gsub(' ', '-') rescue 'undrafted'
       draft_year = pff_row['DraftYear'].to_i rescue 2099
-      player_slug = "#{position}-#{first_name.downcase}-#{last_name.downcase}"
       # Find or create player
-      player = Player.find_or_create_by(slug: player_slug)
+      player = pff_player(player_name,position)
       # Populate player
       # player = Player.find_or_create_by(slug: player_slug) do |player|
         player.position     = position

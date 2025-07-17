@@ -63,57 +63,47 @@ class Player < ApplicationRecord
   def self.tackles
     all.where(position: ['tackle'])
   end
-
   def self.defensive_ends
     all.where(position: ['defensive-end'])
   end
-
   def self.edge_rushers
     all.where(position: ['edge-rusher'])
   end
-
   def self.linebackers
     all.where(position: ['linebacker'])
   end
-
   def self.safeties
     all.where(position: ['safety'])
   end
-
   def self.cornerbacks
     all.where(position: ['cornerback'])
   end
-
   def self.flex_defense
     all.where(position: ['defensive-end', 'edge-rusher', 'linebacker', 'safety', 'cornerback'])
   end
 
-  def self.run_block
-    all.sort_by { |player| -player.pass_block_grade }
-  end
-  def self.pass_block
-    all.sort_by { |player| -player.pass_block_grade }
-  end
+  # def self.run_block
+  #   all.sort_by { |player| -player.pass_block_grade }
+  # end
+  # def self.pass_block
+  #   all.sort_by { |player| -player.pass_block_grade }
+  # end
 
   def self.order_pass_rush
     all.order(pass_rush_grade: :desc)
   end
-
   def self.order_coverage
     all.order(coverage_grade: :desc)
   end
-
   def self.order_run_block
     all.order(run_block_grade: :desc)
   end
-
   def self.order_pass_block
     all.order(pass_block_grade: :desc)
   end
   def self.order_receiving
     all.order(receiving_grade: :desc)
   end
-
   def self.order_passing
     all.order(passing_grade: :desc)
   end
@@ -122,6 +112,39 @@ class Player < ApplicationRecord
   end
   def self.order_rush_defense
     all.order(rush_defense_grade: :desc)
+  end
+
+  def self.position_class(position)
+    case position
+    when "quarterback"
+      :quarterback
+    when 'running-back'
+      :skill
+    when 'wide-receiver'
+      :skill
+    when 'tight-end'
+      :skill
+    when 'full-back'
+      :skill
+    when "center"
+      :oline
+    when "gaurd"
+      :oline
+    when "tackle"
+      :oline
+    when "defensive-end"
+      :dline
+    when "edge-rusher"
+      :dline
+    when "linebacker"
+      :linebacker
+    when "safety"
+      :secondary
+    when "cornerback"
+      :secondary
+    else
+      :special_teams
+    end
   end
 
   def position_symbol
@@ -298,10 +321,12 @@ class Player < ApplicationRecord
   def self.sportsradar_find_or_create(player_sportsradar, team_slug)
 
     # Fetch slug data
-    name      = player_sportsradar["name"]
-    position  = sportsradar_position(player_sportsradar["position"])
-    college   = player_sportsradar["college"].downcase.gsub(' ', '-') rescue 'undrafted'
-    player_slug = "#{position}-#{name}".downcase.gsub(' ', '-')
+    name            = player_sportsradar["name"]
+    position        = sportsradar_position(player_sportsradar["position"])
+    position_class  = position_class(position)
+    college         = player_sportsradar["college"].downcase.gsub(' ', '-') rescue 'undrafted'
+    player_slug     = "#{position_class}-#{name}".downcase.gsub(' ', '-').gsub('.', '')
+
     # Valdate if Player already exists
     unless player = Player.find_by(sportsradar_id: player_sportsradar["id"])
       unless player = Player.find_by(sportsradar_slug: player_sportsradar["sr_id"])

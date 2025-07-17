@@ -391,6 +391,14 @@ class Matchup < ApplicationRecord
     Player.find_by_slug(self.o2)
   end
 
+  def off_flex
+    Player.find_by_slug(self.o6)
+  end
+
+  def def_flex
+    Player.find_by_slug(self.d11)
+  end
+
   def full_backs
     offense_starters.filter_map { |player| player if player.slug&.start_with?("full_back") }
   end
@@ -400,11 +408,11 @@ class Matchup < ApplicationRecord
   end
 
   def wide_receivers
-    offense_starters.filter_map { |player| player if player.slug&.start_with?("wide_receiver") }
+    offense_starters.filter_map { |player| player if player.position == "wide-receiver" }
   end
 
   def tight_ends
-    offense_starters.filter_map { |player| player if player.slug&.start_with?("tight_end") }
+    offense_starters.filter_map { |player| player if player.position == "tight-end" }
   end
 
   # def fullbacks
@@ -469,14 +477,14 @@ class Matchup < ApplicationRecord
   # Edge Rushers, 2, Pass Rush
   def edge_rushers
     defense_starters
-    .where(position: [:edge_rusher])
+    .where(position: ['edge-rusher'])
     .limit(2)
   end
 
   # Defensive Ends, 2, Pass Rush
   def defensive_ends
     defense_starters
-    .where(position: [:defensive_end])
+    .where(position: ['defensive-end'])
     .limit(2)
   end
 
@@ -487,19 +495,19 @@ class Matchup < ApplicationRecord
   # Linebackers, 2, Defence grade
   def linebackers
     defense_starters
-    .where(position: [:linebackers])
+    .where(position: ['linebacker'])
     .limit(2)
   end
 
   def cornerbacks
     defense_starters
-    .where(position: [:cornerback])
+    .where(position: ['cornerback'])
     .limit(2)
   end
 
   def safeties
     defense_starters
-    .where(position: [:safeties])
+    .where(position: ['safety'])
     .limit(2)
   end
 
@@ -828,11 +836,11 @@ class Matchup < ApplicationRecord
       o4:   offense[:wide_receivers][1]&.slug,
       o5:   offense[:tight_end]&.slug,
       o6:   offense[:flex]&.slug,
-      o7:   offense[:center]&.slug,
-      o8:   offense[:guards][0]&.slug,
-      o9:   offense[:guards][1]&.slug,
-      o10:  offense[:tackles][0]&.slug,
-      o11:  offense[:tackles][1]&.slug,
+      o7:   offense[:oline][0]&.slug,
+      o8:   offense[:oline][1]&.slug,
+      o9:   offense[:oline][2]&.slug,
+      o10:   offense[:oline][3]&.slug,
+      o11:   offense[:oline][4]&.slug,
       d1:   defense[:defensive_ends][0]&.slug,
       d2:   defense[:defensive_ends][1]&.slug,
       d3:   defense[:edge_rushers][0]&.slug,
@@ -869,11 +877,11 @@ class Matchup < ApplicationRecord
       o4:   offense[:wide_receivers][1]&.slug,
       o5:   offense[:tight_end]&.slug,
       o6:   offense[:flex]&.slug,
-      o7:   offense[:center]&.slug,
-      o8:   offense[:guards][0]&.slug,
-      o9:   offense[:guards][1]&.slug,
-      o10:  offense[:tackles][0]&.slug,
-      o11:  offense[:tackles][1]&.slug,
+      o7:   offense[:oline][0]&.slug,
+      o8:   offense[:oline][1]&.slug,
+      o9:   offense[:oline][2]&.slug,
+      o10:  offense[:oline][3]&.slug,
+      o11:  offense[:oline][4]&.slug,
       d1:   defense[:defensive_ends][0]&.slug,
       d2:   defense[:defensive_ends][1]&.slug,
       d3:   defense[:edge_rushers][0]&.slug,

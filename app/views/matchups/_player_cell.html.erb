@@ -1,0 +1,22 @@
+<% if player %>
+  <div class="text-sm">
+    <%= player.first_name %>
+  </div>
+  <div class="font-medium text-md">
+    <%= player.last_name %> 
+  </div>
+  <span class="text-sm text-gray-600">
+    <%= player.send(grade0)&.round(1) rescue 'N/A'  %>
+  </span>
+  <span class="text-xs text-gray-600">
+    <% if defined?(grade1_icon) && defined?(grade1_method) %>
+      <%= grade1_icon %><%= player.send(grade1_method)&.round(0) || 'N/A' %>
+    <% end %>
+    <% if defined?(grade2_icon) && defined?(grade2_method) %>
+      <% if defined?(grade1_icon) && defined?(grade1_method) %> <% end %>
+      <%= grade2_icon %> <%= player.send(grade2_method)&.round(0) || 'N/A' %>
+    <% end %>
+  </span>
+<% else %>
+  <span class="text-gray-400">-</span>
+<% end %> 
