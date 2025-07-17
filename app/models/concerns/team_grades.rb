@@ -1,6 +1,10 @@
 module TeamGrades
   extend ActiveSupport::Concern
 
+  def offensive_play_caller
+    coaches.where.not(offensive_play_caller_rank: nil).order(:offensive_play_caller_rank).first
+  end
+
   def starting_qb
     # First try to find a designated starter
     starter_qb = players.quarterbacks.starters.first

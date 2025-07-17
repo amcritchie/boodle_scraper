@@ -1,5 +1,5 @@
 class Player < ApplicationRecord
-  belongs_to :team
+  belongs_to :team, optional: true
   has_many :player_seasons
   has_many :seasons, through: :player_seasons
 

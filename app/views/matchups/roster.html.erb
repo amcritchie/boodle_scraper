@@ -175,14 +175,6 @@
                 <td class="border border-gray-300 px-4 py-3 font-semibold">
                   <%= matchup.team_defense&.emoji %> <%= matchup.team_defense_slug&.upcase %>
                 </td>
-
-
-                player.defence_grade                    = attrs["grades_defense"].to_f
-                player.rush_defense_grade               = attrs["grades_run_defense"].to_f
-                player.pass_rush_grade                  = attrs["grades_pass_rush_defense"].to_f
-                player.coverage_grade                   = attrs["grades_coverage_defense"].to_f
-
-
                 <% matchup.edge_rushers.first(2).each do |edge| %>
                   <td class="border border-gray-300 px-4 py-3">
                     <%= render 'matchups/player_cell', 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_07_13_235020) do
+ActiveRecord::Schema[7.0].define(version: 2025_07_17_032445) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -36,6 +36,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_13_235020) do
     t.integer "run_heavy_rank"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "slug"
+    t.string "defensive_play_caller_rank"
     t.index ["created_at"], name: "index_coaches_on_created_at"
     t.index ["first_name", "last_name"], name: "index_coaches_on_first_name_and_last_name"
     t.index ["offensive_play_caller_rank"], name: "index_coaches_on_offensive_play_caller_rank"
@@ -43,8 +45,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_13_235020) do
     t.index ["position"], name: "index_coaches_on_position"
     t.index ["run_heavy_rank"], name: "index_coaches_on_run_heavy_rank"
     t.index ["season"], name: "index_coaches_on_season"
+    t.index ["slug"], name: "index_coaches_on_slug"
     t.index ["sportsradar_id"], name: "index_coaches_on_sportsradar_id"
-    t.index ["team_slug", "season"], name: "index_coaches_on_team_slug_and_season", unique: true
     t.index ["team_slug"], name: "index_coaches_on_team_slug"
     t.index ["updated_at"], name: "index_coaches_on_updated_at"
   end
@@ -505,6 +507,40 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_13_235020) do
     t.index ["slug_sportrac"], name: "index_teams_on_slug_sportrac"
     t.index ["slug_sportsradar"], name: "index_teams_on_slug_sportsradar"
     t.index ["updated_at"], name: "index_teams_on_updated_at"
+  end
+
+  create_table "teams_seasons", force: :cascade do |t|
+    t.string "team_slug"
+    t.integer "season_year"
+    t.string "o1"
+    t.string "o2"
+    t.string "o3"
+    t.string "o4"
+    t.string "o5"
+    t.string "o6"
+    t.string "o7"
+    t.string "o8"
+    t.string "o9"
+    t.string "o10"
+    t.string "o11"
+    t.string "d1"
+    t.string "d2"
+    t.string "d3"
+    t.string "d4"
+    t.string "d5"
+    t.string "d6"
+    t.string "d7"
+    t.string "d8"
+    t.string "d9"
+    t.string "d10"
+    t.string "d11"
+    t.string "hc"
+    t.string "oc"
+    t.string "dc"
+    t.string "offensive_play_caller"
+    t.string "defensive_play_caller"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "venues", force: :cascade do |t|

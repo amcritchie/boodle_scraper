@@ -16,7 +16,7 @@ class CreateCoaches < ActiveRecord::Migration[6.1]
 
     add_index :coaches, :team_slug
     add_index :coaches, :season
-    add_index :coaches, [:team_slug, :season], unique: true
+    # add_index :coaches, [:team_slug, :season], unique: true
     add_index :coaches, :sportsradar_id
     add_index :coaches, :position
     add_index :coaches, :offensive_play_caller_rank
