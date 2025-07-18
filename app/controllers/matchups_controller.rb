@@ -1,6 +1,9 @@
 class MatchupsController < ApplicationController
   def week1
-    @matchups = Matchup.where(season: 2025, week_slug: 1).order(passer_score: :desc)
+    @matchups = Matchup.where(season: 2025, week_slug: 1).order(passing_offense_score: :desc)
+    
+    # Get all teams seasons data for rankings
+    @teams_seasons = TeamsSeason.where(season_year: 2025).includes(:team).order(:team_slug)
   end
 
   def roster

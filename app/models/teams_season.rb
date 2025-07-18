@@ -137,6 +137,8 @@ class TeamsSeason < ApplicationRecord
     Player.where(slug: all.pluck(:o1).flatten.compact)
   end
 
+  
+
   # Ranking methods for the view
   def self.ranked_by_play_caller
     includes(:team)
@@ -309,5 +311,71 @@ class TeamsSeason < ApplicationRecord
         rushers: top_rushers
       }
     end.sort_by { |ranking| -ranking[:total_rushing_grade] }
+  end
+
+  def play_caller_rank
+    ranked_teams = self.class.ranked_by_play_caller
+    rank = ranked_teams.index(self)
+    rank ? rank + 1 : nil
+  end
+
+  def pace_of_play_rank
+    ranked_teams = self.class.ranked_by_pace_of_play
+    rank = ranked_teams.index(self)
+    rank ? rank + 1 : nil
+  end
+
+  def run_heavy_rank
+    ranked_teams = self.class.ranked_by_run_heavy
+    rank = ranked_teams.index(self)
+    rank ? rank + 1 : nil
+  end
+
+  def qb_passing_rank
+    ranked_teams = self.class.ranked_by_qb_passing
+    rank = ranked_teams.index(self)
+    rank ? rank + 1 : nil
+  end
+
+  def receiver_core_rank
+    ranked_teams = self.class.receiver_core_rankings
+    team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
+    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
+  end
+
+  def oline_pass_block_rank
+    ranked_teams = self.class.oline_pass_block_rankings
+    team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
+    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
+  end
+
+  def oline_run_block_rank
+    ranked_teams = self.class.oline_run_block_rankings
+    team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
+    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
+  end
+
+  def pass_rush_rank
+    ranked_teams = self.class.pass_rush_rankings
+    team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
+    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
+  end
+
+  def coverage_rank
+    ranked_teams = self.class.coverage_rankings
+    team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
+    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
+  end
+
+  def run_defense_rank
+    ranked_teams = self.class.run_defense_rankings
+    team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
+    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
+  end
+
+  def rushing_rank
+    ranked_teams = self.class.rushing_rankings
+    team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
+    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
   end
 end 

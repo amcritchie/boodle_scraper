@@ -825,69 +825,11 @@ class Matchup < ApplicationRecord
     home_teams_season = TeamsSeason.find_by(team_slug: home_team.slug, season_year: game.season)
     away_teams_season = TeamsSeason.find_by(team_slug: away_team.slug, season_year: game.season)
     
-    # Use TeamsSeason data if available, otherwise fall back to dynamic generation
-    if home_teams_season && away_teams_season
-      # Update roster using TeamsSeason snapshot
-      update(
-        season: game.season,
-        week_slug: game.week_slug,
-        home: true,
-        o1:   home_teams_season.o1,
-        o2:   home_teams_season.o2,
-        o3:   home_teams_season.o3,
-        o4:   home_teams_season.o4,
-        o5:   home_teams_season.o5,
-        o6:   home_teams_season.o6,
-        o7:   home_teams_season.o7,
-        o8:   home_teams_season.o8,
-        o9:   home_teams_season.o9,
-        o10:  home_teams_season.o10,
-        o11:  home_teams_season.o11,
-        d1:   away_teams_season.d1,
-        d2:   away_teams_season.d2,
-        d3:   away_teams_season.d3,
-        d4:   away_teams_season.d4,
-        d5:   away_teams_season.d5,
-        d6:   away_teams_season.d6,
-        d7:   away_teams_season.d7,
-        d8:   away_teams_season.d8,
-        d9:   away_teams_season.d9,
-        d10:  away_teams_season.d10,
-        d11:  away_teams_season.d11
-      )
-    else
-      # Fallback to dynamic generation if TeamsSeason data not available
-      offense = home_team.offense_starters_prediction
-      defense = away_team.defense_starters_prediction
-      
-      update(
-        season: game.season,
-        week_slug: game.week_slug,
-        home: true,
-        o1:   offense[:quarterback]&.slug,
-        o2:   offense[:runningback]&.slug,
-        o3:   offense[:wide_receivers][0]&.slug,
-        o4:   offense[:wide_receivers][1]&.slug,
-        o5:   offense[:tight_end]&.slug,
-        o6:   offense[:flex]&.slug,
-        o7:   offense[:oline][0]&.slug,
-        o8:   offense[:oline][1]&.slug,
-        o9:   offense[:oline][2]&.slug,
-        o10:   offense[:oline][3]&.slug,
-        o11:   offense[:oline][4]&.slug,
-        d1:   defense[:defensive_ends][0]&.slug,
-        d2:   defense[:defensive_ends][1]&.slug,
-        d3:   defense[:edge_rushers][0]&.slug,
-        d4:   defense[:edge_rushers][1]&.slug,
-        d5:   defense[:linebackers][0]&.slug,
-        d6:   defense[:linebackers][1]&.slug,
-        d7:   defense[:safeties][0]&.slug,
-        d8:   defense[:safeties][1]&.slug,
-        d9:   defense[:cornerbacks][0]&.slug,
-        d10:  defense[:cornerbacks][1]&.slug,
-        d11:  defense[:flex]&.slug
-      )
-    end
+    update_roster_fields(
+      home: true,
+      offense_teams_season: home_teams_season,
+      defense_teams_season: away_teams_season
+    )
   end
 
   # Update matchup with away team roster
@@ -901,70 +843,129 @@ class Matchup < ApplicationRecord
     home_teams_season = TeamsSeason.find_by(team_slug: home_team.slug, season_year: game.season)
     away_teams_season = TeamsSeason.find_by(team_slug: away_team.slug, season_year: game.season)
     
-    # Use TeamsSeason data if available, otherwise fall back to dynamic generation
-    if home_teams_season && away_teams_season
-      # Update roster using TeamsSeason snapshot
-      update(
-        season: game.season,
-        week_slug: game.week_slug,
-        home: false,
-        o1:   away_teams_season.o1,
-        o2:   away_teams_season.o2,
-        o3:   away_teams_season.o3,
-        o4:   away_teams_season.o4,
-        o5:   away_teams_season.o5,
-        o6:   away_teams_season.o6,
-        o7:   away_teams_season.o7,
-        o8:   away_teams_season.o8,
-        o9:   away_teams_season.o9,
-        o10:  away_teams_season.o10,
-        o11:  away_teams_season.o11,
-        d1:   home_teams_season.d1,
-        d2:   home_teams_season.d2,
-        d3:   home_teams_season.d3,
-        d4:   home_teams_season.d4,
-        d5:   home_teams_season.d5,
-        d6:   home_teams_season.d6,
-        d7:   home_teams_season.d7,
-        d8:   home_teams_season.d8,
-        d9:   home_teams_season.d9,
-        d10:  home_teams_season.d10,
-        d11:  home_teams_season.d11
-      )
-    else
-      # Fallback to dynamic generation if TeamsSeason data not available
-      offense = away_team.offense_starters_prediction
-      defense = home_team.defense_starters_prediction
-      
-      update(
-        season: game.season,
-        week_slug: game.week_slug,
-        home: false,
-        o1:   offense[:quarterback]&.slug,
-        o2:   offense[:runningback]&.slug,
-        o3:   offense[:wide_receivers][0]&.slug,
-        o4:   offense[:wide_receivers][1]&.slug,
-        o5:   offense[:tight_end]&.slug,
-        o6:   offense[:flex]&.slug,
-        o7:   offense[:oline][0]&.slug,
-        o8:   offense[:oline][1]&.slug,
-        o9:   offense[:oline][2]&.slug,
-        o10:  offense[:oline][3]&.slug,
-        o11:  offense[:oline][4]&.slug,
-        d1:   defense[:defensive_ends][0]&.slug,
-        d2:   defense[:defensive_ends][1]&.slug,
-        d3:   defense[:edge_rushers][0]&.slug,
-        d4:   defense[:edge_rushers][1]&.slug,
-        d5:   defense[:linebackers][0]&.slug,
-        d6:   defense[:linebackers][1]&.slug,
-        d7:   defense[:safeties][0]&.slug,
-        d8:   defense[:safeties][1]&.slug,
-        d9:   defense[:cornerbacks][0]&.slug,
-        d10:  defense[:cornerbacks][1]&.slug,
-        d11:  defense[:flex]&.slug
-      )
-    end
+    update_roster_fields(
+      home: false,
+      offense_teams_season: away_teams_season,
+      defense_teams_season: home_teams_season
+    )
   end
 
   private
+
+  def update_roster_fields(home:, offense_teams_season: nil, defense_teams_season: nil)
+    if offense_teams_season && defense_teams_season
+      # Use TeamsSeason data
+      update(
+        season: game.season,
+        week_slug: game.week_slug,
+        home: home,
+        o1:   offense_teams_season.o1,
+        o2:   offense_teams_season.o2,
+        o3:   offense_teams_season.o3,
+        o4:   offense_teams_season.o4,
+        o5:   offense_teams_season.o5,
+        o6:   offense_teams_season.o6,
+        o7:   offense_teams_season.o7,
+        o8:   offense_teams_season.o8,
+        o9:   offense_teams_season.o9,
+        o10:  offense_teams_season.o10,
+        o11:  offense_teams_season.o11,
+        d1:   defense_teams_season.d1,
+        d2:   defense_teams_season.d2,
+        d3:   defense_teams_season.d3,
+        d4:   defense_teams_season.d4,
+        d5:   defense_teams_season.d5,
+        d6:   defense_teams_season.d6,
+        d7:   defense_teams_season.d7,
+        d8:   defense_teams_season.d8,
+        d9:   defense_teams_season.d9,
+        d10:  defense_teams_season.d10,
+        d11:  defense_teams_season.d11
+      )
+
+      # Calculate offense scores using rankings
+      calculate_passing_offense_score(offense_teams_season)
+      calculate_rushing_offense_score(offense_teams_season)
+      calculate_rushing_defense_score(defense_teams_season)
+      calculate_passing_defense_score(defense_teams_season)
+    end
+  end
+
+  def calculate_passing_offense_score(offense_teams_season)
+    # Convert rankings to scores (1-32 scale, where 1 is best)
+    # Higher score = better passing offense
+    play_caller_score = (33 - (offense_teams_season.play_caller_rank || 16)) / 32.0 * 100
+    qb_score = (33 - (offense_teams_season.qb_passing_rank || 16)) / 32.0 * 100
+    receiver_score = (33 - (offense_teams_season.receiver_core_rank || 16)) / 32.0 * 100
+    oline_score = (33 - (offense_teams_season.oline_pass_block_rank || 16)) / 32.0 * 100
+    
+    # Weighted composite score
+    passing_offense_score = (play_caller_score * 0.3 + qb_score * 0.3 + receiver_score * 0.2 + oline_score * 0.2).to_i
+    
+    # Create score string
+    passing_offense_score_string = "PC-#{play_caller_score.to_i}|QB-#{qb_score.to_i}|REC-#{receiver_score.to_i}|OL-#{oline_score.to_i}"
+    
+    # Update the matchup
+    update(
+      passing_offense_score: passing_offense_score,
+      passing_offense_score_string: passing_offense_score_string
+    )
+  end
+
+  def calculate_rushing_offense_score(offense_teams_season)
+    # Convert rankings to scores (1-32 scale, where 1 is best)
+    # Higher score = better rushing offense
+    play_caller_score = (33 - (offense_teams_season.play_caller_rank || 16)) / 32.0 * 100
+    rushing_score = (33 - (offense_teams_season.rushing_rank || 16)) / 32.0 * 100
+    oline_run_block_score = (33 - (offense_teams_season.oline_run_block_rank || 16)) / 32.0 * 100
+    
+    # Weighted composite score
+    rushing_offense_score = (play_caller_score * 0.3 + rushing_score * 0.4 + oline_run_block_score * 0.3).to_i
+    
+    # Create score string
+    rushing_offense_score_string = "PC-#{play_caller_score.to_i}|RUSH-#{rushing_score.to_i}|OL-#{oline_run_block_score.to_i}"
+    
+    # Update the matchup
+    update(
+      rushing_offense_score: rushing_offense_score,
+      rushing_offense_score_string: rushing_offense_score_string
+    )
+  end
+
+  def calculate_rushing_defense_score(defense_teams_season)
+    # Convert rankings to scores (1-32 scale, where 1 is best)
+    # Higher score = better rushing defense
+    run_defense_score = (33 - (defense_teams_season.run_defense_rank || 16)) / 32.0 * 100
+    
+    # For rushing defense, we'll use the run defense rank as the primary metric
+    rushing_defense_score = run_defense_score.to_i
+    
+    # Create score string
+    rushing_defense_score_string = "RD-#{run_defense_score.to_i}"
+    
+    # Update the matchup
+    update(
+      rushing_defense_score: rushing_defense_score,
+      rushing_defense_score_string: rushing_defense_score_string
+    )
+  end
+
+  def calculate_passing_defense_score(defense_teams_season)
+    # Convert rankings to scores (1-32 scale, where 1 is best)
+    # Higher score = better passing defense
+    pass_rush_score = (33 - (defense_teams_season.pass_rush_rank || 16)) / 32.0 * 100
+    coverage_score = (33 - (defense_teams_season.coverage_rank || 16)) / 32.0 * 100
+    
+    # Weighted composite score
+    passing_defense_score = (pass_rush_score * 0.4 + coverage_score * 0.6).to_i
+    
+    # Create score string
+    passing_defense_score_string = "PR-#{pass_rush_score.to_i}|COV-#{coverage_score.to_i}"
+    
+    # Update the matchup
+    update(
+      passing_defense_score: passing_defense_score,
+      passing_defense_score_string: passing_defense_score_string
+    )
+  end
 end
