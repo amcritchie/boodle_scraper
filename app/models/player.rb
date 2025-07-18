@@ -31,6 +31,13 @@ class Player < ApplicationRecord
     return nil
   end
 
+  def self.by_grades_offense
+    all.order(Arel.sql('COALESCE(grades_offense, 60) DESC'))
+  end
+
+  def self.by_grades_passing
+    all.order(Arel.sql('COALESCE(grades_passing, 60) DESC'))
+  end
   
   def self.quarterbacks
     all.where(position: ['quarterback'])

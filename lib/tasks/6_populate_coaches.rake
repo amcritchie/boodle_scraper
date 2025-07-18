@@ -22,7 +22,7 @@ namespace :coaches do
         offensive_play_caller_rank: 8, pace_of_play_rank: 2, run_heavy_rank: 24 },
       { team_slug: 'wsh', first_name: 'Kliff', last_name: 'Kingsbury', position: 'Offensive Coordinator', 
         offensive_play_caller_rank: 9, pace_of_play_rank: 32, run_heavy_rank: 6 },
-      { team_slug: 'buffalo-bills', first_name: 'Joe', last_name: 'Brady', position: 'Offensive Coordinator', 
+      { team_slug: 'buf', first_name: 'Joe', last_name: 'Brady', position: 'Offensive Coordinator', 
         offensive_play_caller_rank: 10, pace_of_play_rank: 8, run_heavy_rank: 20 },
       { team_slug: 'jax', first_name: 'Liam', last_name: 'Coen', position: 'Offensive Coordinator', 
         offensive_play_caller_rank: 11, pace_of_play_rank: 31, run_heavy_rank: 32 },
@@ -70,6 +70,7 @@ namespace :coaches do
         offensive_play_caller_rank: 32, pace_of_play_rank: 5, run_heavy_rank: 30 }
     ]
     
+    # Use the original coaches_data for database operations
     coaches_data.each do |coach_data|
       coach_data[:season] = 2025
       slug = [coach_data[:position], coach_data[:first_name], coach_data[:last_name]].compact.join('-').parameterize

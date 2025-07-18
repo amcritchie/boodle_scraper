@@ -159,7 +159,7 @@ class Team < ApplicationRecord
       end
     end
 
-    def generate_offense
+    def offense_starters_prediction
       # Find team's players 
       teammates = Player.by_team(slug)
       # Return collection
@@ -173,7 +173,7 @@ class Team < ApplicationRecord
       }
     end
 
-    def generate_defense
+    def defense_starters_prediction
       # Find team's players 
       teammates = Player.by_team(slug)
       # Return collection
@@ -199,54 +199,125 @@ class Team < ApplicationRecord
       else
           raise "Game not found"
       end
-      # Find team's players 
-      teammates = Player.by_team(slug)
-      # Fetch players by position
-      qb = teammates.by_position(:quarterback).order(offense_grade: :desc).first
-      rb = teammates.by_position(:runningback).order(offense_grade: :desc).first
-      wrs = teammates.by_position(:wide_receiver).order(offense_grade: :desc).limit(2)
-      te = teammates.by_position(:tight_end).order(offense_grade: :desc).first
-      flex = teammates.where(position: [:runningback, :wide_receiver, :tight_end]).order(offense_grade: :desc).where.not(id: ([rb&.id] + wrs.map(&:id) + [te&.id])).first
-      center = teammates.by_position(:center).order(offense_grade: :desc).first
-      guards = teammates.by_position(:gaurd).order(offense_grade: :desc).limit(2)
-      tackles = teammates.by_position(:tackle).order(offense_grade: :desc).limit(2)
-      # Defence
-      des = teammates.by_position(:defensive_end).order(defence_grade: :desc).limit(2)
-      edges = teammates.by_position(:edge_rusher).order(defence_grade: :desc).limit(2)
-      lbs = teammates.by_position(:linebackers).order(defence_grade: :desc).limit(2)
-      safeties = teammates.by_position(:safeties).order(defence_grade: :desc).limit(2)
-      cbs = teammates.by_position(:cornerback).order(defence_grade: :desc).limit(2)
-      flex_defense = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(defence_grade: :desc).where.not(id: (des.map(&:id) + edges.map(&:id) + lbs.map(&:id) + safeties.map(&:id) + cbs.map(&:id))).limit(1)
+      
+      # Get TeamsSeason snapshot for this team
+      teams_season = TeamsSeason.find_by(team_slug: slug, season_year: season)
+      
       # Find or create roster
       matchup = Matchup.find_or_create_by(game: game.slug, team_slug: slug)
-      # Create roster
-      matchup.update(
-          season: season,
-          week_slug: week.to_s,
-          home: home,
-          o1: qb&.slug,
-          o2: rb&.slug,
-          o3: wrs[0]&.slug,
-          o4: wrs[1]&.slug,
-          o5: te&.slug,
-          o6: flex&.slug,
-          o7: center&.slug,
-          o8: guards[0]&.slug,
-          o9: guards[1]&.slug,
-          o10: tackles[0]&.slug,
-          o11: tackles[1]&.slug,
-          d1: des[0]&.slug,
-          d2: des[1]&.slug,
-          d3: edges[0]&.slug,
-          d4: edges[1]&.slug,
-          d5: lbs[0]&.slug,
-          d6: lbs[1]&.slug,
-          d7: safeties[0]&.slug,
-          d8: safeties[1]&.slug,
-          d9: cbs[0]&.slug,
-          d10: cbs[1]&.slug,
-          d11: flex_defense[0]&.slug
-      )
+      
+      if teams_season
+        # Use TeamsSeason snapshot data
+        if home
+          # Home team - use this team's offense and opponent's defense
+          opponent_teams_season = TeamsSeason.find_by(team_slug: game.away_team.slug, season_year: season)
+          matchup.update(
+            season: season,
+            week_slug: week.to_s,
+            home: home,
+            o1: teams_season.o1,
+            o2: teams_season.o2,
+            o3: teams_season.o3,
+            o4: teams_season.o4,
+            o5: teams_season.o5,
+            o6: teams_season.o6,
+            o7: teams_season.o7,
+            o8: teams_season.o8,
+            o9: teams_season.o9,
+            o10: teams_season.o10,
+            o11: teams_season.o11,
+            d1: opponent_teams_season&.d1,
+            d2: opponent_teams_season&.d2,
+            d3: opponent_teams_season&.d3,
+            d4: opponent_teams_season&.d4,
+            d5: opponent_teams_season&.d5,
+            d6: opponent_teams_season&.d6,
+            d7: opponent_teams_season&.d7,
+            d8: opponent_teams_season&.d8,
+            d9: opponent_teams_season&.d9,
+            d10: opponent_teams_season&.d10,
+            d11: opponent_teams_season&.d11
+          )
+        else
+          # Away team - use this team's offense and opponent's defense
+          opponent_teams_season = TeamsSeason.find_by(team_slug: game.home_team.slug, season_year: season)
+          matchup.update(
+            season: season,
+            week_slug: week.to_s,
+            home: home,
+            o1: teams_season.o1,
+            o2: teams_season.o2,
+            o3: teams_season.o3,
+            o4: teams_season.o4,
+            o5: teams_season.o5,
+            o6: teams_season.o6,
+            o7: teams_season.o7,
+            o8: teams_season.o8,
+            o9: teams_season.o9,
+            o10: teams_season.o10,
+            o11: teams_season.o11,
+            d1: opponent_teams_season&.d1,
+            d2: opponent_teams_season&.d2,
+            d3: opponent_teams_season&.d3,
+            d4: opponent_teams_season&.d4,
+            d5: opponent_teams_season&.d5,
+            d6: opponent_teams_season&.d6,
+            d7: opponent_teams_season&.d7,
+            d8: opponent_teams_season&.d8,
+            d9: opponent_teams_season&.d9,
+            d10: opponent_teams_season&.d10,
+            d11: opponent_teams_season&.d11
+          )
+        end
+      else
+        # Fallback to dynamic generation if TeamsSeason data not available
+        teammates = Player.by_team(slug)
+        # Fetch players by position
+        qb = teammates.by_position(:quarterback).order(offense_grade: :desc).first
+        rb = teammates.by_position(:runningback).order(offense_grade: :desc).first
+        wrs = teammates.by_position(:wide_receiver).order(offense_grade: :desc).limit(2)
+        te = teammates.by_position(:tight_end).order(offense_grade: :desc).first
+        flex = teammates.where(position: [:runningback, :wide_receiver, :tight_end]).order(offense_grade: :desc).where.not(id: ([rb&.id] + wrs.map(&:id) + [te&.id])).first
+        center = teammates.by_position(:center).order(offense_grade: :desc).first
+        guards = teammates.by_position(:gaurd).order(offense_grade: :desc).limit(2)
+        tackles = teammates.by_position(:tackle).order(offense_grade: :desc).limit(2)
+        # Defence
+        des = teammates.by_position(:defensive_end).order(defence_grade: :desc).limit(2)
+        edges = teammates.by_position(:edge_rusher).order(defence_grade: :desc).limit(2)
+        lbs = teammates.by_position(:linebackers).order(defence_grade: :desc).limit(2)
+        safeties = teammates.by_position(:safeties).order(defence_grade: :desc).limit(2)
+        cbs = teammates.by_position(:cornerback).order(defence_grade: :desc).limit(2)
+        flex_defense = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(defence_grade: :desc).where.not(id: (des.map(&:id) + edges.map(&:id) + lbs.map(&:id) + safeties.map(&:id) + cbs.map(&:id))).limit(1)
+        
+        matchup.update(
+            season: season,
+            week_slug: week.to_s,
+            home: home,
+            o1: qb&.slug,
+            o2: rb&.slug,
+            o3: wrs[0]&.slug,
+            o4: wrs[1]&.slug,
+            o5: te&.slug,
+            o6: flex&.slug,
+            o7: center&.slug,
+            o8: guards[0]&.slug,
+            o9: guards[1]&.slug,
+            o10: tackles[0]&.slug,
+            o11: tackles[1]&.slug,
+            d1: des[0]&.slug,
+            d2: des[1]&.slug,
+            d3: edges[0]&.slug,
+            d4: edges[1]&.slug,
+            d5: lbs[0]&.slug,
+            d6: lbs[1]&.slug,
+            d7: safeties[0]&.slug,
+            d8: safeties[1]&.slug,
+            d9: cbs[0]&.slug,
+            d10: cbs[1]&.slug,
+            d11: flex_defense[0]&.slug
+        )
+      end
+      
       puts "Matchup for Week #{week}, Season #{season} #{name} created successfully!"
       ap matchup
     end

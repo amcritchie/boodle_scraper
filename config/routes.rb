@@ -5,4 +5,6 @@ Rails.application.routes.draw do
   # root "articles#index"
   get 'matchups/2025/week1', to: 'matchups#week1', as: 'matchups_2025_week1'
   get 'matchups/2025/week1/roster', to: 'matchups#roster', as: 'matchups_2025_week1_roster'
+  get 'teams/seasons', to: 'matchups#teams_seasons', as: 'teams_seasons'
+  get 'rankings', to: 'matchups#rankings', as: 'rankings'
 end

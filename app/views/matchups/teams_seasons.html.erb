@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teams Season 2025 - Rosters & Coaches</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-center mb-8">Teams Season 2025 - Rosters & Coaches</h1>
+    
+    <!-- Navigation Link Tree -->
+    <div class="mb-8 bg-white p-6 rounded-lg shadow-lg">
+      <h3 class="text-lg font-semibold mb-4 text-gray-800">📋 Quick Navigation</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+        <!-- Coaches Section -->
+        <div class="space-y-2">
+          <h4 class="font-semibold text-purple-600">👔 Coaching</h4>
+          <a href="#coaching-staff" class="block text-blue-600 hover:text-blue-800 hover:underline">• Coaching Staff</a>
+          <a href="#play-caller-rankings" class="block text-blue-600 hover:text-blue-800 hover:underline">• Play Caller Rankings</a>
+          <a href="#pace-rankings" class="block text-blue-600 hover:text-blue-800 hover:underline">• Pace of Play Rankings</a>
+          <a href="#run-heavy-rankings" class="block text-blue-600 hover:text-blue-800 hover:underline">• Run Heavy Rankings</a>
+        </div>
+        
+        <!-- Offensive Rankings -->
+        <div class="space-y-2">
+          <h4 class="font-semibold text-green-600">🏈 Offensive Rankings</h4>
+          <a href="#qb-passing-rankings" class="block text-blue-600 hover:text-blue-800 hover:underline">• QB Passing Rankings</a>
+          <a href="#rushing-rankings" class="block text-blue-600 hover:text-blue-800 hover:underline">• Rushing Core Rankings</a>
+          <a href="#receiver-rankings" class="block text-blue-600 hover:text-blue-800 hover:underline">• Receiver Core Rankings</a>
+          <a href="#receiving-weapons" class="block text-blue-600 hover:text-blue-800 hover:underline">• Receiving Weapons Rankings</a>
+        </div>
+        
+        <!-- O-Line Rankings -->
+        <div class="space-y-2">
+          <h4 class="font-semibold text-blue-600">🛡️ O-Line Rankings</h4>
+          <a href="#oline-pass-block" class="block text-blue-600 hover:text-blue-800 hover:underline">• Pass Block Core Rankings</a>
+          <a href="#oline-run-block" class="block text-blue-600 hover:text-blue-800 hover:underline">• Run Block Core Rankings</a>
+          <a href="#oline-pass-block-legacy" class="block text-blue-600 hover:text-blue-800 hover:underline">• Pass Block Rankings (Legacy)</a>
+        </div>
+        
+        <!-- Defensive Rankings -->
+        <div class="space-y-2">
+          <h4 class="font-semibold text-red-600">🛡️ Defensive Rankings</h4>
+          <a href="#pass-rush-rankings" class="block text-blue-600 hover:text-blue-800 hover:underline">• Pass Rush Core Rankings</a>
+          <a href="#coverage-rankings" class="block text-blue-600 hover:text-blue-800 hover:underline">• Coverage Core Rankings</a>
+          <a href="#run-defense-rankings" class="block text-blue-600 hover:text-blue-800 hover:underline">• Run Defense Core Rankings</a>
+        </div>
+        
+        <!-- Legacy Rankings -->
+        <div class="space-y-2">
+          <h4 class="font-semibold text-gray-600">📊 Legacy Rankings</h4>
+          <a href="#defense-pass-rush-legacy" class="block text-blue-600 hover:text-blue-800 hover:underline">• Defense Pass Rush (Legacy)</a>
+          <a href="#defense-coverage-legacy" class="block text-blue-600 hover:text-blue-800 hover:underline">• Defense Coverage (Legacy)</a>
+        </div>
+        
+        <!-- Rosters -->
+        <div class="space-y-2">
+          <h4 class="font-semibold text-indigo-600">👥 Rosters</h4>
+          <a href="#offensive-rosters" class="block text-blue-600 hover:text-blue-800 hover:underline">• Offensive Rosters</a>
+          <a href="#defensive-rosters" class="block text-blue-600 hover:text-blue-800 hover:underline">• Defensive Rosters</a>
+          <a href="#summary-stats" class="block text-blue-600 hover:text-blue-800 hover:underline">• Summary Stats</a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Grade Legend -->
+    <div class="mb-6 bg-white p-4 rounded-lg shadow-lg">
+      <h3 class="text-lg font-semibold mb-3 text-gray-800">Grade Legend</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">🖐️</span>
+          <span>Passing/Pass Block</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">🏃</span>
+          <span>Rushing/Run Block</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">🤲</span>
+          <span>Receiving</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">🛡️</span>
+          <span>Blocking/Defense</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">💨</span>
+          <span>Pass Rush</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">👁️</span>
+          <span>Coverage</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mb-6">
+      <a href="<%= matchups_2025_week1_path %>" class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        ← Back to Matchups
+      </a>
+    </div>
+
+
+
+    <!-- Ranking Tables Section -->
+    <div class="mt-12">
+      <h2 class="text-2xl font-bold text-center mb-8">Team Rankings</h2>
+
+      <!-- Top Row: QB, Receiver, Pass Block -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        
+        <!-- QB Passing Rankings -->
+        <div id="qb-passing-rankings" class="bg-white rounded-lg shadow-lg p-6">
+          <h3 class="text-lg font-semibold mb-4 text-purple-600">🏈 QB Passing Rankings</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">QB</th>
+                  <th class="text-left p-2">Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @qb_passing_rankings.each_with_index do |player, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="p-2 font-semibold"><%= index + 1 %></td>
+                    <td class="p-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= player.team&.emoji %></span>
+                        <span class="font-medium"><%= player.team&.name %></span>
+                      </div>
+                    </td>
+                    <td class="p-2"><%= player&.full_name %></td>
+                    <td class="p-2 font-mono"><%= player&.grades_offense %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Receiver Core Rankings -->
+        <div id="receiver-rankings" class="bg-white rounded-lg shadow-lg p-6">
+          <h3 class="text-lg font-semibold mb-4 text-green-600">🎯 Receiver Core Rankings (Offense Grades)</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">WR1/WR2/TE</th>
+                  <th class="text-left p-2">Total Offense Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @receiving_rankings.each_with_index do |ranking, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="p-2 font-semibold"><%= index + 1 %></td>
+                    <td class="p-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                        <span class="font-medium"><%= ranking[:team]&.name %></span>
+                      </div>
+                    </td>
+                    <td class="p-2 text-xs">
+                      <% ranking[:receivers].each do |receiver| %>
+                        <div><%= receiver&.full_name %> (<%= number_with_precision(receiver&.grades_offense, precision: 1) %>)</div>
+                      <% end %>
+                    </td>
+                    <td class="p-2 font-mono"><%= number_with_precision(ranking[:total_offense_grade], precision: 1) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- O-Line Pass Block Core Rankings -->
+        <div id="oline-pass-block" class="bg-white rounded-lg shadow-lg p-6">
+          <h3 class="text-lg font-semibold mb-4 text-blue-600">🛡️ O-Line Pass Block Core Rankings</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">O-Line</th>
+                  <th class="text-left p-2">Total Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @oline_pass_block_core_rankings.each_with_index do |ranking, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="p-2 font-semibold"><%= index + 1 %></td>
+                    <td class="p-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                        <span class="font-medium"><%= ranking[:team]&.name %></span>
+                      </div>
+                    </td>
+                    <td class="p-2 text-xs">
+                      <% ranking[:oline].each do |player| %>
+                        <div><%= player&.full_name %> (<%= number_with_precision(player&.grades_pass_block, precision: 1) %>)</div>
+                      <% end %>
+                    </td>
+                    <td class="p-2 font-mono"><%= number_with_precision(ranking[:total_pass_block_grade], precision: 1) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Second Row: Pass Rush, Coverage -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+
+        <!-- Pass Rush Core Rankings -->
+        <div id="pass-rush-rankings" class="bg-white rounded-lg shadow-lg p-6">
+          <h3 class="text-lg font-semibold mb-4 text-red-600">💥 Pass Rush Core Rankings</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">D-Line</th>
+                  <th class="text-left p-2">Total Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @pass_rush_core_rankings.each_with_index do |ranking, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="p-2 font-semibold"><%= index + 1 %></td>
+                    <td class="p-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                        <span class="font-medium"><%= ranking[:team]&.name %></span>
+                      </div>
+                    </td>
+                    <td class="p-2 text-xs">
+                      <% ranking[:dline].each do |player| %>
+                        <div><%= player&.full_name %> (<%= number_with_precision(player&.pass_rush_grade, precision: 1) %>)</div>
+                      <% end %>
+                    </td>
+                    <td class="p-2 font-mono"><%= number_with_precision(ranking[:total_pass_rush_grade], precision: 1) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Coverage Core Rankings -->
+        <div id="coverage-rankings" class="bg-white rounded-lg shadow-lg p-6">
+          <h3 class="text-lg font-semibold mb-4 text-indigo-600">🔒 Coverage Core Rankings</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">Secondary</th>
+                  <th class="text-left p-2">Total Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @coverage_core_rankings.each_with_index do |ranking, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="p-2 font-semibold"><%= index + 1 %></td>
+                    <td class="p-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                        <span class="font-medium"><%= ranking[:team]&.name %></span>
+                      </div>
+                    </td>
+                    <td class="p-2 text-xs">
+                      <% ranking[:secondary].each do |player| %>
+                        <div><%= player&.full_name %> (<%= number_with_precision(player&.coverage_grade, precision: 1) %>)</div>
+                      <% end %>
+                    </td>
+                    <td class="p-2 font-mono"><%= number_with_precision(ranking[:total_coverage_grade], precision: 1) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Third Row: Rushing, Run Block, Run Defense -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+
+        <!-- Rushing Core Rankings -->
+        <div id="rushing-rankings" class="bg-white rounded-lg shadow-lg p-6">
+          <h3 class="text-lg font-semibold mb-4 text-orange-600">🏃 Rushing Core Rankings</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">Top 2 Rushers</th>
+                  <th class="text-left p-2">Total Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @rushing_core_rankings.each_with_index do |ranking, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="p-2 font-semibold"><%= index + 1 %></td>
+                    <td class="p-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                        <span class="font-medium"><%= ranking[:team]&.name %></span>
+                      </div>
+                    </td>
+                    <td class="p-2 text-xs">
+                      <% ranking[:rushers].each do |player| %>
+                        <div><%= player&.full_name %> (<%= number_with_precision(player&.grades_run, precision: 1) %>)</div>
+                      <% end %>
+                    </td>
+                    <td class="p-2 font-mono"><%= number_with_precision(ranking[:total_rushing_grade], precision: 1) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- O-Line Run Block Core Rankings -->
+        <div id="oline-run-block" class="bg-white rounded-lg shadow-lg p-6">
+          <h3 class="text-lg font-semibold mb-4 text-orange-600">🏃 O-Line Run Block Core Rankings</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">O-Line</th>
+                  <th class="text-left p-2">Total Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @oline_run_block_core_rankings.each_with_index do |ranking, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="p-2 font-semibold"><%= index + 1 %></td>
+                    <td class="p-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                        <span class="font-medium"><%= ranking[:team]&.name %></span>
+                      </div>
+                    </td>
+                    <td class="p-2 text-xs">
+                      <% ranking[:oline].each do |player| %>
+                        <div><%= player&.full_name %> (<%= number_with_precision(player&.grades_run_block, precision: 1) %>)</div>
+                      <% end %>
+                    </td>
+                    <td class="p-2 font-mono"><%= number_with_precision(ranking[:total_run_block_grade], precision: 1) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Run Defense Core Rankings -->
+        <div id="run-defense-rankings" class="bg-white rounded-lg shadow-lg p-6">
+          <h3 class="text-lg font-semibold mb-4 text-green-600">🛡️ Run Defense Core Rankings</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">Defense</th>
+                  <th class="text-left p-2">Total Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @run_defense_core_rankings.each_with_index do |ranking, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="p-2 font-semibold"><%= index + 1 %></td>
+                    <td class="p-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                        <span class="font-medium"><%= ranking[:team]&.name %></span>
+                      </div>
+                    </td>
+                    <td class="p-2 text-xs">
+                      <% ranking[:defense].each do |player| %>
+                        <div><%= player&.full_name %> (<%= number_with_precision(player&.rush_defense_grade, precision: 1) %>)</div>
+                      <% end %>
+                    </td>
+                    <td class="p-2 font-mono"><%= number_with_precision(ranking[:total_run_defense_grade], precision: 1) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coach Rankings Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <!-- Play Caller Rankings -->
+        <div id="play-caller-rankings" class="bg-white rounded-lg shadow-lg p-6">
+          <h3 class="text-lg font-semibold mb-4 text-blue-600">🏈 Play Caller Rankings</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">Coach</th>
+                  <th class="text-left p-2">Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @play_caller_rankings.each_with_index do |coach, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="p-2 font-semibold"><%= index + 1 %></td>
+                    <td class="p-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= coach.team&.emoji %></span>
+                        <span class="font-medium"><%= coach.team&.name %></span>
+                      </div>
+                    </td>
+                    <td class="p-2"><%= coach&.full_name %></td>
+                    <td class="p-2 font-mono"><%= coach&.offensive_play_caller_rank %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pace of Play Rankings -->
+        <div id="pace-rankings" class="bg-white rounded-lg shadow-lg p-6">
+          <h3 class="text-lg font-semibold mb-4 text-green-600">⚡ Pace of Play Rankings</h3>
+          <h4 class="text-sm text-gray-600">Data Needed</h4>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">Coach</th>
+                  <th class="text-left p-2">Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @pace_rankings.each_with_index do |coach, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="p-2 font-semibold"><%= index + 1 %></td>
+                    <td class="p-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= coach.team&.emoji %></span>
+                        <span class="font-medium"><%= coach.team&.name %></span>
+                      </div>
+                    </td>
+                    <td class="p-2"><%= coach&.full_name %></td>
+                    <td class="p-2 font-mono"><%= coach&.pace_of_play_rank %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Run Heavy Rankings -->
+        <div id="run-heavy-rankings" class="bg-white rounded-lg shadow-lg p-6">
+          <h3 class="text-lg font-semibold mb-4 text-orange-600">🏃 Run Heavy Rankings</h3>
+          <h4 class="text-sm text-gray-600">Data Needed</h4>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">Coach</th>
+                  <th class="text-left p-2">Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @run_heavy_rankings.each_with_index do |coach, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="p-2 font-semibold"><%= index + 1 %></td>
+                    <td class="p-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= coach.team&.emoji %></span>
+                        <span class="font-medium"><%= coach.team&.name %></span>
+                      </div>
+                    </td>
+                    <td class="p-2"><%= coach&.full_name %></td>
+                    <td class="p-2 font-mono"><%= coach&.run_heavy_rank %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+    <!-- Coaches Section -->
+    <div id="coaching-staff" class="mb-12">
+      <h2 class="text-2xl font-bold mb-6 text-purple-800">Coaching Staff</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-300 shadow-lg">
+          <thead>
+            <tr class="bg-purple-100">
+              <th class="border border-gray-300 px-4 py-3 text-left">Team</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">Head Coach</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">Offensive Coordinator</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">Defensive Coordinator</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">Play Caller</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @teams_seasons.each do |teams_season| %>
+              <tr class="hover:bg-gray-50">
+                <td class="border border-gray-300 px-4 py-3 font-semibold">
+                  <%= teams_season.team&.emoji %> <%= teams_season.team_slug&.upcase %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <% if teams_season.head_coach %>
+                    <div class="text-sm">
+                      <div class="font-semibold"><%= teams_season.head_coach.full_name %></div>
+                      <div class="text-gray-600">
+                        <% if teams_season.head_coach.offensive_play_caller_rank %>
+                          Play Caller Rank: <%= teams_season.head_coach.offensive_play_caller_rank %>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% else %>
+                    <span class="text-gray-400">-</span>
+                  <% end %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <% if teams_season.offensive_coordinator %>
+                    <div class="text-sm">
+                      <div class="font-semibold"><%= teams_season.offensive_coordinator.full_name %></div>
+                      <div class="text-gray-600">
+                        <% if teams_season.offensive_coordinator.offensive_play_caller_rank %>
+                          Play Caller Rank: <%= teams_season.offensive_coordinator.offensive_play_caller_rank %>
+                        <% end %>
+                        <% if teams_season.offensive_coordinator.pace_of_play_rank %>
+                          Pace Rank: <%= teams_season.offensive_coordinator.pace_of_play_rank %>
+                        <% end %>
+                        <% if teams_season.offensive_coordinator.run_heavy_rank %>
+                          Run Heavy Rank: <%= teams_season.offensive_coordinator.run_heavy_rank %>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% else %>
+                    <span class="text-gray-400">-</span>
+                  <% end %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <% if teams_season.defensive_coordinator %>
+                    <div class="text-sm">
+                      <div class="font-semibold"><%= teams_season.defensive_coordinator.full_name %></div>
+                    </div>
+                  <% else %>
+                    <span class="text-gray-400">-</span>
+                  <% end %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <% if teams_season.off_play_caller %>
+                    <div class="text-sm">
+                      <div class="font-semibold"><%= teams_season.off_play_caller.full_name %></div>
+                      <div class="text-gray-600"><%= teams_season.off_play_caller.position %></div>
+                    </div>
+                  <% else %>
+                    <span class="text-gray-400">-</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Offensive Rosters -->
+    <div id="offensive-rosters" class="mb-12">
+      <h2 class="text-2xl font-bold mb-6 text-green-800">Offensive Rosters</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-300 shadow-lg">
+          <thead>
+            <tr class="bg-green-100">
+              <th class="border border-gray-300 px-4 py-3 text-left">Team</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">QB</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">RB</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">WR1</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">WR2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">TE</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">Flex</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">LT</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">LG</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">C</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">RG</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">RT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @teams_seasons.each do |teams_season| %>
+              <tr class="hover:bg-gray-50">
+                <td class="border border-gray-300 px-4 py-3 font-semibold">
+                  <%= teams_season.team&.emoji %> <%= teams_season.team_slug&.upcase %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.qb,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🖐️',
+                      grade1_method: 'grades_pass',
+                      grade2_icon: '🏃',
+                      grade2_method: 'grades_run' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.rb,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🏃',
+                      grade1_method: 'grades_run',
+                      grade2_icon: '🤲',
+                      grade2_method: 'grades_pass_route' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.wr1,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🤲',
+                      grade1_method: 'grades_pass_route',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'grades_pass_block' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.wr2,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🤲',
+                      grade1_method: 'grades_pass_route',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'grades_pass_block' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.te,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🤲',
+                      grade1_method: 'grades_pass_route',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'grades_pass_block' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.flex,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🤲',
+                      grade1_method: 'grades_pass_route',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'grades_pass_block' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.left_tackle,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🏃',
+                      grade1_method: 'grades_run_block',
+                      grade2_icon: '🛡️',  
+                      grade2_method: 'grades_pass_block' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.left_guard,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🏃',
+                      grade1_method: 'grades_run_block',
+                      grade2_icon: '🛡️',  
+                      grade2_method: 'grades_pass_block' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.center,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🏃',
+                      grade1_method: 'grades_run_block',
+                      grade2_icon: '🛡️',  
+                      grade2_method: 'grades_pass_block' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.right_guard,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🏃',
+                      grade1_method: 'grades_run_block',
+                      grade2_icon: '🛡️',  
+                      grade2_method: 'grades_pass_block' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.right_tackle,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🏃',
+                      grade1_method: 'grades_run_block',
+                      grade2_icon: '🛡️',  
+                      grade2_method: 'grades_pass_block' %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Defensive Rosters -->
+    <div id="defensive-rosters" class="mb-12">
+      <h2 class="text-2xl font-bold mb-6 text-red-800">Defensive Rosters</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-300 shadow-lg">
+          <thead>
+            <tr class="bg-red-100">
+              <th class="border border-gray-300 px-4 py-3 text-left">Team</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">DE1</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">DE2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">Edge1</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">Edge2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">LB1</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">LB2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">CB1</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">CB2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">S1</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">S2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">Flex</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @teams_seasons.each do |teams_season| %>
+              <tr class="hover:bg-gray-50">
+                <td class="border border-gray-300 px-4 py-3 font-semibold">
+                  <%= teams_season.team&.emoji %> <%= teams_season.team_slug&.upcase %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.de1,
+                      grade0: 'defence_grade',
+                      grade1_icon: '💨',
+                      grade1_method: 'pass_rush_grade',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'rush_defense_grade' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.de2,
+                      grade0: 'defence_grade',
+                      grade1_icon: '💨',
+                      grade1_method: 'pass_rush_grade',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'rush_defense_grade' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.edge1,
+                      grade0: 'defence_grade',
+                      grade1_icon: '💨',
+                      grade1_method: 'pass_rush_grade',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'rush_defense_grade' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.edge2,
+                      grade0: 'defence_grade',
+                      grade1_icon: '💨',
+                      grade1_method: 'pass_rush_grade',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'rush_defense_grade' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.lb1,
+                      grade0: 'defence_grade',
+                      grade1_icon: '👁️',
+                      grade1_method: 'coverage_grade',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'rush_defense_grade' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.lb2,
+                      grade0: 'defence_grade',
+                      grade1_icon: '👁️',
+                      grade1_method: 'coverage_grade',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'rush_defense_grade' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.cb1,
+                      grade0: 'defence_grade',
+                      grade1_icon: '👁️',
+                      grade1_method: 'coverage_grade',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'rush_defense_grade' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.cb2,
+                      grade0: 'defence_grade',
+                      grade1_icon: '👁️',
+                      grade1_method: 'coverage_grade',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'rush_defense_grade' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.safety1,
+                      grade0: 'defence_grade',
+                      grade1_icon: '👁️',
+                      grade1_method: 'coverage_grade',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'rush_defense_grade' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.safety2,
+                      grade0: 'defence_grade',
+                      grade1_icon: '👁️',
+                      grade1_method: 'coverage_grade',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'rush_defense_grade' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.def_flex,
+                      grade0: 'defence_grade',
+                      grade1_icon: '👁️',
+                      grade1_method: 'coverage_grade',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'rush_defense_grade' %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div id="summary-stats" class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-lg font-semibold mb-4 text-purple-800">Coaching Summary</h3>
+        <div class="space-y-2">
+          <div class="flex justify-between">
+            <span>Total Teams:</span>
+            <span class="font-semibold"><%= @teams_seasons.count %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Head Coaches:</span>
+            <span class="font-semibold"><%= @teams_seasons.count { |ts| ts.head_coach.present? } %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Offensive Coordinators:</span>
+            <span class="font-semibold"><%= @teams_seasons.count { |ts| ts.offensive_coordinator.present? } %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Defensive Coordinators:</span>
+            <span class="font-semibold"><%= @teams_seasons.count { |ts| ts.defensive_coordinator.present? } %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-lg font-semibold mb-4 text-blue-800">Offensive Summary</h3>
+        <div class="space-y-2">
+          <div class="flex justify-between">
+            <span>Total Teams:</span>
+            <span class="font-semibold"><%= @teams_seasons.count %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Total Offensive Players:</span>
+            <span class="font-semibold"><%= @teams_seasons.count * 11 %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>QB Coverage:</span>
+            <span class="font-semibold"><%= @teams_seasons.count { |ts| ts.qb.present? } %>/<%= @teams_seasons.count %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-lg font-semibold mb-4 text-purple-800">Defensive Summary</h3>
+        <div class="space-y-2">
+          <div class="flex justify-between">
+            <span>Total Teams:</span>
+            <span class="font-semibold"><%= @teams_seasons.count %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Total Defensive Players:</span>
+            <span class="font-semibold"><%= @teams_seasons.count * 11 %></span>
+          </div>
+          <div class="flex justify-between">
+            <span>Complete Rosters:</span>
+            <span class="font-semibold"><%= @teams_seasons.count { |ts| ts.defense_starters.count == 11 } %>/<%= @teams_seasons.count %></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-lg font-semibold mb-4 text-green-800">Quick Links</h3>
+        <div class="space-y-2">
+          <a href="<%= matchups_2025_week1_path %>" class="block text-blue-600 hover:text-blue-800">
+            ← Back to Matchups
+          </a>
+          <a href="<%= matchups_2025_week1_roster_path %>" class="block text-blue-600 hover:text-blue-800">
+            View Week 1 Rosters
+          </a>
+          <div class="text-sm text-gray-600">
+            View detailed matchup analysis and scoring
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html> 

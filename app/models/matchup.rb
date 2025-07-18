@@ -821,38 +821,73 @@ class Matchup < ApplicationRecord
     home_team = game.home_team
     away_team = game.away_team
     
-    # Generate rosters
-    offense = home_team.generate_offense
-    defense = away_team.generate_defense
+    # Get TeamsSeason snapshots for both teams
+    home_teams_season = TeamsSeason.find_by(team_slug: home_team.slug, season_year: game.season)
+    away_teams_season = TeamsSeason.find_by(team_slug: away_team.slug, season_year: game.season)
     
-    # Update roster
-    update(
-      season: game.season,
-      week_slug: game.week_slug,
-      home: true,
-      o1:   offense[:quarterback]&.slug,
-      o2:   offense[:runningback]&.slug,
-      o3:   offense[:wide_receivers][0]&.slug,
-      o4:   offense[:wide_receivers][1]&.slug,
-      o5:   offense[:tight_end]&.slug,
-      o6:   offense[:flex]&.slug,
-      o7:   offense[:oline][0]&.slug,
-      o8:   offense[:oline][1]&.slug,
-      o9:   offense[:oline][2]&.slug,
-      o10:   offense[:oline][3]&.slug,
-      o11:   offense[:oline][4]&.slug,
-      d1:   defense[:defensive_ends][0]&.slug,
-      d2:   defense[:defensive_ends][1]&.slug,
-      d3:   defense[:edge_rushers][0]&.slug,
-      d4:   defense[:edge_rushers][1]&.slug,
-      d5:   defense[:linebackers][0]&.slug,
-      d6:   defense[:linebackers][1]&.slug,
-      d7:   defense[:safeties][0]&.slug,
-      d8:   defense[:safeties][1]&.slug,
-      d9:   defense[:cornerbacks][0]&.slug,
-      d10:  defense[:cornerbacks][1]&.slug,
-      d11:  defense[:flex]&.slug
-    )
+    # Use TeamsSeason data if available, otherwise fall back to dynamic generation
+    if home_teams_season && away_teams_season
+      # Update roster using TeamsSeason snapshot
+      update(
+        season: game.season,
+        week_slug: game.week_slug,
+        home: true,
+        o1:   home_teams_season.o1,
+        o2:   home_teams_season.o2,
+        o3:   home_teams_season.o3,
+        o4:   home_teams_season.o4,
+        o5:   home_teams_season.o5,
+        o6:   home_teams_season.o6,
+        o7:   home_teams_season.o7,
+        o8:   home_teams_season.o8,
+        o9:   home_teams_season.o9,
+        o10:  home_teams_season.o10,
+        o11:  home_teams_season.o11,
+        d1:   away_teams_season.d1,
+        d2:   away_teams_season.d2,
+        d3:   away_teams_season.d3,
+        d4:   away_teams_season.d4,
+        d5:   away_teams_season.d5,
+        d6:   away_teams_season.d6,
+        d7:   away_teams_season.d7,
+        d8:   away_teams_season.d8,
+        d9:   away_teams_season.d9,
+        d10:  away_teams_season.d10,
+        d11:  away_teams_season.d11
+      )
+    else
+      # Fallback to dynamic generation if TeamsSeason data not available
+      offense = home_team.offense_starters_prediction
+      defense = away_team.defense_starters_prediction
+      
+      update(
+        season: game.season,
+        week_slug: game.week_slug,
+        home: true,
+        o1:   offense[:quarterback]&.slug,
+        o2:   offense[:runningback]&.slug,
+        o3:   offense[:wide_receivers][0]&.slug,
+        o4:   offense[:wide_receivers][1]&.slug,
+        o5:   offense[:tight_end]&.slug,
+        o6:   offense[:flex]&.slug,
+        o7:   offense[:oline][0]&.slug,
+        o8:   offense[:oline][1]&.slug,
+        o9:   offense[:oline][2]&.slug,
+        o10:   offense[:oline][3]&.slug,
+        o11:   offense[:oline][4]&.slug,
+        d1:   defense[:defensive_ends][0]&.slug,
+        d2:   defense[:defensive_ends][1]&.slug,
+        d3:   defense[:edge_rushers][0]&.slug,
+        d4:   defense[:edge_rushers][1]&.slug,
+        d5:   defense[:linebackers][0]&.slug,
+        d6:   defense[:linebackers][1]&.slug,
+        d7:   defense[:safeties][0]&.slug,
+        d8:   defense[:safeties][1]&.slug,
+        d9:   defense[:cornerbacks][0]&.slug,
+        d10:  defense[:cornerbacks][1]&.slug,
+        d11:  defense[:flex]&.slug
+      )
+    end
   end
 
   # Update matchup with away team roster
@@ -862,38 +897,73 @@ class Matchup < ApplicationRecord
     home_team = game.home_team
     away_team = game.away_team
     
-    # Generate rosters
-    offense = away_team.generate_offense
-    defense = home_team.generate_defense
+    # Get TeamsSeason snapshots for both teams
+    home_teams_season = TeamsSeason.find_by(team_slug: home_team.slug, season_year: game.season)
+    away_teams_season = TeamsSeason.find_by(team_slug: away_team.slug, season_year: game.season)
     
-    # Update roster
-    update(
-      season: game.season,
-      week_slug: game.week_slug,
-      home: false,
-      o1:   offense[:quarterback]&.slug,
-      o2:   offense[:runningback]&.slug,
-      o3:   offense[:wide_receivers][0]&.slug,
-      o4:   offense[:wide_receivers][1]&.slug,
-      o5:   offense[:tight_end]&.slug,
-      o6:   offense[:flex]&.slug,
-      o7:   offense[:oline][0]&.slug,
-      o8:   offense[:oline][1]&.slug,
-      o9:   offense[:oline][2]&.slug,
-      o10:  offense[:oline][3]&.slug,
-      o11:  offense[:oline][4]&.slug,
-      d1:   defense[:defensive_ends][0]&.slug,
-      d2:   defense[:defensive_ends][1]&.slug,
-      d3:   defense[:edge_rushers][0]&.slug,
-      d4:   defense[:edge_rushers][1]&.slug,
-      d5:   defense[:linebackers][0]&.slug,
-      d6:   defense[:linebackers][1]&.slug,
-      d7:   defense[:safeties][0]&.slug,
-      d8:   defense[:safeties][1]&.slug,
-      d9:   defense[:cornerbacks][0]&.slug,
-      d10:  defense[:cornerbacks][1]&.slug,
-      d11:  defense[:flex]&.slug
-    )
+    # Use TeamsSeason data if available, otherwise fall back to dynamic generation
+    if home_teams_season && away_teams_season
+      # Update roster using TeamsSeason snapshot
+      update(
+        season: game.season,
+        week_slug: game.week_slug,
+        home: false,
+        o1:   away_teams_season.o1,
+        o2:   away_teams_season.o2,
+        o3:   away_teams_season.o3,
+        o4:   away_teams_season.o4,
+        o5:   away_teams_season.o5,
+        o6:   away_teams_season.o6,
+        o7:   away_teams_season.o7,
+        o8:   away_teams_season.o8,
+        o9:   away_teams_season.o9,
+        o10:  away_teams_season.o10,
+        o11:  away_teams_season.o11,
+        d1:   home_teams_season.d1,
+        d2:   home_teams_season.d2,
+        d3:   home_teams_season.d3,
+        d4:   home_teams_season.d4,
+        d5:   home_teams_season.d5,
+        d6:   home_teams_season.d6,
+        d7:   home_teams_season.d7,
+        d8:   home_teams_season.d8,
+        d9:   home_teams_season.d9,
+        d10:  home_teams_season.d10,
+        d11:  home_teams_season.d11
+      )
+    else
+      # Fallback to dynamic generation if TeamsSeason data not available
+      offense = away_team.offense_starters_prediction
+      defense = home_team.defense_starters_prediction
+      
+      update(
+        season: game.season,
+        week_slug: game.week_slug,
+        home: false,
+        o1:   offense[:quarterback]&.slug,
+        o2:   offense[:runningback]&.slug,
+        o3:   offense[:wide_receivers][0]&.slug,
+        o4:   offense[:wide_receivers][1]&.slug,
+        o5:   offense[:tight_end]&.slug,
+        o6:   offense[:flex]&.slug,
+        o7:   offense[:oline][0]&.slug,
+        o8:   offense[:oline][1]&.slug,
+        o9:   offense[:oline][2]&.slug,
+        o10:  offense[:oline][3]&.slug,
+        o11:  offense[:oline][4]&.slug,
+        d1:   defense[:defensive_ends][0]&.slug,
+        d2:   defense[:defensive_ends][1]&.slug,
+        d3:   defense[:edge_rushers][0]&.slug,
+        d4:   defense[:edge_rushers][1]&.slug,
+        d5:   defense[:linebackers][0]&.slug,
+        d6:   defense[:linebackers][1]&.slug,
+        d7:   defense[:safeties][0]&.slug,
+        d8:   defense[:safeties][1]&.slug,
+        d9:   defense[:cornerbacks][0]&.slug,
+        d10:  defense[:cornerbacks][1]&.slug,
+        d11:  defense[:flex]&.slug
+      )
+    end
   end
 
   private

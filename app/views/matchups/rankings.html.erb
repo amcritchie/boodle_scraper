@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NFL Team Rankings 2025</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'nfl-blue': '#013369',
+            'nfl-red': '#D50A0A',
+            'nfl-gold': '#FFB612'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-6">
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2">
+            <span class="text-3xl">🏈</span>
+            <h1 class="text-2xl font-bold text-gray-900">NFL Team Rankings</h1>
+          </div>
+          <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">2025 Season</span>
+        </div>
+        <nav class="flex space-x-4">
+          <a href="<%= matchups_2025_week1_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            ← Matchups
+          </a>
+          <a href="<%= teams_seasons_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            Rosters
+          </a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Title -->
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold text-gray-900 mb-4">Team Performance Rankings</h2>
+      <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+        Comprehensive analysis of team strengths across key performance metrics
+      </p>
+    </div>
+
+    <!-- Rankings Grid -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      
+      <!-- QB Passing Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">🖐️</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">QB Passing</h3>
+              <p class="text-blue-100 text-sm">Quarterback Performance</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3">
+            <% @qb_passing_rankings.each_with_index do |player, index| %>
+              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">
+                      <%= index + 1 %>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-xl"><%= player.team&.emoji %></span>
+                      <span class="font-semibold text-gray-900"><%= player.team&.name %></span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-gray-900">
+                      <%= number_with_precision(player&.grades_offense || 0, precision: 1) %>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-500 pl-11">
+                  <%= player&.player || 'No QB' %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Receiver Core Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+        <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">🤲</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">Receiver Core</h3>
+              <p class="text-green-100 text-sm">Top 3 Receivers Combined</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3">
+            <% @receiving_rankings.each_with_index do |ranking, index| %>
+              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600 font-bold text-sm">
+                      <%= index + 1 %>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900"><%= ranking[:team]&.name %></span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-gray-900">
+                      <%= number_with_precision(ranking[:total_offense_grade], precision: 1) %>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-500 pl-11">
+                  <%= ranking[:receivers].map(&:last_name).join(', ') %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- O-Line Pass Block Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">🛡️</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">Pass Block Core</h3>
+              <p class="text-purple-100 text-sm">O-Line Protection</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3">
+            <% @oline_pass_block_core_rankings.each_with_index do |ranking, index| %>
+              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold text-sm">
+                      <%= index + 1 %>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900"><%= ranking[:team]&.name %></span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-gray-900">
+                      <%= number_with_precision(ranking[:total_pass_block_grade], precision: 1) %>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-500 pl-11">
+                  <%= ranking[:oline].map(&:last_name).join(', ') %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Second Row: Pass Rush, Coverage -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-12 mt-12">
+      
+      <!-- Pass Rush Core Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+        <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">💥</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">Pass Rush Core</h3>
+              <p class="text-red-100 text-sm">D-Line Pressure</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3">
+            <% @pass_rush_core_rankings.each_with_index do |ranking, index| %>
+              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-red-100 text-red-600 font-bold text-sm">
+                      <%= index + 1 %>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900"><%= ranking[:team]&.name %></span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-gray-900">
+                      <%= number_with_precision(ranking[:total_pass_rush_grade], precision: 1) %>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-500 pl-11">
+                  <%= ranking[:dline].map(&:last_name).join(', ') %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coverage Core Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+        <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">🔒</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">Coverage Core</h3>
+              <p class="text-indigo-100 text-sm">Secondary Coverage</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3">
+            <% @coverage_core_rankings.each_with_index do |ranking, index| %>
+              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 font-bold text-sm">
+                      <%= index + 1 %>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900"><%= ranking[:team]&.name %></span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-gray-900">
+                      <%= number_with_precision(ranking[:total_coverage_grade], precision: 1) %>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-500 pl-11">
+                  <%= ranking[:secondary].map(&:last_name).join(', ') %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Third Row: Rushing, Run Block, Run Defense -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-12 mt-12">
+      
+      <!-- Rushing Core Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+        <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">🏃</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">Rushing Core</h3>
+              <p class="text-orange-100 text-sm">Top 2 Rushers</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3">
+            <% @rushing_core_rankings.each_with_index do |ranking, index| %>
+              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-600 font-bold text-sm">
+                      <%= index + 1 %>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900"><%= ranking[:team]&.name %></span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-gray-900">
+                      <%= number_with_precision(ranking[:total_rushing_grade], precision: 1) %>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-500 pl-11">
+                  <%= ranking[:rushers].map(&:last_name).join(', ') %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- O-Line Run Block Core Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+        <div class="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">🏃</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">Run Block Core</h3>
+              <p class="text-amber-100 text-sm">O-Line Run Blocking</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3">
+            <% @oline_run_block_core_rankings.each_with_index do |ranking, index| %>
+              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 text-amber-600 font-bold text-sm">
+                      <%= index + 1 %>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900"><%= ranking[:team]&.name %></span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-gray-900">
+                      <%= number_with_precision(ranking[:total_run_block_grade], precision: 1) %>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-500 pl-11">
+                  <%= ranking[:oline].map(&:last_name).join(', ') %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Run Defense Core Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+        <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">🛡️</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">Run Defense Core</h3>
+              <p class="text-green-100 text-sm">Defensive Run Stop</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3">
+            <% @run_defense_core_rankings.each_with_index do |ranking, index| %>
+              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600 font-bold text-sm">
+                      <%= index + 1 %>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900"><%= ranking[:team]&.name %></span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-gray-900">
+                      <%= number_with_precision(ranking[:total_run_defense_grade], precision: 1) %>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-500 pl-11">
+                  <%= ranking[:defense].map(&:last_name).join(', ') %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Fourth Row: Coaching Rankings -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-12 mt-12">
+      
+      <!-- Play Caller Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">🏈</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">Play Caller Rankings</h3>
+              <p class="text-blue-100 text-sm">Offensive Play Calling</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3">
+            <% @play_caller_rankings.each_with_index do |coach, index| %>
+              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">
+                      <%= index + 1 %>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-xl"><%= coach.team&.emoji %></span>
+                      <span class="font-semibold text-gray-900"><%= coach.team&.name %></span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-gray-900">
+                      <%= coach&.offensive_play_caller_rank %>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-500 pl-11">
+                  <%= coach&.full_name %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pace of Play Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+        <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">⚡</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">Pace of Play Rankings</h3>
+              <p class="text-green-100 text-sm">Offensive Tempo</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3">
+            <% @pace_rankings.each_with_index do |coach, index| %>
+              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600 font-bold text-sm">
+                      <%= index + 1 %>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-xl"><%= coach.team&.emoji %></span>
+                      <span class="font-semibold text-gray-900"><%= coach.team&.name %></span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-gray-900">
+                      <%= coach&.pace_of_play_rank %>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-500 pl-11">
+                  <%= coach&.full_name %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Run Heavy Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+        <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">🏃</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">Run Heavy Rankings</h3>
+              <p class="text-orange-100 text-sm">Run-First Offense</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3">
+            <% @run_heavy_rankings.each_with_index do |coach, index| %>
+              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-600 font-bold text-sm">
+                      <%= index + 1 %>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-xl"><%= coach.team&.emoji %></span>
+                      <span class="font-semibold text-gray-900"><%= coach.team&.name %></span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-lg font-bold text-gray-900">
+                      <%= coach&.run_heavy_rank %>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-500 pl-11">
+                  <%= coach&.full_name %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-16 text-center">
+      <div class="text-sm text-gray-500">
+        <p>Data updated for the 2025 NFL season</p>
+        <p class="mt-2">
+          <a href="<%= matchups_2025_week1_path %>" class="text-blue-600 hover:text-blue-800 underline">
+            View Week 1 Matchups
+          </a>
+          <span class="mx-2">•</span>
+          <a href="<%= teams_seasons_path %>" class="text-blue-600 hover:text-blue-800 underline">
+            View Team Rosters
+          </a>
+        </p>
+      </div>
+    </footer>
+  </main>
+</body>
+</html> 
