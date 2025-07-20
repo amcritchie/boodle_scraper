@@ -21,19 +21,12 @@ namespace :matchups do
 
   desc "Populate matchups for Week 1, Season 2025"
   task populate_2025_week_1: :environment do
-
-    last_home_matchup = nil
     # Each through games in week
     Season.s2025.weeks.first.games.each do |game|
       # Generate matchups
       game.away_matchup
       game.home_matchup
-      last_home_matchup = game.home_matchup
     end
-
-    ap last_home_matchup
-    ap last_home_matchup.qb_ranking
-    ap last_home_matchup.pass_blocking_ranking
   end
 
   desc "Populate matchups for Week 1, Season 2025 Buffalo Bills"

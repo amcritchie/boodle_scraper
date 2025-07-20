@@ -92,49 +92,55 @@ class Team < ApplicationRecord
         team_sportsradar["coaches"]
         team_sportsradar["players"]
 
-        # Hardcoded starting QB slugs for 2025 season
-        starting_qb_slugs = [
-          'quarterback-patrick-mahomes',  # AFC West
-          'quarterback-bo-nix',
-          'quarterback-justin-herbert',
-          'quarterback-geno-smith',
-          'quarterback-josh-allen',       # AFC East
-          'quarterback-drake-maye',
-          'quarterback-tua-tagovailoa',
-          'quarterback-justin-fields',
-          'quarterback-lamar-jackson',    # AFC North
-          'quarterback-joe-burrow',
-          'quarterback-aaron-rodgers',
-          'quarterback-joe-flacco',
-          'quarterback-cj-stroud',        # AFC South
-          'quarterback-trevor-lawrence',
-          'quarterback-will-levis',
-          'quarterback-daniel-jones',
-          'quarterback-jared-goff',        # NFC North
-          'quarterback-jordan-love',
-          'quarterback-caleb-williams',
-          'quarterback-jj-mccarthy',
-          'quarterback-bryce-young',      # NFC South
-          'quarterback-baker-mayfield',
-          'quarterback-michael-penix-jr',
-          'quarterback-tyler-shough',
-          'quarterback-dak-prescott',     # NFC East
-          'quarterback-jalen-hurts',
-          'quarterback-jayden-daniels',
-          'quarterback-russell-wilson',
-          'quarterback-brock-purdy',      # NFC West
-          'quarterback-kyler-murray',
-          'quarterback-matthew-stafford',
-          'quarterback-sam-darnold'
-        ]
+        # # Hardcoded starting QB slugs for 2025 season
+        # starting_qb_slugs = [
+        #   'quarterback-patrick-mahomes',  # AFC West
+        #   'quarterback-bo-nix',
+        #   'quarterback-justin-herbert',
+        #   'quarterback-geno-smith',
+        #   'quarterback-josh-allen',       # AFC East
+        #   'quarterback-drake-maye',
+        #   'quarterback-tua-tagovailoa',
+        #   'quarterback-justin-fields',
+        #   'quarterback-lamar-jackson',    # AFC North
+        #   'quarterback-joe-burrow',
+        #   'quarterback-aaron-rodgers',
+        #   'quarterback-joe-flacco',
+        #   'quarterback-cj-stroud',        # AFC South
+        #   'quarterback-trevor-lawrence',
+        #   'quarterback-will-levis',
+        #   'quarterback-daniel-jones',
+        #   'quarterback-jared-goff',        # NFC North
+        #   'quarterback-jordan-love',
+        #   'quarterback-caleb-williams',
+        #   'quarterback-jj-mccarthy',
+        #   'quarterback-bryce-young',      # NFC South
+        #   'quarterback-baker-mayfield',
+        #   'quarterback-michael-penix-jr',
+        #   'quarterback-tyler-shough',
+        #   'quarterback-dak-prescott',     # NFC East
+        #   'quarterback-jalen-hurts',
+        #   'quarterback-jayden-daniels',
+        #   'quarterback-russell-wilson',
+        #   'quarterback-brock-purdy',      # NFC West
+        #   'quarterback-kyler-murray',
+        #   'quarterback-matthew-stafford',
+        #   'quarterback-sam-darnold'
+        # ]
+
+        # # Hardcoded starting QB slugs for 2025 season
+        # left_handed_qb_slugs = [
+        #   'quarterback-tua-tagovailoa',
+        #   'quarterback-michael-penix-jr'
+        # ]
 
         # Each through players
         team_sportsradar["players"].each do |player_sportsradar|
           # Find or create player
           player = Player.sportsradar_find_or_create(player_sportsradar, self.slug)
           
-          # Mark as starter if QB slug is in the starter list
-          player.update(starter: true) if starting_qb_slugs.include?(player.slug)
+          # # Mark as starter if QB slug is in the starter list
+          # player.update(starter: true) if starting_qb_slugs.include?(player.slug)
         end
 
         # Process coaches
@@ -165,10 +171,10 @@ class Team < ApplicationRecord
       # Return collection
       return {
         quarterback:    self.starting_qb,
-        runningback:    self.starting_rb,
+        runningbacks:    self.starting_rbs,
         wide_receivers: self.starting_wrs,
         tight_end:      self.starting_te,
-        flex:           self.starting_flex_offense,
+        # flex:           self.starting_flex_offense,
         oline:          self.starting_oline
       }
     end
@@ -178,12 +184,12 @@ class Team < ApplicationRecord
       teammates = Player.by_team(slug)
       # Return collection
       return {
+        edge_rushers: self.starting_edge_rushers,  
         defensive_ends: self.starting_defensive_ends,
-        edge_rushers: self.starting_edge_rushers,
+        flex_dline: self.starting_flex_dline,
         linebackers: self.starting_linebackers,
-        safeties: self.starting_safeties,
         cornerbacks: self.starting_cornerbacks,
-        flex: self.starting_flex_defense
+        safeties: self.starting_safeties
       }
     end
 
@@ -215,28 +221,32 @@ class Team < ApplicationRecord
             season: season,
             week_slug: week.to_s,
             home: home,
-            o1: teams_season.o1,
-            o2: teams_season.o2,
-            o3: teams_season.o3,
-            o4: teams_season.o4,
-            o5: teams_season.o5,
-            o6: teams_season.o6,
-            o7: teams_season.o7,
-            o8: teams_season.o8,
-            o9: teams_season.o9,
-            o10: teams_season.o10,
-            o11: teams_season.o11,
-            d1: opponent_teams_season&.d1,
-            d2: opponent_teams_season&.d2,
-            d3: opponent_teams_season&.d3,
-            d4: opponent_teams_season&.d4,
-            d5: opponent_teams_season&.d5,
-            d6: opponent_teams_season&.d6,
-            d7: opponent_teams_season&.d7,
-            d8: opponent_teams_season&.d8,
-            d9: opponent_teams_season&.d9,
-            d10: opponent_teams_season&.d10,
-            d11: opponent_teams_season&.d11
+            # Offensive players
+            qb: teams_season.qb,
+            rb1: teams_season.rb1,
+            rb2: teams_season.rb2,
+            wr1: teams_season.wr1,
+            wr2: teams_season.wr2,
+            wr3: teams_season.wr3,
+            te: teams_season.te,
+            c: teams_season.c,
+            lt: teams_season.lt,
+            rt: teams_season.rt,
+            lg: teams_season.lg,
+            rg: teams_season.rg,
+            # Defensive players
+            eg1: opponent_teams_season&.eg1,
+            eg2: opponent_teams_season&.eg2,
+            dl1: opponent_teams_season&.dl1,
+            dl2: opponent_teams_season&.dl2,
+            dl3: opponent_teams_season&.dl3,
+            lb1: opponent_teams_season&.lb1,
+            lb2: opponent_teams_season&.lb2,
+            cb1: opponent_teams_season&.cb1,
+            cb2: opponent_teams_season&.cb2,
+            cb3: opponent_teams_season&.cb3,
+            s1: opponent_teams_season&.s1,
+            s2: opponent_teams_season&.s2
           )
         else
           # Away team - use this team's offense and opponent's defense
@@ -245,28 +255,32 @@ class Team < ApplicationRecord
             season: season,
             week_slug: week.to_s,
             home: home,
-            o1: teams_season.o1,
-            o2: teams_season.o2,
-            o3: teams_season.o3,
-            o4: teams_season.o4,
-            o5: teams_season.o5,
-            o6: teams_season.o6,
-            o7: teams_season.o7,
-            o8: teams_season.o8,
-            o9: teams_season.o9,
-            o10: teams_season.o10,
-            o11: teams_season.o11,
-            d1: opponent_teams_season&.d1,
-            d2: opponent_teams_season&.d2,
-            d3: opponent_teams_season&.d3,
-            d4: opponent_teams_season&.d4,
-            d5: opponent_teams_season&.d5,
-            d6: opponent_teams_season&.d6,
-            d7: opponent_teams_season&.d7,
-            d8: opponent_teams_season&.d8,
-            d9: opponent_teams_season&.d9,
-            d10: opponent_teams_season&.d10,
-            d11: opponent_teams_season&.d11
+            # Offensive players
+            qb: teams_season.qb,
+            rb1: teams_season.rb1,
+            rb2: teams_season.rb2,
+            wr1: teams_season.wr1,
+            wr2: teams_season.wr2,
+            wr3: teams_season.wr3,
+            te: teams_season.te,
+            c: teams_season.c,
+            lt: teams_season.lt,
+            rt: teams_season.rt,
+            lg: teams_season.lg,
+            rg: teams_season.rg,
+            # Defensive players
+            eg1: opponent_teams_season&.eg1,
+            eg2: opponent_teams_season&.eg2,
+            dl1: opponent_teams_season&.dl1,
+            dl2: opponent_teams_season&.dl2,
+            dl3: opponent_teams_season&.dl3,
+            lb1: opponent_teams_season&.lb1,
+            lb2: opponent_teams_season&.lb2,
+            cb1: opponent_teams_season&.cb1,
+            cb2: opponent_teams_season&.cb2,
+            cb3: opponent_teams_season&.cb3,
+            s1: opponent_teams_season&.s1,
+            s2: opponent_teams_season&.s2
           )
         end
       else
@@ -293,28 +307,32 @@ class Team < ApplicationRecord
             season: season,
             week_slug: week.to_s,
             home: home,
-            o1: qb&.slug,
-            o2: rb&.slug,
-            o3: wrs[0]&.slug,
-            o4: wrs[1]&.slug,
-            o5: te&.slug,
-            o6: flex&.slug,
-            o7: center&.slug,
-            o8: guards[0]&.slug,
-            o9: guards[1]&.slug,
-            o10: tackles[0]&.slug,
-            o11: tackles[1]&.slug,
-            d1: des[0]&.slug,
-            d2: des[1]&.slug,
-            d3: edges[0]&.slug,
-            d4: edges[1]&.slug,
-            d5: lbs[0]&.slug,
-            d6: lbs[1]&.slug,
-            d7: safeties[0]&.slug,
-            d8: safeties[1]&.slug,
-            d9: cbs[0]&.slug,
-            d10: cbs[1]&.slug,
-            d11: flex_defense[0]&.slug
+            # Offensive players
+            qb: qb&.slug,
+            rb1: rb&.slug,
+            rb2: flex&.slug, # Using flex as RB2
+            wr1: wrs[0]&.slug,
+            wr2: wrs[1]&.slug,
+            wr3: nil, # Third WR not available in fallback
+            te: te&.slug,
+            c: center&.slug,
+            lg: guards[0]&.slug,
+            rg: guards[1]&.slug,
+            lt: tackles[0]&.slug,
+            rt: tackles[1]&.slug,
+            # Defensive players
+            eg1: edges[0]&.slug,
+            eg2: edges[1]&.slug,
+            dl1: des[0]&.slug,
+            dl2: des[1]&.slug,
+            dl3: flex_defense[0]&.slug, # Using flex as third DL
+            lb1: lbs[0]&.slug,
+            lb2: lbs[1]&.slug,
+            cb1: cbs[0]&.slug,
+            cb2: cbs[1]&.slug,
+            cb3: nil, # Third CB not available in fallback
+            s1: safeties[0]&.slug,
+            s2: safeties[1]&.slug
         )
       end
       
@@ -322,8 +340,127 @@ class Team < ApplicationRecord
       ap matchup
     end
 
+  def self.parse_csv_starting_lineups
+    csv_path = Rails.root.join('lib', 'pff', 'starting-lineups-2025.csv')
+    return {} unless File.exist?(csv_path)
+    
+    require 'csv'
+    
+    team_lineups = {}
+    
+    CSV.foreach(csv_path, headers: true) do |row|
+      team_name = row['Team']
+      unit = row['Unit']
+      position = row['Position']
+      player_name = row['Player']
+      grade = row['Grade'].to_f
+      
+      # Skip if missing essential data
+      next if team_name.blank? || position.blank? || player_name.blank?
+      
+      # Initialize team if not exists
+      team_lineups[team_name] ||= { offense: {}, defense: {} }
+      
+      # Group by unit (Offense/Defense)
+      unit_key = unit.downcase.to_sym
+      team_lineups[team_name][unit_key] ||= {}
+      
+      # Group by position
+      position_key = position.downcase.to_sym
+      team_lineups[team_name][unit_key][position_key] ||= []
+      
+      # Add player data
+      team_lineups[team_name][unit_key][position_key] << {
+        name: player_name,
+        grade: grade,
+        position: position
+      }
+    end
+    
+    team_lineups
+  end
 
+  def csv_starting_lineup
+    @csv_starting_lineup ||= begin
+      all_lineups = Team.parse_csv_starting_lineups
+      all_lineups[self.name] || {}
+    end
+  end
 
+  def csv_offense_starters
+    csv_starting_lineup[:offense] || {}
+  end
+
+  def csv_defense_starters
+    csv_starting_lineup[:defense] || {}
+  end
+
+  def find_player_by_name(player_name)
+    return nil if player_name.blank?
+    
+    # Try exact match first
+    player = players.find_by("LOWER(first_name || ' ' || last_name) = LOWER(?)", player_name)
+    return player if player
+    
+    # Try partial matches
+    name_parts = player_name.downcase.split(' ')
+    players.find do |p|
+      p_first = p.first_name&.downcase
+      p_last = p.last_name&.downcase
+      
+      # Check if all name parts match either first or last name
+      name_parts.all? do |part|
+        p_first&.include?(part) || p_last&.include?(part)
+      end
+    end
+  end
+
+  def csv_offense_starters_prediction
+    offense_data = csv_offense_starters
+    
+    {
+      quarterback: find_player_by_name(offense_data[:qb]&.first&.dig(:name)),
+      runningbacks: offense_data[:rb]&.map { |rb| find_player_by_name(rb[:name]) }&.compact || [],
+      wide_receivers: offense_data[:wr]&.map { |wr| find_player_by_name(wr[:name]) }&.compact || [],
+      tight_end: find_player_by_name(offense_data[:te]&.first&.dig(:name)),
+      oline: csv_oline_starters
+    }
+  end
+
+  def csv_defense_starters_prediction
+    defense_data = csv_defense_starters
+    
+    {
+      edge_rushers: defense_data[:edge]&.map { |edge| find_player_by_name(edge[:name]) }&.compact || [],
+      defensive_ends: defense_data[:di]&.map { |di| find_player_by_name(di[:name]) }&.compact || [],
+      flex_dline: find_player_by_name(defense_data[:di]&.third&.dig(:name)),
+      linebackers: defense_data[:lb]&.map { |lb| find_player_by_name(lb[:name]) }&.compact || [],
+      cornerbacks: defense_data[:cb]&.map { |cb| find_player_by_name(cb[:name]) }&.compact || [],
+      safeties: defense_data[:s]&.map { |s| find_player_by_name(s[:name]) }&.compact || []
+    }
+  end
+
+  def csv_oline_starters
+    offense_data = csv_offense_starters
+    
+    # Map CSV positions to database positions
+    oline_map = {
+      c: offense_data[:c]&.first,
+      lg: offense_data[:lg]&.first,
+      rg: offense_data[:rg]&.first,
+      lt: offense_data[:lt]&.first,
+      rt: offense_data[:rt]&.first
+    }
+    
+    # Return array in the expected order: [C, LG, RG, LT, RT]
+    [
+      find_player_by_name(oline_map[:c]&.dig(:name)),
+      find_player_by_name(oline_map[:lg]&.dig(:name)),
+      find_player_by_name(oline_map[:rg]&.dig(:name)),
+      find_player_by_name(oline_map[:lt]&.dig(:name)),
+      find_player_by_name(oline_map[:rt]&.dig(:name))
+    ].compact
+  end
 
 
   def populate

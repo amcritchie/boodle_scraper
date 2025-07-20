@@ -1,4 +1,6 @@
 class Player < ApplicationRecord
+  include PositionConcern
+  
   belongs_to :team, optional: true
   has_many :player_seasons
   has_many :seasons, through: :player_seasons
@@ -37,6 +39,14 @@ class Player < ApplicationRecord
 
   def self.by_grades_passing
     all.order(Arel.sql('COALESCE(grades_passing, 60) DESC'))
+  end
+
+  def self.by_grades_pass_route
+    all.order(Arel.sql('COALESCE(grades_pass_route, 60) DESC'))
+  end
+
+  def self.by_grades_pass_block
+    all.order(Arel.sql('COALESCE(grades_pass_block, 60) DESC'))
   end
   
   def self.quarterbacks
@@ -88,6 +98,9 @@ class Player < ApplicationRecord
   def self.flex_defense
     all.where(position: ['defensive-end', 'edge-rusher', 'linebacker', 'safety', 'cornerback'])
   end
+  def self.flex_dline
+    all.where(position: ['defensive-end', 'edge-rusher'])
+  end
 
   # def self.run_block
   #   all.sort_by { |player| -player.pass_block_grade }
@@ -121,38 +134,9 @@ class Player < ApplicationRecord
     all.order(rush_defense_grade: :desc)
   end
 
-  def self.position_class(position)
-    case position
-    when "quarterback"
-      :quarterback
-    when 'running-back'
-      :skill
-    when 'wide-receiver'
-      :skill
-    when 'tight-end'
-      :skill
-    when 'full-back'
-      :skill
-    when "center"
-      :oline
-    when "gaurd"
-      :oline
-    when "tackle"
-      :oline
-    when "defensive-end"
-      :dline
-    when "edge-rusher"
-      :dline
-    when "linebacker"
-      :linebacker
-    when "safety"
-      :secondary
-    when "cornerback"
-      :secondary
-    else
-      :special_teams
-    end
-  end
+
+
+
 
   def position_symbol
     case position
@@ -219,110 +203,18 @@ class Player < ApplicationRecord
     end
   end
 
-  def self.sportsradar_position(position)
-    case position
-    when "QB"
-      "quarterback"
-    when "RB"
-      "running-back"
-    when "HB"
-      "running-back"
-    when "FB"
-      "full-back"
-    when "WR"
-      "wide-receiver"
-    when "TE"
-      "tight-end"
-    when "C"
-      "center"
-    when "OG"
-      "gaurd"
-    when "G"
-      "gaurd"
-    when "OL"
-      "gaurd"
-    when "T"
-      "tackle"
-    when "OT"
-      "tackle"
-    when "NT" # T'Vondre Sweat
-      "defensive-end"
-    when "DT" # Fabien Lovett Sr.
-      "defensive-end"
-    when "DL"
-      "defensive-end"
-    when "DE"
-      "defensive-end"
-    when "DI"
-      "defensive-end"
-    when "EDGE"
-      "edge-rusher"
-    when "OLB"
-      "linebacker"
-    when "LB"
-      "linebacker"
-    when "MLB"
-      "linebacker"
-    when "FS"
-      "safety"
-    when "SAF"
-      "safety"
-    when "DB"  # In some cases like kevin-byard-iii
-      "safety"
-    when "CB"
-      "cornerback"
-    when "P"
-      "punter"
-    when "K"
-      "place-kicker"
-    when "LS" # Long snapper
-      "long-snapper"
-    else
-      "place-kicker"
-    end
-  end
-
-  def self.pff_position(position)
-    case position
-    when "QB"
-      "quarterback"
-    when "HB"
-      "running-back"
-    when "FB"
-      "full-back"
-    when "WR"
-      "wide-receiver"
-    when "TE"
-      "tight-end"
-    when "C"
-      "center"
-    when "G"
-      "gaurd"
-    when "OL"
-      "gaurd"
-    when "T"
-      "tackle"
-    when "DL"
-      "defensive-end"
-    when "DE"
-      "defensive-end"
-    when "DI"
-      "defensive-end"
-    when "ED"
-      "edge-rusher"
-    when "EDGE"
-      "edge-rusher"
-    when "OLB"
-      "linebacker"
-    when "LB"
-      "linebacker"
-    when "S"
-      "safety"
-    when "CB"
-      "cornerback"
-    else
-      "place-kicker"
-    end
+  def self.pff_starters_fetch(row)
+    # Fetch slug data
+    name              = row["Player"]
+    position_starter  = pff_starter_position(row["Position"])
+    position          = pff_starter_position_normalize_oline(position_starter)
+    position_class    = position_class(position)
+    college           = row["college"].downcase.gsub(' ', '-') rescue 'undrafted'
+    player_slug       = "#{position_class}-#{name}".downcase.gsub(' ', '-').gsub('.', '')
+    # Find or create player
+    player = Player.find_or_create_by(slug: player_slug)
+    # Return player
+    player
   end
 
   def self.sportsradar_find_or_create(player_sportsradar, team_slug)

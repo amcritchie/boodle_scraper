@@ -169,7 +169,7 @@
                         <div><%= receiver&.full_name %> (<%= number_with_precision(receiver&.grades_offense, precision: 1) %>)</div>
                       <% end %>
                     </td>
-                    <td class="p-2 font-mono"><%= number_with_precision(ranking[:total_offense_grade], precision: 1) %></td>
+                    <td class="p-2 font-mono"><%= number_with_precision(ranking[:receiver_score], precision: 1) %></td>
                   </tr>
                 <% end %>
               </tbody>
@@ -595,9 +595,11 @@
             <tr class="bg-green-100">
               <th class="border border-gray-300 px-4 py-3 text-left">Team</th>
               <th class="border border-gray-300 px-4 py-3 text-left">QB</th>
-              <th class="border border-gray-300 px-4 py-3 text-left">RB</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">RB1</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">RB2</th>
               <th class="border border-gray-300 px-4 py-3 text-left">WR1</th>
               <th class="border border-gray-300 px-4 py-3 text-left">WR2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">WR3</th>
               <th class="border border-gray-300 px-4 py-3 text-left">TE</th>
               <th class="border border-gray-300 px-4 py-3 text-left">Flex</th>
               <th class="border border-gray-300 px-4 py-3 text-left">LT</th>
@@ -615,7 +617,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.qb,
+                      player: teams_season.qb_player,
                       grade0: 'grades_offense',
                       grade1_icon: '🖐️',
                       grade1_method: 'grades_pass',
@@ -624,7 +626,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.rb,
+                      player: teams_season.rb1_player,
                       grade0: 'grades_offense',
                       grade1_icon: '🏃',
                       grade1_method: 'grades_run',
@@ -633,7 +635,16 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.wr1,
+                      player: teams_season.rb2_player,
+                      grade0: 'grades_offense',
+                      grade1_icon: '🏃',
+                      grade1_method: 'grades_run',
+                      grade2_icon: '🤲',
+                      grade2_method: 'grades_pass_route' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.wr1_player,
                       grade0: 'grades_offense',
                       grade1_icon: '🤲',
                       grade1_method: 'grades_pass_route',
@@ -642,7 +653,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.wr2,
+                      player: teams_season.wr2_player,
                       grade0: 'grades_offense',
                       grade1_icon: '🤲',
                       grade1_method: 'grades_pass_route',
@@ -651,7 +662,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.te,
+                      player: teams_season.wr3_player,
                       grade0: 'grades_offense',
                       grade1_icon: '🤲',
                       grade1_method: 'grades_pass_route',
@@ -660,7 +671,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.flex,
+                      player: teams_season.te_player,
                       grade0: 'grades_offense',
                       grade1_icon: '🤲',
                       grade1_method: 'grades_pass_route',
@@ -669,7 +680,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.left_tackle,
+                      player: teams_season.left_tackle_player,
                       grade0: 'grades_offense',
                       grade1_icon: '🏃',
                       grade1_method: 'grades_run_block',
@@ -678,7 +689,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.left_guard,
+                      player: teams_season.left_guard_player,
                       grade0: 'grades_offense',
                       grade1_icon: '🏃',
                       grade1_method: 'grades_run_block',
@@ -687,7 +698,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.center,
+                      player: teams_season.center_player,
                       grade0: 'grades_offense',
                       grade1_icon: '🏃',
                       grade1_method: 'grades_run_block',
@@ -696,7 +707,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.right_guard,
+                      player: teams_season.right_guard_player,
                       grade0: 'grades_offense',
                       grade1_icon: '🏃',
                       grade1_method: 'grades_run_block',
@@ -705,7 +716,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.right_tackle,
+                      player: teams_season.right_tackle_player,
                       grade0: 'grades_offense',
                       grade1_icon: '🏃',
                       grade1_method: 'grades_run_block',
@@ -727,17 +738,18 @@
           <thead>
             <tr class="bg-red-100">
               <th class="border border-gray-300 px-4 py-3 text-left">Team</th>
-              <th class="border border-gray-300 px-4 py-3 text-left">DE1</th>
-              <th class="border border-gray-300 px-4 py-3 text-left">DE2</th>
               <th class="border border-gray-300 px-4 py-3 text-left">Edge1</th>
               <th class="border border-gray-300 px-4 py-3 text-left">Edge2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">DE1</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">DE2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">DE3</th>
               <th class="border border-gray-300 px-4 py-3 text-left">LB1</th>
               <th class="border border-gray-300 px-4 py-3 text-left">LB2</th>
               <th class="border border-gray-300 px-4 py-3 text-left">CB1</th>
               <th class="border border-gray-300 px-4 py-3 text-left">CB2</th>
+              <th class="border border-gray-300 px-4 py-3 text-left">CB3</th>
               <th class="border border-gray-300 px-4 py-3 text-left">S1</th>
               <th class="border border-gray-300 px-4 py-3 text-left">S2</th>
-              <th class="border border-gray-300 px-4 py-3 text-left">Flex</th>
             </tr>
           </thead>
           <tbody>
@@ -748,7 +760,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.de1,
+                      player: teams_season.edge1_player,
                       grade0: 'defence_grade',
                       grade1_icon: '💨',
                       grade1_method: 'pass_rush_grade',
@@ -757,7 +769,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.de2,
+                      player: teams_season.edge2_player,
                       grade0: 'defence_grade',
                       grade1_icon: '💨',
                       grade1_method: 'pass_rush_grade',
@@ -766,7 +778,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.edge1,
+                      player: teams_season.dl1_player,
                       grade0: 'defence_grade',
                       grade1_icon: '💨',
                       grade1_method: 'pass_rush_grade',
@@ -775,7 +787,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.edge2,
+                      player: teams_season.dl2_player,
                       grade0: 'defence_grade',
                       grade1_icon: '💨',
                       grade1_method: 'pass_rush_grade',
@@ -784,7 +796,16 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.lb1,
+                      player: teams_season.dl3_player,
+                      grade0: 'defence_grade',
+                      grade1_icon: '💨',
+                      grade1_method: 'pass_rush_grade',
+                      grade2_icon: '🛡️',
+                      grade2_method: 'rush_defense_grade' %>
+                </td>
+                <td class="border border-gray-300 px-4 py-3">
+                  <%= render 'matchups/player_cell', 
+                      player: teams_season.lb1_player,
                       grade0: 'defence_grade',
                       grade1_icon: '👁️',
                       grade1_method: 'coverage_grade',
@@ -793,7 +814,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.lb2,
+                      player: teams_season.lb2_player,
                       grade0: 'defence_grade',
                       grade1_icon: '👁️',
                       grade1_method: 'coverage_grade',
@@ -802,7 +823,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.cb1,
+                      player: teams_season.cb1_player,
                       grade0: 'defence_grade',
                       grade1_icon: '👁️',
                       grade1_method: 'coverage_grade',
@@ -811,7 +832,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.cb2,
+                      player: teams_season.cb2_player,
                       grade0: 'defence_grade',
                       grade1_icon: '👁️',
                       grade1_method: 'coverage_grade',
@@ -820,7 +841,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.safety1,
+                      player: teams_season.cb3_player,
                       grade0: 'defence_grade',
                       grade1_icon: '👁️',
                       grade1_method: 'coverage_grade',
@@ -829,7 +850,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.safety2,
+                      player: teams_season.safety1_player,
                       grade0: 'defence_grade',
                       grade1_icon: '👁️',
                       grade1_method: 'coverage_grade',
@@ -838,7 +859,7 @@
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
-                      player: teams_season.def_flex,
+                      player: teams_season.safety2_player,
                       grade0: 'defence_grade',
                       grade1_icon: '👁️',
                       grade1_method: 'coverage_grade',

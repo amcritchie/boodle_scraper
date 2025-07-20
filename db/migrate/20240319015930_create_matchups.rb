@@ -9,16 +9,53 @@ class CreateMatchups < ActiveRecord::Migration[7.0]
       t.boolean :home
       t.boolean :at_home
       t.integer :rushing_offense_score
-      t.string :rushing_offense_score_string
       t.integer :rushing_defense_score
-      t.string :rushing_defense_score_string
       t.integer :passing_offense_score
-      t.string :passing_offense_score_string
       t.integer :passing_defense_score
+      t.integer :field_goal_score
+      t.string :rushing_offense_score_string
+      t.string :rushing_defense_score_string
+      t.string :passing_offense_score_string
       t.string :passing_defense_score_string
 
+      # Offensive players
+      t.string :qb
+      t.string :rb1
+      t.string :rb2
+      t.string :wr1
+      t.string :wr2
+      t.string :wr3
+      t.string :te
+      t.string :c
+      t.string :lt
+      t.string :rt
+      t.string :lg
+      t.string :rg
 
-      
+      # Defensive players
+      t.string :eg1
+      t.string :eg2
+      t.string :dl1
+      t.string :dl2
+      t.string :dl3
+      t.string :lb1
+      t.string :lb2
+      t.string :cb1
+      t.string :cb2
+      t.string :cb3
+      t.string :s1
+      t.string :s2
+
+      # Coaches and special teams
+      t.string :place_kicker
+      t.string :punter
+      t.string :head_coach
+      t.string :offensive_play_caller
+      t.string :defenseive_play_caller
+      t.string :offensive_coordinator
+      t.string :defensive_coordinator
+      t.string :special_teams_coordinator
+
       # t.integer :reciever_score
       t.json :reciever_factors
       t.integer :pass_block_score
@@ -50,40 +87,6 @@ class CreateMatchups < ActiveRecord::Migration[7.0]
       t.integer :coverage_score
       t.json :coverage_factors
     #   t.references :team, foreign_key: true
-
-      # Offensive players
-      t.string :o1
-      t.string :o2
-      t.string :o3
-      t.string :o4
-      t.string :o5
-      t.string :o6
-      t.string :o7
-      t.string :o8
-      t.string :o9
-      t.string :o10
-      t.string :o11
-
-      # Defensive players
-      t.string :d1
-      t.string :d2
-      t.string :d3
-      t.string :d4
-      t.string :d5
-      t.string :d6
-      t.string :d7
-      t.string :d8
-      t.string :d9
-      t.string :d10
-      t.string :d11
-
-      # Coaches and special teams
-      t.string :place_kicker
-      t.string :punter
-      t.string :head_coach
-      t.string :offensive_coordinator
-      t.string :defensive_coordinator
-      t.string :special_teams_coordinator
 
       t.timestamps
     end

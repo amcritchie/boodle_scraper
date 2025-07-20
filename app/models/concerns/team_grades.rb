@@ -14,17 +14,17 @@ module TeamGrades
     quarterbacks = players.quarterbacks.offense_grade
     quarterbacks.first
   end
-  def starting_rb
+  def starting_rbs
     # Team RBs
     running_backs = players.running_backs.offense_grade
     # Return highest offense grade RB
-    running_backs.first
+    running_backs.limit(2)
   end
   def starting_wrs
     # Team WRs
     wide_receivers = players.wide_receivers.offense_grade
     # Return highest offense graded WRs
-    wide_receivers.limit(2)
+    wide_receivers.limit(3)
   end
   def starting_te
     # Team TEs
@@ -32,12 +32,12 @@ module TeamGrades
     # Return highest offense grade TE
     tight_ends.first
   end
-  def starting_flex_offense
-    # Team Flex
-    flex = players.flex.offense_grade.where.not(id: ([starting_rb&.id] + starting_wrs.map(&:id) + [starting_te&.id]))
-    # Return highest offense grade Flex
-    flex.first
-  end
+  # def starting_flex_offense
+  #   # Team Flex
+  #   flex = players.flex.offense_grade.where.not(id: ([starting_rbs&.id] + starting_wrs.map(&:id) + [starting_te&.id]))
+  #   # Return highest offense grade Flex
+  #   flex.first
+  # end
   def starting_oline
     # Get all oline players ordered by offense grade
     oline_players = players.oline.offense_grade.to_a
@@ -149,12 +149,12 @@ module TeamGrades
     # Team Cornerbacks
     cornerbacks = players.cornerbacks.defence_grade
     # Return highest defense grade Cornerbacks
-    cornerbacks.limit(2)
+    cornerbacks.limit(3)
   end
 
-  def starting_flex_defense
+  def starting_flex_dline
     # Team Flex Defense
-    flex = players.flex_defense.defence_grade.where.not(id: (starting_defensive_ends.map(&:id) + starting_edge_rushers.map(&:id) + starting_linebackers.map(&:id) + starting_safeties.map(&:id) + starting_cornerbacks.map(&:id)))
+    flex = players.flex_dline.defence_grade.where.not(id: (starting_defensive_ends.map(&:id) + starting_edge_rushers.map(&:id) + starting_linebackers.map(&:id) + starting_safeties.map(&:id) + starting_cornerbacks.map(&:id)))
     # Return highest defense grade Flex Defense
     flex.first
   end
@@ -176,7 +176,7 @@ module TeamGrades
 
   def rush_grade
     # Get this team's starting RB
-    team_rb = starting_rb
+    team_rb = starting_rbs.first
     
     # Return the RB's rushing grade, or nil if no RB found
     team_rb&.rushing_grade
@@ -258,7 +258,7 @@ module TeamGrades
       
       rush_grades = {}
       active_teams.each do |team|
-        rb = team.starting_rb
+        rb = team.starting_rbs.first
         rush_grades[team.slug] = {
           team_name: team.name,
           rb_name: rb&.player,

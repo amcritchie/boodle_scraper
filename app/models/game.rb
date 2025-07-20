@@ -102,7 +102,6 @@ class Game < ApplicationRecord
     # Find or create matchup
     matchup = matchups.find_or_create_by(team_slug: home_team.slug, team_defense_slug: away_team.slug)
     # Update matchup if roster is empty
-    # matchup.update_home_roster if matchup.o1.nil?
     matchup.update_home_roster
     # Return matchup
     matchup
@@ -112,7 +111,6 @@ class Game < ApplicationRecord
     # Find or create matchup
     matchup = matchups.find_or_create_by(team_slug: away_team.slug, team_defense_slug: home_team.slug)
     # Update matchup if roster is empty
-    # matchup.update_away_roster if matchup.o1.nil?
     matchup.update_away_roster
     # Return matchup
     matchup

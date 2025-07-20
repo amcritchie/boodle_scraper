@@ -20,7 +20,7 @@ namespace :coaches do
         offensive_play_caller_rank: 7, pace_of_play_rank: 6, run_heavy_rank: 12 },
       { team_slug: 'mia', first_name: 'Mike', last_name: 'McDaniel', position: 'Head Coach', 
         offensive_play_caller_rank: 8, pace_of_play_rank: 2, run_heavy_rank: 24 },
-      { team_slug: 'wsh', first_name: 'Kliff', last_name: 'Kingsbury', position: 'Offensive Coordinator', 
+      { team_slug: 'was', first_name: 'Kliff', last_name: 'Kingsbury', position: 'Offensive Coordinator', 
         offensive_play_caller_rank: 9, pace_of_play_rank: 32, run_heavy_rank: 6 },
       { team_slug: 'buf', first_name: 'Joe', last_name: 'Brady', position: 'Offensive Coordinator', 
         offensive_play_caller_rank: 10, pace_of_play_rank: 8, run_heavy_rank: 20 },
@@ -85,6 +85,10 @@ namespace :coaches do
         coach.save!
         puts "Updated: #{coach.full_name} (#{coach.team_slug}) - #{coach.season}"
       end
+
+      teams_season = TeamsSeason.find_or_create_by(team_slug: coach.team_slug, season_year: 2025)
+      teams_season.offensive_play_caller = coach.slug
+      teams_season.save!
     end
     
     puts "\nCoaches population completed!"
