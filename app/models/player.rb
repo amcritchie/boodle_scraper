@@ -32,22 +32,42 @@ class Player < ApplicationRecord
     return nil
   end
 
+  # Sort General Grades
   def self.by_grades_offense
     all.order(Arel.sql('COALESCE(grades_offense, 60) DESC'))
   end
-
+  def self.by_grades_defence
+    all.order(Arel.sql('COALESCE(grades_defence, 60) DESC'))
+  end
+  # Pass Play - Offense
   def self.by_grades_passing
     all.order(Arel.sql('COALESCE(grades_passing, 60) DESC'))
   end
-
   def self.by_grades_pass_route
     all.order(Arel.sql('COALESCE(grades_pass_route, 60) DESC'))
   end
-
   def self.by_grades_pass_block
     all.order(Arel.sql('COALESCE(grades_pass_block, 60) DESC'))
   end
-  
+  # Pass Play - Defense
+  def self.by_grades_pass_rush
+    all.order(Arel.sql('COALESCE(grades_pass_rush, 60) DESC'))
+  end
+  def self.by_grades_coverage
+    all.order(Arel.sql('COALESCE(grades_coverage, 60) DESC'))
+  end
+  # Run Play - Offense
+  def self.by_grades_run_block
+    all.order(Arel.sql('COALESCE(grades_run_block, 60) DESC'))
+  end
+  def self.by_grades_run
+    all.order(Arel.sql('COALESCE(grades_run, 60) DESC'))
+  end
+  # Run Play - Defense
+  def self.by_grades_rush_defense
+    all.order(Arel.sql('COALESCE(grades_rush_defense, 60) DESC'))
+  end
+
   def self.quarterbacks
     all.where(position: ['quarterback'])
   end
@@ -108,30 +128,6 @@ class Player < ApplicationRecord
   #   all.sort_by { |player| -player.pass_block_grade }
   # end
 
-  def self.order_pass_rush
-    all.order(grades_pass_rush: :desc)
-  end
-  def self.order_coverage
-    all.order(grades_coverage: :desc)
-  end
-  def self.order_run_block
-    all.order(run_block_grade: :desc)
-  end
-  def self.order_pass_block
-    all.order(pass_block_grade: :desc)
-  end
-  def self.order_receiving
-    all.order(receiving_grade: :desc)
-  end
-  def self.order_passing
-    all.order(passing_grade: :desc)
-  end
-  def self.order_rushing
-    all.order(rushing_grade: :desc)
-  end
-  def self.order_rush_defense
-    all.order(grades_rush_defense: :desc)
-  end
 
 
 

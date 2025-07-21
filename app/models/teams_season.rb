@@ -1,4 +1,6 @@
 class TeamsSeason < ApplicationRecord
+  include ScoringConcern
+  
   belongs_to :team, primary_key: :slug, foreign_key: :team_slug, optional: true
 
   validates :team_slug, :season_year, presence: true
@@ -150,9 +152,33 @@ class TeamsSeason < ApplicationRecord
     Player.where(slug: all.pluck(:wr1, :wr2, :wr3, :te).flatten.compact)
   end
 
+  def rushers
+    Player.where(slug: [qb, rb1, rb2].compact)
+  end
+
   def receivers
     Player.where(slug: [wr1, wr2, wr3, te].compact)
   end
+  
+  def oline_players
+    Player.where(slug: [c, lg, rg, lt, rt].compact)
+  end
+
+  def dline_players
+    Player.where(slug: [eg1, eg2, dl1, dl2, dl3].compact)
+  end
+
+  def secondary_players
+    Player.where(slug: [cb1, cb2, cb3, s1, s2].compact)
+  end
+
+  def rushing_players
+    # Get all potential rushing players and sort by rushing grade
+    potential_rushers = [rb1_player, qb_player].compact
+    potential_rushers.sort_by { |player| -(player.rushing_grade || 0) }.first(2)
+  end
+
+
 
   # Ranking methods for the view
   def self.ranked_by_play_caller
@@ -208,100 +234,9 @@ class TeamsSeason < ApplicationRecord
     end
   end
 
-  def receiver_score
-    receiver_score =  0
-    recs = receivers.by_grades_offense.limit(4)
-    ap self
-    ap recs
-    ap receivers
-    ap recs.second
-    # 1st Receiver
-    receiver_score += 1.0*recs.first.grades_offense
-    # 2nd Receiver
-    receiver_score += 0.6*recs.second.grades_offense
-    # 3rd Receiver
-    receiver_score += 0.4*recs.third.grades_offense rescue 60
-    # 4th Receiver
-    receiver_score += 0.2*recs.fourth.grades_offense rescue 60
-    # Return reciever score
-    receiver_score.to_i
-  end
 
-  def self.receiver_rankings
-    all.map do |team_season|
-      {
-        receiver_score: team_season.receiver_score,
-        team: team_season.team,
-        receivers: team_season.receivers.by_grades_pass_route.limit(4)
-      }
-    end.sort_by { |ranking| -ranking[:receiver_score] }
-  end
 
-  def oline_players
-      Player.where(slug: [c, lg, rg, lt, rt].compact)
-    # [
-    #   center_player,
-    #   left_guard_player,
-    #   right_guard_player,
-    #   left_tackle_player,
-    #   right_tackle_player
-    # ].compact
-  end
 
-  def dline_players
-    Player.where(slug: [eg1, eg2, dl1, dl2, dl3].compact)
-    # [
-    #   edge1_player,
-    #   edge2_player,
-    #   dl1_player,
-    #   dl2_player,
-    #   dl3_player
-    # ].compact
-  end
-
-  def secondary_players
-    [
-      safety1_player,
-      safety2_player,
-      cb1_player,
-      cb2_player,
-      cb3_player
-    ].compact
-  end
-
-  def rushing_players
-    # Get all potential rushing players and sort by rushing grade
-    potential_rushers = [rb1_player, rb2_player, qb_player, te_player].compact
-    potential_rushers.sort_by { |player| -(player.rushing_grade || 0) }.first(2)
-  end
-
-  def pass_block_score
-    pass_block_score = 0
-    oline = oline_players.by_grades_pass_block.limit(5)
-    
-    # Center (most important for pass blocking)
-    pass_block_score += 1.0 * oline.first.grades_pass_block rescue 60
-    # Left Tackle (protects QB's blind side)
-    pass_block_score += 0.9 * oline.second.grades_pass_block rescue 60
-    # Right Tackle
-    pass_block_score += 0.8 * oline.third.grades_pass_block rescue 60
-    # Left Guard
-    pass_block_score += 0.7 * oline.fourth.grades_pass_block rescue 60
-    # Right Guard
-    pass_block_score += 0.6 * oline.fifth.grades_pass_block rescue 60
-    
-    pass_block_score.to_i
-  end
-
-  def self.pass_block_rankings
-    all.map do |team_season|
-      {
-        pass_block_score: team_season.pass_block_score,
-        team: team_season.team,
-        oline: team_season.oline_players.by_grades_pass_block.limit(5)
-      }
-    end.sort_by { |ranking| -ranking[:pass_block_score] }
-  end
 
   def self.oline_pass_block_rankings
     teams_seasons = includes(:team)
@@ -389,20 +324,7 @@ class TeamsSeason < ApplicationRecord
     end.sort_by { |ranking| -ranking[:total_run_defense_grade] }
   end
 
-  def self.rushing_rankings
-    teams_seasons = includes(:team)
-      .where.not(qb: nil, rb1: nil) # At least need QB and RB1
-    
-    teams_seasons.map do |team_season|
-      top_rushers = team_season.rushing_players
-      total_rushing_grade = top_rushers.sum { |player| player.grades_run || 60 }
-      {
-        total_rushing_grade: total_rushing_grade,
-        team: team_season.team,
-        rushers: top_rushers
-      }
-    end.sort_by { |ranking| -ranking[:total_rushing_grade] }
-  end
+
 
   def play_caller_rank
     ranked_teams = self.class.ranked_by_play_caller

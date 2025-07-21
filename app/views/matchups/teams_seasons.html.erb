@@ -150,7 +150,7 @@
                 <tr class="bg-gray-50">
                   <th class="text-left p-2">Rank</th>
                   <th class="text-left p-2">Team</th>
-                  <th class="text-left p-2">WR1/WR2/TE</th>
+                  <th class="text-left p-2">Receivers</th>
                   <th class="text-left p-2">Total Offense Grade</th>
                 </tr>
               </thead>
@@ -191,7 +191,7 @@
                 </tr>
               </thead>
               <tbody>
-                <% @oline_pass_block_core_rankings.each_with_index do |ranking, index| %>
+                <% @pass_block_rankings.each_with_index do |ranking, index| %>
                   <tr class="border-b border-gray-200 hover:bg-gray-50">
                     <td class="p-2 font-semibold"><%= index + 1 %></td>
                     <td class="p-2">
@@ -231,7 +231,7 @@
                 </tr>
               </thead>
               <tbody>
-                <% @pass_rush_core_rankings.each_with_index do |ranking, index| %>
+                <% @pass_rush_rankings.each_with_index do |ranking, index| %>
                   <tr class="border-b border-gray-200 hover:bg-gray-50">
                     <td class="p-2 font-semibold"><%= index + 1 %></td>
                     <td class="p-2">
@@ -267,7 +267,7 @@
                 </tr>
               </thead>
               <tbody>
-                <% @coverage_core_rankings.each_with_index do |ranking, index| %>
+                <% @coverage_rankings.each_with_index do |ranking, index| %>
                   <tr class="border-b border-gray-200 hover:bg-gray-50">
                     <td class="p-2 font-semibold"><%= index + 1 %></td>
                     <td class="p-2">
@@ -302,12 +302,12 @@
                 <tr class="bg-gray-50">
                   <th class="text-left p-2">Rank</th>
                   <th class="text-left p-2">Team</th>
-                  <th class="text-left p-2">Top 2 Rushers</th>
+                  <th class="text-left p-2">Rushers</th>
                   <th class="text-left p-2">Total Grade</th>
                 </tr>
               </thead>
               <tbody>
-                <% @rushing_core_rankings.each_with_index do |ranking, index| %>
+                <% @rushing_rankings.each_with_index do |ranking, index| %>
                   <tr class="border-b border-gray-200 hover:bg-gray-50">
                     <td class="p-2 font-semibold"><%= index + 1 %></td>
                     <td class="p-2">
@@ -321,7 +321,7 @@
                         <div><%= player&.full_name %> (<%= number_with_precision(player&.grades_run, precision: 1) %>)</div>
                       <% end %>
                     </td>
-                    <td class="p-2 font-mono"><%= number_with_precision(ranking[:total_rushing_grade], precision: 1) %></td>
+                    <td class="p-2 font-mono"><%= number_with_precision(ranking[:rushing_score], precision: 1) %></td>
                   </tr>
                 <% end %>
               </tbody>
@@ -343,7 +343,7 @@
                 </tr>
               </thead>
               <tbody>
-                <% @oline_run_block_core_rankings.each_with_index do |ranking, index| %>
+                <% @run_block_rankings.each_with_index do |ranking, index| %>
                   <tr class="border-b border-gray-200 hover:bg-gray-50">
                     <td class="p-2 font-semibold"><%= index + 1 %></td>
                     <td class="p-2">
@@ -379,7 +379,7 @@
                 </tr>
               </thead>
               <tbody>
-                <% @run_defense_core_rankings.each_with_index do |ranking, index| %>
+                <% @run_defense_rankings.each_with_index do |ranking, index| %>
                   <tr class="border-b border-gray-200 hover:bg-gray-50">
                     <td class="p-2 font-semibold"><%= index + 1 %></td>
                     <td class="p-2">

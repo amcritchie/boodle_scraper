@@ -526,7 +526,7 @@ class Matchup < ApplicationRecord
   def top_three_receivers
     offense_starters
     .where(position: [:wide_receiver, :tight_end])
-    .order_receiving
+    .by_grades_pass_route
     .limit(3)
   end
 
