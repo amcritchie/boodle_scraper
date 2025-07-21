@@ -7,7 +7,7 @@ module TeamGrades
 
   def starting_qb
     # First try to find a designated starter
-    starter_qb = players.quarterbacks.starters.first
+    starter_qb = players.quarterbacks.first
     return starter_qb if starter_qb.present?
     
     # Fallback to highest offense grade QB if no starter is designated

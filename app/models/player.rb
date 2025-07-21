@@ -13,7 +13,6 @@ class Player < ApplicationRecord
   # Scopes for querying
   scope :by_team, ->(team) { where(team_slug: team) }
   scope :by_position, ->(position) { where(position: position) }
-  scope :starters, -> { where(starter: true) }
 
   def team
     # Find active team
@@ -54,7 +53,7 @@ class Player < ApplicationRecord
   end
   
   def self.starting_quarterbacks
-    quarterbacks.starters
+    quarterbacks
   end
   def self.running_backs
     all.where(position: ['running-back'])
@@ -110,10 +109,10 @@ class Player < ApplicationRecord
   # end
 
   def self.order_pass_rush
-    all.order(pass_rush_grade: :desc)
+    all.order(grades_pass_rush: :desc)
   end
   def self.order_coverage
-    all.order(coverage_grade: :desc)
+    all.order(grades_coverage: :desc)
   end
   def self.order_run_block
     all.order(run_block_grade: :desc)
@@ -131,7 +130,7 @@ class Player < ApplicationRecord
     all.order(rushing_grade: :desc)
   end
   def self.order_rush_defense
-    all.order(rush_defense_grade: :desc)
+    all.order(grades_rush_defense: :desc)
   end
 
 
@@ -210,9 +209,18 @@ class Player < ApplicationRecord
     position          = pff_starter_position_normalize_oline(position_starter)
     position_class    = position_class(position)
     college           = row["college"].downcase.gsub(' ', '-') rescue 'undrafted'
-    player_slug       = "#{position_class}-#{name}".downcase.gsub(' ', '-').gsub('.', '')
+    player_slug       = "#{position_class}-#{name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
     # Find or create player
-    player = Player.find_or_create_by(slug: player_slug)
+    unless player = Player.find_by(slug: player_slug)
+      # Some Dlines might be labeled as linebackers in PFF
+      was_linebacker_position = position_class
+      was_linebacker_position = :linebacker if position_class == :dline
+      was_linebacker_slug     = "#{was_linebacker_position}-#{name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
+      # Find or create player
+      unless player = Player.find_by(slug: was_linebacker_slug)
+        player = Player.find_or_create_by(slug: player_slug)
+      end
+    end
     # Return player
     player
   end
@@ -224,12 +232,24 @@ class Player < ApplicationRecord
     position        = sportsradar_position(player_sportsradar["position"])
     position_class  = position_class(position)
     college         = player_sportsradar["college"].downcase.gsub(' ', '-') rescue 'undrafted'
-    player_slug     = "#{position_class}-#{name}".downcase.gsub(' ', '-').gsub('.', '')
-
+    player_slug     = "#{position_class}-#{name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
     # Valdate if Player already exists
     unless player = Player.find_by(sportsradar_id: player_sportsradar["id"])
       unless player = Player.find_by(sportsradar_slug: player_sportsradar["sr_id"])
-        player = Player.find_or_create_by(slug: player_slug)
+        # Find or create player
+        unless player = Player.find_by(slug: player_slug)
+          # Some Dlines might be labeled as linebackers in PFF
+          was_linebacker_position = position_class
+          was_linebacker_position = :dline if position_class == :linebacker
+          was_linebacker_slug     = "#{was_linebacker_position}-#{name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
+          # Find or create player
+          if player = Player.find_by(slug: was_linebacker_slug)
+            position    = player.position
+            player_slug = was_linebacker_slug
+          else
+            player = Player.find_or_create_by(slug: player_slug)
+          end
+        end
       end
     end
     # Update Player with SportsRadar data
@@ -311,11 +331,11 @@ class Player < ApplicationRecord
   end
 
   def self.with_defence_grade
-    all.where.not(defence_grade: nil)
+    all.where.not(grades_defence: nil)
   end
 
   def self.defence_grade
-    all.with_defence_grade.order(defence_grade: :desc)
+    all.with_defence_grade.order(grades_defence: :desc)
   end
 
   def self.quarterback
@@ -352,22 +372,22 @@ class Player < ApplicationRecord
   end
 
   def rush_defense_tier
-    peers = Player.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(rush_defense_grade: :desc).limit(352)
+    peers = Player.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(grades_rush_defense: :desc).limit(352)
     peer_tiering(peers) 
   end
 
   def pass_rush_tier
-    peers = Player.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(pass_rush_grade: :desc).limit(352)
+    peers = Player.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(grades_pass_rush: :desc).limit(352)
     peer_tiering(peers) 
   end
 
   def coverage_tier
-    peers = Player.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(coverage_grade: :desc).limit(352)
+    peers = Player.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(grades_coverage: :desc).limit(352)
     peer_tiering(peers) 
   end
 
   # def description
-  #   puts "#{position.rjust(15)} | #{player.rjust(25)} (#{jersey.to_s.rjust(2)}) | Grade: #{offense_grade.to_s.rjust(6)} /#{defence_grade.to_s.rjust(6)} | #{team.description.ljust(30)}"
+  #   puts "#{position.rjust(15)} | #{player.rjust(25)} (#{jersey.to_s.rjust(2)}) | Grade: #{offense_grade.to_s.rjust(6)} /#{grades_defence.to_s.rjust(6)} | #{team.description.ljust(30)}"
   # end
 
   def self.print_top_5_qbs

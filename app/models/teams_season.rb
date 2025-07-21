@@ -336,7 +336,7 @@ class TeamsSeason < ApplicationRecord
       .where.not(eg1: nil, eg2: nil, dl1: nil, dl2: nil, dl3: nil)
     
     teams_seasons.map do |team_season|
-      total_pass_rush_grade = team_season.dline_players.sum { |player| (player.pass_rush_grade || 60) * pass_rush_position_weight(player.position) }
+      total_pass_rush_grade = team_season.dline_players.sum { |player| (player.grades_pass_rush || 60) * pass_rush_position_weight(player.position) }
       {
         total_pass_rush_grade: total_pass_rush_grade,
         team: team_season.team,
@@ -365,7 +365,7 @@ class TeamsSeason < ApplicationRecord
       .where.not(s1: nil, s2: nil, cb1: nil, cb2: nil, cb3: nil)
     
     teams_seasons.map do |team_season|
-      total_coverage_grade = team_season.secondary_players.sum { |player| player.coverage_grade || 60 }
+      total_coverage_grade = team_season.secondary_players.sum { |player| player.grades_coverage || 60 }
       {
         total_coverage_grade: total_coverage_grade,
         team: team_season.team,
@@ -380,7 +380,7 @@ class TeamsSeason < ApplicationRecord
     
     teams_seasons.map do |team_season|
       all_defense_players = team_season.dline_players + team_season.secondary_players + [team_season.lb1_player, team_season.lb2_player].compact
-      total_run_defense_grade = all_defense_players.sum { |player| player.rush_defense_grade || 60 }
+      total_run_defense_grade = all_defense_players.sum { |player| player.grades_rush_defense || 60 }
       {
         total_run_defense_grade: total_run_defense_grade,
         team: team_season.team,

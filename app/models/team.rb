@@ -138,9 +138,6 @@ class Team < ApplicationRecord
         team_sportsradar["players"].each do |player_sportsradar|
           # Find or create player
           player = Player.sportsradar_find_or_create(player_sportsradar, self.slug)
-          
-          # # Mark as starter if QB slug is in the starter list
-          # player.update(starter: true) if starting_qb_slugs.include?(player.slug)
         end
 
         # Process coaches
@@ -296,12 +293,12 @@ class Team < ApplicationRecord
         guards = teammates.by_position(:gaurd).order(offense_grade: :desc).limit(2)
         tackles = teammates.by_position(:tackle).order(offense_grade: :desc).limit(2)
         # Defence
-        des = teammates.by_position(:defensive_end).order(defence_grade: :desc).limit(2)
-        edges = teammates.by_position(:edge_rusher).order(defence_grade: :desc).limit(2)
-        lbs = teammates.by_position(:linebackers).order(defence_grade: :desc).limit(2)
-        safeties = teammates.by_position(:safeties).order(defence_grade: :desc).limit(2)
-        cbs = teammates.by_position(:cornerback).order(defence_grade: :desc).limit(2)
-        flex_defense = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(defence_grade: :desc).where.not(id: (des.map(&:id) + edges.map(&:id) + lbs.map(&:id) + safeties.map(&:id) + cbs.map(&:id))).limit(1)
+        des = teammates.by_position(:defensive_end).order(grades_defence: :desc).limit(2)
+        edges = teammates.by_position(:edge_rusher).order(grades_defence: :desc).limit(2)
+        lbs = teammates.by_position(:linebackers).order(grades_defence: :desc).limit(2)
+        safeties = teammates.by_position(:safeties).order(grades_defence: :desc).limit(2)
+        cbs = teammates.by_position(:cornerback).order(grades_defence: :desc).limit(2)
+        flex_defense = teammates.where(position: [:defensive_end, :edge_rusher, :linebackers, :safeties, :cornerback]).order(grades_defence: :desc).where.not(id: (des.map(&:id) + edges.map(&:id) + lbs.map(&:id) + safeties.map(&:id) + cbs.map(&:id))).limit(1)
         
         matchup.update(
             season: season,

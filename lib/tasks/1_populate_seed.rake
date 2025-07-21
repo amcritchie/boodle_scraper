@@ -10,8 +10,10 @@ namespace :seed do
     Rake::Task['players:populate'].invoke
     # rake teams:starters2025             | Set Team Starters 2025  | Pro Football Focus | 2025
     Rake::Task['teams:starters2025'].invoke
-    # rake teams:roster                   | Set Rest of Roster 2025 | Sports Radar | +1600 Players
+    # rake teams:roster2025                   | Set Rest of Roster 2025 | Sports Radar | +1600 Players
     Rake::Task['teams:roster2025'].invoke
+    # rake teams:modifyGrades2025       | Set Coach Ranks         | 32 Coaches
+    Rake::Task['teams:modifyGrades2025'].invoke
     # rake coaches:populate               | Set Coach Ranks         | 32 Coaches
     Rake::Task['coaches:populate'].invoke
     # rake teams:startersOveride2025      | Set Starter Overrides 2025 | Sports Radar | +1600 Players

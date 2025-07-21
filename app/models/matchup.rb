@@ -186,24 +186,24 @@ class Matchup < ApplicationRecord
   end
 
   def set_rushing_defense_score
-    dline_rushing_defense       = 1.5 * (dline.sum { |line| line.rush_defense_grade } / dline.count).to_i
-    linebackers_rushing_defense = 1.0 * (linebackers.sum { |line| line.rush_defense_grade } / linebackers.count).to_i
-    secondary_rushing_defense   = 0.8 * (secondary.sum { |line| line.rush_defense_grade } / secondary.count).to_i
+    dline_rushing_defense       = 1.5 * (dline.sum { |line| line.grades_rush_defense } / dline.count).to_i
+    linebackers_rushing_defense = 1.0 * (linebackers.sum { |line| line.grades_rush_defense } / linebackers.count).to_i
+    secondary_rushing_defense   = 0.8 * (secondary.sum { |line| line.grades_rush_defense } / secondary.count).to_i
 
 
     # Dline grades
     interior_grade = defensive_ends
-    .sort_by { |player| -player.rush_defense_grade }
-    .sum { |p| p.rush_defense_grade rescue 60 } / defensive_ends.size
+    .sort_by { |player| -player.grades_rush_defense }
+    .sum { |p| p.grades_rush_defense rescue 60 } / defensive_ends.size
     exterior_grade = edge_rushers
-    .sort_by { |player| -player.rush_defense_grade }
-    .sum { |p| p.rush_defense_grade rescue 60 } / edge_rushers.size
+    .sort_by { |player| -player.grades_rush_defense }
+    .sum { |p| p.grades_rush_defense rescue 60 } / edge_rushers.size
     linebacker_grade = linebackers
-    .sort_by { |player| -player.rush_defense_grade }
-    .sum { |p| p.rush_defense_grade rescue 60 } / edge_rushers.size
+    .sort_by { |player| -player.grades_rush_defense }
+    .sum { |p| p.grades_rush_defense rescue 60 } / edge_rushers.size
     safeties_grade = safeties
-    .sort_by { |player| -player.rush_defense_grade }
-    .sum { |p| p.rush_defense_grade rescue 60 } / edge_rushers.size
+    .sort_by { |player| -player.grades_rush_defense }
+    .sum { |p| p.grades_rush_defense rescue 60 } / edge_rushers.size
     # blocking grade
     update(interior_rush_defense_score: interior_grade)
     update(exterior_rush_defense_score: exterior_grade)
@@ -254,31 +254,31 @@ class Matchup < ApplicationRecord
 
   def set_passing_defense_score
     # Most Impactful Rushing Players
-    update(sack_factors: pass_rush.map { |player| "#{player.pass_rush_grade.to_i} #{player.last_name}" })
+    update(sack_factors: pass_rush.map { |player| "#{player.grades_pass_rush.to_i} #{player.last_name}" })
     # Most Impactful Coverage Players
-    update(coverage_factors: nickle_package.map { |player| "#{player.coverage_grade.to_i} #{player.last_name}" })
+    update(coverage_factors: nickle_package.map { |player| "#{player.grades_coverage.to_i} #{player.last_name}" })
     
     # Calculate sack score
-    rusher1 = 3.0 * (pass_rush.first.pass_rush_grade rescue 60)
-    rusher2 = 2.0 * (pass_rush.second.pass_rush_grade rescue 60)
-    rusher3 = 1.2 * (pass_rush.third.pass_rush_grade rescue 60)
-    rusher4 = 0.8 * (pass_rush.fourth.pass_rush_grade rescue 60)
+    rusher1 = 3.0 * (pass_rush.first.grades_pass_rush rescue 60)
+    rusher2 = 2.0 * (pass_rush.second.grades_pass_rush rescue 60)
+    rusher3 = 1.2 * (pass_rush.third.grades_pass_rush rescue 60)
+    rusher4 = 0.8 * (pass_rush.fourth.grades_pass_rush rescue 60)
     update(sack_score: rusher1 + rusher2 + rusher3 + rusher4)
     # dline grades
-    interior_grade = defensive_ends.sum { |p| p.pass_rush_grade rescue 60 } / defensive_ends.size
-    exterior_grade = edge_rushers.sum { |p| p.pass_rush_grade rescue 60 } / edge_rushers.size
+    interior_grade = defensive_ends.sum { |p| p.grades_pass_rush rescue 60 } / defensive_ends.size
+    exterior_grade = edge_rushers.sum { |p| p.grades_pass_rush rescue 60 } / edge_rushers.size
     # blocking grade
     update(interior_rush_score: interior_grade)
     update(exterior_rush_score: exterior_grade)
     # Calculate coverage score
-    weakest_db_score = nickle_package.last.coverage_grade
-    average_db_score = (nickle_package.sum {|db| db.coverage_grade}) / nickle_package.count
+    weakest_db_score = nickle_package.last.grades_coverage
+    average_db_score = (nickle_package.sum {|db| db.grades_coverage}) / nickle_package.count
     coverage_score = 1.5 * (average_db_score - (0.5 * (average_db_score - weakest_db_score)))
     update(coverage_score: coverage_score)
     # oline grades
-    lb_grade = linebackers.sum { |p| p.coverage_grade rescue 60 } / linebackers.size
-    ss_grade = safeties.sum { |p| p.coverage_grade rescue 60 } / safeties.size
-    cb_grade = cornerbacks.sum { |p| p.coverage_grade rescue 60 } / cornerbacks.size
+    lb_grade = linebackers.sum { |p| p.grades_coverage rescue 60 } / linebackers.size
+    ss_grade = safeties.sum { |p| p.grades_coverage rescue 60 } / safeties.size
+    cb_grade = cornerbacks.sum { |p| p.grades_coverage rescue 60 } / cornerbacks.size
     # blocking grade
     update(linebacker_coverage_score: lb_grade)
     update(safety_coverage_score: ss_grade)
@@ -473,8 +473,8 @@ class Matchup < ApplicationRecord
 
   def defense_starters
     Player.where(slug: [self.eg1, self.eg2, self.dl1, self.dl2, self.dl3, self.lb1, self.lb2, self.cb1, self.cb2, self.cb3, self.s1, self.s2].compact)
-      # .where("pass_rush_grade > ?", 70) # Filter players with pass_rush_grade > 70
-      # .order(pass_rush_grade: :desc)   # Order by pass_rush_grade descending
+      # .where("grades_pass_rush > ?", 70) # Filter players with grades_pass_rush > 70
+      # .order(grades_pass_rush: :desc)   # Order by grades_pass_rush descending
       # .limit(2)                        # Limit to top 2 players
   end
 
@@ -532,15 +532,15 @@ class Matchup < ApplicationRecord
 
   def nickle_package
     secondary
-      .filter_map { |player| player if player.coverage_grade }
-      .sort_by { |player| -player.coverage_grade }
+      .filter_map { |player| player if player.grades_coverage }
+      .sort_by { |player| -player.grades_coverage }
       .first(5)
   end
 
   def pass_rush
     dline
-      .filter_map { |player| player if player.pass_rush_grade }
-      .sort_by { |player| -player.pass_rush_grade }
+      .filter_map { |player| player if player.grades_pass_rush }
+      .sort_by { |player| -player.grades_pass_rush }
       .first(2)
   end
 
@@ -566,17 +566,17 @@ class Matchup < ApplicationRecord
     puts "=D-Line=============="
     dline.each do |rusher|
       puts rusher.slug
-      puts "🏈 #{rusher.pass_rush_grade}  🏃 #{rusher.rush_defense_grade} 🙌 #{rusher.coverage_grade}"
+      puts "🏈 #{rusher.grades_pass_rush}  🏃 #{rusher.grades_rush_defense} 🙌 #{rusher.grades_coverage}"
     end
     puts "=Linebackers=============="
     linebackers.each do |lb|
       puts lb.slug
-      puts "🏈 #{lb.pass_rush_grade}  🏃 #{lb.rush_defense_grade} 🙌 #{lb.coverage_grade}"
+      puts "🏈 #{lb.grades_pass_rush}  🏃 #{lb.grades_rush_defense} 🙌 #{lb.grades_coverage}"
     end
     puts "=Secondary=============="
     secondary.each do |back|
       puts back.slug
-      puts "🏈 #{back.pass_rush_grade}  🏃 #{back.rush_defense_grade} 🙌 #{back.coverage_grade}"
+      puts "🏈 #{back.grades_pass_rush}  🏃 #{back.grades_rush_defense} 🙌 #{back.grades_coverage}"
     end
   end
 

@@ -20,6 +20,24 @@ class CreatePlayers < ActiveRecord::Migration[6.1]
       t.integer :height_inches
       t.float  :weight_pounds
 
+      # PFF Grades
+      t.float   :grades_offense          
+      t.float   :grades_pass             # Passing
+      t.float   :grades_run              # Rushing
+      t.float   :grades_pass_route       # Receiving
+      t.float   :grades_pass_block       # Blocking
+      t.float   :grades_run_block        # 
+      t.float   :grades_hands_fumble     
+      t.float   :grades_offense_penalty  
+      t.float   :grades_defence
+      t.float   :grades_rush_defense
+      t.float   :grades_pass_rush
+      t.float   :grades_coverage
+      # t.float :defence_grade,       precision: 5, scale: 2
+      # t.float :rush_defense_grade,  precision: 5, scale: 2
+      # t.float :pass_rush_grade,     precision: 5, scale: 2
+      # t.float :coverage_grade,      precision: 5, scale: 2
+
       t.string  :id_sportrac       # spotrac.com/nfl/player/_/id/29036/kyler-murray
       t.string  :slug_sportrac     # spotrac.com/nfl/player/_/id/29036/kyler-murray
       t.string  :slug_pff          # pff.com/player/kyler-murray
@@ -91,10 +109,6 @@ class CreatePlayers < ActiveRecord::Migration[6.1]
       t.integer :dropbacks
       t.integer :drops
       t.integer :first_downs
-      t.float   :grades_hands_fumble
-      t.float   :grades_offense
-      t.float   :grades_pass
-      t.float   :grades_run
       t.integer :hit_as_threw
       t.integer :interceptions
       t.integer :passing_snaps
@@ -121,10 +135,6 @@ class CreatePlayers < ActiveRecord::Migration[6.1]
       t.integer :explosive
       t.integer :fumbles
       t.integer :gap_attempts
-      t.float :grades_offense_penalty
-      t.float :grades_pass_block
-      t.float :grades_pass_route
-      t.float :grades_run_block
       t.integer :longest
       t.integer :rec_yards
       t.integer :receptions

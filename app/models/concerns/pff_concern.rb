@@ -29,7 +29,7 @@ module PffConcern
 
       # team            = Team.pff_team(team_name) rescue "unknown"
       # Create player slug
-      slug_player = "#{position_class}-#{player_name}".downcase.gsub(' ', '-').gsub('.', '')
+      slug_player = "#{position_class}-#{player_name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
       # Find or create player
       player = Player.find_or_create_by(slug: slug_player) 
       player.last_name = last_name
@@ -97,11 +97,6 @@ module PffConcern
         player.position                   = position
         player.save!
 
-        puts "="*80
-        ap attrs
-        puts "-"*80
-        ap player
-        puts "-"*80
         # Puts details
         puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_offense.to_s.rjust(6)} /#{player.grades_pass.to_s.rjust(6)} 🏈 | #{player.team.description.ljust(30)}"
       end
@@ -293,10 +288,10 @@ module PffConcern
         player.player_game_count                = attrs["player_game_count"]
         player.declined_penalties               = attrs["declined_penalties"].to_i
         player.franchise_id                     = attrs["franchise_id"]
-        player.defence_grade                    = attrs["grades_defense"].to_f
-        player.rush_defense_grade               = attrs["grades_run_defense"].to_f
-        player.pass_rush_grade                  = attrs["grades_pass_rush_defense"].to_f
-        player.coverage_grade                   = attrs["grades_coverage_defense"].to_f
+        player.grades_defence                    = attrs["grades_defense"].to_f
+        player.grades_rush_defense               = attrs["grades_run_defense"].to_f
+        player.grades_pass_rush                  = attrs["grades_pass_rush_defense"].to_f
+        player.grades_coverage                   = attrs["grades_coverage_defense"].to_f
         # player.tackles                          = attrs["tackles"].to_i
         player.sacks                            = attrs["sacks"].to_i
         player.interceptions                    = attrs["interceptions"].to_i
@@ -310,7 +305,7 @@ module PffConcern
         player.position                         = position
         player.save!
         # Puts details
-        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.defence_grade.to_s.rjust(6)} /#{player.coverage_grade.to_s.rjust(6)} 🏈 | #{player.team.description.ljust(30)}"
+        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_defence.to_s.rjust(6)} /#{player.grades_coverage.to_s.rjust(6)} 🏈 | #{player.team.description.ljust(30)}"
       end
     end
   end
@@ -350,10 +345,10 @@ module PffConcern
       player.snaps_run_block  = pff_row['RunBlocks']
       player.snaps_pass_block = pff_row['PassBlocks']
       # Defense
-      player.defence_grade      = pff_row['Overall']
-      player.rush_defense_grade = pff_row['RushDefense']
-      player.pass_rush_grade    = pff_row['PassRush']
-      player.coverage_grade     = pff_row['Coverage']
+      player.grades_defence      = pff_row['Overall']
+      player.grades_rush_defense = pff_row['RushDefense']
+      player.grades_pass_rush    = pff_row['PassRush']
+      player.grades_coverage     = pff_row['Coverage']
       player.snaps_on_defence   = pff_row['Snaps']
       player.snaps_rush_defense = pff_row['RunSnaps']
       player.snaps_pass_rush    = pff_row['PassRushSnaps']
@@ -372,7 +367,7 @@ module PffConcern
       # player.coverage_grade     = pff_row['Coverage_Grade']
       # player.run_defense_grade  = pff_row['Run_Defense_Grade']
       # player.tackling_grade     = pff_row['Tackling_Grade']
-      # player.pass_rush_grade    = pff_row['Pass_Rush_Grade']
+      # player.grades_pass_rush    = pff_row['Pass_Rush_Grade']
       # player.screen_block_grade = pff_row['Screen_Block_Grade']
       # player.intermediate_yards = pff_row['Intermediate_Yards']
       # player.deep_yards         = pff_row['Deep_Yards']
@@ -415,7 +410,7 @@ module PffConcern
       player.save!
 
   # Puts description
-  puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.offense_grade.to_s.rjust(6)} /#{player.defence_grade.to_s.rjust(6)} | #{player.team.description.ljust(30)}"
+  puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.offense_grade.to_s.rjust(6)} /#{player.grades_defence.to_s.rjust(6)} | #{player.team.description.ljust(30)}"
 
   unless player.errors.empty?
     puts "Errors ---------"

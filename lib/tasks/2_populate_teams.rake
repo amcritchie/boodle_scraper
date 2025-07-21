@@ -33,7 +33,7 @@ namespace :teams do
       if unit.downcase == 'offense'
         player.update(grades_offense: row['Grade'].to_f)
       else
-        player.update(defence_grade: row['Grade'].to_f)
+        player.update(grades_defence: row['Grade'].to_f)
       end
       
       # Find or create TeamsSeason record
@@ -53,8 +53,6 @@ namespace :teams do
             teams_season.update(rb2: player.slug)
           end
         when 'WR'
-          puts "WR: #{player.slug}"
-          # Handle multiple WRs - assign to wr1, wr2, or wr3
           if teams_season.wr1.nil?
             teams_season.update(wr1: player.slug)
           elsif teams_season.wr2.nil?
@@ -127,6 +125,10 @@ namespace :teams do
     
     puts "\n🎉 CSV roster population completed!"
     puts "📊 Total TeamsSeason records: #{TeamsSeason.count}"
+    # Total playes output
+    puts "============="
+    puts "Players: #{Player.count}"
+    puts "============="
   end
 
   desc "Populate Current Roster for Active Teams (Sport Radar)"
@@ -243,6 +245,10 @@ namespace :teams do
     end
     puts "\nTeamsSeason population completed!"
     puts "Total TeamsSeason records: #{TeamsSeason.count}"
+    # Total playes output
+    puts "============="
+    puts "Players: #{Player.count}"
+    puts "============="
   end
 
   desc "Populate TeamsSeason with current starters and coaches"
@@ -262,5 +268,96 @@ namespace :teams do
         teams_season = TeamsSeason.find_or_create_by(team_slug: team.slug, season_year: 2025)
         teams_season.update(qb: player.slug)
       end
+  end
+
+  desc "Modify player grades based on rookie-grade-modifications.csv"
+  task modifyGrades2025: :environment do
+    puts "Modifying player grades based on rookie-grade-modifications.csv..."
+    
+    csv_path = Rails.root.join('lib', 'pff', 'rookie-grade-modifications.csv')
+    require 'csv'
+    
+    CSV.foreach(csv_path, headers: true) do |row|
+      team_name = row['Team']
+      position = row['Position']
+      grade = row['Grade'].to_f
+      correction = row['Correction']
+      
+      # Skip if missing essential data
+      next if team_name.blank? || correction.blank?
+      
+      # Find team by name
+      team = Team.active.find_by(name: team_name)
+      unless team
+        puts "⚠️  Team not found: #{team_name}"
+        next
+      end
+
+      # Find or create player using pff_starters_fetch (same as starters2025)
+      player = Player.pff_starters_fetch(row)
+      # ap player.slug
+      # ap position.upcase
+
+      # puts "============="
+      
+      # Determine if this is an offensive or defensive position
+      offensive_positions = ['QB', 'RB', 'WR', 'TE', 'C', 'LG', 'RG', 'LT', 'RT']
+      defensive_positions = ['CB', 'S', 'LB', 'EDGE', 'DI']
+      
+      is_offensive = offensive_positions.include?(position.upcase)
+      is_defensive = defensive_positions.include?(position.upcase)
+      
+      unless is_offensive || is_defensive
+        # player.destroy
+        puts "⚠️  Unknown position: #{position} for #{row['Player']}"
+        next
+      end
+
+      unless player.correction.blank?
+        puts "⚠️  Player already has a correction: #{player.correction}"
+        next
+      end
+
+      player.update(correction: correction)
+      
+      # Calculate new grade based on correction type
+      new_grade = case correction
+      when 'NFL2023'
+        # Average between 2023 grade and 60
+        (grade + 60) / 2.0
+      when 'College2024'
+        if position.upcase == 'QB'
+          # For QBs, average with 50
+          (grade + 50) / 2.0
+        else
+          # For others, average with 60
+          (grade + 60) / 2.0
+        end
+      when 'College2023'
+        if position.upcase == 'QB'
+          # For QBs, average with 55
+          (grade + 55) / 2.0
+        else
+          # For others, average with 60
+          (grade + 60) / 2.0
+        end
+      else
+        puts "⚠️  Unknown correction type: #{correction} for #{row['Player']}"
+        next
+      end
+      
+      # Update the appropriate grade field
+      if is_offensive
+        old_grade = player.grades_offense
+        player.update(grades_offense: new_grade)
+        puts "📈 #{row['Player'].ljust(20)} (#{team_name.ljust(10)} #{position.ljust(10)}): #{old_grade.round(1)} → #{new_grade.round(1)} (#{correction.ljust(10)})"
+      elsif is_defensive
+        old_grade = player.grades_defence
+        player.update(grades_defence: new_grade)
+        puts "📈 #{row['Player'].ljust(20)} (#{team_name.ljust(10)} #{position.ljust(10)}): #{old_grade.round(1)} → #{new_grade.round(1)} (#{correction.ljust(10)})"
+      end
+    end
+    
+    puts "\n🎉 Player grade modifications completed!"
   end
 end 

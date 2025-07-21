@@ -242,7 +242,7 @@
                     </td>
                     <td class="p-2 text-xs">
                       <% ranking[:dline].each do |player| %>
-                        <div><%= player&.full_name %> (<%= number_with_precision(player&.pass_rush_grade, precision: 1) %>)</div>
+                        <div><%= player&.full_name %> (<%= number_with_precision(player&.grades_pass_rush, precision: 1) %>)</div>
                       <% end %>
                     </td>
                     <td class="p-2 font-mono"><%= number_with_precision(ranking[:total_pass_rush_grade], precision: 1) %></td>
@@ -278,7 +278,7 @@
                     </td>
                     <td class="p-2 text-xs">
                       <% ranking[:secondary].each do |player| %>
-                        <div><%= player&.full_name %> (<%= number_with_precision(player&.coverage_grade, precision: 1) %>)</div>
+                        <div><%= player&.full_name %> (<%= number_with_precision(player&.grades_coverage, precision: 1) %>)</div>
                       <% end %>
                     </td>
                     <td class="p-2 font-mono"><%= number_with_precision(ranking[:total_coverage_grade], precision: 1) %></td>
@@ -390,7 +390,7 @@
                     </td>
                     <td class="p-2 text-xs">
                       <% ranking[:defense].each do |player| %>
-                        <div><%= player&.full_name %> (<%= number_with_precision(player&.rush_defense_grade, precision: 1) %>)</div>
+                        <div><%= player&.full_name %> (<%= number_with_precision(player&.grades_rush_defense, precision: 1) %>)</div>
                       <% end %>
                     </td>
                     <td class="p-2 font-mono"><%= number_with_precision(ranking[:total_run_defense_grade], precision: 1) %></td>
@@ -761,110 +761,110 @@
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
                       player: teams_season.edge1_player,
-                      grade0: 'defence_grade',
+                      grade0: 'grades_defence',
                       grade1_icon: '💨',
-                      grade1_method: 'pass_rush_grade',
+                      grade1_method: 'grades_pass_rush',
                       grade2_icon: '🛡️',
-                      grade2_method: 'rush_defense_grade' %>
+                      grade2_method: 'grades_rush_defense' %>
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
                       player: teams_season.edge2_player,
-                      grade0: 'defence_grade',
+                      grade0: 'grades_defence',
                       grade1_icon: '💨',
-                      grade1_method: 'pass_rush_grade',
+                      grade1_method: 'grades_pass_rush',
                       grade2_icon: '🛡️',
-                      grade2_method: 'rush_defense_grade' %>
+                      grade2_method: 'grades_rush_defense' %>
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
                       player: teams_season.dl1_player,
-                      grade0: 'defence_grade',
+                      grade0: 'grades_defence',
                       grade1_icon: '💨',
-                      grade1_method: 'pass_rush_grade',
+                      grade1_method: 'grades_pass_rush',
                       grade2_icon: '🛡️',
-                      grade2_method: 'rush_defense_grade' %>
+                      grade2_method: 'grades_rush_defense' %>
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
                       player: teams_season.dl2_player,
-                      grade0: 'defence_grade',
+                      grade0: 'grades_defence',
                       grade1_icon: '💨',
-                      grade1_method: 'pass_rush_grade',
+                      grade1_method: 'grades_pass_rush',
                       grade2_icon: '🛡️',
-                      grade2_method: 'rush_defense_grade' %>
+                      grade2_method: 'grades_rush_defense' %>
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
                       player: teams_season.dl3_player,
-                      grade0: 'defence_grade',
+                      grade0: 'grades_defence',
                       grade1_icon: '💨',
-                      grade1_method: 'pass_rush_grade',
+                      grade1_method: 'grades_pass_rush',
                       grade2_icon: '🛡️',
-                      grade2_method: 'rush_defense_grade' %>
+                      grade2_method: 'grades_rush_defense' %>
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
                       player: teams_season.lb1_player,
-                      grade0: 'defence_grade',
+                      grade0: 'grades_defence',
                       grade1_icon: '👁️',
-                      grade1_method: 'coverage_grade',
+                      grade1_method: 'grades_coverage',
                       grade2_icon: '🛡️',
-                      grade2_method: 'rush_defense_grade' %>
+                      grade2_method: 'grades_rush_defense' %>
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
                       player: teams_season.lb2_player,
-                      grade0: 'defence_grade',
+                      grade0: 'grades_defence',
                       grade1_icon: '👁️',
-                      grade1_method: 'coverage_grade',
+                      grade1_method: 'grades_coverage',
                       grade2_icon: '🛡️',
-                      grade2_method: 'rush_defense_grade' %>
+                      grade2_method: 'grades_rush_defense' %>
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
                       player: teams_season.cb1_player,
-                      grade0: 'defence_grade',
+                      grade0: 'grades_defence',
                       grade1_icon: '👁️',
-                      grade1_method: 'coverage_grade',
+                      grade1_method: 'grades_coverage',
                       grade2_icon: '🛡️',
-                      grade2_method: 'rush_defense_grade' %>
+                      grade2_method: 'grades_rush_defense' %>
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
                       player: teams_season.cb2_player,
-                      grade0: 'defence_grade',
+                      grade0: 'grades_defence',
                       grade1_icon: '👁️',
-                      grade1_method: 'coverage_grade',
+                      grade1_method: 'grades_coverage',
                       grade2_icon: '🛡️',
-                      grade2_method: 'rush_defense_grade' %>
+                      grade2_method: 'grades_rush_defense' %>
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
                       player: teams_season.cb3_player,
-                      grade0: 'defence_grade',
+                      grade0: 'grades_defence',
                       grade1_icon: '👁️',
-                      grade1_method: 'coverage_grade',
+                      grade1_method: 'grades_coverage',
                       grade2_icon: '🛡️',
-                      grade2_method: 'rush_defense_grade' %>
+                      grade2_method: 'grades_rush_defense' %>
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
                       player: teams_season.safety1_player,
-                      grade0: 'defence_grade',
+                      grade0: 'grades_defence',
                       grade1_icon: '👁️',
-                      grade1_method: 'coverage_grade',
+                      grade1_method: 'grades_coverage',
                       grade2_icon: '🛡️',
-                      grade2_method: 'rush_defense_grade' %>
+                      grade2_method: 'grades_rush_defense' %>
                 </td>
                 <td class="border border-gray-300 px-4 py-3">
                   <%= render 'matchups/player_cell', 
                       player: teams_season.safety2_player,
-                      grade0: 'defence_grade',
+                      grade0: 'grades_defence',
                       grade1_icon: '👁️',
-                      grade1_method: 'coverage_grade',
+                      grade1_method: 'grades_coverage',
                       grade2_icon: '🛡️',
-                      grade2_method: 'rush_defense_grade' %>
+                      grade2_method: 'grades_rush_defense' %>
                 </td>
               </tr>
             <% end %>
