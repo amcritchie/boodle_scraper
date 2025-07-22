@@ -166,28 +166,16 @@ module ScoringConcern
 
   def pass_rush_score
     pass_rush_score = 0
+    egdes = edge_players.by_grades_pass_rush
+    dinterior = dinterior_players.by_grades_pass_rush
     # Get defensive line players and sort by pass rush grade
     pass_rushers = dline_players.sort_by { |player| -(player.grades_pass_rush || 0) }
-    
-    # Weight pass rushers by position importance
-    pass_rushers.each_with_index do |player, index|
-      case player.position
-      when 'edge-rusher'
-        pass_rush_score += 1.0 * (player.grades_pass_rush || 60)
-      when 'defensive-end'
-        pass_rush_score += 0.8 * (player.grades_pass_rush || 60)
-      when 'defensive-tackle'
-        pass_rush_score += 0.6 * (player.grades_pass_rush || 60)
-      else
-        pass_rush_score += 0.5 * (player.grades_pass_rush || 60)
-      end
-    end
-    
-    # Add linebacker pass rush contribution
-    [lb1_player, lb2_player].compact.each do |lb|
-      pass_rush_score += 0.4 * (lb.grades_pass_rush || 0)
-    end
-    
+    # Calculate pass rush score
+    pass_rush_score += 1.0 * (egdes.first.grades_pass_rush || 60)
+    pass_rush_score += 0.7 * (egdes.second.grades_pass_rush || 60)
+    pass_rush_score += 0.7 * (dinterior.first.grades_pass_rush || 60)
+    pass_rush_score += 0.5 * (dinterior.second.grades_pass_rush || 60)
+    pass_rush_score += 4.5 * (dinterior.third.grades_pass_rush || 60)
     # Return pass rush score
     pass_rush_score.to_f
   end

@@ -40,6 +40,127 @@
       </p>
     </div>
 
+    <!-- Comparison Tables Grid -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-12">
+      
+      <!-- Passing Offense vs Defense Comparison -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">⚔️</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">Passing Offense vs Defense</h3>
+              <p class="text-purple-100 text-sm">Offense Score - Defense Score</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">Offense</th>
+                  <th class="text-left p-2">Defense</th>
+                  <th class="text-left p-2">Difference</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @matchups.sort_by { |m| -((m.passing_offense_score || 0) - (m.passing_defense_score || 0)) }.each_with_index do |matchup, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="py-1 px-2 font-semibold"><%= index + 1 %></td>
+                    <td class="py-1 px-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= matchup.team&.emoji %></span>
+                        <span class="font-medium"><%= matchup.team&.name %></span>
+                      </div>
+                      <div class="flex items-center space-x-2 mt-0.5 text-xs text-gray-500">
+                        <span class="text-sm"><%= matchup.home ? 'vs' : '@' %></span>
+                        <span class="text-lg"><%= matchup.team_defense&.emoji %></span>
+                        <span><%= matchup.team_defense&.name %></span>
+                      </div>
+                    </td>
+                    <td class="py-1 px-2 font-mono">
+                      <%= number_with_precision(matchup.passing_offense_score, precision: 1) %>
+                    </td>
+                    <td class="py-1 px-2 font-mono">
+                      <%= number_with_precision(matchup.passing_defense_score, precision: 1) %>
+                    </td>
+                    <td class="py-1 px-2 font-mono font-bold">
+                      <% diff = (matchup.passing_offense_score || 0) - (matchup.passing_defense_score || 0) %>
+                      <span class="<%= diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-gray-600' %>">
+                        <%= diff > 0 ? '+' : '' %><%= number_with_precision(diff, precision: 1) %>
+                      </span>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rushing Offense vs Defense Comparison -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">⚔️</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">Rushing Offense vs Defense</h3>
+              <p class="text-indigo-100 text-sm">Offense Score - Defense Score</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">Offense</th>
+                  <th class="text-left p-2">Defense</th>
+                  <th class="text-left p-2">Difference</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @matchups.sort_by { |m| -((m.rushing_offense_score || 0) - (m.rushing_defense_score || 0)) }.each_with_index do |matchup, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="py-1 px-2 font-semibold"><%= index + 1 %></td>
+                    <td class="py-1 px-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= matchup.team&.emoji %></span>
+                        <span class="font-medium"><%= matchup.team&.name %></span>
+                      </div>
+                      <div class="flex items-center space-x-2 mt-0.5 text-xs text-gray-500">
+                        <span class="text-sm"><%= matchup.home ? 'vs' : '@' %></span>
+                        <span class="text-lg"><%= matchup.team_defense&.emoji %></span>
+                        <span><%= matchup.team_defense&.name %></span>
+                      </div>
+                    </td>
+                    <td class="py-1 px-2 font-mono">
+                      <%= number_with_precision(matchup.rushing_offense_score, precision: 1) %>
+                    </td>
+                    <td class="py-1 px-2 font-mono">
+                      <%= number_with_precision(matchup.rushing_defense_score, precision: 1) %>
+                    </td>
+                    <td class="py-1 px-2 font-mono font-bold">
+                      <% diff = (matchup.rushing_offense_score || 0) - (matchup.rushing_defense_score || 0) %>
+                      <span class="<%= diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-gray-600' %>">
+                        <%= diff > 0 ? '+' : '' %><%= number_with_precision(diff, precision: 1) %>
+                      </span>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
     <!-- Score Tables Grid -->
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-12">
       
@@ -226,6 +347,127 @@
                       <div class="text-xs text-gray-600">
                         <%= matchup.rushing_defense_score_string %>
                       </div>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Comparison Tables Grid -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-12">
+      
+      <!-- Passing Offense vs Defense Comparison -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">⚔️</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">Passing Offense vs Defense</h3>
+              <p class="text-purple-100 text-sm">Offense Score - Defense Score</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">Offense</th>
+                  <th class="text-left p-2">Defense</th>
+                  <th class="text-left p-2">Difference</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @matchups.sort_by { |m| -((m.passing_offense_score || 0) - (m.passing_defense_score || 0)) }.each_with_index do |matchup, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="py-1 px-2 font-semibold"><%= index + 1 %></td>
+                    <td class="py-1 px-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= matchup.team&.emoji %></span>
+                        <span class="font-medium"><%= matchup.team&.name %></span>
+                      </div>
+                      <div class="flex items-center space-x-2 mt-0.5 text-xs text-gray-500">
+                        <span class="text-sm"><%= matchup.home ? 'vs' : '@' %></span>
+                        <span class="text-lg"><%= matchup.team_defense&.emoji %></span>
+                        <span><%= matchup.team_defense&.name %></span>
+                      </div>
+                    </td>
+                    <td class="py-1 px-2 font-mono">
+                      <%= number_with_precision(matchup.passing_offense_score, precision: 1) %>
+                    </td>
+                    <td class="py-1 px-2 font-mono">
+                      <%= number_with_precision(matchup.passing_defense_score, precision: 1) %>
+                    </td>
+                    <td class="py-1 px-2 font-mono font-bold">
+                      <% diff = (matchup.passing_offense_score || 0) - (matchup.passing_defense_score || 0) %>
+                      <span class="<%= diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-gray-600' %>">
+                        <%= diff > 0 ? '+' : '' %><%= number_with_precision(diff, precision: 1) %>
+                      </span>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rushing Offense vs Defense Comparison -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">⚔️</span>
+            <div>
+              <h3 class="text-lg font-bold text-white">Rushing Offense vs Defense</h3>
+              <p class="text-indigo-100 text-sm">Offense Score - Defense Score</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="text-left p-2">Rank</th>
+                  <th class="text-left p-2">Team</th>
+                  <th class="text-left p-2">Offense</th>
+                  <th class="text-left p-2">Defense</th>
+                  <th class="text-left p-2">Difference</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @matchups.sort_by { |m| -((m.rushing_offense_score || 0) - (m.rushing_defense_score || 0)) }.each_with_index do |matchup, index| %>
+                  <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="py-1 px-2 font-semibold"><%= index + 1 %></td>
+                    <td class="py-1 px-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xl"><%= matchup.team&.emoji %></span>
+                        <span class="font-medium"><%= matchup.team&.name %></span>
+                      </div>
+                      <div class="flex items-center space-x-2 mt-0.5 text-xs text-gray-500">
+                        <span class="text-sm"><%= matchup.home ? 'vs' : '@' %></span>
+                        <span class="text-lg"><%= matchup.team_defense&.emoji %></span>
+                        <span><%= matchup.team_defense&.name %></span>
+                      </div>
+                    </td>
+                    <td class="py-1 px-2 font-mono">
+                      <%= number_with_precision(matchup.rushing_offense_score, precision: 1) %>
+                    </td>
+                    <td class="py-1 px-2 font-mono">
+                      <%= number_with_precision(matchup.rushing_defense_score, precision: 1) %>
+                    </td>
+                    <td class="py-1 px-2 font-mono font-bold">
+                      <% diff = (matchup.rushing_offense_score || 0) - (matchup.rushing_defense_score || 0) %>
+                      <span class="<%= diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-gray-600' %>">
+                        <%= diff > 0 ? '+' : '' %><%= number_with_precision(diff, precision: 1) %>
+                      </span>
                     </td>
                   </tr>
                 <% end %>

@@ -898,16 +898,20 @@ class Matchup < ApplicationRecord
   end
 
   def calculate_passing_offense_score(offense_teams_season)
+    play_caller_rank  =  (offense_teams_season.play_caller_rank || 16)
+    qb_rank           =  (offense_teams_season.qb_passing_rank || 16)
+    receiver_rank     =  (offense_teams_season.receiver_core_rank || 16)
+    oline_rank        =  (offense_teams_season.oline_pass_block_rank || 16)
     # Convert rankings to scores (1-32 scale, where 1 is best)
     # Higher score = better passing offense
-    play_caller_score = (33 - (offense_teams_season.play_caller_rank || 16)) / 32.0 * 100
-    qb_score = (33 - (offense_teams_season.qb_passing_rank || 16)) / 32.0 * 100
-    receiver_score = (33 - (offense_teams_season.receiver_core_rank || 16)) / 32.0 * 100
-    oline_score = (33 - (offense_teams_season.oline_pass_block_rank || 16)) / 32.0 * 100
+    play_caller_score = (33 - play_caller_rank) / 32.0 * 100
+    qb_score = (33 - qb_rank) / 32.0 * 100
+    receiver_score = (33 - receiver_rank) / 32.0 * 100
+    oline_score = (33 - oline_rank) / 32.0 * 100
     # Weighted composite score
-    passing_offense_score = (play_caller_score * 0.3 + qb_score * 0.3 + receiver_score * 0.2 + oline_score * 0.2).to_i
+    passing_offense_score = (play_caller_score * 0.3 + qb_score * 0.5 + receiver_score * 0.2 + oline_score * 0.2).to_i
     # Create score string
-    passing_offense_score_string = "PC-#{play_caller_score.to_i}|QB-#{qb_score.to_i}|REC-#{receiver_score.to_i}|OL-#{oline_score.to_i}"
+    passing_offense_score_string = "PC-#{play_caller_rank}|QB-#{qb_rank}|REC-#{receiver_rank}|OL-#{oline_rank}"
     # Update the matchup
     update(
       passing_offense_score: passing_offense_score,
@@ -916,15 +920,18 @@ class Matchup < ApplicationRecord
   end
 
   def calculate_rushing_offense_score(offense_teams_season)
+    play_caller_rank  =  (offense_teams_season.play_caller_rank || 16)
+    rushing_rank      =  (offense_teams_season.rushing_rank || 16)
+    oline_rank        =  (offense_teams_season.oline_run_block_rank || 16)
     # Convert rankings to scores (1-32 scale, where 1 is best)
     # Higher score = better rushing offense
-    play_caller_score = (33 - (offense_teams_season.play_caller_rank || 16)) / 32.0 * 100
-    rushing_score = (33 - (offense_teams_season.rushing_rank || 16)) / 32.0 * 100
-    oline_run_block_score = (33 - (offense_teams_season.oline_run_block_rank || 16)) / 32.0 * 100
+    play_caller_score = (33 - play_caller_rank) / 32.0 * 100
+    rushing_score = (33 - rushing_rank) / 32.0 * 100
+    oline_run_block_score = (33 - oline_rank) / 32.0 * 100
     # Weighted composite score
     rushing_offense_score = (play_caller_score * 0.3 + rushing_score * 0.4 + oline_run_block_score * 0.3).to_i
     # Create score string
-    rushing_offense_score_string = "PC-#{play_caller_score.to_i}|RUSH-#{rushing_score.to_i}|OL-#{oline_run_block_score.to_i}"
+    rushing_offense_score_string = "PC-#{play_caller_rank}|RUSH-#{rushing_rank}|OL-#{oline_rank}"
     # Update the matchup
     update(
       rushing_offense_score: rushing_offense_score,
@@ -933,13 +940,14 @@ class Matchup < ApplicationRecord
   end
 
   def calculate_rushing_defense_score(defense_teams_season)
+    run_defense_rank  =  (defense_teams_season.run_defense_rank || 16)
     # Convert rankings to scores (1-32 scale, where 1 is best)
     # Higher score = better rushing defense
-    run_defense_score = (33 - (defense_teams_season.run_defense_rank || 16)) / 32.0 * 100
+    run_defense_score = (33 - run_defense_rank) / 32.0 * 100
     # For rushing defense, we'll use the run defense rank as the primary metric
     rushing_defense_score = run_defense_score.to_i
     # Create score string
-    rushing_defense_score_string = "RD-#{run_defense_score.to_i}"    
+    rushing_defense_score_string = "RD-#{run_defense_rank}"    
     # Update the matchup
     update(
       rushing_defense_score: rushing_defense_score,
@@ -948,14 +956,16 @@ class Matchup < ApplicationRecord
   end
 
   def calculate_passing_defense_score(defense_teams_season)
+    pass_rush_rank  =  (defense_teams_season.pass_rush_rank || 16)
+    coverage_rank   =  (defense_teams_season.coverage_rank || 16)
     # Convert rankings to scores (1-32 scale, where 1 is best)
     # Higher score = better passing defense
-    pass_rush_score = (33 - (defense_teams_season.pass_rush_rank || 16)) / 32.0 * 100
-    coverage_score = (33 - (defense_teams_season.coverage_rank || 16)) / 32.0 * 100
+    pass_rush_score = (33 - pass_rush_rank) / 32.0 * 100
+    coverage_score = (33 - coverage_rank) / 32.0 * 100
     # Weighted composite score
     passing_defense_score = (pass_rush_score * 0.4 + coverage_score * 0.6).to_i
     # Create score string
-    passing_defense_score_string = "PR-#{pass_rush_score.to_i}|COV-#{coverage_score.to_i}"
+    passing_defense_score_string = "PR-#{pass_rush_rank}|COV-#{coverage_rank}"
     # Update the matchup
     update(
       passing_defense_score: passing_defense_score,

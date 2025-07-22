@@ -245,7 +245,7 @@
                         <div><%= player&.full_name %> (<%= number_with_precision(player&.grades_pass_rush, precision: 1) %>)</div>
                       <% end %>
                     </td>
-                    <td class="p-2 font-mono"><%= number_with_precision(ranking[:total_pass_rush_grade], precision: 1) %></td>
+                    <td class="p-2 font-mono"><%= number_with_precision(ranking[:pass_rush_score], precision: 1) %></td>
                   </tr>
                 <% end %>
               </tbody>

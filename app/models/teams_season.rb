@@ -164,6 +164,14 @@ class TeamsSeason < ApplicationRecord
     Player.where(slug: [c, lg, rg, lt, rt].compact)
   end
 
+  def edge_players
+    Player.where(slug: [eg1, eg2].compact)
+  end
+
+  def dinterior_players
+    Player.where(slug: [dl1, dl2, dl3].compact)
+  end
+
   def dline_players
     Player.where(slug: [eg1, eg2, dl1, dl2, dl3].compact)
   end
@@ -266,19 +274,19 @@ class TeamsSeason < ApplicationRecord
     end.sort_by { |ranking| -ranking[:total_run_block_grade] }
   end
 
-  def self.pass_rush_rankings
-    teams_seasons = includes(:team)
-      .where.not(eg1: nil, eg2: nil, dl1: nil, dl2: nil, dl3: nil)
+  # def self.pass_rush_rankings
+  #   teams_seasons = includes(:team)
+  #     .where.not(eg1: nil, eg2: nil, dl1: nil, dl2: nil, dl3: nil)
     
-    teams_seasons.map do |team_season|
-      total_pass_rush_grade = team_season.dline_players.sum { |player| (player.grades_pass_rush || 60) * pass_rush_position_weight(player.position) }
-      {
-        total_pass_rush_grade: total_pass_rush_grade,
-        team: team_season.team,
-        dline: team_season.dline_players
-      }
-    end.sort_by { |ranking| -ranking[:total_pass_rush_grade] }
-  end
+  #   teams_seasons.map do |team_season|
+  #     total_pass_rush_grade = team_season.dline_players.sum { |player| (player.grades_pass_rush || 60) * pass_rush_position_weight(player.position) }
+  #     {
+  #       total_pass_rush_grade: total_pass_rush_grade,
+  #       team: team_season.team,
+  #       dline: team_season.dline_players
+  #     }
+  #   end.sort_by { |ranking| -ranking[:total_pass_rush_grade] }
+  # end
 
   def self.pass_rush_position_weight(position)
     case position
