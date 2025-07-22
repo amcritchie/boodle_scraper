@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 1 Matchups Summary - Season 2025</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-6">
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2">
+            <span class="text-3xl">🏈</span>
+            <h1 class="text-2xl font-bold text-gray-900">Week 1 Matchups Summary</h1>
+          </div>
+          <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">2025 Season</span>
+        </div>
+        <nav class="flex space-x-4">
+          <a href="<%= matchups_2025_week1_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            View Matchups
+          </a>
+          <a href="<%= rankings_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            View Rankings
+          </a>
+          <a href="<%= teams_seasons_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            Team Rosters
+          </a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Title -->
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold text-gray-900 mb-4">Week 1 Matchups Summary</h2>
+      <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+        Detailed breakdown of passing and rushing offense vs defense matchups with component rankings
+      </p>
+    </div>
+
+    <!-- Passing Offense vs Defense Table -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 mb-12">
+      <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+        <div class="flex items-center space-x-3">
+          <span class="text-2xl">🖐️</span>
+          <div>
+            <h3 class="text-xl font-bold text-white">Passing Offense vs Defense Matchups</h3>
+            <p class="text-purple-100 text-sm">Component rankings: Head Coach 🎯, QB 🏈, Receivers 🎯, O-Line 🛡️, Pass Rush ⚡, Coverage 🛡️</p>
+          </div>
+        </div>
+      </div>
+      <div class="p-6">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="text-left p-3 font-semibold">Rank</th>
+                <th class="text-left p-3 font-semibold">Offense</th>
+                <th class="text-left p-3 font-semibold">Defense</th>
+                <th class="text-left p-3 font-semibold">Offense Score</th>
+                <th class="text-left p-3 font-semibold">Defense Score</th>
+                <th class="text-left p-3 font-semibold">Difference</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @matchups.sort_by { |m| -((m.passing_offense_score || 0) - (m.passing_defense_score || 0)) }.each_with_index do |matchup, index| %>
+                <% 
+                  # Get component rankings for this matchup
+                  offense_teams_season = @teams_seasons.find { |ts| ts.team_slug == matchup.team_slug }
+                  defense_teams_season = @teams_seasons.find { |ts| ts.team_slug == matchup.team_defense_slug }
+                  
+                  # Offense component ranks
+                  play_caller_rank = offense_teams_season&.play_caller_rank || 16
+                  qb_rank = offense_teams_season&.qb_passing_rank || 16
+                  receiver_rank = offense_teams_season&.receiver_core_rank || 16
+                  oline_rank = offense_teams_season&.oline_pass_block_rank || 16
+                  
+                  # Defense component ranks
+                  pass_rush_rank = defense_teams_season&.pass_rush_rank || 16
+                  coverage_rank = defense_teams_season&.coverage_rank || 16
+                %>
+                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                  <td class="py-3 px-3 font-semibold text-lg"><%= index + 1 %></td>
+                  <td class="py-3 px-3">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-2xl"><%= matchup.team&.emoji %></span>
+                      <span class="font-bold text-lg"><%= matchup.team&.name %></span>
+                      <% if matchup.home %>
+                        <span class="text-sm">🏠</span>
+                      <% end %>
+                    </div>
+                    <div class="flex items-center space-x-3 mt-1">
+                      <div class="flex items-center space-x-1">
+                        <span class="text-xs">🧠</span>
+                        <span class="text-xs font-mono <%= play_caller_rank <= 8 ? 'text-green-600' : play_caller_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
+                          #<%= play_caller_rank %>
+                        </span>
+                      </div>
+                      <div class="flex items-center space-x-1">
+                        <span class="text-xs">🎯</span>
+                        <span class="text-xs font-mono <%= qb_rank <= 8 ? 'text-green-600' : qb_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
+                          #<%= qb_rank %>
+                        </span>
+                      </div>
+                      <div class="flex items-center space-x-1">
+                        <span class="text-xs">🤲</span>
+                        <span class="text-xs font-mono <%= receiver_rank <= 8 ? 'text-green-600' : receiver_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
+                          #<%= receiver_rank %>
+                        </span>
+                      </div>
+                      <div class="flex items-center space-x-1">
+                        <span class="text-xs">🛡️</span>
+                        <span class="text-xs font-mono <%= oline_rank <= 8 ? 'text-green-600' : oline_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
+                          #<%= oline_rank %>
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-2xl"><%= matchup.team_defense&.emoji %></span>
+                      <span class="font-bold text-lg"><%= matchup.team_defense&.name %></span>
+                      <% if !matchup.home %>
+                        <span class="text-sm">🏠</span>
+                      <% end %>
+                    </div>
+                    <div class="flex items-center space-x-3 mt-1">
+                      <div class="flex items-center space-x-1">
+                        <span class="text-xs">⚡</span>
+                        <span class="text-xs font-mono <%= pass_rush_rank <= 8 ? 'text-green-600' : play_caller_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
+                          #<%= pass_rush_rank %>
+                        </span>
+                      </div>
+                      <div class="flex items-center space-x-1">
+                        <span class="text-xs">👁️</span>
+                        <span class="text-xs font-mono <%= coverage_rank <= 8 ? 'text-green-600' : qb_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
+                          #<%= coverage_rank %>
+                        </span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="font-mono font-bold text-lg text-blue-600">
+                      <%= number_with_precision(matchup.passing_offense_score, precision: 1) %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="font-mono font-bold text-lg text-red-600">
+                      <%= number_with_precision(matchup.passing_defense_score, precision: 1) %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <% diff = (matchup.passing_offense_score || 0) - (matchup.passing_defense_score || 0) %>
+                    <div class="font-mono font-bold text-lg">
+                      <span class="<%= diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-gray-600' %>">
+                        <%= diff > 0 ? '+' : '' %><%= number_with_precision(diff, precision: 1) %>
+                      </span>
+                    </div>
+                  </td>
+
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rushing Offense vs Defense Table -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+      <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
+        <div class="flex items-center space-x-3">
+          <span class="text-2xl">🏃</span>
+          <div>
+            <h3 class="text-xl font-bold text-white">Rushing Offense vs Defense Matchups</h3>
+            <p class="text-indigo-100 text-sm">Component rankings: Head Coach 🎯, Rushing 🏃, O-Line 🛡️, Run Defense 🛡️</p>
+          </div>
+        </div>
+      </div>
+      <div class="p-6">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="text-left p-3 font-semibold">Rank</th>
+                <th class="text-left p-3 font-semibold">Offense</th>
+                <th class="text-left p-3 font-semibold">Defense</th>
+                <th class="text-left p-3 font-semibold">Offense Score</th>
+                <th class="text-left p-3 font-semibold">Defense Score</th>
+                <th class="text-left p-3 font-semibold">Difference</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @matchups.sort_by { |m| -((m.rushing_offense_score || 0) - (m.rushing_defense_score || 0)) }.each_with_index do |matchup, index| %>
+                <% 
+                  # Get component rankings for this matchup
+                  offense_teams_season = @teams_seasons.find { |ts| ts.team_slug == matchup.team_slug }
+                  defense_teams_season = @teams_seasons.find { |ts| ts.team_slug == matchup.team_defense_slug }
+                  
+                  # Offense component ranks
+                  play_caller_rank = offense_teams_season&.play_caller_rank || 16
+                  rushing_rank = offense_teams_season&.rushing_rank || 16
+                  oline_run_rank = offense_teams_season&.oline_run_block_rank || 16
+                  
+                  # Defense component ranks
+                  run_defense_rank = defense_teams_season&.run_defense_rank || 16
+                %>
+                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                  <td class="py-3 px-3 font-semibold text-lg"><%= index + 1 %></td>
+                  <td class="py-3 px-3">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-2xl"><%= matchup.team&.emoji %></span>
+                      <span class="font-bold text-lg"><%= matchup.team&.name %></span>
+                      <% if matchup.home %>
+                        <span class="text-sm">🏠</span>
+                      <% end %>
+                    </div>
+                    <div class="flex items-center space-x-3 mt-1">
+                      <div class="flex items-center space-x-1">
+                        <span class="text-xs">🎯</span>
+                        <span class="text-xs font-mono <%= play_caller_rank <= 8 ? 'text-green-600' : play_caller_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
+                          #<%= play_caller_rank %>
+                        </span>
+                      </div>
+                      <div class="flex items-center space-x-1">
+                        <span class="text-xs">🏃</span>
+                        <span class="text-xs font-mono <%= rushing_rank <= 8 ? 'text-green-600' : rushing_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
+                          #<%= rushing_rank %>
+                        </span>
+                      </div>
+                      <div class="flex items-center space-x-1">
+                        <span class="text-xs">🛡️</span>
+                        <span class="text-xs font-mono <%= oline_run_rank <= 8 ? 'text-green-600' : oline_run_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
+                          #<%= oline_run_rank %>
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+                                    <td class="py-3 px-3">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-2xl"><%= matchup.team_defense&.emoji %></span>
+                      <span class="font-bold text-lg"><%= matchup.team_defense&.name %></span>
+                      <% if !matchup.home %>
+                        <span class="text-sm">🏠</span>
+                      <% end %>
+                    </div>
+                    <div class="flex items-center space-x-3 mt-1">
+                    <div class="flex items-center space-x-1">
+                      <span class="text-xs">🛑</span>
+                      <span class="text-xs font-mono <%= run_defense_rank <= 8 ? 'text-green-600' : play_caller_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
+                        #<%= run_defense_rank %>
+                      </span>
+                    </div>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="font-mono font-bold text-lg text-green-600">
+                      <%= number_with_precision(matchup.rushing_offense_score, precision: 1) %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="font-mono font-bold text-lg text-orange-600">
+                      <%= number_with_precision(matchup.rushing_defense_score, precision: 1) %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <% diff = (matchup.rushing_offense_score || 0) - (matchup.rushing_defense_score || 0) %>
+                    <div class="font-mono font-bold text-lg">
+                      <span class="<%= diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-gray-600' %>">
+                        <%= diff > 0 ? '+' : '' %><%= number_with_precision(diff, precision: 1) %>
+                      </span>
+                    </div>
+                  </td>
+
+
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-16 text-center">
+      <div class="text-sm text-gray-500">
+        <p>Data updated for Week 1 of the 2025 NFL season</p>
+        <p class="mt-2">
+          <a href="<%= matchups_2025_week1_path %>" class="text-blue-600 hover:text-blue-800 underline">
+            View Matchups
+          </a>
+          <span class="mx-2">•</span>
+          <a href="<%= rankings_path %>" class="text-blue-600 hover:text-blue-800 underline">
+            View Detailed Rankings
+          </a>
+          <span class="mx-2">•</span>
+          <a href="<%= teams_seasons_path %>" class="text-blue-600 hover:text-blue-800 underline">
+            View Team Rosters
+          </a>
+        </p>
+      </div>
+    </footer>
+  </main>
+</body>
+</html> 

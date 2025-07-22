@@ -19,6 +19,9 @@
           <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">2025 Season</span>
         </div>
         <nav class="flex space-x-4">
+          <a href="<%= matchups_2025_week1_summary_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            View Summary
+          </a>
           <a href="<%= rankings_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
             View Rankings
           </a>
@@ -484,6 +487,10 @@
       <div class="text-sm text-gray-500">
         <p>Data updated for Week 1 of the 2025 NFL season</p>
         <p class="mt-2">
+          <a href="<%= matchups_2025_week1_summary_path %>" class="text-blue-600 hover:text-blue-800 underline">
+            View Summary
+          </a>
+          <span class="mx-2">•</span>
           <a href="<%= rankings_path %>" class="text-blue-600 hover:text-blue-800 underline">
             View Detailed Rankings
           </a>
