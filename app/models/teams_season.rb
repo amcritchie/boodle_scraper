@@ -214,7 +214,7 @@ class TeamsSeason < ApplicationRecord
     includes(:team)
       .where.not(qb: nil)
       .joins('LEFT JOIN players ON players.slug = teams_seasons.qb')
-      .order('players.passing_grade DESC NULLS LAST')
+      .order('players.grades_pass DESC NULLS LAST')
   end
 
   def self.receiver_core_rankings
@@ -332,7 +332,15 @@ class TeamsSeason < ApplicationRecord
     end.sort_by { |ranking| -ranking[:total_run_defense_grade] }
   end
 
-
+  def self.rushing_rankings
+    all.map do |team_season|
+      {
+        rushing_score: team_season.rusher_score,
+        team: team_season.team,
+        rushers: team_season.rushing_players
+      }
+    end.sort_by { |ranking| -ranking[:rushing_score] }
+  end
 
   def play_caller_rank
     ranked_teams = self.class.ranked_by_play_caller

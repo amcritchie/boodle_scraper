@@ -21,12 +21,147 @@ namespace :matchups do
 
   desc "Populate matchups for Week 1, Season 2025"
   task populate_2025_week_1: :environment do
-    # Each through games in week
+    # First pass: Generate matchups and populate existing rankings
     Season.s2025.weeks.first.games.each do |game|
       # Generate matchups
       game.away_matchup
       game.home_matchup
     end
+
+    # Second pass: Calculate attack rankings based on existing matchup scores
+    puts "Calculating attack rankings based on matchup scores..."
+    
+    # Get all matchups for ranking
+    all_matchups = Matchup.where(season: 2025, week_slug: 1)
+
+    # all_matchups.order(passing_matchup_score: :desc).each do |matchup|
+    #   puts "================"
+    #   puts matchup.game
+    #   puts matchup.team_slug
+    #   puts "================"
+    # end
+
+    # all_matchups.order(passing_attack_rank: :desc)
+    
+    # weeks_matchups = []
+    # all_matchups.each do |matchup|
+    #   weeks_matchups << {
+    #     matchup: matchup,
+    #     passing_attack_rank: matchup.passing_attack_rank || 0,
+    #     rushing_attack_rank: matchup.rushing_attack_rank || 0,
+    #     field_goal_rank: matchup.field_goal_rank || 0
+    #   }
+    # end
+
+    expected_passing_touchdowns = Matchup.passing_tds(32)
+    expected_rushing_touchdowns = Matchup.rushing_tds(32)
+    expected_field_goals = Matchup.field_goals(32)
+    
+
+    # Sort and assign ranks
+    # weeks_matchups.sort_by! { |item| -item[:passing_attack_rank] }
+    # Update matchups with ranks and calculate passing TDs
+    all_matchups.order(passing_attack_score: :desc).each_with_index do |matchup, index|
+      passing_td_points = 7 * expected_passing_touchdowns[index]
+      matchup.update(
+        passing_attack_rank: index + 1,
+        passing_td_points: passing_td_points
+      )
+    end
+    all_matchups.order(rushing_attack_score: :desc).each_with_index do |matchup, index|
+      rushing_td_points = 7 * expected_rushing_touchdowns[index]
+      matchup.update(
+        rushing_attack_rank: index + 1,
+        rushing_td_points: rushing_td_points
+      )
+    end
+    all_matchups.order(field_goal_score: :desc).each_with_index do |matchup, index|
+      field_goal_points = 3 * expected_field_goals[index]
+      matchup.update(
+        field_goal_rank: index + 1,
+        field_goal_points: field_goal_points
+      )
+    end
+
+    # # Sort and assign ranks
+    # weeks_matchups.sort_by! { |item| -item[:passing_attack_rank] }
+    # # Update matchups with ranks and calculate passing TDs
+    # weeks_matchups.each_with_index do |item, index|
+    #   item[:matchup].update(
+    #     passing_attack_rank: index + 1,
+    #     passing_touchdowns: expected_passing_touchdowns[index]
+    #   )
+    # end
+
+    # # Sort and assign ranks
+    # weeks_matchups.sort_by! { |item| -item[:rushing_attack_rank] }
+    # # Update matchups with ranks and calculate rushing TDs
+    # weeks_matchups.each_with_index do |item, index|
+    #   rank = index + 1
+    #   rushing_tds = item[:matchup].rushing_tds[rank - 1] || 0
+      
+    #   item[:matchup].update(
+    #     rushing_attack_rank: rank,
+    #     rushing_touchdowns: rushing_tds
+    #   )
+    # end
+
+    # # Sort and assign ranks
+    # weeks_matchups.sort_by! { |item| -item[:field_goal_rank] }
+    # # Update matchups with ranks and calculate field goals
+    # weeks_matchups.each_with_index do |item, index|
+    #   rank = index + 1
+    #   field_goals = item[:matchup].field_goals[rank - 1] || 0
+      
+    #   item[:matchup].update(
+    #     field_goal_rank: rank,
+    #     field_goals: field_goals
+    #   )
+    # end
+
+
+
+    # rushing_attack_scores.sort_by! { |item| -item[:score] }
+
+
+    # # Calculate passing attack scores for all matchups
+    # passing_attack_scores = []
+    # all_matchups.each do |matchup|
+    #   passing_attack_scores << {
+    #     matchup: matchup,
+    #     score: matchup.passing_attack_score || 0
+    #   }
+    # end
+    
+    # # Calculate rushing attack scores for all matchups
+    # rushing_attack_scores = []
+    # all_matchups.each do |matchup|
+    #   rushing_attack_scores << {
+    #     matchup: matchup,
+    #     score: matchup.rushing_attack_score || 0
+    #   }
+    # end
+    
+    # # Sort and assign ranks
+    # passing_attack_scores.sort_by! { |item| -item[:score] }
+    # rushing_attack_scores.sort_by! { |item| -item[:score] }
+    
+    # # Update matchups with ranks
+    # passing_attack_scores.each_with_index do |item, index|
+    #   item[:matchup].update(passing_attack_rank: index + 1)
+    # end
+    
+    # rushing_attack_scores.each_with_index do |item, index|
+    #   item[:matchup].update(rushing_attack_rank: index + 1)
+    # end
+    
+    # # Calculate and assign field goal attack ranks using Coach class method
+    # field_goal_attack_scores = Coach.assign_field_goal_ranks(all_matchups, 2025)
+
+    puts "Attack ranking populated successfully!"
+    # puts "Passing attack rankings calculated for #{passing_attack_scores.count} matchups"
+    # puts "Rushing attack rankings calculated for #{rushing_attack_scores.count} matchups"
+    # puts "Field goal attack rankings calculated for #{field_goal_attack_scores.count} matchups"
   end
 
   desc "Populate matchups for Week 1, Season 2025 Buffalo Bills"

@@ -1,6 +1,7 @@
 class CreateCoaches < ActiveRecord::Migration[6.1]
   def change
     create_table :coaches do |t|
+      t.string :slug, null: false
       t.string :team_slug, null: false
       t.integer :season, null: false
       t.string :sportsradar_id
@@ -8,14 +9,17 @@ class CreateCoaches < ActiveRecord::Migration[6.1]
       t.string :last_name
       t.string :position
       t.integer :offensive_play_caller_rank
+      t.integer :defensive_play_caller_rank
       t.integer :pace_of_play_rank
-      t.integer :run_heavy_rank
+      t.integer :field_goal_rank
+      t.integer :run_heavy_rank      
       
       t.timestamps
     end
 
     add_index :coaches, :team_slug
     add_index :coaches, :season
+    add_index :coaches, :slug
     # add_index :coaches, [:team_slug, :season], unique: true
     add_index :coaches, :sportsradar_id
     add_index :coaches, :position

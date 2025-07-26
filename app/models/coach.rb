@@ -36,6 +36,52 @@ class Coach < ApplicationRecord
     return by_play_caller_rank.first
   end
 
+  def self.calculate_field_goal_attack_scores(matchups, season = 2025)
+    field_goal_attack_scores = []
+    
+    matchups.each do |matchup|
+      # Get the offensive play caller for each team
+      home_coach = where(team_slug: matchup.team_slug, season: season)
+                   .where.not(offensive_play_caller_rank: nil)
+                   .first
+      away_coach = where(team_slug: matchup.team_defense_slug, season: season)
+                   .where.not(offensive_play_caller_rank: nil)
+                   .first
+      
+      # Calculate field goal attack score based on coach field goal ranks
+      # Lower field_goal_rank = better kicker = better field goal attack
+      home_fg_rank = home_coach&.field_goal_rank || 32
+      away_fg_rank = away_coach&.field_goal_rank || 32
+      
+      # Better field goal rank (lower number) = better field goal attack
+      field_goal_attack_score = (33 - home_fg_rank) - (33 - away_fg_rank)
+      
+      field_goal_attack_scores << {
+        matchup: matchup,
+        score: field_goal_attack_score,
+        home_coach: home_coach,
+        away_coach: away_coach,
+        home_fg_rank: home_fg_rank,
+        away_fg_rank: away_fg_rank
+      }
+    end
+    
+    field_goal_attack_scores
+  end
+
+  def self.assign_field_goal_ranks(matchups, season = 2025)
+    scores = calculate_field_goal_attack_scores(matchups, season)
+    
+    # Sort by score (descending) and assign ranks
+    scores.sort_by! { |item| -item[:score] }
+    
+    scores.each_with_index do |item, index|
+      item[:matchup].update(field_goal_rank: index + 1)
+    end
+    
+    scores
+  end
+
   private
   def set_slug
     return if slug.present?

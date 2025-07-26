@@ -7,16 +7,6 @@ class CreateMatchups < ActiveRecord::Migration[7.0]
       t.string :team_slug
       t.string :team_defense_slug
       t.boolean :home
-      t.boolean :at_home
-      t.integer :rushing_offense_score
-      t.integer :rushing_defense_score
-      t.integer :passing_offense_score
-      t.integer :passing_defense_score
-      t.integer :field_goal_score
-      t.string :rushing_offense_score_string
-      t.string :rushing_defense_score_string
-      t.string :passing_offense_score_string
-      t.string :passing_defense_score_string
 
       # Offensive players
       t.string :qb
@@ -51,11 +41,43 @@ class CreateMatchups < ActiveRecord::Migration[7.0]
       t.string :punter
       t.string :head_coach
       t.string :offensive_play_caller
-      t.string :defenseive_play_caller
+      t.string :defensive_play_caller
       t.string :offensive_coordinator
       t.string :defensive_coordinator
       t.string :special_teams_coordinator
 
+      # Offensive and defensive rankings
+      t.integer :offensive_play_caller_rank
+      t.integer :pace_of_play_rank
+      t.integer :run_heavy_rank
+      t.integer :qb_passing_rank
+      t.integer :receiver_core_rank
+      t.integer :pass_block_rank
+      t.integer :run_defense_rank
+      t.integer :pass_rush_rank
+      t.integer :coverage_rank
+      t.integer :rushing_rank
+
+      t.integer :field_goal_score
+      t.integer :rushing_offense_score
+      t.integer :rushing_defense_score
+      t.integer :passing_offense_score
+      t.integer :passing_defense_score
+      t.integer :passing_attack_score
+      t.integer :rushing_attack_score
+      t.string :rushing_offense_score_string
+      t.string :rushing_defense_score_string
+      t.string :passing_offense_score_string
+      t.string :passing_defense_score_string
+
+      t.integer :passing_attack_rank
+      t.integer :rushing_attack_rank
+      t.integer :field_goal_rank
+
+      t.integer :passing_td_points
+      t.integer :rushing_td_points
+      t.integer :field_goal_points
+      
       # t.integer :reciever_score
       t.json :reciever_factors
       t.integer :pass_block_score

@@ -100,4 +100,69 @@ namespace :coaches do
       puts "#{index + 1}. #{coach.full_name} (#{coach.team_slug}) - Rank: #{coach.offensive_play_caller_rank}"
     end
   end
+
+  desc "Populate field goal ranks for 2025 NFL coaches"
+  task populate_field_goal_ranks: :environment do
+    puts "Populating field goal ranks for 2025 NFL coaches..."
+    
+    field_goal_ranks = {
+      'dal' => 1,     # Brandon Aubrey - DAL (10)
+      'lac' => 2,     # Cameron Dicker - LAC (12)
+      'det' => 3,     # Jake Bates - DET (8)
+      'cin' => 4,     # Evan McPherson - CIN (10)
+      'hou' => 5,     # Ka'imi Fairbairn - HOU (6)
+      'tb' => 6,      # Chase McLaughlin - TB (9)
+      'den' => 7,     # Wil Lutz - DEN (12)
+      'buf' => 8,     # Tyler Bass - BUF (7)
+      'kc' => 9,      # Harrison Butker - KC (10)
+      'pit' => 10,    # Chris Boswell - PIT (5)
+      'phi' => 11,    # Jake Elliott - PHI (9)
+      'atl' => 12,    # Younghoe Koo - ATL (5)
+      'mia' => 13,    # Jason Sanders - MIA (12)
+      'was' => 14,    # Matt Gay - WAS (12)
+      'lar' => 15,    # Joshua Karty - LAR (8)
+      'lv' => 16,     # Daniel Carlson - LV (8)
+      'sea' => 17,    # Jason Myers - SEA (8)
+      'gb' => 18,     # Brandon McManus - GB (5)
+      'min' => 19,    # Will Reichard - MIN (6)
+      'jax' => 20,    # Cam Little - JAX (8)
+      'chi' => 21,    # Cairo Santos - CHI (5)
+      'ari' => 22,    # Chad Ryland - ARI (8)
+      'sf' => 23,     # Jake Moody - SF (14)
+      'no' => 24,     # Blake Grupe - NO (11)
+      'bal' => 25,    # Tyler Loop - BAL (7)
+      'nyg' => 26,    # Graham Gano - NYG (14)
+      'ne' => 27,     # Andy Borregales - NE (14)
+      'car' => 28,    # Ryan Fitzgerald - CAR (14)
+      'cle' => 29,    # Dustin Hopkins - CLE (9)
+      'nyj' => 30,    # Caden Davis - NYJ (9)
+      'ind' => 31,    # Maddux Trujillo - IND (11)
+      'ten' => 32     # Joey Slye - TEN (10)
+    }
+    
+    updated_count = 0
+    
+    field_goal_ranks.each do |team_slug, rank|
+      coaches = Coach.where(team_slug: team_slug, season: 2025).where.not(offensive_play_caller_rank: nil)
+      
+      coaches.each do |coach|
+        if coach.field_goal_rank != rank
+          coach.update!(field_goal_rank: rank)
+          puts "Updated: #{coach.full_name} (#{coach.team_slug}) - Field Goal Rank: #{rank}"
+          updated_count += 1
+        else
+          puts "Already set: #{coach.full_name} (#{coach.team_slug}) - Field Goal Rank: #{rank}"
+        end
+      end
+    end
+    
+    puts "\nField goal ranks population completed!"
+    puts "Total coaches updated: #{updated_count}"
+    
+    # Display top 10 field goal rank coaches
+    puts "\nTop 10 Field Goal Rank Coaches (2025):"
+    Coach.current_season.order(:field_goal_rank).limit(10).each_with_index do |coach, index|
+      puts "#{index + 1}. #{coach.full_name} (#{coach.team_slug}) - Field Goal Rank: #{coach.field_goal_rank}"
+    end
+  end
 end 
