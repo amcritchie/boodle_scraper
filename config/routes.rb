@@ -8,4 +8,6 @@ Rails.application.routes.draw do
   get 'matchups/2025/week1/summary', to: 'matchups#summary', as: 'matchups_2025_week1_summary'
   get 'teams/seasons', to: 'matchups#teams_seasons', as: 'teams_seasons'
   get 'rankings', to: 'matchups#rankings', as: 'rankings'
+  get 'games/2025/week1', to: 'games#week1', as: 'games_2025_week1'
+  get 'games/2025/week1/:game_slug', to: 'games#show', as: 'game_show'
 end
