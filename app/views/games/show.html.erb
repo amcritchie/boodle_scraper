@@ -16,13 +16,13 @@
             <span class="text-3xl">🏈</span>
             <h1 class="text-2xl font-bold text-gray-900">Game Analysis</h1>
           </div>
-          <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Week 1, 2025</span>
+          <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Week 1, <%= @year %></span>
         </div>
         <nav class="flex space-x-4">
-          <a href="<%= games_2025_week1_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+          <a href="<%= games_week1_path(@year) %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
             ← Back to Games
           </a>
-          <a href="<%= matchups_2025_week1_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+          <a href="<%= matchups_week1_path(@year) %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
             View Matchups
           </a>
         </nav>
@@ -51,7 +51,7 @@
           </div>
           <div class="text-right text-white">
             <div class="text-3xl font-bold">Week <%= @game.week_slug %></div>
-            <div class="text-purple-100">2025 Season</div>
+            <div class="text-purple-100"><%= @year %> Season</div>
           </div>
         </div>
       </div>
@@ -478,11 +478,11 @@
       <div class="text-sm text-gray-500">
         <p>Detailed analysis for <%= @game.away_team&.name %> vs <%= @game.home_team&.name %> - Week 1, 2025</p>
         <p class="mt-2">
-          <a href="<%= games_2025_week1_path %>" class="text-blue-600 hover:text-blue-800 underline">
+          <a href="<%= games_week1_path(@year) %>" class="text-blue-600 hover:text-blue-800 underline">
             ← Back to All Games
           </a>
           <span class="mx-2">•</span>
-          <a href="<%= matchups_2025_week1_path %>" class="text-blue-600 hover:text-blue-800 underline">
+          <a href="<%= matchups_week1_path(@year) %>" class="text-blue-600 hover:text-blue-800 underline">
             View All Matchups
           </a>
         </p>

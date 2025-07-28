@@ -3,11 +3,11 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "articles#index"
-  get 'matchups/2025/week1', to: 'matchups#week1', as: 'matchups_2025_week1'
-  get 'matchups/2025/week1/roster', to: 'matchups#roster', as: 'matchups_2025_week1_roster'
-  get 'matchups/2025/week1/summary', to: 'matchups#summary', as: 'matchups_2025_week1_summary'
+  get 'matchups/:year/week1', to: 'matchups#week1', as: 'matchups_week1'
+  get 'matchups/:year/week1/roster', to: 'matchups#roster', as: 'matchups_roster'
+  get 'matchups/:year/week1/summary', to: 'matchups#summary', as: 'matchups_summary'
   get 'teams/:year/seasons', to: 'teams#teams_seasons', as: 'teams_seasons'
   get 'teams/:year/rankings', to: 'teams#rankings', as: 'teams_rankings'
-  get 'games/2025/week1', to: 'games#week1', as: 'games_2025_week1'
-  get 'games/2025/week1/:game_slug', to: 'games#show', as: 'game_show'
+  get 'games/:year/week1', to: 'games#week1', as: 'games_week1'
+  get 'games/:year/week1/:game_slug', to: 'games#show', as: 'game_show'
 end

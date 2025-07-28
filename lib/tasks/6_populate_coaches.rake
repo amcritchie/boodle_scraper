@@ -133,13 +133,13 @@ namespace :coaches do
       teams_season.save!
     end
     
-    puts "\nPace of Play ranks population completed!"
+    puts "\nDefensive Play Caller ranks population completed!"
     puts "Total coaches updated: #{updated_count}"
     
     # Display top 10 field goal rank coaches
-    puts "\nTop 10 Pace of Play Rank Coaches (2025):"
+    puts "\nTop 10 Defensive Play Caller Rank Coaches (2025):"
     Coach.current_season.order(:defensive_play_caller_rank).limit(10).each_with_index do |coach, index|
-      puts "#{index + 1}. #{coach.full_name} (#{coach.team_slug}) - Pace of Play Rank: #{coach.pace_of_play_rank}"
+      puts "#{index + 1}. #{coach.full_name} (#{coach.team_slug}) - Defensive Play Caller Rank: #{coach.defensive_play_caller_rank}"
     end
   end
 
@@ -200,13 +200,13 @@ namespace :coaches do
       end
     end
     
-    puts "\nField goal ranks population completed!"
+    puts "\nRun Heavy ranks population completed!"
     puts "Total coaches updated: #{updated_count}"
     
     # Display top 10 field goal rank coaches
-    puts "\nTop 10 Field Goal Rank Coaches (2025):"
-    Coach.current_season.order(:field_goal_rank).limit(10).each_with_index do |coach, index|
-      puts "#{index + 1}. #{coach.full_name} (#{coach.team_slug}) - Field Goal Rank: #{coach.field_goal_rank}"
+    puts "\nTop 10 Run Heavy Rank Coaches (2025):"
+    Coach.current_season.order(:run_heavy_rank).limit(10).each_with_index do |coach, index|
+      puts "#{index + 1}. #{coach.full_name} (#{coach.team_slug}) - Field Goal Rank: #{coach.run_heavy_rank}"
     end
   end
 

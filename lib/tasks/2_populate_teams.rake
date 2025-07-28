@@ -7,7 +7,7 @@ namespace :teams do
   desc "Populate TeamsSeason with CSV starting lineups and coaches"
   task starters2025: :environment do
     # Clean all TeamsSeason records
-    TeamsSeason.destroy_all
+    # TeamsSeason.destroy_all
 
     puts "Populating TeamsSeason with CSV starting lineups..."
     # Check if CSV file exists
@@ -31,9 +31,15 @@ namespace :teams do
       unit = row['Unit']
       # Set grade if new player - Travis Hunter
       if unit.downcase == 'offense'
-        player.update(grades_offense: row['Grade'].to_f)
+        player.update(
+          correction: nil,
+          grades_offense: row['Grade'].to_f
+        )
       else
-        player.update(grades_defence: row['Grade'].to_f)
+        player.update(
+          correction: nil,
+          grades_defence: row['Grade'].to_f
+        )
       end
       
       # Find or create TeamsSeason record
@@ -151,8 +157,8 @@ namespace :teams do
       head_coach              = team.coaches.find_by( season: 2025, position: 'Head Coach')
       offensive_coordinator   = team.coaches.find_by(season: 2025, position: 'Offensive Coordinator')
       defensive_coordinator   = team.coaches.find_by(season: 2025, position: 'Defensive Coordinator')
-      offensive_play_caller   = team.offensive_play_caller
-      defensive_play_caller   = team.defensive_play_caller
+      offensive_play_caller   = team.offensive_play_caller_coach
+      defensive_play_caller   = team.defensive_play_caller_coach
       # Create or update TeamsSeason record
       teams_season = TeamsSeason.find_or_create_by(team_slug: team.slug, season_year: 2025)
 
@@ -320,10 +326,6 @@ namespace :teams do
 
       # Find or create player using pff_starters_fetch (same as starters2025)
       player = Player.pff_starters_fetch(row)
-      # ap player.slug
-      # ap position.upcase
-
-      # puts "============="
       
       # Determine if this is an offensive or defensive position
       offensive_positions = ['QB', 'RB', 'WR', 'TE', 'C', 'LG', 'RG', 'LT', 'RT']
@@ -371,6 +373,7 @@ namespace :teams do
         next
       end
       
+  
       # Update the appropriate grade field
       if is_offensive
         old_grade = player.grades_offense

@@ -32,7 +32,7 @@
           <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full"><%= params[:year] %> Season</span>
         </div>
         <nav class="flex space-x-4">
-          <a href="<%= matchups_2025_week1_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+          <a href="<%= matchups_week1_path(@year) %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
             ← Matchups
           </a>
           <a href="<%= teams_seasons_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
@@ -518,7 +518,7 @@
       <div class="text-sm text-gray-500">
         <p>Data updated for the <%= params[:year] %> NFL season</p>
         <p class="mt-2">
-          <a href="<%= matchups_2025_week1_path %>" class="text-blue-600 hover:text-blue-800 underline">
+                      <a href="<%= matchups_week1_path(@year) %>" class="text-blue-600 hover:text-blue-800 underline">
             View Week 1 Matchups
           </a>
           <span class="mx-2">•</span>

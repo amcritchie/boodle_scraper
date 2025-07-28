@@ -1,19 +1,20 @@
 class GamesController < ApplicationController
   def week1
-    # Get all games for 2025 week 1
-    @games = Game.where(season: 2025, week_slug: "1").order(:kickoff_at)
+    @year = params[:year] || 2025
+    # Get all games for the specified year week 1
+    @games = Game.where(season: @year, week_slug: "1").order(:kickoff_at)
     
     # For each game, get the home and away matchups
     @games_with_predictions = @games.map do |game|
       home_matchup = Matchup.find_by(
-        season: 2025, 
+        season: @year, 
         week_slug: "1", 
         game_slug: game.slug, 
         team_slug: game.home_slug
       )
       
       away_matchup = Matchup.find_by(
-        season: 2025, 
+        season: @year, 
         week_slug: "1", 
         game_slug: game.slug, 
         team_slug: game.away_slug
@@ -28,23 +29,24 @@ class GamesController < ApplicationController
   end
 
   def show
+    @year = params[:year] || 2025
     @game = Game.find_by(slug: params[:game_slug])
     
     if @game.nil?
-      redirect_to games_2025_week1_path, alert: "Game not found"
+      redirect_to games_week1_path(@year), alert: "Game not found"
       return
     end
 
     # Get the home and away matchups
     @home_matchup = Matchup.find_by(
-      season: 2025, 
+      season: @year, 
       week_slug: "1", 
       game_slug: @game.slug, 
       team_slug: @game.home_slug
     )
     
     @away_matchup = Matchup.find_by(
-      season: 2025, 
+      season: @year, 
       week_slug: "1", 
       game_slug: @game.slug, 
       team_slug: @game.away_slug

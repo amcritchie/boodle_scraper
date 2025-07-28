@@ -1,11 +1,11 @@
 module TeamGrades
   extend ActiveSupport::Concern
 
-  def offensive_play_caller
+  def offensive_play_caller_coach
     coaches.where.not(offensive_play_caller_rank: nil).order(:offensive_play_caller_rank).first
   end
 
-  def defensive_play_caller
+  def defensive_play_caller_coach
     coaches.where.not(defensive_play_caller_rank: nil).order(:defensive_play_caller_rank).first
   end
 

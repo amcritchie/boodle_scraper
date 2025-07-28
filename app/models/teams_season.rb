@@ -19,10 +19,10 @@ class TeamsSeason < ApplicationRecord
   def defensive_coordinator
     Coach.find_by_slug(dc)
   end
-  def offensive_play_caller
+  def offensive_play_caller_coach
     Coach.find_by_slug(offensive_play_caller)
   end
-  def defensive_play_caller
+  def defensive_play_caller_coach
     Coach.find_by_slug(defensive_play_caller)
   end
   def coaches

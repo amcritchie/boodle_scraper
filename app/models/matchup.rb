@@ -908,11 +908,11 @@ class Matchup < ApplicationRecord
         coverage_rank:              defense_teams_season.coverage_rank,
         rushing_rank:               offense_teams_season.rushing_rank,
         run_defense_rank:           defense_teams_season.run_defense_rank,
-        field_goal_rank:            offense_teams_season.offensive_play_caller.field_goal_rank
+        field_goal_rank:            offense_teams_season.offensive_play_caller_coach.field_goal_rank
       )
       
       # Todo build out this ranking
-      update(field_goal_score: (33 - offense_teams_season.offensive_play_caller.field_goal_rank))
+      update(field_goal_score: (33 - offense_teams_season.offensive_play_caller_coach.field_goal_rank))
 
       # Calculate offense scores using rankings
       calculate_passing_offense_score(offense_teams_season)
@@ -1096,7 +1096,7 @@ class Matchup < ApplicationRecord
   end
 
   def calculate_field_goal_score(offense_teams_season,defense_teams_season)
-    field_goal_rank   = (offense_teams_season.offensive_play_caller.field_goal_rank || 16)
+    field_goal_rank   = (offense_teams_season.offensive_play_caller_coach.field_goal_rank || 16)
     pace_of_play_rank = (offense_teams_season.pace_of_play_rank || 16)
     run_heavy_rank    = (offense_teams_season.run_heavy_rank || 16)
     

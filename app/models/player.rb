@@ -250,7 +250,7 @@ class Player < ApplicationRecord
     end
     # Update Player with SportsRadar data
     player.update(
-      slug:               player_slug,  
+      # slug:               player_slug,  # Don't define slug here.  Causes a bug when re-running rake tasks | dline-dj-wonnum becomes linebacker-dj-wonnum
       position:           position,
       team_slug:          team_slug,
       player:             player_sportsradar["name"],
