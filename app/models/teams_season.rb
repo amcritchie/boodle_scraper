@@ -9,145 +9,117 @@ class TeamsSeason < ApplicationRecord
   # eg1, eg2, dl1, dl2, dl3, lb1, lb2, cb1, cb2, cb3, s1, s2 (defense)
   # Coach attributes: hc (head coach), oc (offensive coordinator), dc (defensive coordinator)
 
-  # Player methods
-  def qb_player
-    Player.find_by_slug(qb)
-  end
-
-  def rb1_player
-    Player.find_by_slug(rb1)
-  end
-
-  def rb2_player
-    Player.find_by_slug(rb2)
-  end
-
-  def wr1_player
-    Player.find_by_slug(wr1)
-  end
-
-  def wr2_player
-    Player.find_by_slug(wr2)
-  end
-
-  def wr3_player
-    Player.find_by_slug(wr3)
-  end
-
-  def te_player
-    Player.find_by_slug(te)
-  end
-
-  def center_player
-    Player.find_by_slug(c)
-  end
-
-  def left_tackle_player
-    Player.find_by_slug(lt)
-  end
-
-  def right_tackle_player
-    Player.find_by_slug(rt)
-  end
-
-  def left_guard_player
-    Player.find_by_slug(lg)
-  end
-
-  def right_guard_player
-    Player.find_by_slug(rg)
-  end
-
-  def edge1_player
-    Player.find_by_slug(eg1)
-  end
-
-  def edge2_player
-    Player.find_by_slug(eg2)
-  end
-
-  def dl1_player
-    Player.find_by_slug(dl1)
-  end
-
-  def dl2_player
-    Player.find_by_slug(dl2)
-  end
-
-  def dl3_player
-    Player.find_by_slug(dl3)
-  end
-
-  def lb1_player
-    Player.find_by_slug(lb1)
-  end
-
-  def lb2_player
-    Player.find_by_slug(lb2)
-  end
-
-  def cb1_player
-    Player.find_by_slug(cb1)
-  end
-
-  def cb2_player
-    Player.find_by_slug(cb2)
-  end
-
-  def cb3_player
-    Player.find_by_slug(cb3)
-  end
-
-  def safety1_player
-    Player.find_by_slug(s1)
-  end
-
-  def safety2_player
-    Player.find_by_slug(s2)
-  end
-
   # Coach methods
   def head_coach
     Coach.find_by_slug(hc)
   end
-
   def offensive_coordinator
     Coach.find_by_slug(oc)
   end
-
   def defensive_coordinator
     Coach.find_by_slug(dc)
   end
-
-  def off_play_caller
+  def offensive_play_caller
     Coach.find_by_slug(offensive_play_caller)
   end
-
-  def def_play_caller
+  def defensive_play_caller
     Coach.find_by_slug(defensive_play_caller)
   end
+  def coaches
+    Coach.where(slug: [hc, oc, dc, offensive_play_caller, defensive_play_caller].compact)
+  end
+  def self.offensive_play_callers
+    Coach.where(slug: all.pluck(:offensive_play_caller).flatten.compact)
+  end
+  def self.defensive_play_callers
+    Coach.where(slug: all.pluck(:defensive_play_caller).flatten.compact)
+  end
+
+  # Player methods
+  def qb_player
+    Player.find_by_slug(qb)
+  end
+  def rb1_player
+    Player.find_by_slug(rb1)
+  end
+  def rb2_player
+    Player.find_by_slug(rb2)
+  end
+  def wr1_player
+    Player.find_by_slug(wr1)
+  end
+  def wr2_player
+    Player.find_by_slug(wr2)
+  end
+  def wr3_player
+    Player.find_by_slug(wr3)
+  end
+  def te_player
+    Player.find_by_slug(te)
+  end
+  def center_player
+    Player.find_by_slug(c)
+  end
+  def left_tackle_player
+    Player.find_by_slug(lt)
+  end
+  def right_tackle_player
+    Player.find_by_slug(rt)
+  end
+  def left_guard_player
+    Player.find_by_slug(lg)
+  end
+  def right_guard_player
+    Player.find_by_slug(rg)
+  end
+  def edge1_player
+    Player.find_by_slug(eg1)
+  end
+  def edge2_player
+    Player.find_by_slug(eg2)
+  end
+  def dl1_player
+    Player.find_by_slug(dl1)
+  end
+  def dl2_player
+    Player.find_by_slug(dl2)
+  end
+  def dl3_player
+    Player.find_by_slug(dl3)
+  end
+  def lb1_player
+    Player.find_by_slug(lb1)
+  end
+  def lb2_player
+    Player.find_by_slug(lb2)
+  end
+  def cb1_player
+    Player.find_by_slug(cb1)
+  end
+  def cb2_player
+    Player.find_by_slug(cb2)
+  end
+  def cb3_player
+    Player.find_by_slug(cb3)
+  end
+  def safety1_player
+    Player.find_by_slug(s1)
+  end
+  def safety2_player
+    Player.find_by_slug(s2)
+  end
+
 
   # Collection methods
   def offense_starters
     Player.where(slug: [qb, rb1, rb2, wr1, wr2, wr3, te, c, lt, rt, lg, rg].compact)
   end
-
   def defense_starters
     Player.where(slug: [eg1, eg2, dl1, dl2, dl3, lb1, lb2, cb1, cb2, cb3, s1, s2].compact)
   end
-
-  def coaches
-    Coach.where(slug: [hc, oc, dc, offensive_play_caller, defensive_play_caller].compact)
-  end
-
-  def self.play_callers
-    Coach.where(slug: all.pluck(:offensive_play_caller).flatten.compact)
-  end
-
   def self.qbs
     Player.where(slug: all.pluck(:qb).flatten.compact)
   end
-
   def self.receivers
     Player.where(slug: all.pluck(:wr1, :wr2, :wr3, :te).flatten.compact)
   end
@@ -155,27 +127,21 @@ class TeamsSeason < ApplicationRecord
   def rushers
     Player.where(slug: [qb, rb1, rb2].compact)
   end
-
   def receivers
     Player.where(slug: [wr1, wr2, wr3, te].compact)
   end
-  
   def oline_players
     Player.where(slug: [c, lg, rg, lt, rt].compact)
   end
-
   def edge_players
     Player.where(slug: [eg1, eg2].compact)
   end
-
   def dinterior_players
     Player.where(slug: [dl1, dl2, dl3].compact)
   end
-
   def dline_players
     Player.where(slug: [eg1, eg2, dl1, dl2, dl3].compact)
   end
-
   def secondary_players
     Player.where(slug: [cb1, cb2, cb3, s1, s2].compact)
   end
@@ -186,7 +152,15 @@ class TeamsSeason < ApplicationRecord
     potential_rushers.sort_by { |player| -(player.rushing_grade || 0) }.first(2)
   end
 
+  # Instance method to get top three receivers for this team
+  def top_three_receivers
+    receivers.order('grades_offense DESC NULLS LAST').limit(3)
+  end
 
+  # Instance method to calculate total offense grade for top three receivers
+  def top_three_receivers_grade
+    top_three_receivers.sum { |player| player.grades_offense || 60 }
+  end
 
   # Ranking methods for the view
   def self.ranked_by_play_caller
@@ -219,37 +193,35 @@ class TeamsSeason < ApplicationRecord
 
   def self.receiver_core_rankings
     teams_seasons = includes(:team)
-      .where.not(wr1: nil, wr2: nil, te: nil)
-      .joins('LEFT JOIN players wr1_player ON wr1_player.slug = teams_seasons.wr1')
-      .joins('LEFT JOIN players wr2_player ON wr2_player.slug = teams_seasons.wr2')
-      .joins('LEFT JOIN players te_player ON te_player.slug = teams_seasons.te')
-      .select('teams_seasons.*, 
-               (COALESCE(wr1_player.grades_offense, 60) + 
-                COALESCE(wr2_player.grades_offense, 60) + 
-                COALESCE(te_player.grades_offense, 60)) as total_offense_grade')
-      .order('total_offense_grade DESC')
+      .where.not(wr1: nil, wr2: nil, wr3: nil, te: nil)
     
-    teams_seasons.map do |team_season|
+    rankings = teams_seasons.map do |team_season|
       {
-        total_offense_grade: team_season.total_offense_grade,
+        total_offense_grade: team_season.top_three_receivers_grade,
         team: team_season.team,
-        receivers: [
-          team_season.wr1_player,
-          team_season.wr2_player,
-          team_season.te_player
-        ].compact
+        receivers: team_season.top_three_receivers
       }
     end
+    
+    # Sort by total_offense_grade in descending order
+    rankings.sort_by { |ranking| -ranking[:total_offense_grade] }
+  end
+
+  def self.qb_rankings
+    teams_seasons = includes(:team).where.not(qb: nil)
+    teams_seasons.map do |team_season|
+      {
+        total_offense_grade: team_season.qb_player.grades_offense,
+        total_passing_grade: team_season.qb_player.grades_pass,
+        team: team_season.team,
+        qb: team_season.qb_player
+      }
+    end.sort_by { |ranking| -ranking[:total_offense_grade] }
   end
 
 
-
-
-
   def self.oline_pass_block_rankings
-    teams_seasons = includes(:team)
-      .where.not(c: nil, lg: nil, rg: nil, lt: nil, rt: nil)
-    
+    teams_seasons = includes(:team).where.not(c: nil, lg: nil, rg: nil, lt: nil, rt: nil)
     teams_seasons.map do |team_season|
       total_pass_block_grade = team_season.oline_players.sum { |player| player.grades_pass_block || 60 }
       {

@@ -158,21 +158,42 @@
                   </div>
                 </div>
                 <div class="mt-4 space-y-2">
+                  <div class="text-sm font-semibold text-gray-700 mb-2">Offense Rankings:</div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Play Caller Rank:</span>
+                    <span class="text-gray-600">🧠 Play Caller Rank:</span>
                     <span class="font-mono font-semibold">#<%= @away_matchup.offensive_play_caller_rank || 'N/A' %></span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">QB Passing Rank:</span>
+                    <span class="text-gray-600">🏈 QB Passing Rank:</span>
                     <span class="font-mono font-semibold">#<%= @away_matchup.qb_passing_rank || 'N/A' %></span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Receiver Rank:</span>
+                    <span class="text-gray-600">🤲 Receiver Rank:</span>
                     <span class="font-mono font-semibold">#<%= @away_matchup.receiver_core_rank || 'N/A' %></span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Pass Block Rank:</span>
+                    <span class="text-gray-600">🛡️ Pass Block Rank:</span>
                     <span class="font-mono font-semibold">#<%= @away_matchup.pass_block_rank || 'N/A' %></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">⏱️ Pace of Play Rank:</span>
+                    <span class="font-mono font-semibold">#<%= @away_matchup.pace_of_play_rank || 'N/A' %></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">👟 Run Heavy Rank:</span>
+                    <span class="font-mono font-semibold">#<%= @away_matchup.run_heavy_rank || 'N/A' %></span>
+                  </div>
+                  
+                  <div class="border-t border-gray-300 mt-3 pt-3">
+                    <div class="text-sm font-semibold text-gray-700 mb-2">Defense Rankings:</div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">💨 Pass Rush Rank:</span>
+                      <span class="font-mono font-semibold">#<%= @away_matchup.pass_rush_rank || 'N/A' %></span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">👁️ Coverage Rank:</span>
+                      <span class="font-mono font-semibold">#<%= @away_matchup.coverage_rank || 'N/A' %></span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -196,13 +217,30 @@
                   </div>
                 </div>
                 <div class="mt-4 space-y-2">
+                  <div class="text-sm font-semibold text-gray-700 mb-2">Offense Rankings:</div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Rushing Rank:</span>
+                    <span class="text-gray-600">🏃 Rushing Rank:</span>
                     <span class="font-mono font-semibold">#<%= @away_matchup.rushing_rank || 'N/A' %></span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Run Heavy Rank:</span>
+                    <span class="text-gray-600">🛡️ Run Block Rank:</span>
+                    <span class="font-mono font-semibold">#<%= @away_matchup.rush_block_rank || 'N/A' %></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">⏱️ Pace of Play Rank:</span>
+                    <span class="font-mono font-semibold">#<%= @away_matchup.pace_of_play_rank || 'N/A' %></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">👟 Run Heavy Rank:</span>
                     <span class="font-mono font-semibold">#<%= @away_matchup.run_heavy_rank || 'N/A' %></span>
+                  </div>
+                  
+                  <div class="border-t border-gray-300 mt-3 pt-3">
+                    <div class="text-sm font-semibold text-gray-700 mb-2">Defense Rankings:</div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">🛑 Run Defense Rank:</span>
+                      <span class="font-mono font-semibold">#<%= @away_matchup.run_defense_rank || 'N/A' %></span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -211,13 +249,27 @@
             <!-- Field Goal Analysis -->
             <div>
               <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                <span class="text-yellow-500 mr-2">🥾</span>
+                <span class="text-yellow-500 mr-2">🥅</span>
                 Field Goal Analysis
               </h4>
               <div class="bg-yellow-50 rounded-lg p-4">
-                <div class="text-center">
+                <div class="text-center mb-4">
                   <div class="font-semibold text-gray-700 mb-2">Field Goal Score:</div>
                   <div class="text-3xl font-bold text-yellow-600"><%= @away_matchup.field_goal_score || 0 %></div>
+                </div>
+                <div class="space-y-2">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">🥅 Field Goal Rank:</span>
+                    <span class="font-mono font-semibold">#<%= @away_matchup.field_goal_rank || 'N/A' %></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">⏱️ Pace of Play Rank:</span>
+                    <span class="font-mono font-semibold">#<%= @away_matchup.pace_of_play_rank || 'N/A' %></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">👟 Run Heavy Rank:</span>
+                    <span class="font-mono font-semibold">#<%= @away_matchup.run_heavy_rank || 'N/A' %></span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -258,21 +310,42 @@
                   </div>
                 </div>
                 <div class="mt-4 space-y-2">
+                  <div class="text-sm font-semibold text-gray-700 mb-2">Offense Rankings:</div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Play Caller Rank:</span>
+                    <span class="text-gray-600">🧠 Play Caller Rank:</span>
                     <span class="font-mono font-semibold">#<%= @home_matchup.offensive_play_caller_rank || 'N/A' %></span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">QB Passing Rank:</span>
+                    <span class="text-gray-600">🏈 QB Passing Rank:</span>
                     <span class="font-mono font-semibold">#<%= @home_matchup.qb_passing_rank || 'N/A' %></span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Receiver Rank:</span>
+                    <span class="text-gray-600">🤲 Receiver Rank:</span>
                     <span class="font-mono font-semibold">#<%= @home_matchup.receiver_core_rank || 'N/A' %></span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Pass Block Rank:</span>
+                    <span class="text-gray-600">🛡️ Pass Block Rank:</span>
                     <span class="font-mono font-semibold">#<%= @home_matchup.pass_block_rank || 'N/A' %></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">⏱️ Pace of Play Rank:</span>
+                    <span class="font-mono font-semibold">#<%= @home_matchup.pace_of_play_rank || 'N/A' %></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">👟 Run Heavy Rank:</span>
+                    <span class="font-mono font-semibold">#<%= @home_matchup.run_heavy_rank || 'N/A' %></span>
+                  </div>
+                  
+                  <div class="border-t border-gray-300 mt-3 pt-3">
+                    <div class="text-sm font-semibold text-gray-700 mb-2">Defense Rankings:</div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">💨 Pass Rush Rank:</span>
+                      <span class="font-mono font-semibold">#<%= @home_matchup.pass_rush_rank || 'N/A' %></span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">👁️ Coverage Rank:</span>
+                      <span class="font-mono font-semibold">#<%= @home_matchup.coverage_rank || 'N/A' %></span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -296,13 +369,30 @@
                   </div>
                 </div>
                 <div class="mt-4 space-y-2">
+                  <div class="text-sm font-semibold text-gray-700 mb-2">Offense Rankings:</div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Rushing Rank:</span>
+                    <span class="text-gray-600">🏃 Rushing Rank:</span>
                     <span class="font-mono font-semibold">#<%= @home_matchup.rushing_rank || 'N/A' %></span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600">Run Heavy Rank:</span>
+                    <span class="text-gray-600">🛡️ Run Block Rank:</span>
+                    <span class="font-mono font-semibold">#<%= @home_matchup.rush_block_rank || 'N/A' %></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">⏱️ Pace of Play Rank:</span>
+                    <span class="font-mono font-semibold">#<%= @home_matchup.pace_of_play_rank || 'N/A' %></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">👟 Run Heavy Rank:</span>
                     <span class="font-mono font-semibold">#<%= @home_matchup.run_heavy_rank || 'N/A' %></span>
+                  </div>
+                  
+                  <div class="border-t border-gray-300 mt-3 pt-3">
+                    <div class="text-sm font-semibold text-gray-700 mb-2">Defense Rankings:</div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">🛑 Run Defense Rank:</span>
+                      <span class="font-mono font-semibold">#<%= @home_matchup.run_defense_rank || 'N/A' %></span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -311,13 +401,27 @@
             <!-- Field Goal Analysis -->
             <div>
               <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                <span class="text-yellow-500 mr-2">🥾</span>
+                <span class="text-yellow-500 mr-2">🥅</span>
                 Field Goal Analysis
               </h4>
               <div class="bg-yellow-50 rounded-lg p-4">
-                <div class="text-center">
+                <div class="text-center mb-4">
                   <div class="font-semibold text-gray-700 mb-2">Field Goal Score:</div>
                   <div class="text-3xl font-bold text-yellow-600"><%= @home_matchup.field_goal_score || 0 %></div>
+                </div>
+                <div class="space-y-2">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">🥅 Field Goal Rank:</span>
+                    <span class="font-mono font-semibold">#<%= @home_matchup.field_goal_rank || 'N/A' %></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">⏱️ Pace of Play Rank:</span>
+                    <span class="font-mono font-semibold">#<%= @home_matchup.pace_of_play_rank || 'N/A' %></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">👟 Run Heavy Rank:</span>
+                    <span class="font-mono font-semibold">#<%= @home_matchup.run_heavy_rank || 'N/A' %></span>
+                  </div>
                 </div>
               </div>
             </div>

@@ -53,10 +53,11 @@ class CreateMatchups < ActiveRecord::Migration[7.0]
       t.integer :qb_passing_rank
       t.integer :receiver_core_rank
       t.integer :pass_block_rank
-      t.integer :run_defense_rank
       t.integer :pass_rush_rank
       t.integer :coverage_rank
       t.integer :rushing_rank
+      t.integer :rush_block_rank
+      t.integer :run_defense_rank
 
       t.integer :field_goal_score
       t.integer :rushing_offense_score

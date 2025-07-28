@@ -903,15 +903,16 @@ class Matchup < ApplicationRecord
         qb_passing_rank:            offense_teams_season.qb_passing_rank,
         receiver_core_rank:         offense_teams_season.receiver_core_rank,
         pass_block_rank:            offense_teams_season.pass_block_rank,
+        rush_block_rank:            offense_teams_season.oline_run_block_rank,
         pass_rush_rank:             defense_teams_season.pass_rush_rank,
         coverage_rank:              defense_teams_season.coverage_rank,
         rushing_rank:               offense_teams_season.rushing_rank,
         run_defense_rank:           defense_teams_season.run_defense_rank,
-        field_goal_rank:            offense_teams_season.off_play_caller.field_goal_rank
+        field_goal_rank:            offense_teams_season.offensive_play_caller.field_goal_rank
       )
       
       # Todo build out this ranking
-      update(field_goal_score: (33 - offense_teams_season.off_play_caller.field_goal_rank))
+      update(field_goal_score: (33 - offense_teams_season.offensive_play_caller.field_goal_rank))
 
       # Calculate offense scores using rankings
       calculate_passing_offense_score(offense_teams_season)
@@ -921,6 +922,7 @@ class Matchup < ApplicationRecord
       # Calculate attack scores
       calculate_passing_attack_score(offense_teams_season,defense_teams_season)
       calculate_rushing_attack_score(offense_teams_season,defense_teams_season)
+      calculate_field_goal_score(offense_teams_season,defense_teams_season)
     end
   end
 
@@ -1008,6 +1010,8 @@ class Matchup < ApplicationRecord
     oline_rank        = (offense_teams_season.oline_pass_block_rank || 16)
     pass_rush_rank    = (defense_teams_season.pass_rush_rank || 16)
     coverage_rank     = (defense_teams_season.coverage_rank || 16)
+    pace_of_play_rank = (offense_teams_season.pace_of_play_rank || 16)
+    run_heavy_rank    = (offense_teams_season.run_heavy_rank || 16)
     # Convert rankings to scores (1-32 scale, where 1 is best)
     # Higher score = better passing attack
     play_caller_score = (33 - play_caller_rank) / 32.0 * 100
@@ -1016,28 +1020,31 @@ class Matchup < ApplicationRecord
     oline_score       = (33 - oline_rank) / 32.0 * 100
     pass_rush_score   = (33 - pass_rush_rank) / 32.0 * 100
     coverage_score    = (33 - coverage_rank) / 32.0 * 100
-    play_caller_score = (33 - play_caller_rank) / 32.0 * 100
+    pace_score        = (33 - pace_of_play_rank) / 32.0 * 100
+    run_heavy_score   = (33 - run_heavy_rank) / 32.0 * 100
     # Todo add in QB inteligence
     # -100 to 100
-    pocket_score = oline_score - pass_rush_score
+    pocket_score = oline_score - (pass_rush_score * 0.5)
     # Coverage Advantage Score
     # -100 to 300
-    passing_score = qb_score * 1.5 + receiver_score * 1.5 - coverage_score
-    # Final Passing Matchup Score
+    passing_score = qb_score * 1.5 + receiver_score * 1.5 - (coverage_score * 0.5)
+    # Final Passing Matchup Score with pace and run_heavy adjustments
     # -250 to 600 | 200 + 150 + 300 | 0 + -150 + -100
-    passing_matchup_score = play_caller_score * 2 + pocket_score * 1.5 + passing_score * 1.0
+    passing_matchup_score = play_caller_score * 2 + pocket_score * 1.5 + passing_score * 1.0 + pace_score * 0.5 - run_heavy_score * 0.3
     puts "================================="
     puts "Matchup #{team.name} vs #{team_defense.name}"
     puts "passing_matchup_score:  🏈 #{passing_matchup_score}"
     puts "---------------------------------"
     puts "play_caller_score:      🧠 #{play_caller_score}"
     puts "passing_score:          🤲 #{passing_score}"
-    puts "pocket_score:           🛡️ #{pocket_score}"
+    puts "pocket_score:           🛡️  #{pocket_score}"
+    puts "pace_score:             ⏱️  #{pace_score}"
+    puts "run_heavy_score:        👟 #{run_heavy_score}"
     puts "---------------------------------"
     puts "play_caller_score:      🧠 #{play_caller_score}"
     puts "qb_score:               🏈 #{qb_score}"
     puts "receiver_score:         🤲 #{receiver_score}"
-    puts "coverage_score:         👁️ #{coverage_score}"
+    puts "coverage_score:         👁️  #{coverage_score}"
     puts "oline_score:            🏠 #{oline_score}"
     puts "pass_rush_score:        💨 #{pass_rush_score}"
     puts "================================="
@@ -1050,25 +1057,80 @@ class Matchup < ApplicationRecord
     rushing_rank      = (offense_teams_season.rushing_rank || 16)
     oline_rank        = (offense_teams_season.oline_run_block_rank || 16)
     run_defense_rank  = (defense_teams_season.run_defense_rank || 16)
+    pace_of_play_rank = (offense_teams_season.pace_of_play_rank || 16)
+    run_heavy_rank    = (offense_teams_season.run_heavy_rank || 16)
     # Convert rankings to scores (1-32 scale, where 1 is best)
     # Higher score = better rushing attack
     play_caller_score = (33 - play_caller_rank) / 32.0 * 100
     rushing_score     = (33 - rushing_rank) / 32.0 * 100
     oline_score       = (33 - oline_rank) / 32.0 * 100
     run_defense_score = (33 - run_defense_rank) / 32.0 * 100
-    # Weighted composite score for rushing attack
+    pace_score        = (33 - pace_of_play_rank) / 32.0 * 100
+    run_heavy_score   = (33 - run_heavy_rank) / 32.0 * 100
+    # Weighted composite score for rushing attack with pace and run_heavy adjustments
     # -150 to 470 | 150 + 200 + 120 - 0 | 0 + 0 + 0 -150
-    rushing_attack_score = play_caller_score * 1.5 + rushing_score * 2.0 + oline_score * 1.2 - run_defense_score * 1.5
+    rushing_attack_score = play_caller_score * 1.5 + rushing_score * 2.0 + oline_score * 1.2 - run_defense_score * 1.0 + pace_score * 0.3 + run_heavy_score * 0.5
+
+        # Reduce field goal score based on offensive attack scores
+    # Teams with high rushing/passing attack scores score more TDs, so fewer FGs
+    # rushing_attack_reduction = (rushing_attack_score || 0) * 0.2  # Reduce by 30% of rushing attack score
+    passing_attack_reduction = (passing_attack_score || 0) * 0.2  # Reduce by 20% of passing attack score
+    
+    # Apply reductions (ensure field goal score doesn't go below 0)
+    rushing_attack_score_after_reductions = [rushing_attack_score - passing_attack_reduction, 0].max
+
+
     puts "================================="
     puts "Matchup #{team.name} vs #{team_defense.name}"
     puts "rushing_attack_score:   👟 #{rushing_attack_score}"
+    puts "rushing_attack_score_after_reductions:   👟 #{rushing_attack_score_after_reductions}"
     puts "---------------------------------"
     puts "play_caller_score:      🧠 #{play_caller_score}"
     puts "rushing_score:          👟 #{rushing_score}"
     puts "oline_score:            🏠 #{oline_score}"
     puts "run_defense_score:      🛑 #{run_defense_score}"
+    puts "pace_score:             ⏱️  #{pace_score}"
+    puts "run_heavy_score:        👟 #{run_heavy_score}"
     # Update the matchup
-    update(rushing_attack_score: rushing_attack_score.to_i)
+    update(rushing_attack_score: rushing_attack_score_after_reductions.to_i)
+  end
+
+  def calculate_field_goal_score(offense_teams_season,defense_teams_season)
+    field_goal_rank   = (offense_teams_season.offensive_play_caller.field_goal_rank || 16)
+    pace_of_play_rank = (offense_teams_season.pace_of_play_rank || 16)
+    run_heavy_rank    = (offense_teams_season.run_heavy_rank || 16)
+    
+    # Convert rankings to scores (1-32 scale, where 1 is best)
+    # Higher score = better field goal opportunities
+    field_goal_score  = (33 - field_goal_rank) / 32.0 * 100
+    pace_score        = (33 - pace_of_play_rank) / 32.0 * 100
+    run_heavy_score   = (33 - run_heavy_rank) / 32.0 * 100
+  
+    # Weighted composite score for field goal attack with pace and run_heavy adjustments
+    # 0 to 300 | 100 + 100 + 100 | 0 + 0 + 0
+    field_goal_score = field_goal_score * 1.0 + pace_score * 0.8 - run_heavy_score * 0.2
+    
+    # Reduce field goal score based on offensive attack scores
+    # Teams with high rushing/passing attack scores score more TDs, so fewer FGs
+    rushing_attack_reduction = (rushing_attack_score || 0) * 0.2  # Reduce by 30% of rushing attack score
+    passing_attack_reduction = (passing_attack_score || 0) * 0.1  # Reduce by 20% of passing attack score
+    
+    # Apply reductions (ensure field goal score doesn't go below 0)
+    field_goal_score_after_reductions = [field_goal_score - rushing_attack_reduction - passing_attack_reduction, 0].max
+    
+    puts "================================="
+    puts "Matchup #{team.name} vs #{team_defense.name}"
+    puts "field_goal_score_after_reductions: 🥅 #{field_goal_score_after_reductions}"
+    puts "---------------------------------"
+    puts "field_goal_score:        🥅 #{field_goal_score}"
+    puts "pace_score:              ⏱️  #{pace_score}"
+    puts "run_heavy_score:         👟 #{run_heavy_score}"
+    puts "rushing_attack_reduction:👟 #{rushing_attack_score} | #{rushing_attack_reduction}"
+    puts "passing_attack_reduction:🏈 #{passing_attack_score} | #{passing_attack_reduction}"
+    puts "================================="
+    
+    # Update the matchup
+    update(field_goal_score: field_goal_score_after_reductions.to_i)
   end
 
   def self.passing_tds(matchups=32)

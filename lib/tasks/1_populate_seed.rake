@@ -11,6 +11,10 @@ namespace :seed do
     # rake coaches:populate               | Set Coach Ranks         | 32 Coaches
     Rake::Task['coaches:populate'].invoke
     # rake coaches:populate_field_goal_ranks | Set Coach Ranks         | 32 Coaches
+    
+    Rake::Task['coaches:populate_defensive_play_caller_ranks'].invoke
+    Rake::Task['coaches:populate_pace_of_play_ranks'].invoke
+    Rake::Task['coaches:populate_run_heavy_ranks'].invoke
     Rake::Task['coaches:populate_field_goal_ranks'].invoke
     # rake teams:starters2025             | Set Team Starters 2025  | Pro Football Focus | 2025
     Rake::Task['teams:starters2025'].invoke

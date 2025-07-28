@@ -152,7 +152,7 @@ namespace :teams do
       offensive_coordinator   = team.coaches.find_by(season: 2025, position: 'Offensive Coordinator')
       defensive_coordinator   = team.coaches.find_by(season: 2025, position: 'Defensive Coordinator')
       offensive_play_caller   = team.offensive_play_caller
-      # defensive_play_caller   = team.defensive_play_caller
+      defensive_play_caller   = team.defensive_play_caller
       # Create or update TeamsSeason record
       teams_season = TeamsSeason.find_or_create_by(team_slug: team.slug, season_year: 2025)
 
@@ -236,7 +236,7 @@ namespace :teams do
         oc:   offensive_coordinator&.slug,
         dc:   defensive_coordinator&.slug,
         offensive_play_caller: offensive_play_caller&.slug,
-        defensive_play_caller: nil
+        defensive_play_caller: defensive_play_caller&.slug
       )
       play_caller_emoji = "🧠" if offensive_play_caller.position == "Offensive Coordinator"
       play_caller_emoji = "🏈" if offensive_play_caller.position == "Head Coach"
@@ -254,6 +254,7 @@ namespace :teams do
   desc "Populate TeamsSeason with current starters and coaches"
   task startersOveride2025: :environment do
 
+      # Starter overrides
       starter_overrides = [
         { team: 'pit', slug: 'quarterback-aaron-rodgers'},
         { team: 'mia', slug: 'quarterback-tua-tagovailoa', left_handed: true},
@@ -267,6 +268,30 @@ namespace :teams do
         # Update TeamsSeason
         teams_season = TeamsSeason.find_or_create_by(team_slug: team.slug, season_year: 2025)
         teams_season.update(qb: player.slug)
+      end
+
+      # Slug overrides
+      slug_overrides = [
+        # { team: 'atl', slug: 'dline-arnold-ebiketie', original_slug: 'linebacker-arnold-ebiketie'},
+        # { team: 'mia', slug: 'dline-jaelan-phillips', original_slug: 'linebacker-jaelan-phillips'},
+        # { team: 'mia', slug: 'dline-bradley-chubb', original_slug: 'linebacker-bradley-chubb'},
+        # { team: 'nyg', slug: 'dline-kayvon-thibodeaux', original_slug: 'linebacker-kayvon-thibodeaux'},
+        # { team: 'nyg', slug: 'dline-abdul-carter', original_slug: 'linebacker-abdul-carter'},
+        # { team: 'nyg', slug: 'dline-brian-burns', original_slug: 'linebacker-brian-burns'},
+        # { team: 'sea', slug: 'dline-uchenna-nwosu', original_slug: 'linebacker-uchenna-nwosu'},
+        # { team: 'sea', slug: 'dline-boye-mafe', original_slug: 'linebacker-boye-mafe'},
+        # { team: 'pit', slug: 'dline-tj-watt', original_slug: 'linebacker-tj-watt'},
+        # { team: 'pit', slug: 'dline-alex-highsmith', original_slug: 'linebacker-alex-highsmith'},
+        # { team: 'pit', slug: 'dline-zaven-collins', original_slug: 'linebacker-zaven-collins'},
+        # { team: 'pit', slug: 'dline-josh-sweat', original_slug: 'linebacker-josh-sweat'},
+        # { team: 'pit', slug: 'dline-baron-browning', original_slug: 'linebacker-baron-browning'},
+        # { team: 'car', slug: 'dline-dj-wonnum', original_slug: 'linebacker-dj-wonnum'}
+      ]
+
+      slug_overrides.each do |override|
+        team = Team.active.find_by(slug: override[:team])
+        player = Player.find_by(slug: override[:original_slug])
+        player.update(slug: override[:slug]) if player
       end
   end
 
@@ -350,7 +375,7 @@ namespace :teams do
       if is_offensive
         old_grade = player.grades_offense
         player.update(grades_offense: new_grade)
-        puts "📈 #{row['Player'].ljust(20)} (#{team_name.ljust(10)} #{position.ljust(10)}): #{old_grade.round(1)} → #{new_grade.round(1)} (#{correction.ljust(10)})"
+        puts "📈 #{row['Player'].ljust(20)} (#{team_name.ljust(10)} #{position.ljust(10)}): #{old_grade} → #{new_grade.round(1)} (#{correction.ljust(10)})"
       elsif is_defensive
         old_grade = player.grades_defence
         player.update(grades_defence: new_grade)

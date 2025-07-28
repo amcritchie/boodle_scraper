@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NFL Team Rankings 2025</title>
+  <title>NFL Team Rankings <%= params[:year] %></title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -29,7 +29,7 @@
             <span class="text-3xl">🏈</span>
             <h1 class="text-2xl font-bold text-gray-900">NFL Team Rankings</h1>
           </div>
-          <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">2025 Season</span>
+          <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full"><%= params[:year] %> Season</span>
         </div>
         <nav class="flex space-x-4">
           <a href="<%= matchups_2025_week1_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
@@ -69,7 +69,7 @@
         </div>
         <div class="p-6">
           <div class="space-y-3">
-            <% @qb_passing_rankings.each_with_index do |player, index| %>
+            <% @qb_passing_rankings.each_with_index do |ranking, index| %>
               <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
@@ -77,18 +77,18 @@
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span class="text-xl"><%= player.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900"><%= player.team&.name %></span>
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900"><%= ranking[:team]&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
                     <div class="text-lg font-bold text-gray-900">
-                      <%= number_with_precision(player&.grades_offense || 0, precision: 1) %>
+                      <%= ranking[:total_offense_grade] %>
                     </div>
                   </div>
                 </div>
                 <div class="text-xs text-gray-500 pl-11">
-                  <%= player&.player || 'No QB' %>
+                  <%= ranking[:qb]&.player %> <i>Pass: <%= ranking[:qb]&.grades_pass %></i>
                 </div>
               </div>
             <% end %>
@@ -128,7 +128,7 @@
                   </div>
                 </div>
                 <div class="text-xs text-gray-500 pl-11">
-                  <%= ranking[:receivers].map(&:last_name).join(', ') %>
+                  <%= ranking[:receivers].map { |receiver| "#{receiver.last_name} #{receiver.grades_offense || 'N/A'}" }.join(', ') %>
                 </div>
               </div>
             <% end %>
@@ -516,7 +516,7 @@
     <!-- Footer -->
     <footer class="mt-16 text-center">
       <div class="text-sm text-gray-500">
-        <p>Data updated for the 2025 NFL season</p>
+        <p>Data updated for the <%= params[:year] %> NFL season</p>
         <p class="mt-2">
           <a href="<%= matchups_2025_week1_path %>" class="text-blue-600 hover:text-blue-800 underline">
             View Week 1 Matchups

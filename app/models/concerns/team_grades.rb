@@ -5,6 +5,10 @@ module TeamGrades
     coaches.where.not(offensive_play_caller_rank: nil).order(:offensive_play_caller_rank).first
   end
 
+  def defensive_play_caller
+    coaches.where.not(defensive_play_caller_rank: nil).order(:defensive_play_caller_rank).first
+  end
+
   def starting_qb
     # First try to find a designated starter
     starter_qb = players.quarterbacks.first

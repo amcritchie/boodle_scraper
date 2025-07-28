@@ -49,11 +49,16 @@
         <div class="flex items-center space-x-3">
           <span class="text-2xl">🖐️</span>
           <div>
-            <h3 class="text-xl font-bold text-white">Passing Offense vs Defense Matchups</h3>
-            <p class="text-purple-100 text-sm">Component rankings: Head Coach 🎯, QB 🏈, Receivers 🎯, O-Line 🛡️, Pass Rush ⚡, Coverage 🛡️</p>
+            <h3 class="text-xl font-bold text-white">Passing Matchup Rankings</h3>
+            <p class="text-purple-100 text-sm">Shows the raw equation: play_caller×2 + pocket×1.5 + passing×1.0</p>
           </div>
         </div>
       </div>
+
+      <div class="text-xs font-mono text-gray-600">
+        <div>🧠×2 + (🛡️-⚡)×1.5 + (🏈×1.5 + 🤲×1.5 - 👁️)×1.0</div>
+      </div>
+      
       <div class="p-6">
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
@@ -63,9 +68,7 @@
                 <th class="text-left p-3 font-semibold">Offense</th>
                 <th class="text-left p-3 font-semibold">Defense</th>
                 <th class="text-left p-3 font-semibold">Offense Score</th>
-                <th class="text-left p-3 font-semibold">Defense Score</th>
-                <th class="text-left p-3 font-semibold">Difference</th>
-                <th class="text-left p-3 font-semibold">Exp TD</th>
+                <th class="text-left p-3 font-semibold">Passing Points</th>
               </tr>
             </thead>
             <tbody>
@@ -80,31 +83,13 @@
                         <span class="text-sm">🏠</span>
                       <% end %>
                     </div>
-                    <div class="flex items-center space-x-3 mt-1">
-                      <div class="flex items-center space-x-1">
-                        <span class="text-xs">🧠</span>
-                        <span class="text-xs font-mono <%= matchup.offensive_play_caller_rank <= 8 ? 'text-green-600' : matchup.offensive_play_caller_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
-                          #<%= matchup.offensive_play_caller_rank %>
-                        </span>
-                      </div>
-                      <div class="flex items-center space-x-1">
-                        <span class="text-xs">🎯</span>
-                        <span class="text-xs font-mono <%= matchup.qb_passing_rank <= 8 ? 'text-green-600' : matchup.qb_passing_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
-                          #<%= matchup.qb_passing_rank %>
-                        </span>
-                      </div>
-                      <div class="flex items-center space-x-1">
-                        <span class="text-xs">🤲</span>
-                        <span class="text-xs font-mono <%= matchup.receiver_core_rank <= 8 ? 'text-green-600' : matchup.receiver_core_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
-                          #<%= matchup.receiver_core_rank %>
-                        </span>
-                      </div>
-                      <div class="flex items-center space-x-1">
-                        <span class="text-xs">🛡️</span>
-                        <span class="text-xs font-mono <%= matchup.pass_block_rank <= 8 ? 'text-green-600' : matchup.pass_block_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
-                          #<%= matchup.pass_block_rank %>
-                        </span>
-                      </div>
+                    <div class="flex items-center space-x-2 mt-1 text-xs">
+                      <span>🧠 <%= matchup.offensive_play_caller_rank %></span>
+                      <span>🏈 <%= matchup.qb_passing_rank %></span>
+                      <span>🤲 <%= matchup.receiver_core_rank %></span>
+                      <span>🛡️ <%= matchup.pass_block_rank %></span>
+                      <span>⏱️ <%= matchup.pace_of_play_rank %></span>
+                      <span>👟 <%= matchup.run_heavy_rank %></span>
                     </div>
                   </td>
                   <td class="py-3 px-3">
@@ -115,41 +100,19 @@
                         <span class="text-sm">🏠</span>
                       <% end %>
                     </div>
-                    <div class="flex items-center space-x-3 mt-1">
-                      <div class="flex items-center space-x-1">
-                        <span class="text-xs">⚡</span>
-                        <span class="text-xs font-mono <%= matchup.pass_rush_rank <= 8 ? 'text-green-600' : matchup.pass_rush_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
-                          #<%= matchup.pass_rush_rank %>
-                        </span>
-                      </div>
-                      <div class="flex items-center space-x-1">
-                        <span class="text-xs">👁️</span>
-                        <span class="text-xs font-mono <%= matchup.coverage_rank <= 8 ? 'text-green-600' : matchup.coverage_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
-                          #<%= matchup.coverage_rank %>
-                        </span>
+                    <div class="flex items-center space-x-2 mt-1 text-xs">
+                      <span>⚡ <%= matchup.pass_rush_rank %></span>
+                      <span>👁️ <%= matchup.coverage_rank %></span>
                     </div>
                   </td>
                   <td class="py-3 px-3">
                     <div class="font-mono font-bold text-lg text-blue-600">
-                      <%= number_with_precision(matchup.passing_offense_score, precision: 1) %>
+                      <%= number_with_precision(matchup.passing_attack_score, precision: 1) %>
                     </div>
                   </td>
                   <td class="py-3 px-3">
-                    <div class="font-mono font-bold text-lg text-red-600">
-                      <%= number_with_precision(matchup.passing_defense_score, precision: 1) %>
-                    </div>
-                  </td>
-                  <td class="py-3 px-3">
-                    <% diff = (matchup.passing_offense_score || 0) - (matchup.passing_defense_score || 0) %>
-                    <div class="font-mono font-bold text-lg">
-                      <span class="<%= diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-gray-600' %>">
-                        <%= diff > 0 ? '+' : '' %><%= number_with_precision(diff, precision: 1) %>
-                      </span>
-                    </div>
-                  </td>
-                  <td class="py-3 px-3">
-                    <div class="font-mono font-bold text-lg text-purple-600">
-                      <%= number_with_precision(matchup.expected_passing_touchdowns, precision: 0) %>
+                    <div class="font-mono font-bold text-lg text-blue-600">
+                      <%= number_with_precision(matchup.passing_td_points, precision: 0) %>
                     </div>
                   </td>
                 </tr>
@@ -166,11 +129,16 @@
         <div class="flex items-center space-x-3">
           <span class="text-2xl">🏃</span>
           <div>
-            <h3 class="text-xl font-bold text-white">Rushing Offense vs Defense Matchups</h3>
-            <p class="text-indigo-100 text-sm">Component rankings: Head Coach 🎯, Rushing 🏃, O-Line 🛡️, Run Defense 🛡️</p>
+            <h3 class="text-xl font-bold text-white">Rushing Matchup Rankings</h3>
+            <p class="text-indigo-100 text-sm">Shows the raw equation: play_caller×1.5 + rushing×2.0 + oline×1.2 - run_defense×1.5</p>
           </div>
         </div>
       </div>
+
+      <div class="text-xs font-mono text-gray-600">
+        <div>🧠×1.5 + 🏃×2.0 + 🛡️×1.2 - 🛑×1.5</div>
+      </div>
+      
       <div class="p-6">
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
@@ -180,18 +148,11 @@
                 <th class="text-left p-3 font-semibold">Offense</th>
                 <th class="text-left p-3 font-semibold">Defense</th>
                 <th class="text-left p-3 font-semibold">Offense Score</th>
-                <th class="text-left p-3 font-semibold">Defense Score</th>
-                <th class="text-left p-3 font-semibold">Difference</th>
-                <th class="text-left p-3 font-semibold">Exp TD</th>
+                <th class="text-left p-3 font-semibold">Rushing Points</th>
               </tr>
             </thead>
             <tbody>
               <% @matchups.order(:rushing_attack_rank).each_with_index do |matchup, index| %>
-                <% 
-                  # Use helper methods for cleaner code
-                  offense_ranks = matchup.rushing_offense_ranks
-                  defense_ranks = matchup.rushing_defense_ranks
-                %>
                 <tr class="border-b border-gray-200 hover:bg-gray-50">
                   <td class="py-3 px-3 font-semibold text-lg"><%= matchup.rushing_attack_rank %></td>
                   <td class="py-3 px-3">
@@ -202,28 +163,15 @@
                         <span class="text-sm">🏠</span>
                       <% end %>
                     </div>
-                    <div class="flex items-center space-x-3 mt-1">
-                      <div class="flex items-center space-x-1">
-                        <span class="text-xs">🎯</span>
-                        <span class="text-xs font-mono <%= matchup.offensive_play_caller_rank <= 8 ? 'text-green-600' : matchup.offensive_play_caller_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
-                          #<%= matchup.offensive_play_caller_rank %>
-                        </span>
-                      </div>
-                      <div class="flex items-center space-x-1">
-                        <span class="text-xs">🏃</span>
-                        <span class="text-xs font-mono <%= matchup.rushing_rank <= 8 ? 'text-green-600' : matchup.rushing_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
-                          #<%= matchup.rushing_rank %>
-                        </span>
-                      </div>
-                      <div class="flex items-center space-x-1">
-                        <span class="text-xs">🛡️</span>
-                        <span class="text-xs font-mono <%= matchup.run_heavy_rank <= 8 ? 'text-green-600' : matchup.run_heavy_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
-                          #<%= matchup.run_heavy_rank %>
-                        </span>
-                      </div>
+                    <div class="flex items-center space-x-2 mt-1 text-xs">
+                      <span>🧠 <%= matchup.offensive_play_caller_rank %></span>
+                      <span>🏃 <%= matchup.rushing_rank %></span>
+                      <span>🛡️ <%= matchup.pass_block_rank %></span>
+                      <span>⏱️ <%= matchup.pace_of_play_rank %></span>
+                      <span>👟 <%= matchup.run_heavy_rank %></span>
                     </div>
                   </td>
-                                    <td class="py-3 px-3">
+                  <td class="py-3 px-3">
                     <div class="flex items-center space-x-2">
                       <span class="text-2xl"><%= matchup.team_defense&.emoji %></span>
                       <span class="font-bold text-lg"><%= matchup.team_defense&.name %></span>
@@ -231,40 +179,100 @@
                         <span class="text-sm">🏠</span>
                       <% end %>
                     </div>
-                    <div class="flex items-center space-x-3 mt-1">
-                    <div class="flex items-center space-x-1">
-                      <span class="text-xs">🛑</span>
-                      <span class="text-xs font-mono <%= matchup.run_defense_rank <= 8 ? 'text-green-600' : matchup.run_defense_rank <= 16 ? 'text-yellow-600' : 'text-red-600' %>">
-                        #<%= matchup.run_defense_rank %>
-                      </span>
-                    </div>
+                    <div class="flex items-center space-x-2 mt-1 text-xs">
+                      <span>🛑 <%= matchup.run_defense_rank %></span>
                     </div>
                   </td>
                   <td class="py-3 px-3">
                     <div class="font-mono font-bold text-lg text-green-600">
-                      <%= number_with_precision(matchup.rushing_offense_score, precision: 1) %>
+                      <%= number_with_precision(matchup.rushing_attack_score, precision: 1) %>
                     </div>
                   </td>
                   <td class="py-3 px-3">
-                    <div class="font-mono font-bold text-lg text-orange-600">
-                      <%= number_with_precision(matchup.rushing_defense_score, precision: 1) %>
+                    <div class="font-mono font-bold text-lg text-green-600">
+                      <%= number_with_precision(matchup.rushing_td_points, precision: 0) %>
                     </div>
                   </td>
-                  <td class="py-3 px-3">
-                    <% diff = (matchup.rushing_offense_score || 0) - (matchup.rushing_defense_score || 0) %>
-                    <div class="font-mono font-bold text-lg">
-                      <span class="<%= diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-gray-600' %>">
-                        <%= diff > 0 ? '+' : '' %><%= number_with_precision(diff, precision: 1) %>
-                      </span>
-                    </div>
-                  </td>
-                  <td class="py-3 px-3">
-                    <div class="font-mono font-bold text-lg text-purple-600">
-                      <%= number_with_precision(matchup.expected_rushing_touchdowns, precision: 0) %>
-                    </div>
-                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
+    <!-- Field Goal Table -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+      <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-4">
+        <div class="flex items-center space-x-3">
+          <span class="text-2xl">🥅</span>
+          <div>
+            <h3 class="text-xl font-bold text-white">Field Goal Rankings</h3>
+            <p class="text-yellow-100 text-sm">Shows field goal points based on offensive and defensive performance</p>
+          </div>
+        </div>
+      </div>
 
+      <div class="text-xs font-mono text-gray-600">
+        <div>Field Goal Points: Based on offensive efficiency and defensive pressure</div>
+      </div>
+      
+      <div class="p-6">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="text-left p-3 font-semibold">Rank</th>
+                <th class="text-left p-3 font-semibold">Offense</th>
+                <th class="text-left p-3 font-semibold">Defense</th>
+                <th class="text-left p-3 font-semibold">Offense Score</th>
+                <th class="text-left p-3 font-semibold">Field Goal Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @matchups.order(:field_goal_points).reverse.each_with_index do |matchup, index| %>
+                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                  <td class="py-3 px-3 font-semibold text-lg"><%= index + 1 %></td>
+                  <td class="py-3 px-3">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-2xl"><%= matchup.team&.emoji %></span>
+                      <span class="font-bold text-lg"><%= matchup.team&.name %></span>
+                      <% if matchup.home %>
+                        <span class="text-sm">🏠</span>
+                      <% end %>
+                    </div>
+                    <div class="flex items-center space-x-2 mt-1 text-xs">
+                      <span>🧠 <%= matchup.offensive_play_caller_rank %></span>
+                      <span>🏃 <%= matchup.rushing_rank %></span>
+                      <span>🛡️ <%= matchup.pass_block_rank %></span>
+                      <span>⏱️ <%= matchup.pace_of_play_rank %></span>
+                      <span>👟 <%= matchup.run_heavy_rank %></span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-2xl"><%= matchup.team_defense&.emoji %></span>
+                      <span class="font-bold text-lg"><%= matchup.team_defense&.name %></span>
+                      <% if !matchup.home %>
+                        <span class="text-sm">🏠</span>
+                      <% end %>
+                    </div>
+                    <div class="flex items-center space-x-2 mt-1 text-xs">
+                      <span>🛑 <%= matchup.run_defense_rank %></span>
+                      <span>⚡ <%= matchup.pass_rush_rank %></span>
+                      <span>👁️ <%= matchup.coverage_rank %></span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="font-mono font-bold text-lg text-yellow-600">
+                      <%= number_with_precision(matchup.field_goal_score, precision: 1) %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="font-mono font-bold text-lg text-yellow-600">
+                      <%= number_with_precision(matchup.field_goal_points, precision: 0) %>
+                    </div>
+                  </td>
                 </tr>
               <% end %>
             </tbody>
