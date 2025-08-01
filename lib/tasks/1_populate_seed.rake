@@ -29,6 +29,8 @@ namespace :seed do
     # Rake::Task['teams:starters2025'].invoke
     # rake matchups:populate_2025_week_1  | Set Week 1 Matchups | Sports Radar | 2025 | Coming matchups
     Rake::Task['matchups:populate_2025_week_1'].invoke
+    # rake teams_weeks:populate_2025_week_1  | Set Week 1 TeamsWeek | 2025 | Rankings and Scores
+    Rake::Task['teams_weeks:populate_2025_week_1'].invoke
  
 
     # Init 2024 - 2020 seasons

@@ -1,24 +1,24 @@
-class TeamsSeason < ApplicationRecord
+class TeamsWeek < ApplicationRecord
   include ScoringConcern
-  include RankingConcern
+  # include RankingConcern
   
   belongs_to :team, primary_key: :slug, foreign_key: :team_slug, optional: true
 
-  validates :team_slug, :season_year, presence: true
+  validates :team_slug, :season_year, :week_number, presence: true
 
   # Starting lineup attributes: qb, rb1, rb2, wr1, wr2, wr3, te, c, lt, rt, lg, rg (offense)
   # eg1, eg2, dl1, dl2, dl3, lb1, lb2, cb1, cb2, cb3, s1, s2 (defense)
   # Coach attributes: hc (head coach), oc (offensive coordinator), dc (defensive coordinator)
 
   # Coach methods
-  def head_coach
-    Coach.find_by_slug(hc)
+  def head_coach_coach
+    Coach.find_by_slug(head_coach)
   end
-  def offensive_coordinator
-    Coach.find_by_slug(oc)
+  def offensive_coordinator_coach
+    Coach.find_by_slug(offensive_coordinator)
   end
-  def defensive_coordinator
-    Coach.find_by_slug(dc)
+  def defensive_coordinator_coach
+    Coach.find_by_slug(defensive_coordinator)
   end
   def offensive_play_caller_coach
     Coach.find_by_slug(offensive_play_caller)
@@ -27,7 +27,7 @@ class TeamsSeason < ApplicationRecord
     Coach.find_by_slug(defensive_play_caller)
   end
   def coaches
-    Coach.where(slug: [hc, oc, dc, offensive_play_caller, defensive_play_caller].compact)
+    Coach.where(slug: [head_coach, offensive_coordinator, defensive_coordinator, offensive_play_caller, defensive_play_caller].compact)
   end
   def self.offensive_play_callers
     Coach.where(slug: all.pluck(:offensive_play_caller).flatten.compact)
@@ -110,7 +110,6 @@ class TeamsSeason < ApplicationRecord
     Player.find_by_slug(s2)
   end
 
-
   # Collection methods
   def offense_starters
     Player.where(slug: [qb, rb1, rb2, wr1, wr2, wr3, te, c, lt, rt, lg, rg].compact)
@@ -130,9 +129,6 @@ class TeamsSeason < ApplicationRecord
   end
   def receivers
     Player.where(slug: [wr1, wr2, wr3, te].compact)
-  end
-  def top_three_receivers
-    Player.where(slug: receivers.sort_by { |player| -(player.receiving_grade_x || 0) }.first(3).pluck(:slug))
   end
   def oline_players
     slugs = [lt, lg, c, rg, rt].compact
@@ -155,8 +151,8 @@ class TeamsSeason < ApplicationRecord
 
   def rushing_players
     # Get all potential rushing players and sort by rushing grade
-    potential_rushers = [rb1_player, rb2_player, qb_player].compact
-    potential_rushers.sort_by { |player| -(player.rush_grade_x || 0) }.first(2)
+    potential_rushers = [rb1_player, qb_player].compact
+    potential_rushers.sort_by { |player| -(player.rushing_grade || 0) }.first(2)
   end
 
   def self.pass_rush_position_weight(position)
@@ -173,4 +169,11 @@ class TeamsSeason < ApplicationRecord
       0.5  # Default weight for unknown positions
     end
   end
-end 
+
+
+
+  # Scopes for filtering by season and week
+  scope :by_season, ->(season) { where(season_year: season) }
+  scope :by_week, ->(week) { where(week_number: week) }
+  scope :by_season_and_week, ->(season, week) { where(season_year: season, week_number: week) }
+end

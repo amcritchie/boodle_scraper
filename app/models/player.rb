@@ -32,6 +32,36 @@ class Player < ApplicationRecord
     return nil
   end
 
+
+  def passing_grade_x
+    grades_pass || grades_offense || 60
+  end
+  def receiving_grade_x
+    grades_pass_route || grades_offense || 60
+  end
+  def pass_block_grade_x
+    grades_pass_block || grades_offense || 60
+  end
+  def pass_rush_grade_x
+    grades_pass_rush || grades_offense || 60
+  end
+  def coverage_grade_x
+    grades_coverage || grades_offense || 60
+  end
+  def rush_grade_x
+    grades_run || grades_offense || 60
+  end
+  def run_block_grade_x
+    grades_run_block || grades_offense || 60
+  end
+  def rush_defense_grade_x
+    grades_rush_defense || grades_offense || 60
+  end
+
+
+  
+
+
   # Sort General Grades
   def self.by_grades_offense
     all.order(Arel.sql('COALESCE(grades_offense, 60) DESC'))
@@ -219,6 +249,10 @@ class Player < ApplicationRecord
     end
     # Return player
     player
+  end
+
+  def grades_pass_route_print
+    grades_pass_route || "#{grades_offense} 🤖"
   end
 
   def self.sportsradar_find_or_create(player_sportsradar, team_slug)
