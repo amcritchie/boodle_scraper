@@ -897,7 +897,7 @@ class Matchup < ApplicationRecord
         offensive_play_caller:      offense_teams_season.offensive_play_caller,
         defensive_play_caller:      offense_teams_season.defensive_play_caller,
         # Offensive and defensive rankings
-        offensive_play_caller_rank: offense_teams_season.play_caller_rank,
+        offensive_play_caller_rank: offense_teams_season.offensive_play_caller_rank,
         pace_of_play_rank:          offense_teams_season.pace_of_play_rank,
         run_heavy_rank:             offense_teams_season.run_heavy_rank,
         qb_passing_rank:            offense_teams_season.qb_passing_rank,
@@ -927,7 +927,7 @@ class Matchup < ApplicationRecord
   end
 
   def calculate_passing_offense_score(offense_teams_season)
-    play_caller_rank  = (offense_teams_season.play_caller_rank || 16)
+    play_caller_rank  = (offense_teams_season.offensive_play_caller_rank || 16)
     qb_rank           = (offense_teams_season.qb_passing_rank || 16)
     receiver_rank     = (offense_teams_season.receiver_core_rank || 16)
     oline_rank        = (offense_teams_season.oline_pass_block_rank || 16)
@@ -950,7 +950,7 @@ class Matchup < ApplicationRecord
   end
 
   def calculate_rushing_offense_score(offense_teams_season)
-    play_caller_rank  = (offense_teams_season.play_caller_rank || 16)
+    play_caller_rank  = (offense_teams_season.offensive_play_caller_rank || 16)
     rushing_rank      = (offense_teams_season.rushing_rank || 16)
     oline_rank        = (offense_teams_season.oline_run_block_rank || 16)
     # Convert rankings to scores (1-32 scale, where 1 is best)
@@ -1004,7 +1004,7 @@ class Matchup < ApplicationRecord
   end
 
   def calculate_passing_attack_score(offense_teams_season,defense_teams_season)
-    play_caller_rank  = (offense_teams_season.play_caller_rank || 16)
+    play_caller_rank  = (offense_teams_season.offensive_play_caller_rank || 16)
     qb_rank           = (offense_teams_season.qb_passing_rank || 16)
     receiver_rank     = (offense_teams_season.receiver_core_rank || 16)
     oline_rank        = (offense_teams_season.oline_pass_block_rank || 16)
@@ -1053,7 +1053,7 @@ class Matchup < ApplicationRecord
   end
 
   def calculate_rushing_attack_score(offense_teams_season,defense_teams_season)
-    play_caller_rank  = (offense_teams_season.play_caller_rank || 16)
+    play_caller_rank  = (offense_teams_season.offensive_play_caller_rank || 16)
     rushing_rank      = (offense_teams_season.rushing_rank || 16)
     oline_rank        = (offense_teams_season.oline_run_block_rank || 16)
     run_defense_rank  = (defense_teams_season.run_defense_rank || 16)

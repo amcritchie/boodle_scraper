@@ -144,10 +144,22 @@ class TeamsSeason < ApplicationRecord
     Player.where(slug: [eg1, eg2].compact)
   end
   def dinterior_players
-    Player.where(slug: [dl1, dl2, dl3].compact)
+    Player.where(slug: [dl1, dl2, dl3].compact).sort_by { |player| -(player.rush_defense_grade_x || 0) }
   end
   def dline_players
     Player.where(slug: [eg1, eg2, dl1, dl2, dl3].compact)
+  end
+  def pass_rush_players
+    Player.where(slug: dline_players.sort_by { |player| -(player.pass_rush_grade_x || 0) }.pluck(:slug))
+  end
+  def linebacker_players
+    Player.where(slug: [lb1, lb2].compact).sort_by { |player| -(player.rush_defense_grade_x || 0) }
+  end
+  def corner_back_players
+    Player.where(slug: [cb1, cb2, cb3]).sort_by { |player| -(player.coverage_grade_x || 0) }
+  end
+  def safety_players
+    Player.where(slug: [s1, s2]).sort_by { |player| -(player.coverage_grade_x || 0) }
   end
   def secondary_players
     Player.where(slug: [cb1, cb2, cb3, s1, s2].compact)

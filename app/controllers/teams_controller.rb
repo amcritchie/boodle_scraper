@@ -23,9 +23,9 @@ class TeamsController < ApplicationController
     @year = params[:year]
     # Calculate power rankings for all teams using TeamsWeek
     @teams_weeks      = TeamsWeek.where(season_year: @year).includes(:team)  
-    @power_rankings   = @teams_weeks.order(:power_rank_score)
-    @offense_rankings = @teams_weeks.order(:offense_score)
-    @defense_rankings = @teams_weeks.order(:defense_score)
+    @power_rankings   = @teams_weeks.order(power_rank_score: :desc)
+    @offense_rankings = @teams_weeks.order(offense_score: :desc)
+    @defense_rankings = @teams_weeks.order(defense_score: :desc)
   end
       
   def teams_seasons
@@ -44,5 +44,50 @@ class TeamsController < ApplicationController
     # @rushing_rankings     = TeamsSeason.where(season_year: year).rushing_rankings
     # @run_block_rankings   = TeamsSeason.where(season_year: year).run_block_rankings
     # @run_defense_rankings = TeamsSeason.where(season_year: year).run_defense_rankings
+  end
+
+  def show
+    @team = Team.find_by(slug: params[:slug])
+    @year = 2025 # Default to 2025 season
+    
+    if @team.nil?
+      redirect_to teams_power_rankings_path(@year), alert: "Team not found"
+      return
+    end
+
+    # Get TeamsSeason data for current team
+    @teams_season = TeamsSeason.find_by(team_slug: @team.slug, season_year: @year)
+    
+    # Get TeamsWeek data for current team (week 1)
+    @teams_week = TeamsWeek.find_by(team_slug: @team.slug, season_year: @year, week_number: 1)
+    
+    # Get all players for this team
+    @all_players = Player.where(team_slug: @team.slug)
+    
+    # Get starters (12 offensive, 12 defensive)
+    @offense_starters = @teams_season&.offense_starters || []
+    @defense_starters = @teams_season&.defense_starters || []
+    
+    # Get bench players (all players not in starters)
+    starter_slugs = (@offense_starters + @defense_starters).map(&:slug).compact
+    @bench_players = @all_players.where.not(slug: starter_slugs)
+    
+    # Group bench players by position
+    @bench_by_position = {
+      'QB' => @bench_players.where(position: 'quarterback'),
+      'RB' => @bench_players.where(position: 'running-back'),
+      'WR' => @bench_players.where(position: 'wide-receiver'),
+      'TE' => @bench_players.where(position: 'tight-end'),
+      'C' => @bench_players.where(position: 'center'),
+      'G' => @bench_players.where(position: 'gaurd'),
+      'T' => @bench_players.where(position: 'tackle'),
+      'EDGE' => @bench_players.where(position: 'edge-rusher'),
+      'DL' => @bench_players.where(position: 'defensive-end'),
+      'LB' => @bench_players.where(position: 'linebacker'),
+      'CB' => @bench_players.where(position: 'cornerback'),
+      'S' => @bench_players.where(position: 'safety'),
+      'K' => @bench_players.where(position: 'place-kicker'),
+      'P' => @bench_players.where(position: 'punter')
+    }
   end
 end 

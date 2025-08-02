@@ -166,33 +166,33 @@ class Player < ApplicationRecord
   def position_symbol
     case position
     when "quarterback"
-      :QB
+      "QB"
     when "running-back"
-      :RB
+      "RB"
     when "full-back"
-      :FB
+      "FB"
     when "wide-receiver"
-      :WR
-    when "tight_end"
-      :TE
+      "WR"
+    when "tight-end"
+      "TE"
     when "center"
-      :C
+      "C"
     when "gaurd"
-      :G
+      "G"
     when "tackle"
-      :T
-    when "defensive_end"
-      :DE
+      "T"
+    when "defensive-end"
+      "DE"
     when "edge-rusher"
-      :EDGE
+      "EDGE"
     when "linebacker"
-      :LB
+      "LB"
     when "safety"
-      :S
+      "S"
     when "cornerback"
-      :CB
+      "CB"
     else
-      :DB
+      "DB"
     end
   end
 
@@ -242,8 +242,17 @@ class Player < ApplicationRecord
       was_linebacker_position = position_class
       was_linebacker_position = :linebacker if position_class == :dline
       was_linebacker_slug     = "#{was_linebacker_position}-#{name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
+      was_dline_position = position_class
+      was_dline_position = :dline if position_class == :linebacker
+      was_dline_slug     = "#{was_dline_position}-#{name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
       # Find or create player
-      unless player = Player.find_by(slug: was_linebacker_slug)
+      if player = Player.find_by(slug: was_linebacker_slug)
+        player = player
+        puts "Dline / Linebacker Swap (listed as dline) | Slug: #{player_slug}"
+      elsif player = Player.find_by(slug: was_dline_slug)
+        player = player
+        puts "Dline / Linebacker Swap (listed as linebacker) | Slug: #{player_slug}"
+      else
         player = Player.find_or_create_by(slug: player_slug)
       end
     end
@@ -269,13 +278,21 @@ class Player < ApplicationRecord
         # Find or create player
         unless player = Player.find_by(slug: player_slug)
           # Some Dlines might be labeled as linebackers in PFF
+          was_dline_position = position_class
+          was_dline_position = :dline if position_class == :linebacker
+          was_dline_slug     = "#{was_dline_position}-#{name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
           was_linebacker_position = position_class
-          was_linebacker_position = :dline if position_class == :linebacker
+          was_linebacker_position = :linebacker if position_class == :dline
           was_linebacker_slug     = "#{was_linebacker_position}-#{name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
           # Find or create player
-          if player = Player.find_by(slug: was_linebacker_slug)
+          if player = Player.find_by(slug: was_dline_slug)
+            position    = player.position
+            player_slug = was_dline_slug
+            puts "Dline / Linebacker Swap (listed as linebacker) | Slug: #{player_slug}"
+          elsif player = Player.find_by(slug: was_linebacker_slug)
             position    = player.position
             player_slug = was_linebacker_slug
+            puts "Dline / Linebacker Swap (listed as dline) | Slug: #{player_slug}"
           else
             player = Player.find_or_create_by(slug: player_slug)
           end

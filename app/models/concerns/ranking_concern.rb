@@ -9,7 +9,7 @@ module RankingConcern
       
       rankings = teams.map do |team|
         {
-          score:      team.top_three_receivers_grade,
+          score:      team.receiver_score,
           team:       team.team,
           receivers:  team.top_three_receivers,
         }
@@ -120,56 +120,19 @@ module RankingConcern
     def ranked_by_run_heavy
       ranked_by_coach_metric(:offensive_play_caller, :run_heavy_rank)
     end
-
-#     def ranked_by_qb_passing
-#       table_name = self.table_name
-#       includes(:team)
-#         .where.not(qb: nil)
-#         .joins("LEFT JOIN players ON players.slug = #{table_name}.qb")
-#         .order('players.grades_pass DESC NULLS LAST')
-#     end
-
-#       # Ranking methods for the view
-#   def self.ranked_by_play_caller
-#     includes(:team)
-#       .where.not(oc: nil)
-#       .joins('LEFT JOIN coaches ON coaches.slug = teams_seasons.offensive_play_caller')
-#       .order('coaches.offensive_play_caller_rank ASC NULLS LAST')
-#   end
-
-#   def self.ranked_by_pace_of_play
-#     includes(:team)
-#       .where.not(oc: nil)
-#       .joins('LEFT JOIN coaches ON coaches.slug = teams_seasons.offensive_play_caller')
-#       .order('coaches.pace_of_play_rank ASC NULLS LAST')
-#   end
-
-#   def self.ranked_by_run_heavy
-#     includes(:team)
-#       .where.not(oc: nil)
-#       .joins('LEFT JOIN coaches ON coaches.slug = teams_seasons.offensive_play_caller')
-#       .order('coaches.run_heavy_rank ASC NULLS LAST')
-#   end
-
-#   def self.ranked_by_qb_passing
-#     includes(:team)
-#       .where.not(qb: nil)
-#       .joins('LEFT JOIN players ON players.slug = teams_seasons.qb')
-#       .order('players.grades_pass DESC NULLS LAST')
-#   end
   end
 
 
   # Instance method to calculate total offense grade for top three receivers
   def top_three_receivers_grade
     top_three_receivers.sum { |player| player.receiving_grade_x || 60 }
-    end
+  end
 
   # QB
   def qb_passing_rank
     ranked_teams = self.class.qb_rankings
-    team_ranking = ranked_teams.index(self)
-    team_ranking ? team_ranking + 1 : nil
+    team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
+    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
   end
   # RB
   def rushing_rank

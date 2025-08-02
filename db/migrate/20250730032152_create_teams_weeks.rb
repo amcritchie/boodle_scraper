@@ -82,6 +82,12 @@ class CreateTeamsWeeks < ActiveRecord::Migration[7.0]
       t.integer :power_rank_score
       t.integer :field_goal_score
       
+      # Additional scoring fields
+      t.float :offensive_play_caller_score
+      t.float :defensive_play_caller_score
+      t.float :pace_of_play_score
+      t.float :run_heavy_score
+      
       t.timestamps
     end
   end

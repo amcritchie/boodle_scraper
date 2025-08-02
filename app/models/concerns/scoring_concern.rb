@@ -4,7 +4,43 @@ module ScoringConcern
   class_methods do
     # Class Methods
   end
-  # RB
+
+  def offensive_play_caller_score
+    score = 0
+    # Normalize to 50-95 scale: (33-rank)/32 gives 0-1, then scale to 50-95
+    normalized_score = 50 + 45*(33-offensive_play_caller_rank)/32
+    score += normalized_score
+    score.to_f
+  end
+  def defensive_play_caller_score
+    score = 0
+    # Normalize to 50-95 scale: (33-rank)/32 gives 0-1, then scale to 50-95
+    normalized_score = 50 + 45*(33-defensive_play_caller_rank)/32
+    score += normalized_score
+    score.to_f
+  end
+  def pace_of_play_score
+    score = 0
+    # Normalize to 50-95 scale: (33-rank)/32 gives 0-1, then scale to 50-95
+    normalized_score = 50 + 45*(33-pace_of_play_rank)/32
+    score += normalized_score
+    score.to_f
+  end
+  def run_heavy_score
+    score = 0
+    # Normalize to 50-95 scale: (33-rank)/32 gives 0-1, then scale to 50-95
+    normalized_score = 50 + 45*(33-run_heavy_rank)/32
+    score += normalized_score
+    score.to_f
+  end
+  def field_goal_score
+    score = 0
+    # Normalize to 50-95 scale: (33-rank)/32 gives 0-1, then scale to 50-95
+    normalized_score = 50 + 45*(33-field_goal_caller_rank)/32
+    score += normalized_score
+    score.to_f
+  end
+  # QB
   def qb_score
     score = 0
     score = qb_player.passing_grade_x
@@ -15,24 +51,22 @@ module ScoringConcern
   def rushing_score
     score = 0
     # 1st Rusher
-    score += 1.0 * (rb1_player.grades_run || 60)
+    score += 1.0 * rb1_player.rush_grade_x
     # 2nd Rusher
-    score += 0.3 * (qb_player.grades_run || 60)
+    score += 0.3 * qb_player.rush_grade_x
     # Return rusher score
     score.to_f
   end
   # WR, TE
   def receiver_score
     receiver_score = 0
-    recs = receivers.by_grades_offense.limit(4)
+    recs = top_three_receivers
     # 1st Receiver
-    receiver_score += 1.0 * recs.first.grades_offense
+    receiver_score += 1.0 * recs.first.receiving_grade_x
     # 2nd Receiver
-    receiver_score += 0.7 * recs.second.grades_offense
+    receiver_score += 0.7 * recs.second.receiving_grade_x
     # 3rd Receiver
-    receiver_score += 0.4 * (recs.third.grades_offense || 60)
-    # 4th Receiver
-    receiver_score += 0.2 * (recs.fourth.grades_offense || 60)
+    receiver_score += 0.4 * recs.third.receiving_grade_x
     # Return receiver score
     receiver_score.to_f
   end
@@ -42,19 +76,19 @@ module ScoringConcern
     # Tackle importance depends on QB handedness
     unless qb_player&.left_handed
       # For right-handed QB: Left Tackle protects blind side (more important)
-      pass_block_score += 1.0 * (left_tackle_player.grades_pass_block || 60)
-      pass_block_score += 0.7 * (right_guard_player.grades_pass_block || 60)
-      pass_block_score += 0.5 * (right_tackle_player.grades_pass_block || 60)
-      pass_block_score += 0.5 * (left_guard_player.grades_pass_block || 60)
+      pass_block_score += 1.0 * left_tackle_player.pass_block_grade_x
+      pass_block_score += 0.7 * right_guard_player.pass_block_grade_x
+      pass_block_score += 0.5 * right_tackle_player.pass_block_grade_x
+      pass_block_score += 0.5 * left_guard_player.pass_block_grade_x
     else
       # For left-handed QB: Right Tackle protects blind side (more important)
-      pass_block_score += 1.0 * (right_tackle_player.grades_pass_block || 60)
-      pass_block_score += 0.7 * (left_guard_player.grades_pass_block || 60)
-      pass_block_score += 0.5 * (left_tackle_player.grades_pass_block || 60)
-      pass_block_score += 0.5 * (right_guard_player.grades_pass_block || 60)
+      pass_block_score += 1.0 * right_tackle_player.pass_block_grade_x
+      pass_block_score += 0.7 * left_guard_player.pass_block_grade_x
+      pass_block_score += 0.5 * left_tackle_player.pass_block_grade_x
+      pass_block_score += 0.5 * right_guard_player.pass_block_grade_x
     end
     # Center
-    pass_block_score += 0.5 * (center_player.grades_pass_block || 60)
+    pass_block_score += 0.5 * center_player.pass_block_grade_x
     # Return pass block score
     pass_block_score.to_f
   end
@@ -63,15 +97,15 @@ module ScoringConcern
     run_block_score = 0
     
     # Center (most important for run blocking - makes calls and anchors the line)
-    run_block_score += 1.0 * (center_player.grades_run_block || 60)
+    run_block_score += 1.0 * center_player.run_block_grade_x
     # Left Guard (important for pulling and trap blocks)
-    run_block_score += 0.9 * (left_guard_player.grades_run_block || 60)
+    run_block_score += 0.9 * left_guard_player.run_block_grade_x
     # Right Guard (important for pulling and trap blocks)
-    run_block_score += 0.9 * (right_guard_player.grades_run_block || 60)
+    run_block_score += 0.9 * right_guard_player.run_block_grade_x
     # Left Tackle (important for sealing the edge)
-    run_block_score += 0.8 * (left_tackle_player.grades_run_block || 60)
+    run_block_score += 0.8 * left_tackle_player.run_block_grade_x
     # Right Tackle (important for sealing the edge)
-    run_block_score += 0.8 * (right_tackle_player.grades_run_block || 60)
+    run_block_score += 0.8 * right_tackle_player.run_block_grade_x
     
     # Return run block score
     run_block_score.to_f
@@ -79,41 +113,24 @@ module ScoringConcern
   # EDGE, DT, LB
   def pass_rush_score
     pass_rush_score = 0
-    egdes = edge_players.by_grades_pass_rush
-    dinterior = dinterior_players.by_grades_pass_rush
-    # Get defensive line players and sort by pass rush grade
-    pass_rushers = dline_players.sort_by { |player| -(player.grades_pass_rush || 0) }
-    # Calculate pass rush score
-    pass_rush_score += 1.0 * (egdes.first.grades_pass_rush || 60)
-    pass_rush_score += 0.7 * (egdes.second.grades_pass_rush || 60)
-    pass_rush_score += 0.7 * (dinterior.first.grades_pass_rush || 60)
-    pass_rush_score += 0.5 * (dinterior.second.grades_pass_rush || 60)
-    pass_rush_score += 4.5 * (dinterior.third.grades_pass_rush || 60)
     # Return pass rush score
+    pass_rush_score += 1.0 * pass_rush_players.first.pass_rush_grade_x
+    pass_rush_score += 0.7 * pass_rush_players.second.pass_rush_grade_x
+    pass_rush_score += 0.4 * pass_rush_players.third.pass_rush_grade_x
+    pass_rush_score += 0.4 * pass_rush_players.fourth.pass_rush_grade_x
+    pass_rush_score += 0.4 * pass_rush_players.fifth.pass_rush_grade_x
+    # Return receiver score
     pass_rush_score.to_f
   end
   # CB, S
   def coverage_score
     coverage_score = 0
-    # Get secondary players and sort by coverage grade
-    coverage_players = secondary_players.sort_by { |player| -(player.grades_coverage || 0) }
-    
-    # Weight coverage players by position importance
-    coverage_players.each_with_index do |player, index|
-      case player.position
-      when 'cornerback'
-        coverage_score += 1.0 * (player.grades_coverage || 60)
-      when 'safety'
-        coverage_score += 0.9 * (player.grades_coverage || 60)
-      else
-        coverage_score += 0.7 * (player.grades_coverage || 60)
-      end
-    end
-    
-    # Add linebacker coverage contribution
-    [lb1_player, lb2_player].compact.each do |lb|
-      coverage_score += 0.6 * (lb.grades_coverage || 0)
-    end
+
+    coverage_score = corner_back_players.first.coverage_grade_x
+    coverage_score += 0.9 * corner_back_players.second.coverage_grade_x
+    coverage_score += 0.7 * corner_back_players.third.coverage_grade_x
+    coverage_score += 0.6 * safety_players.first.coverage_grade_x
+    coverage_score += 0.6 * safety_players.second.coverage_grade_x
     
     # Return coverage score
     coverage_score.to_f
@@ -121,51 +138,51 @@ module ScoringConcern
   # EDGE, DT, LB, CB, S
   def run_defense_score
     run_defense_score = 0
-    # Get all defensive players involved in run defense
-    all_defense_players = dline_players + secondary_players + [lb1_player, lb2_player].compact
-    
-    # Sort by run defense grade and take top players
-    top_run_defenders = all_defense_players.sort_by { |player| -(player.grades_rush_defense || 0) }.first(8)
-    
-    # Weight the top run defenders (front 7 + 1 safety)
-    top_run_defenders.each_with_index do |player, index|
-      case index
-      when 0..1  # Top 2 defenders (usually DTs/DEs)
-        run_defense_score += 1.0 * (player.grades_rush_defense || 60)
-      when 2..3  # Next 2 defenders (usually LBs)
-        run_defense_score += 0.9 * (player.grades_rush_defense || 60)
-      when 4..5  # Next 2 defenders (usually edge rushers)
-        run_defense_score += 0.8 * (player.grades_rush_defense || 60)
-      when 6..7  # Last 2 defenders (usually safeties)
-        run_defense_score += 0.7 * (player.grades_rush_defense || 60)
-      end
-    end
+
+    dinterior_players_sorted = dinterior_players.sort_by { |player| -(player.rush_defense_grade_x || 0) }
+    edge_players_sorted = edge_players.sort_by { |player| -(player.rush_defense_grade_x || 0) }
+    safety_players_sorted = safety_players.sort_by { |player| -(player.rush_defense_grade_x || 0) }
+    corner_back_players_sorted = corner_back_players.sort_by { |player| -(player.rush_defense_grade_x || 0) }
+
+    run_defense_score += 1.0 * linebacker_players.first.rush_defense_grade_x
+    run_defense_score += 0.9 * linebacker_players.second.rush_defense_grade_x
+    run_defense_score += 0.9 * dinterior_players_sorted.first.rush_defense_grade_x
+    run_defense_score += 0.8 * dinterior_players_sorted.second.rush_defense_grade_x
+    run_defense_score += 0.7 * dinterior_players_sorted.third.rush_defense_grade_x
+    run_defense_score += 0.6 * edge_players_sorted.first.rush_defense_grade_x
+    run_defense_score += 0.6 * edge_players_sorted.second.rush_defense_grade_x
+    run_defense_score += 0.6 * safety_players_sorted.first.rush_defense_grade_x
+    run_defense_score += 0.6 * safety_players_sorted.second.rush_defense_grade_x
+    run_defense_score += 0.4 * corner_back_players_sorted.first.rush_defense_grade_x
+    run_defense_score += 0.3 * corner_back_players_sorted.second.rush_defense_grade_x
+    run_defense_score += 0.2 * corner_back_players_sorted.third.rush_defense_grade_x
     
     # Return run defense score
     run_defense_score.to_f
   end
   def passing_offense_score
     score = 0
-    score += qb_score
-    score += receiver_score
-    score += pass_block_score
-    score.to_f
-  end
-  def passing_defense_score
-    score = 0
-    score += pass_rush_score
-    score += coverage_score
+    score += 5*offensive_play_caller_score
+    score += qb_score**1.6
+    score += 4*receiver_score
+    score += 2*pass_block_score
     score.to_f
   end
   def rushing_offense_score
     score = 0
-    score += rushing_score
-    score += rush_block_score
+    score += 5*rushing_score
+    score += 2*rush_block_score
+    score.to_f
+  end
+  def passing_defense_score
+    score = 0
+    score += 4*pass_rush_score
+    score += 3*coverage_score
     score.to_f
   end
   def rushing_defense_score
     score = 0
-    score += run_defense_score
+    score += 3*run_defense_score
     score.to_f
   end
   def defense_score

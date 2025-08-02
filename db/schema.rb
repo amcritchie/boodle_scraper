@@ -649,6 +649,10 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
     t.integer "defense_score"
     t.integer "power_rank_score"
     t.integer "field_goal_score"
+    t.float "offensive_play_caller_score"
+    t.float "defensive_play_caller_score"
+    t.float "pace_of_play_score"
+    t.float "run_heavy_score"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

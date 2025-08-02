@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= @team.name %> - Team Summary</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen" data-controller="team-substitution">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-6">
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2">
+            <span class="text-3xl"><%= @team.emoji %></span>
+            <h1 class="text-2xl font-bold text-gray-900"><%= @team.name %></h1>
+          </div>
+          <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full"><%= @year %> Season</span>
+        </div>
+        <nav class="flex space-x-4">
+          <a href="<%= teams_power_rankings_path(@year) %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            Power Rankings
+          </a>
+          <a href="<%= teams_rankings_path(@year) %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            All Rankings
+          </a>
+          <a href="<%= teams_seasons_path(@year) %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            Team Rosters
+          </a>
+          <a href="<%= players_index_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            All Players
+          </a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Team Overview -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 mb-8">
+      <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+        <div class="flex items-center space-x-3">
+          <span class="text-3xl"><%= @team.emoji %></span>
+          <div>
+            <h2 class="text-2xl font-bold text-white"><%= @team.name %></h2>
+            <p class="text-blue-100 text-sm"><%= @team.conference&.upcase %> • <%= @team.division&.titleize %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rankings Section -->
+    <% if @teams_week %>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-8">
+      <!-- Power Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">🏆</span>
+            <div>
+              <h3 class="text-xl font-bold text-white">Power</h3>
+              <p class="text-purple-100 text-sm">Overall team strength</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Power Score:</span>
+              <span class="font-mono font-bold text-2xl text-purple-600"><%= @teams_week.power_rank_score %></span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Offense Score:</span>
+              <span class="font-mono font-bold text-xl text-blue-600"><%= @teams_week.offense_score %></span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Defense Score:</span>
+              <span class="font-mono font-bold text-xl text-green-600"><%= @teams_week.defense_score %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Offense Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">🏈</span>
+            <div>
+              <h3 class="text-xl font-bold text-white">Offense</h3>
+              <p class="text-blue-100 text-sm">Offensive component rankings</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3">
+            <% [
+              ['🏈 QB Passing', @teams_week.qb_passing_rank],
+              ['🤲 Receivers', @teams_week.receiver_core_rank],
+              ['🛡️ Pass Block', @teams_week.pass_block_rank],
+              ['🏃 Rush Block', @teams_week.rush_block_rank],
+              ['🏃 Rushing', @teams_week.rushing_rank]
+            ].sort_by { |_, rank| rank }.each do |label, rank| %>
+              <div class="flex justify-between items-center">
+                <span class="text-sm"><%= label %>:</span>
+                <span class="font-mono text-sm font-bold text-blue-600"><%= rank %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Defense Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">🛡️</span>
+            <div>
+              <h3 class="text-xl font-bold text-white">Defense</h3>
+              <p class="text-green-100 text-sm">Defensive component rankings</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3">
+            <% [
+              ['⚡ Pass Rush', @teams_week.pass_rush_rank],
+              ['👁️ Coverage', @teams_week.coverage_rank],
+              ['🛑 Run Defense', @teams_week.run_defense_rank]
+            ].sort_by { |_, rank| rank }.each do |label, rank| %>
+              <div class="flex justify-between items-center">
+                <span class="text-sm"><%= label %>:</span>
+                <span class="font-mono text-sm font-bold text-green-600"><%= rank %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coaching Rankings -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">👔</span>
+            <div>
+              <h3 class="text-xl font-bold text-white">Coaching</h3>
+              <p class="text-orange-100 text-sm">Coaching and strategy rankings</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="space-y-3">
+            <% [
+              ['🧠 Play Caller', @teams_week.offensive_play_caller_rank],
+              ['⏱️ Pace', @teams_week.pace_of_play_rank],
+              ['👟 Run Heavy', @teams_week.run_heavy_rank],
+              ['🥅 Field Goal', @teams_week.field_goal_rank]
+            ].sort_by { |_, rank| rank }.each do |label, rank| %>
+              <div class="flex justify-between items-center">
+                <span class="text-sm"><%= label %>:</span>
+                <span class="font-mono text-sm font-bold text-orange-600"><%= rank %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <% end %>
+
+    <!-- Starters Section -->
+    <div class="space-y-8 mb-8">
+      <!-- Offense Starters -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">🏈</span>
+              <div>
+                <h3 class="text-xl font-bold text-white">Offense Starters</h3>
+                <p class="text-blue-100 text-sm">12 offensive players</p>
+              </div>
+            </div>
+            <button data-action="click->team-substitution#toggleOffenseSubstitution" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors">
+              <span data-team-substitution-target="offenseSubstitutionText">Substitute</span>
+            </button>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- QB -->
+            <div class="space-y-2">
+              <h4 class="font-semibold text-gray-700 text-sm">QB</h4>
+              <% if @teams_season&.qb_player %>
+                <div class="bg-gray-50 p-4 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+                     @click="selectPlayerForSubstitution('<%= @teams_season.qb_player.slug %>', 'qb')">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.qb_player.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.qb_player.last_name %></span>
+                      </div>
+                      <div class="text-xs text-gray-500"><%= @teams_season.qb_player.position_symbol %></div>
+                    </div>
+                    <div class="text-xs font-mono text-right space-y-1">
+                      <div class="text-blue-600">Pass: <%= @teams_season.qb_player.passing_grade_x %></div>
+                      <div class="text-green-600">Rush: <%= @teams_season.qb_player.rush_grade_x %></div>
+                    </div>
+                  </div>
+                </div>
+              <% else %>
+                <div class="bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300 text-gray-400 text-sm">
+                  No QB
+                </div>
+              <% end %>
+            </div>
+
+            <!-- RBs -->
+            <div class="space-y-2">
+              <h4 class="font-semibold text-gray-700 text-sm">RB</h4>
+              <% if @teams_season&.rb1_player %>
+                <div class="bg-gray-50 p-4 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+                     @click="selectPlayerForSubstitution('<%= @teams_season.rb1_player.slug %>', 'rb1')">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.rb1_player.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.rb1_player.last_name %></span>
+                      </div>
+                      <div class="text-xs text-gray-500"><%= @teams_season.rb1_player.position_symbol %></div>
+                    </div>
+                    <div class="text-xs font-mono text-right space-y-1">
+                      <div class="text-green-600">Rush: <%= @teams_season.rb1_player.rush_grade_x %></div>
+                      <div class="text-blue-600">Off: <%= @teams_season.rb1_player.grades_offense || 60 %></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+              <% if @teams_season&.rb2_player %>
+                <div class="bg-gray-50 p-4 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+                     @click="selectPlayerForSubstitution('<%= @teams_season.rb2_player.slug %>', 'rb2')">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.rb2_player.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.rb2_player.last_name %></span>
+                      </div>
+                      <div class="text-xs text-gray-500"><%= @teams_season.rb2_player.position_symbol %></div>
+                    </div>
+                    <div class="text-xs font-mono text-right space-y-1">
+                      <div class="text-green-600">Rush: <%= @teams_season.rb2_player.rush_grade_x %></div>
+                      <div class="text-blue-600">Off: <%= @teams_season.rb2_player.grades_offense || 60 %></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- WRs -->
+            <div class="space-y-2">
+              <h4 class="font-semibold text-gray-700 text-sm">WR</h4>
+              <% if @teams_season&.wr1_player %>
+                <div class="bg-gray-50 p-4 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+                     @click="selectPlayerForSubstitution('<%= @teams_season.wr1_player.slug %>', 'wr1')">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.wr1_player.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.wr1_player.last_name %></span>
+                      </div>
+                      <div class="text-xs text-gray-500"><%= @teams_season.wr1_player.position_symbol %></div>
+                    </div>
+                    <div class="text-xs font-mono text-right space-y-1">
+                      <div class="text-purple-600">Route: <%= @teams_season.wr1_player.receiving_grade_x %></div>
+                      <div class="text-blue-600">Off: <%= @teams_season.wr1_player.grades_offense || 60 %></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+              <% if @teams_season&.wr2_player %>
+                <div class="bg-gray-50 p-4 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+                     @click="selectPlayerForSubstitution('<%= @teams_season.wr2_player.slug %>', 'wr2')">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.wr2_player.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.wr2_player.last_name %></span>
+                      </div>
+                      <div class="text-xs text-gray-500"><%= @teams_season.wr2_player.position_symbol %></div>
+                    </div>
+                    <div class="text-xs font-mono text-right space-y-1">
+                      <div class="text-purple-600">Route: <%= @teams_season.wr2_player.receiving_grade_x %></div>
+                      <div class="text-blue-600">Off: <%= @teams_season.wr2_player.grades_offense || 60 %></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+              <% if @teams_season&.wr3_player %>
+                <div class="bg-gray-50 p-4 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+                     @click="selectPlayerForSubstitution('<%= @teams_season.wr3_player.slug %>', 'wr3')">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.wr3_player.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.wr3_player.last_name %></span>
+                      </div>
+                      <div class="text-xs text-gray-500"><%= @teams_season.wr3_player.position_symbol %></div>
+                    </div>
+                    <div class="text-xs font-mono text-right space-y-1">
+                      <div class="text-purple-600">Route: <%= @teams_season.wr3_player.receiving_grade_x %></div>
+                      <div class="text-blue-600">Off: <%= @teams_season.wr3_player.grades_offense || 60 %></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- TE -->
+            <div class="space-y-2">
+              <h4 class="font-semibold text-gray-700 text-sm">TE</h4>
+              <% if @teams_season&.te_player %>
+                <div class="bg-gray-50 p-4 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+                     @click="selectPlayerForSubstitution('<%= @teams_season.te_player.slug %>', 'te')">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.te_player.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.te_player.last_name %></span>
+                      </div>
+                      <div class="text-xs text-gray-500"><%= @teams_season.te_player.position_symbol %></div>
+                    </div>
+                    <div class="text-xs font-mono text-right space-y-1">
+                      <div class="text-purple-600">Route: <%= @teams_season.te_player.receiving_grade_x %></div>
+                      <div class="text-green-600">Run: <%= @teams_season.te_player.run_block_grade_x %></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- O-Line -->
+            <div class="space-y-2 col-span-2 lg:col-span-4">
+              <h4 class="font-semibold text-gray-700 text-sm">Offensive Line</h4>
+              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+                <% if @teams_season&.left_tackle_player %>
+                  <div class="<%= @teams_season.qb_player&.left_handed? ? 'bg-gray-50' : 'bg-yellow-50 border-yellow-300' %> p-3 rounded border cursor-pointer hover:bg-gray-100 transition-colors"
+                       @click="selectPlayerForSubstitution('<%= @teams_season.left_tackle_player.slug %>', 'lt')">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <div class="flex items-center space-x-1 mb-1">
+                          <span class="text-xs text-gray-600"><%= @teams_season.left_tackle_player.first_name %></span>
+                          <span class="font-bold text-sm"><%= @teams_season.left_tackle_player.last_name %></span>
+                        </div>
+                        <div class="text-xs text-gray-500">LT</div>
+                      </div>
+                      <div class="text-xs font-mono text-left md:text-right space-y-1">
+                        <div class="text-blue-600">Pass: <%= @teams_season.left_tackle_player.pass_block_grade_x %></div>
+                        <div class="text-green-600">Run: <%= @teams_season.left_tackle_player.run_block_grade_x %></div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <% if @teams_season&.left_guard_player %>
+                  <div class="bg-gray-50 p-3 rounded border cursor-pointer hover:bg-gray-100 transition-colors"
+                       @click="selectPlayerForSubstitution('<%= @teams_season.left_guard_player.slug %>', 'lg')">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <div class="flex items-center space-x-1 mb-1">
+                          <span class="text-xs text-gray-600"><%= @teams_season.left_guard_player.first_name %></span>
+                          <span class="font-bold text-sm"><%= @teams_season.left_guard_player.last_name %></span>
+                        </div>
+                        <div class="text-xs text-gray-500">LG</div>
+                      </div>
+                      <div class="text-xs font-mono text-left md:text-right space-y-1">
+                        <div class="text-blue-600">Pass: <%= @teams_season.left_guard_player.pass_block_grade_x %></div>
+                        <div class="text-green-600">Run: <%= @teams_season.left_guard_player.run_block_grade_x %></div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <% if @teams_season&.center_player %>
+                  <div class="bg-gray-50 p-3 rounded border cursor-pointer hover:bg-gray-100 transition-colors"
+                       @click="selectPlayerForSubstitution('<%= @teams_season.center_player.slug %>', 'c')">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <div class="flex items-center space-x-1 mb-1">
+                          <span class="text-xs text-gray-600"><%= @teams_season.center_player.first_name %></span>
+                          <span class="font-bold text-sm"><%= @teams_season.center_player.last_name %></span>
+                        </div>
+                        <div class="text-xs text-gray-500">C</div>
+                      </div>
+                      <div class="text-xs font-mono text-left md:text-right space-y-1">
+                        <div class="text-blue-600">Pass: <%= @teams_season.center_player.pass_block_grade_x %></div>
+                        <div class="text-green-600">Run: <%= @teams_season.center_player.run_block_grade_x %></div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <% if @teams_season&.right_guard_player %>
+                  <div class="bg-gray-50 p-3 rounded border cursor-pointer hover:bg-gray-100 transition-colors"
+                       @click="selectPlayerForSubstitution('<%= @teams_season.right_guard_player.slug %>', 'rg')">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <div class="flex items-center space-x-1 mb-1">
+                          <span class="text-xs text-gray-600"><%= @teams_season.right_guard_player.first_name %></span>
+                          <span class="font-bold text-sm"><%= @teams_season.right_guard_player.last_name %></span>
+                        </div>
+                        <div class="text-xs text-gray-500">RG</div>
+                      </div>
+                      <div class="text-xs font-mono text-left md:text-right space-y-1">
+                        <div class="text-blue-600">Pass: <%= @teams_season.right_guard_player.pass_block_grade_x %></div>
+                        <div class="text-green-600">Run: <%= @teams_season.right_guard_player.run_block_grade_x %></div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <% if @teams_season&.right_tackle_player %>
+                  <div class="<%= @teams_season.qb_player&.left_handed? ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50' %> p-3 rounded border cursor-pointer hover:bg-gray-100 transition-colors"
+                       @click="selectPlayerForSubstitution('<%= @teams_season.right_tackle_player.slug %>', 'rt')">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <div class="flex items-center space-x-1 mb-1">
+                          <span class="text-xs text-gray-600"><%= @teams_season.right_tackle_player.first_name %></span>
+                          <span class="font-bold text-sm"><%= @teams_season.right_tackle_player.last_name %></span>
+                        </div>
+                        <div class="text-xs text-gray-500">RT</div>
+                      </div>
+                      <div class="text-xs font-mono text-left md:text-right space-y-1">
+                        <div class="text-blue-600">Pass: <%= @teams_season.right_tackle_player.pass_block_grade_x %></div>
+                        <div class="text-green-600">Run: <%= @teams_season.right_tackle_player.run_block_grade_x %></div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Defense Starters -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">🛡️</span>
+              <div>
+                <h3 class="text-xl font-bold text-white">Defense Starters</h3>
+                <p class="text-green-100 text-sm">12 defensive players</p>
+              </div>
+            </div>
+            <button data-action="click->team-substitution#toggleDefenseSubstitution" 
+                    class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors">
+              <span data-team-substitution-target="defenseSubstitutionText">Substitute</span>
+            </button>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Edge Rushers -->
+            <div class="space-y-2">
+              <h4 class="font-semibold text-gray-700 text-sm">Edge</h4>
+              <% if @teams_season&.edge1_player %>
+                <div class="bg-gray-50 p-4 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+                     @click="selectPlayerForSubstitution('<%= @teams_season.edge1_player.slug %>', 'eg1')">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.edge1_player.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.edge1_player.last_name %></span>
+                      </div>
+                      <div class="text-xs text-gray-500"><%= @teams_season.edge1_player.position_symbol %></div>
+                    </div>
+                    <div class="text-xs font-mono text-right space-y-1">
+                      <div class="text-red-600">Rush: <%= @teams_season.edge1_player.pass_rush_grade_x %></div>
+                      <div class="text-orange-600">Run: <%= @teams_season.edge1_player.rush_defense_grade_x %></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+              <% if @teams_season&.edge2_player %>
+                <div class="bg-gray-50 p-4 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+                     @click="selectPlayerForSubstitution('<%= @teams_season.edge2_player.slug %>', 'eg2')">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.edge2_player.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.edge2_player.last_name %></span>
+                      </div>
+                      <div class="text-xs text-gray-500"><%= @teams_season.edge2_player.position_symbol %></div>
+                    </div>
+                    <div class="text-xs font-mono text-right space-y-1">
+                      <div class="text-red-600">Rush: <%= @teams_season.edge2_player.pass_rush_grade_x %></div>
+                      <div class="text-orange-600">Run: <%= @teams_season.edge2_player.rush_defense_grade_x %></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Defensive Line -->
+            <div class="space-y-2">
+              <h4 class="font-semibold text-gray-700 text-sm">DL</h4>
+              <% if @teams_season&.dl1_player %>
+                <div class="bg-gray-50 p-4 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+                     @click="selectPlayerForSubstitution('<%= @teams_season.dl1_player.slug %>', 'dl1')">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.dl1_player.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.dl1_player.last_name %></span>
+                      </div>
+                      <div class="text-xs text-gray-500"><%= @teams_season.dl1_player.position_symbol %></div>
+                    </div>
+                    <div class="text-xs font-mono text-right space-y-1">
+                      <div class="text-orange-600">Run: <%= @teams_season.dl1_player.rush_defense_grade_x %></div>
+                      <div class="text-red-600">Rush: <%= @teams_season.dl1_player.pass_rush_grade_x %></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+              <% if @teams_season&.dl2_player %>
+                <div class="bg-gray-50 p-4 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+                     @click="selectPlayerForSubstitution('<%= @teams_season.dl2_player.slug %>', 'dl2')">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.dl2_player.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.dl2_player.last_name %></span>
+                      </div>
+                      <div class="text-xs text-gray-500"><%= @teams_season.dl2_player.position_symbol %></div>
+                    </div>
+                    <div class="text-xs font-mono text-right space-y-1">
+                      <div class="text-orange-600">Run: <%= @teams_season.dl2_player.rush_defense_grade_x %></div>
+                      <div class="text-red-600">Rush: <%= @teams_season.dl2_player.pass_rush_grade_x %></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+              <% if @teams_season&.dl3_player %>
+                <div class="bg-gray-50 p-4 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+                     @click="selectPlayerForSubstitution('<%= @teams_season.dl3_player.slug %>', 'dl3')">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.dl3_player.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.dl3_player.last_name %></span>
+                      </div>
+                      <div class="text-xs text-gray-500"><%= @teams_season.dl3_player.position_symbol %></div>
+                    </div>
+                    <div class="text-xs font-mono text-right space-y-1">
+                      <div class="text-orange-600">Run: <%= @teams_season.dl3_player.rush_defense_grade_x %></div>
+                      <div class="text-red-600">Rush: <%= @teams_season.dl3_player.pass_rush_grade_x %></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Linebackers -->
+            <div class="space-y-2">
+              <h4 class="font-semibold text-gray-700 text-sm">LB</h4>
+              <% if @teams_season&.lb1_player %>
+                <div class="bg-gray-50 p-4 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+                     @click="selectPlayerForSubstitution('<%= @teams_season.lb1_player.slug %>', 'lb1')">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.lb1_player.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.lb1_player.last_name %></span>
+                      </div>
+                      <div class="text-xs text-gray-500"><%= @teams_season.lb1_player.position_symbol %></div>
+                    </div>
+                    <div class="text-xs font-mono text-right space-y-1">
+                      <div class="text-orange-600">Run: <%= @teams_season.lb1_player.rush_defense_grade_x %></div>
+                      <div class="text-indigo-600">Cover: <%= @teams_season.lb1_player.coverage_grade_x %></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+              <% if @teams_season&.lb2_player %>
+                <div class="bg-gray-50 p-4 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+                     @click="selectPlayerForSubstitution('<%= @teams_season.lb2_player.slug %>', 'lb2')">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.lb2_player.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.lb2_player.last_name %></span>
+                      </div>
+                      <div class="text-xs text-gray-500"><%= @teams_season.lb2_player.position_symbol %></div>
+                    </div>
+                    <div class="text-xs font-mono text-right space-y-1">
+                      <div class="text-orange-600">Run: <%= @teams_season.lb2_player.rush_defense_grade_x %></div>
+                      <div class="text-indigo-600">Cover: <%= @teams_season.lb2_player.coverage_grade_x %></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Secondary -->
+            <div class="space-y-2 col-span-2 lg:col-span-4">
+              <h4 class="font-semibold text-gray-700 text-sm">Secondary</h4>
+              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+                <% if @teams_season&.cb1_player %>
+                  <div class="bg-gray-50 p-3 rounded border cursor-pointer hover:bg-gray-100 transition-colors"
+                       @click="selectPlayerForSubstitution('<%= @teams_season.cb1_player.slug %>', 'cb1')">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <div class="flex items-center space-x-1 mb-1">
+                          <span class="text-xs text-gray-600"><%= @teams_season.cb1_player.first_name %></span>
+                          <span class="font-bold text-sm"><%= @teams_season.cb1_player.last_name %></span>
+                        </div>
+                        <div class="text-xs text-gray-500">CB1</div>
+                      </div>
+                      <div class="text-xs font-mono text-left md:text-right space-y-1">
+                        <div class="text-indigo-600">Cover: <%= @teams_season.cb1_player.coverage_grade_x %></div>
+                        <div class="text-orange-600">Run: <%= @teams_season.cb1_player.rush_defense_grade_x %></div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <% if @teams_season&.cb2_player %>
+                  <div class="bg-gray-50 p-3 rounded border cursor-pointer hover:bg-gray-100 transition-colors"
+                       @click="selectPlayerForSubstitution('<%= @teams_season.cb2_player.slug %>', 'cb2')">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <div class="flex items-center space-x-1 mb-1">
+                          <span class="text-xs text-gray-600"><%= @teams_season.cb2_player.first_name %></span>
+                          <span class="font-bold text-sm"><%= @teams_season.cb2_player.last_name %></span>
+                        </div>
+                        <div class="text-xs text-gray-500">CB2</div>
+                      </div>
+                      <div class="text-xs font-mono text-left md:text-right space-y-1">
+                        <div class="text-indigo-600">Cover: <%= @teams_season.cb2_player.coverage_grade_x %></div>
+                        <div class="text-orange-600">Run: <%= @teams_season.cb2_player.rush_defense_grade_x %></div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <% if @teams_season&.cb3_player %>
+                  <div class="bg-gray-50 p-3 rounded border cursor-pointer hover:bg-gray-100 transition-colors"
+                       @click="selectPlayerForSubstitution('<%= @teams_season.cb3_player.slug %>', 'cb3')">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <div class="flex items-center space-x-1 mb-1">
+                          <span class="text-xs text-gray-600"><%= @teams_season.cb3_player.first_name %></span>
+                          <span class="font-bold text-sm"><%= @teams_season.cb3_player.last_name %></span>
+                        </div>
+                        <div class="text-xs text-gray-500">CB3</div>
+                      </div>
+                      <div class="text-xs font-mono text-left md:text-right space-y-1">
+                        <div class="text-indigo-600">Cover: <%= @teams_season.cb3_player.coverage_grade_x %></div>
+                        <div class="text-orange-600">Run: <%= @teams_season.cb3_player.rush_defense_grade_x %></div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <% if @teams_season&.safety1_player %>
+                  <div class="bg-gray-50 p-3 rounded border cursor-pointer hover:bg-gray-100 transition-colors"
+                       @click="selectPlayerForSubstitution('<%= @teams_season.safety1_player.slug %>', 's1')">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <div class="flex items-center space-x-1 mb-1">
+                          <span class="text-xs text-gray-600"><%= @teams_season.safety1_player.first_name %></span>
+                          <span class="font-bold text-sm"><%= @teams_season.safety1_player.last_name %></span>
+                        </div>
+                        <div class="text-xs text-gray-500">S1</div>
+                      </div>
+                      <div class="text-xs font-mono text-left md:text-right space-y-1">
+                        <div class="text-indigo-600">Cover: <%= @teams_season.safety1_player.coverage_grade_x %></div>
+                        <div class="text-orange-600">Run: <%= @teams_season.safety1_player.rush_defense_grade_x %></div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <% if @teams_season&.safety2_player %>
+                  <div class="bg-gray-50 p-3 rounded border cursor-pointer hover:bg-gray-100 transition-colors"
+                       @click="selectPlayerForSubstitution('<%= @teams_season.safety2_player.slug %>', 's2')">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <div class="flex items-center space-x-1 mb-1">
+                          <span class="text-xs text-gray-600"><%= @teams_season.safety2_player.first_name %></span>
+                          <span class="font-bold text-sm"><%= @teams_season.safety2_player.last_name %></span>
+                        </div>
+                        <div class="text-xs text-gray-500">S2</div>
+                      </div>
+                      <div class="text-xs font-mono text-left md:text-right space-y-1">
+                        <div class="text-indigo-600">Cover: <%= @teams_season.safety2_player.coverage_grade_x %></div>
+                        <div class="text-orange-600">Run: <%= @teams_season.safety2_player.rush_defense_grade_x %></div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coaching Staff Section -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 mb-8">
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">👔</span>
+            <div>
+              <h3 class="text-xl font-bold text-white">Coaching Staff</h3>
+              <p class="text-purple-100 text-sm">Head Coach, Offensive & Defensive Coordinators</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Head Coach -->
+            <div class="space-y-2">
+              <h4 class="font-semibold text-gray-700 text-sm">Head Coach</h4>
+              <% if @teams_season&.head_coach %>
+                <div class="bg-gray-50 p-4 rounded-lg border">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.head_coach.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.head_coach.last_name %></span>
+                      </div>
+                    </div>
+                    <div class="text-xs text-purple-600 font-medium">
+                      <% if @teams_season.offensive_play_caller == @teams_season.head_coach&.slug %>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Offense</span>
+                      <% elsif @teams_season.defensive_play_caller == @teams_season.head_coach&.slug %>
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Defense</span>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% else %>
+                <div class="bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300 text-gray-400 text-sm">
+                  No Head Coach
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Offensive Coordinator -->
+            <div class="space-y-2">
+              <h4 class="font-semibold text-gray-700 text-sm">Offensive Coordinator</h4>
+              <% if @teams_season&.offensive_coordinator %>
+                <div class="bg-gray-50 p-4 rounded-lg border">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.offensive_coordinator.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.offensive_coordinator.last_name %></span>
+                      </div>
+                    </div>
+                    <div class="text-xs text-blue-600 font-medium">
+                      <% if @teams_season.offensive_play_caller == @teams_season.offensive_coordinator&.slug %>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Offense</span>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% else %>
+                <div class="bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300 text-gray-400 text-sm">
+                  No OC
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Defensive Coordinator -->
+            <div class="space-y-2">
+              <h4 class="font-semibold text-gray-700 text-sm">Defensive Coordinator</h4>
+              <% if @teams_season&.defensive_coordinator %>
+                <div class="bg-gray-50 p-4 rounded-lg border">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-1 mb-1">
+                        <span class="text-xs text-gray-600"><%= @teams_season.defensive_coordinator.first_name %></span>
+                        <span class="font-bold text-sm"><%= @teams_season.defensive_coordinator.last_name %></span>
+                      </div>
+                    </div>
+                    <div class="text-xs text-green-600 font-medium">
+                      <% if @teams_season.defensive_play_caller == @teams_season.defensive_coordinator&.slug %>
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Defense</span>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% else %>
+                <div class="bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300 text-gray-400 text-sm">
+                  No DC
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <!-- Bench Players Section -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 mb-8">
+      <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">🪑</span>
+            <div>
+              <h3 class="text-xl font-bold text-white">Bench Players</h3>
+              <p class="text-orange-100 text-sm">Available substitutes</p>
+            </div>
+          </div>
+          <button data-action="click->team-substitution#toggleBench" 
+                  class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-sm transition-colors">
+            <span data-team-substitution-target="benchToggleText">Show Bench</span>
+          </button>
+        </div>
+      </div>
+      <div class="p-6" data-team-substitution-target="benchContent" style="display: none; min-height: 400px;">
+        <!-- Filters -->
+        <div class="mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Search -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+              <input type="text" 
+                     data-team-substitution-target="benchSearch"
+                     data-action="input->team-substitution#filterBenchPlayers"
+                     placeholder="Player name..."
+                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            
+            <!-- Position Filter -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Position</label>
+              <select data-team-substitution-target="benchPositionFilter"
+                      data-action="change->team-substitution#filterBenchPlayers"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">All Positions</option>
+                <option value="quarterback">Quarterback</option>
+                <option value="running-back">Running Back</option>
+                <option value="wide-receiver">Wide Receiver</option>
+                <option value="tight-end">Tight End</option>
+                <option value="center">Center</option>
+                <option value="gaurd">Guard</option>
+                <option value="tackle">Tackle</option>
+                <option value="edge-rusher">Edge Rusher</option>
+                <option value="defensive-end">Defensive End</option>
+                <option value="linebacker">Linebacker</option>
+                <option value="cornerback">Cornerback</option>
+                <option value="safety">Safety</option>
+                <option value="place-kicker">Place Kicker</option>
+                <option value="punter">Punter</option>
+              </select>
+            </div>
+            
+            <!-- Grade Filter -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Min Grade</label>
+              <select data-team-substitution-target="benchGradeFilter"
+                      data-action="change->team-substitution#filterBenchPlayers"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">All Grades</option>
+                <option value="90">90+</option>
+                <option value="85">85+</option>
+                <option value="80">80+</option>
+                <option value="75">75+</option>
+                <option value="70">70+</option>
+                <option value="65">65+</option>
+                <option value="60">60+</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bench Players Table -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200" data-team-substitution-target="benchTable">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grades</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @bench_by_position.values.flatten.each do |player| %>
+                <tr class="hover:bg-gray-50 transition-colors"
+                    data-player-name="<%= player.full_name.downcase %>"
+                    data-position="<%= player.position %>"
+                    data-grade="<%= player.grades_offense || 60 %>">
+                  <!-- Player Name -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0">
+                        <div class="text-sm font-medium text-gray-900">
+                          <span class="text-gray-600 text-xs"><%= player.first_name %></span>
+                          <span class="font-bold"><%= player.last_name %></span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  <!-- Position -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <%= player.position_symbol %>
+                    </span>
+                  </td>
+                  
+                  <!-- Grades -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-xs font-mono space-y-1">
+                      <% case player.position %>
+                      <% when 'quarterback' %>
+                        <div class="text-blue-600">Pass: <%= player.passing_grade_x %></div>
+                      <% when 'running-back' %>
+                        <div class="text-green-600">Rush: <%= player.rush_grade_x %></div>
+                      <% when 'wide-receiver', 'tight-end' %>
+                        <div class="text-purple-600">Route: <%= player.receiving_grade_x %></div>
+                      <% when 'center', 'gaurd', 'tackle' %>
+                        <div class="text-blue-600">Pass: <%= player.pass_block_grade_x %></div>
+                        <div class="text-green-600">Run: <%= player.run_block_grade_x %></div>
+                      <% when 'edge-rusher' %>
+                        <div class="text-red-600">Rush: <%= player.pass_rush_grade_x %></div>
+                      <% when 'defensive-end' %>
+                        <div class="text-orange-600">Run: <%= player.rush_defense_grade_x %></div>
+                      <% when 'linebacker' %>
+                        <div class="text-orange-600">Run: <%= player.rush_defense_grade_x %></div>
+                      <% when 'cornerback', 'safety' %>
+                        <div class="text-indigo-600">Cover: <%= player.coverage_grade_x %></div>
+                      <% else %>
+                        <div class="text-gray-600">Off: <%= player.grades_offense || 60 %></div>
+                      <% end %>
+                    </div>
+                  </td>
+                  
+                  <!-- Action -->
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <button data-action="click->team-substitution#selectPlayerForSubstitution"
+                            data-player-slug="<%= player.slug %>"
+                            data-position=""
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                      Substitute
+                    </button>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Results Count -->
+        <div class="mt-4 text-sm text-gray-600">
+          <span data-team-substitution-target="benchCount">0 players found</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Substitution Modal -->
+    <div data-team-substitution-target="substitutionModal"
+         data-team-substitution-show-substitution-modal-class="hidden"
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-bold mb-4">Substitute Player</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Current Player</label>
+            <div class="bg-gray-50 p-3 rounded border">
+              <div class="font-medium" data-team-substitution-target="selectedPlayerName"></div>
+              <div class="text-sm text-gray-500" data-team-substitution-target="selectedPlayerPosition"></div>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Position</label>
+            <div class="bg-blue-50 p-3 rounded border">
+              <div class="font-medium" data-team-substitution-target="selectedPosition"></div>
+            </div>
+          </div>
+          <div class="flex space-x-3">
+            <button data-action="click->team-substitution#closeSubstitutionModal" 
+                    class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded transition-colors">
+              Cancel
+            </button>
+            <button data-action="click->team-substitution#confirmSubstitution" 
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors">
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Initialize bench player count on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const controller = document.querySelector('[data-controller="team-substitution"]').stimulus
+      if (controller) {
+        controller.filterBenchPlayers()
+      }
+    })
+  </script>
+</body>
+</html> 

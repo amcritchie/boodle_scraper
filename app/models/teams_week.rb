@@ -1,5 +1,5 @@
 class TeamsWeek < ApplicationRecord
-  include ScoringConcern
+  # include ScoringConcern
   # include RankingConcern
   
   belongs_to :team, primary_key: :slug, foreign_key: :team_slug, optional: true
@@ -153,6 +153,13 @@ class TeamsWeek < ApplicationRecord
     # Get all potential rushing players and sort by rushing grade
     potential_rushers = [rb1_player, qb_player].compact
     potential_rushers.sort_by { |player| -(player.rushing_grade || 0) }.first(2)
+  end
+
+  def receivers
+    Player.where(slug: [wr1, wr2, wr3, te].compact)
+  end
+  def top_three_receivers
+    Player.where(slug: receivers.sort_by { |player| -(player.receiving_grade_x || 0) }.first(3).pluck(:slug))
   end
 
   def self.pass_rush_position_weight(position)

@@ -76,7 +76,7 @@
             </thead>
             <tbody>
               <% @power_rankings.each_with_index do |ranking, index| %>
-                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <tr class="border-b border-gray-200 hover:bg-gray-50 cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
                   <td class="py-3 px-3 font-semibold text-lg"><%= index + 1 %></td>
                   <td class="py-3 px-3">
                     <div class="flex items-center space-x-2">
@@ -86,17 +86,17 @@
                   </td>
                   <td class="py-3 px-3">
                     <div class="font-mono font-bold text-lg text-purple-600">
-                      <%= number_with_precision(ranking.power_rank_score, precision: 1) %>
+                      <%= ranking.power_rank_score %>
                     </div>
                   </td>
                   <td class="py-3 px-3">
                     <div class="font-mono font-bold text-lg text-blue-600">
-                      <%= number_with_precision(ranking.offense_score, precision: 1) %>
+                      <%= ranking.offense_score %>
                     </div>
                   </td>
                   <td class="py-3 px-3">
                     <div class="font-mono font-bold text-lg text-green-600">
-                      <%= number_with_precision(ranking.defense_score, precision: 1) %>
+                      <%= ranking.defense_score %>
                     </div>
                   </td>
                   <td class="py-3 px-3">
@@ -150,7 +150,7 @@
             </thead>
             <tbody>
               <% @offense_rankings.each_with_index do |ranking, index| %>
-                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <tr class="border-b border-gray-200 hover:bg-gray-50 cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
                   <td class="py-3 px-3 font-semibold text-lg"><%= index + 1 %></td>
                   <td class="py-3 px-3">
                     <div class="flex items-center space-x-2">
@@ -160,18 +160,19 @@
                   </td>
                   <td class="py-3 px-3">
                     <div class="font-mono font-bold text-lg text-blue-600">
-                      <%= number_with_precision(ranking.offense_score, precision: 1) %>
+                      <%= ranking.offense_score %>
                     </div>
                   </td>
                   <td class="py-3 px-3">
                     <div class="flex items-center space-x-2 mt-1 text-xs">
-                      <span>🧠 <%= ranking.offensive_play_caller_rank %></span>
-                      <span>⏱️ <%= ranking.pace_of_play_rank %></span>
-                      <span>👟 <%= ranking.run_heavy_rank %></span>
-                      <span>🏈 <%= ranking.qb_passing_rank %></span>
-                      <span>🤲 <%= ranking.receiver_core_rank %></span>
-                      <span>🛡️ <%= ranking.pass_block_rank %></span>
-                      <span>🏃 <%= ranking.rush_block_rank %></span>
+                      <span>🏈 <%= ranking.qb_passing_rank %> | <%= (ranking.qb_score**1.6).round(1) %></span>  
+                      <span>🧠 <%= ranking.offensive_play_caller_rank %> | <%= ranking.offensive_play_caller_score*4 %></span>
+                      <span>🤲 <%= ranking.receiver_core_rank %> | <%= ranking.receiver_score*4 %></span>
+                      <span>🛡️ <%= ranking.pass_block_rank %> | <%= ranking.pass_block_score*2 %></span>
+                      <span>🫷 <%= ranking.rush_block_rank %> | <%= ranking.rush_block_score*2 %></span>
+                      <span>🏃 <%= ranking.rushing_rank %> | <%= ranking.rushing_score*5 %></span>
+                      <span>⏱️ <%= ranking.pace_of_play_rank %> | <%= ranking.pace_of_play_score %></span>
+                      <span>👟 <%= ranking.run_heavy_rank %> | <%= ranking.run_heavy_score %></span>
                     </div>
                   </td>
                 </tr>
@@ -211,7 +212,7 @@
             </thead>
             <tbody>
               <% @defense_rankings.each_with_index do |ranking, index| %>
-                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                <tr class="border-b border-gray-200 hover:bg-gray-50 cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
                   <td class="py-3 px-3 font-semibold text-lg"><%= index + 1 %></td>
                   <td class="py-3 px-3">
                     <div class="flex items-center space-x-2">
@@ -221,7 +222,7 @@
                   </td>
                   <td class="py-3 px-3">
                     <div class="font-mono font-bold text-lg text-green-600">
-                      <%= number_with_precision(ranking.defense_score, precision: 1) %>
+                      <%= ranking.defense_score %>
                     </div>
                   </td>
                   <td class="py-3 px-3">

@@ -74,6 +74,7 @@ namespace :teams_weeks do
         rush_block_score: team_season.rush_block_score,
         pass_rush_score: team_season.pass_rush_score,
         coverage_score: team_season.coverage_score,
+        run_defense_score: team_season.run_defense_score,
 
         passing_offense_score: team_season.passing_offense_score,
         rushing_offense_score: team_season.rushing_offense_score,
@@ -85,6 +86,13 @@ namespace :teams_weeks do
 
         power_rank_score: team_season.power_rank_score,
         # field_goal_score: team_season.field_goal_score,
+        
+        # Additional scoring fields
+        offensive_play_caller_score: team_season.offensive_play_caller_score,
+        defensive_play_caller_score: team_season.defensive_play_caller_score,
+        pace_of_play_score: team_season.pace_of_play_score,
+        run_heavy_score: team_season.run_heavy_score,
+        field_goal_score: team_season.field_goal_score,
       )
 
       puts "play_caller_rank:     #{team_week.offensive_play_caller_rank}"
