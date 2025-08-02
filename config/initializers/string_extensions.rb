@@ -19,4 +19,12 @@ class String
       "🦐"
     end
   end
+
+  def player_slugify
+    downcase
+    .gsub(' ', '-')
+    .gsub('.', '')
+    .gsub("'", "")
+    .gsub('’', '')  # secondary-ji’ayir-brown
+  end
 end

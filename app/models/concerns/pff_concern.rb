@@ -29,7 +29,7 @@ module PffConcern
 
       # team            = Team.pff_team(team_name) rescue "unknown"
       # Create player slug
-      slug_player = "#{position_class}-#{player_name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
+      slug_player = "#{position_class}-#{player_name}".player_slugify
       # Find or create player
       player = Player.find_or_create_by(slug: slug_player) 
       player.last_name = last_name

@@ -902,7 +902,7 @@ class Matchup < ApplicationRecord
         run_heavy_rank:             offense_teams_season.run_heavy_rank,
         qb_passing_rank:            offense_teams_season.qb_passing_rank,
         receiver_core_rank:         offense_teams_season.receiver_core_rank,
-        pass_block_rank:            offense_teams_season.pass_block_rank,
+        pass_block_rank:            offense_teams_season.oline_pass_block_rank,
         rush_block_rank:            offense_teams_season.oline_run_block_rank,
         pass_rush_rank:             defense_teams_season.pass_rush_rank,
         coverage_rank:              defense_teams_season.coverage_rank,

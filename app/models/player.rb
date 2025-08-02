@@ -235,16 +235,16 @@ class Player < ApplicationRecord
     position          = pff_starter_position_normalize_oline(position_starter)
     position_class    = position_class(position)
     college           = row["college"].downcase.gsub(' ', '-') rescue 'undrafted'
-    player_slug       = "#{position_class}-#{name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
+    player_slug       = "#{position_class}-#{name}".player_slugify
     # Find or create player
     unless player = Player.find_by(slug: player_slug)
       # Some Dlines might be labeled as linebackers in PFF
       was_linebacker_position = position_class
       was_linebacker_position = :linebacker if position_class == :dline
-      was_linebacker_slug     = "#{was_linebacker_position}-#{name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
+      was_linebacker_slug     = "#{was_linebacker_position}-#{name}".player_slugify
       was_dline_position = position_class
       was_dline_position = :dline if position_class == :linebacker
-      was_dline_slug     = "#{was_dline_position}-#{name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
+      was_dline_slug     = "#{was_dline_position}-#{name}".player_slugify
       # Find or create player
       if player = Player.find_by(slug: was_linebacker_slug)
         player = player
@@ -271,7 +271,7 @@ class Player < ApplicationRecord
     position        = sportsradar_position(player_sportsradar["position"])
     position_class  = position_class(position)
     college         = player_sportsradar["college"].downcase.gsub(' ', '-') rescue 'undrafted'
-    player_slug     = "#{position_class}-#{name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
+    player_slug     = "#{position_class}-#{name}".player_slugify
     # Valdate if Player already exists
     unless player = Player.find_by(sportsradar_id: player_sportsradar["id"])
       unless player = Player.find_by(sportsradar_slug: player_sportsradar["sr_id"])
@@ -280,10 +280,10 @@ class Player < ApplicationRecord
           # Some Dlines might be labeled as linebackers in PFF
           was_dline_position = position_class
           was_dline_position = :dline if position_class == :linebacker
-          was_dline_slug     = "#{was_dline_position}-#{name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
+          was_dline_slug     = "#{was_dline_position}-#{name}".player_slugify
           was_linebacker_position = position_class
           was_linebacker_position = :linebacker if position_class == :dline
-          was_linebacker_slug     = "#{was_linebacker_position}-#{name}".downcase.gsub(' ', '-').gsub('.', '').gsub("'", "")
+          was_linebacker_slug     = "#{was_linebacker_position}-#{name}".player_slugify
           # Find or create player
           if player = Player.find_by(slug: was_dline_slug)
             position    = player.position
