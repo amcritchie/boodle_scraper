@@ -24,12 +24,6 @@
         </div>
       </div>
     </div>
-
-    <div class="text-xs font-mono text-gray-600 dark:text-gray-400 p-4">
-      <div>Power Score = (Offense Score × 0.55) + (Defense Score × 0.45)</div>
-      <div>Offense Score = (🧠×0.15 + ⏱️×0.10 + 👟×0.10 + 🏈×0.20 + 🤲×0.15 + 🛡️×0.15 + 🏃×0.15)</div>
-      <div>Defense Score = (⚡×0.20 + 👁️×0.20 + 🛑×0.30 + 🏃×0.30)</div>
-    </div>
     
     <div class="p-6">
       <div class="overflow-x-auto">
@@ -51,7 +45,14 @@
                 <td class="py-3 px-3">
                   <div class="flex items-center space-x-2">
                     <span class="text-2xl"><%= ranking.team&.emoji %></span>
-                    <span class="font-bold text-lg text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
+                    <div class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-2 py-1 transition-colors copy-team-name" 
+                         onclick="copyTeamName(event, '<%= ranking.team&.emoji %> <%= ranking.team&.name %>')" 
+                         title="Click to copy team name">
+                      <div class="text-sm text-gray-600 dark:text-gray-400">
+                        <span class="block lg:inline"><%= ranking.team&.location %></span>
+                        <span class="font-bold text-lg text-gray-900 dark:text-white block lg:inline"><%= ranking.team&.mascot_name %></span>
+                      </div>
+                    </div>
                   </div>
                 </td>
                 <td class="py-3 px-3">
@@ -69,18 +70,18 @@
                     <%= ranking.defense_score %>
                   </div>
                 </td>
-                <td class="py-3 px-3">
-                  <div class="flex items-center space-x-2 mt-1 text-xs text-gray-600 dark:text-gray-400">
-                    <span>🏈 <%= ranking.qb_passing_rank %> | <%= (ranking.qb_score**1.6).round(1) %></span>  
-                    <span>🧠 <%= ranking.offensive_play_caller_rank %> | <%= ranking.offensive_play_caller_score*4 %></span>
-                    <span>🤲 <%= ranking.receiver_core_rank %> | <%= ranking.receiver_score*4 %></span>
-                    <span>🛡️ <%= ranking.pass_block_rank %> | <%= ranking.pass_block_score*2 %></span>
-                    <span>🫷 <%= ranking.rush_block_rank %> | <%= ranking.rush_block_score*2 %></span>
-                    <span>🏃 <%= ranking.rushing_rank %> | <%= ranking.rushing_score*5 %></span>
-                    <span>⏱️ <%= ranking.pace_of_play_rank %> | <%= ranking.pace_of_play_score %></span>
-                    <span>👟 <%= ranking.run_heavy_rank %> | <%= ranking.run_heavy_score %></span>
-                  </div>
-                </td>
+                                  <td class="py-3 px-3">
+                    <div class="flex items-center space-x-1 mt-1 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap overflow-hidden">
+                      <span>🏈<%= ranking.qb_passing_rank %></span>  
+                      <span>🧠<%= ranking.offensive_play_caller_rank %></span>
+                      <span>🤲<%= ranking.receiver_core_rank %></span>
+                      <span>🛡️<%= ranking.pass_block_rank %></span>
+                      <span>🫷<%= ranking.rush_block_rank %></span>
+                      <span>🏃<%= ranking.rushing_rank %></span>
+                      <span>⏱️<%= ranking.pace_of_play_rank %></span>
+                      <span>👟<%= ranking.run_heavy_rank %></span>
+                    </div>
+                  </td>
               </tr>
             <% end %>
           </tbody>
@@ -99,10 +100,6 @@
           <p class="text-blue-100 text-sm">Offensive performance based on QB, receivers, and offensive line</p>
         </div>
       </div>
-    </div>
-
-    <div class="text-xs font-mono text-gray-600 dark:text-gray-400 p-4">
-      <div>Offense Score = (🧠×0.15 + ⏱️×0.10 + 👟×0.10 + 🏈×0.20 + 🤲×0.15 + 🛡️×0.15 + 🏃×0.15)</div>
     </div>
     
     <div class="p-6">
@@ -123,7 +120,14 @@
                 <td class="py-3 px-3">
                   <div class="flex items-center space-x-2">
                     <span class="text-2xl"><%= ranking.team&.emoji %></span>
-                    <span class="font-bold text-lg text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
+                    <div class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-2 py-1 transition-colors copy-team-name" 
+                         onclick="copyTeamName(event, '<%= ranking.team&.emoji %> <%= ranking.team&.name %>')" 
+                         title="Click to copy team name">
+                      <div class="text-sm text-gray-600 dark:text-gray-400">
+                        <span class="block lg:inline"><%= ranking.team&.location %></span>
+                        <span class="font-bold text-lg text-gray-900 dark:text-white block lg:inline"><%= ranking.team&.mascot_name %></span>
+                      </div>
+                    </div>
                   </div>
                 </td>
                 <td class="py-3 px-3">
@@ -132,15 +136,15 @@
                   </div>
                 </td>
                 <td class="py-3 px-3">
-                  <div class="flex items-center space-x-2 mt-1 text-xs text-gray-600 dark:text-gray-400">
-                    <span>🏈 <%= ranking.qb_passing_rank %> | <%= (ranking.qb_score**1.6).round(1) %></span>  
-                    <span>🧠 <%= ranking.offensive_play_caller_rank %> | <%= ranking.offensive_play_caller_score*4 %></span>
-                    <span>🤲 <%= ranking.receiver_core_rank %> | <%= ranking.receiver_score*4 %></span>
-                    <span>🛡️ <%= ranking.pass_block_rank %> | <%= ranking.pass_block_score*2 %></span>
-                    <span>🫷 <%= ranking.rush_block_rank %> | <%= ranking.rush_block_score*2 %></span>
-                    <span>🏃 <%= ranking.rushing_rank %> | <%= ranking.rushing_score*5 %></span>
-                    <span>⏱️ <%= ranking.pace_of_play_rank %> | <%= ranking.pace_of_play_score %></span>
-                    <span>👟 <%= ranking.run_heavy_rank %> | <%= ranking.run_heavy_score %></span>
+                  <div class="flex items-center space-x-1 mt-1 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap overflow-hidden">
+                    <span>🏈<%= ranking.qb_passing_rank %></span>  
+                    <span>🧠<%= ranking.offensive_play_caller_rank %></span>
+                    <span>🤲<%= ranking.receiver_core_rank %></span>
+                    <span>🛡️<%= ranking.pass_block_rank %></span>
+                    <span>🫷<%= ranking.rush_block_rank %></span>
+                    <span>🏃<%= ranking.rushing_rank %></span>
+                    <span>⏱️<%= ranking.pace_of_play_rank %></span>
+                    <span>👟<%= ranking.run_heavy_rank %></span>
                   </div>
                 </td>
               </tr>
@@ -162,10 +166,6 @@
         </div>
       </div>
     </div>
-
-    <div class="text-xs font-mono text-gray-600 dark:text-gray-400 p-4">
-      <div>Defense Score = (⚡×0.20 + 👁️×0.20 + 🛑×0.30 + 🏃×0.30)</div>
-    </div>
     
     <div class="p-6">
       <div class="overflow-x-auto">
@@ -182,23 +182,30 @@
             <% @defense_rankings.each_with_index do |ranking, index| %>
               <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
                 <td class="py-3 px-3 font-semibold text-lg text-gray-900 dark:text-white"><%= index + 1 %></td>
-                <td class="py-3 px-3">
-                  <div class="flex items-center space-x-2">
-                    <span class="text-2xl"><%= ranking.team&.emoji %></span>
-                    <span class="font-bold text-lg text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
-                  </div>
-                </td>
+                                  <td class="py-3 px-3">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-2xl"><%= ranking.team&.emoji %></span>
+                      <div class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-2 py-1 transition-colors copy-team-name" 
+                           onclick="copyTeamName(event, '<%= ranking.team&.emoji %> <%= ranking.team&.name %>')" 
+                           title="Click to copy team name">
+                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                          <span class="block lg:inline"><%= ranking.team&.location %></span>
+                          <span class="font-bold text-lg text-gray-900 dark:text-white block lg:inline"><%= ranking.team&.mascot_name %></span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
                 <td class="py-3 px-3">
                   <div class="font-mono font-bold text-lg text-green-600 dark:text-green-400">
                     <%= ranking.defense_score %>
                   </div>
                 </td>
                 <td class="py-3 px-3">
-                  <div class="flex items-center space-x-2 mt-1 text-xs text-gray-600 dark:text-gray-400">
-                    <span>⚡ <%= ranking.pass_rush_rank %></span>
-                    <span>👁️ <%= ranking.coverage_rank %></span>
-                    <span>🛑 <%= ranking.run_defense_rank %></span>
-                    <span>🏃 <%= ranking.rushing_rank %></span>
+                  <div class="flex items-center space-x-1 mt-1 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap overflow-hidden">
+                    <span>⚡<%= ranking.pass_rush_rank %></span>
+                    <span>👁️<%= ranking.coverage_rank %></span>
+                    <span>🛑<%= ranking.run_defense_rank %></span>
+                    <span>🏃<%= ranking.rushing_rank %></span>
                   </div>
                 </td>
               </tr>
@@ -228,4 +235,66 @@
       </p>
     </div>
   </footer>
+
+  <!-- Copy Team Name JavaScript -->
+  <script>
+    function copyTeamName(event, teamName) {
+      // Prevent the row click event from firing
+      if (event && event.stopPropagation) {
+        event.stopPropagation();
+      }
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(teamName).then(function() {
+        // Show a subtle success indicator
+        let element = null;
+        if (event && event.currentTarget) {
+          element = event.currentTarget;
+        } else if (event && event.target) {
+          element = event.target.closest('.cursor-pointer');
+        }
+        
+        if (element) {
+          const originalBg = element.style.backgroundColor;
+          
+          // Flash green background briefly
+          element.style.backgroundColor = '#10B981';
+          element.style.transition = 'background-color 0.2s ease';
+          
+          setTimeout(() => {
+            element.style.backgroundColor = originalBg;
+          }, 300);
+        }
+        
+        // Show a toast notification
+        showToast('Team name copied!');
+      }).catch(function(err) {
+        console.error('Failed to copy: ', err);
+        showToast('Failed to copy team name');
+      });
+    }
+    
+    function showToast(message) {
+      // Create toast element
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50 transform translate-y-full transition-transform duration-300';
+      toast.textContent = message;
+      
+      // Add to page
+      document.body.appendChild(toast);
+      
+      // Animate in
+      setTimeout(() => {
+        toast.style.transform = 'translateY(0)';
+      }, 100);
+      
+      // Remove after 2 seconds
+      setTimeout(() => {
+        toast.style.transform = 'translateY(full)';
+        setTimeout(() => {
+          document.body.removeChild(toast);
+        }, 300);
+      }, 2000);
+    }
+  </script>
 </div> 

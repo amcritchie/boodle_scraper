@@ -22,6 +22,62 @@ class Team < ApplicationRecord
     def description
       "#{self.emoji} #{self.name}"
     end
+    
+    def location
+      self[:location] || extract_location_from_name
+    end
+    
+    def mascot_name
+      extract_mascot_from_name
+    end
+    
+    private
+    
+    def extract_location_from_name
+      return nil if name.blank?
+      
+      # Common location patterns in NFL team names
+      location_patterns = [
+        /^(.*?)\s+(?:Bills|Dolphins|Patriots|Jets|Bengals|Browns|Ravens|Steelers|Texans|Colts|Jaguars|Titans|Broncos|Chiefs|Raiders|Chargers|Cowboys|Giants|Eagles|Commanders|Bears|Lions|Packers|Vikings|Falcons|Panthers|Saints|Buccaneers|Cardinals|Rams|Seahawks|49ers)$/i
+      ]
+      
+      location_patterns.each do |pattern|
+        if match = name.match(pattern)
+          return match[1].strip
+        end
+      end
+      
+      # Fallback: try to extract location from common patterns
+      case name
+      when /^(.*?)\s+(?:Bills|Dolphins|Patriots|Jets|Bengals|Browns|Ravens|Steelers|Texans|Colts|Jaguars|Titans|Broncos|Chiefs|Raiders|Chargers|Cowboys|Giants|Eagles|Commanders|Bears|Lions|Packers|Vikings|Falcons|Panthers|Saints|Buccaneers|Cardinals|Rams|Seahawks|49ers)$/i
+        $1.strip
+      else
+        nil
+      end
+    end
+    
+    def extract_mascot_from_name
+      return nil if name.blank?
+      
+      # Common mascot patterns in NFL team names
+      mascot_patterns = [
+        /^(?:.*?)\s+(Bills|Dolphins|Patriots|Jets|Bengals|Browns|Ravens|Steelers|Texans|Colts|Jaguars|Titans|Broncos|Chiefs|Raiders|Chargers|Cowboys|Giants|Eagles|Commanders|Bears|Lions|Packers|Vikings|Falcons|Panthers|Saints|Buccaneers|Cardinals|Rams|Seahawks|49ers)$/i
+      ]
+      
+      mascot_patterns.each do |pattern|
+        if match = name.match(pattern)
+          return match[1].strip
+        end
+      end
+      
+      # Fallback: try to extract mascot from common patterns
+      case name
+      when /^(?:.*?)\s+(Bills|Dolphins|Patriots|Jets|Bengals|Browns|Ravens|Steelers|Texans|Colts|Jaguars|Titans|Broncos|Chiefs|Raiders|Chargers|Cowboys|Giants|Eagles|Commanders|Bears|Lions|Packers|Vikings|Falcons|Panthers|Saints|Buccaneers|Cardinals|Rams|Seahawks|49ers)$/i
+        $1.strip
+      else
+        nil
+      end
+    end
     def matchup
       Matchup.find_by(season: 2025, week: 1, team_slug: slug)
     end
