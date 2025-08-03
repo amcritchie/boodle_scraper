@@ -9,14 +9,38 @@ namespace :teams do
     # Clean all TeamsSeason records
     # TeamsSeason.destroy_all
 
+    # Count manually so create or update works
+    new_team = nil
+    rb_count = 0 # RB1
+    wr_count = 0 # WR1
+    eg_count = 0 # EDGE1
+    dl_count = 0 # DL1
+    lb_count = 0 # LB1
+    cb_count = 0 # CB1
+    s_count = 0 # S1
+
     puts "Populating TeamsSeason with CSV starting lineups..."
     # Check if CSV file exists
     csv_path = Rails.root.join('lib', 'pff', 'starting-lineups-2025.csv')    
-    # Each through starters CSV
+    # Each through starters CSV    
     require 'csv'
     CSV.foreach(csv_path, headers: true) do |row|
       team_name = row['Team']
+      # team_slug = team_name
       position = row['Position']
+
+      # Count manually so create or update works
+      if new_team != team_name
+        rb_count = 0 # RB1
+        wr_count = 0 # WR1
+        eg_count = 0 # EDGE1
+        dl_count = 0 # DL1
+        lb_count = 0 # LB1
+        cb_count = 0 # CB1
+        s_count = 0 # S1
+      end
+      new_team = team_name
+
       # Skip if missing essential data
       next if team_name.blank?
       # Find team by name
@@ -53,17 +77,22 @@ namespace :teams do
           teams_season.update(qb: player.slug)
         when 'RB'
           # Handle multiple RBs - assign to rb1 or rb2
-          if teams_season.rb1.nil?
+          if rb_count == 0
+            rb_count += 1
             teams_season.update(rb1: player.slug)
-          elsif teams_season.rb2.nil?
+          elsif rb_count == 1
+            rb_count += 1
             teams_season.update(rb2: player.slug)
           end
         when 'WR'
-          if teams_season.wr1.nil?
+          if wr_count == 0
+            wr_count += 1
             teams_season.update(wr1: player.slug)
-          elsif teams_season.wr2.nil?
+          elsif wr_count == 1
+            wr_count += 1
             teams_season.update(wr2: player.slug)
-          elsif teams_season.wr3.nil?
+          elsif wr_count == 2
+            wr_count += 1
             teams_season.update(wr3: player.slug)
           end
         when 'TE'
@@ -84,43 +113,55 @@ namespace :teams do
         case position.upcase
         when 'EDGE'
           # Handle multiple EDGE rushers
-          if teams_season.eg1.nil?
+          if eg_count == 0
+            eg_count += 1
             teams_season.update(eg1: player.slug)
-          elsif teams_season.eg2.nil?
+          elsif eg_count == 1
+            eg_count += 1
             teams_season.update(eg2: player.slug)
           elsif teams_season.dl3.nil?
             teams_season.update(dl3: player.slug)
           end
         when 'DI'
           # Handle multiple defensive interior players
-          if teams_season.dl1.nil?
+          if dl_count == 0
+            dl_count += 1
             teams_season.update(dl1: player.slug)
-          elsif teams_season.dl2.nil?
+          elsif dl_count == 1
+            dl_count += 1
             teams_season.update(dl2: player.slug)
-          elsif teams_season.dl3.nil?
+          elsif dl_count == 2
+            dl_count += 1
             teams_season.update(dl3: player.slug)
           end
         when 'LB'
           # Handle multiple linebackers
-          if teams_season.lb1.nil?
+          if lb_count == 0
+            lb_count += 1
             teams_season.update(lb1: player.slug)
-          elsif teams_season.lb2.nil?
+          elsif lb_count == 1
+            lb_count += 1
             teams_season.update(lb2: player.slug)
           end
         when 'CB'
           # Handle multiple cornerbacks
-          if teams_season.cb1.nil?
+          if cb_count == 0
+            cb_count += 1
             teams_season.update(cb1: player.slug)
-          elsif teams_season.cb2.nil?
+          elsif cb_count == 1
+            cb_count += 1
             teams_season.update(cb2: player.slug)
-          elsif teams_season.cb3.nil?
+          elsif cb_count == 2
+            cb_count += 1
             teams_season.update(cb3: player.slug)
           end
         when 'S'
           # Handle multiple safeties
-          if teams_season.s1.nil?
+          if s_count == 0
+            s_count += 1
             teams_season.update(s1: player.slug)
-          elsif teams_season.s2.nil?
+          elsif s_count == 1
+            s_count += 1
             teams_season.update(s2: player.slug)
           end
         else
@@ -195,7 +236,7 @@ namespace :teams do
       starter_overrides = [
         { team: 'pit', slug: 'quarterback-aaron-rodgers'},
         { team: 'mia', slug: 'quarterback-tua-tagovailoa', left_handed: true},
-        { team: 'atl', slug: 'quarterback-michael-penix-jr', left_handed: true}
+        { team: 'atl', slug: 'quarterback-michael-penix', left_handed: true}
       ]
 
       starter_overrides.each do |override|

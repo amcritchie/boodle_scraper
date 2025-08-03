@@ -1,265 +1,231 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Power Rankings - Season <%= @year %></title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-  <!-- Header -->
-  <header class="bg-white shadow-sm border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center py-6">
-        <div class="flex items-center space-x-4">
-          <div class="flex items-center space-x-2">
-            <span class="text-3xl">🏆</span>
-            <h1 class="text-2xl font-bold text-gray-900">Power Rankings</h1>
-          </div>
-          <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full"><%= @year %> Season</span>
+<!-- Page Container with Dark Mode Support -->
+<div class="min-h-screen transition-colors duration-200">
+
+
+
+
+  <!-- Page Title -->
+  <div class="text-center mb-12 pt-8">
+    <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Power Rankings</h2>
+    <p class="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+      Comprehensive team rankings based on offensive and defensive performance metrics
+    </p>
+
+  </div>
+
+  <!-- Power Rankings Table -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 mb-12">
+    <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl">🏆</span>
+        <div>
+          <h3 class="text-xl font-bold text-white">Power Rankings</h3>
+          <p class="text-purple-100 text-sm">Overall team strength: Offense (55%) + Defense (45%)</p>
         </div>
-        <nav class="flex space-x-4">
-          <a href="<%= matchups_week1_path(@year) %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            View Matchups
-          </a>
-          <a href="<%= teams_rankings_path(@year) %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            View Rankings
-          </a>
-          <a href="<%= teams_seasons_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            Team Rosters
-          </a>
-        </nav>
       </div>
     </div>
-  </header>
 
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Page Title -->
-    <div class="text-center mb-12">
-      <h2 class="text-4xl font-bold text-gray-900 mb-4">Power Rankings</h2>
-      <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-        Comprehensive team rankings based on offensive and defensive performance metrics
+    <div class="text-xs font-mono text-gray-600 dark:text-gray-400 p-4">
+      <div>Power Score = (Offense Score × 0.55) + (Defense Score × 0.45)</div>
+      <div>Offense Score = (🧠×0.15 + ⏱️×0.10 + 👟×0.10 + 🏈×0.20 + 🤲×0.15 + 🛡️×0.15 + 🏃×0.15)</div>
+      <div>Defense Score = (⚡×0.20 + 👁️×0.20 + 🛑×0.30 + 🏃×0.30)</div>
+    </div>
+    
+    <div class="p-6">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 dark:bg-gray-700">
+              <th class="text-left p-3 font-semibold text-gray-900 dark:text-white">Rank</th>
+              <th class="text-left p-3 font-semibold text-gray-900 dark:text-white">Team</th>
+              <th class="text-left p-3 font-semibold text-gray-900 dark:text-white">Power Score</th>
+              <th class="text-left p-3 font-semibold text-gray-900 dark:text-white">Offense Score</th>
+              <th class="text-left p-3 font-semibold text-gray-900 dark:text-white">Defense Score</th>
+              <th class="text-left p-3 font-semibold text-gray-900 dark:text-white">Component Rankings</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @power_rankings.each_with_index do |ranking, index| %>
+              <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+                <td class="py-3 px-3 font-semibold text-lg text-gray-900 dark:text-white"><%= index + 1 %></td>
+                <td class="py-3 px-3">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-2xl"><%= ranking.team&.emoji %></span>
+                    <span class="font-bold text-lg text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
+                  </div>
+                </td>
+                <td class="py-3 px-3">
+                  <div class="font-mono font-bold text-lg text-purple-600 dark:text-purple-400">
+                    <%= ranking.power_rank_score %>
+                  </div>
+                </td>
+                <td class="py-3 px-3">
+                  <div class="font-mono font-bold text-lg text-blue-600 dark:text-blue-400">
+                    <%= ranking.offense_score %>
+                  </div>
+                </td>
+                <td class="py-3 px-3">
+                  <div class="font-mono font-bold text-lg text-green-600 dark:text-green-400">
+                    <%= ranking.defense_score %>
+                  </div>
+                </td>
+                <td class="py-3 px-3">
+                  <div class="flex items-center space-x-2 mt-1 text-xs text-gray-600 dark:text-gray-400">
+                    <span>🏈 <%= ranking.qb_passing_rank %> | <%= (ranking.qb_score**1.6).round(1) %></span>  
+                    <span>🧠 <%= ranking.offensive_play_caller_rank %> | <%= ranking.offensive_play_caller_score*4 %></span>
+                    <span>🤲 <%= ranking.receiver_core_rank %> | <%= ranking.receiver_score*4 %></span>
+                    <span>🛡️ <%= ranking.pass_block_rank %> | <%= ranking.pass_block_score*2 %></span>
+                    <span>🫷 <%= ranking.rush_block_rank %> | <%= ranking.rush_block_score*2 %></span>
+                    <span>🏃 <%= ranking.rushing_rank %> | <%= ranking.rushing_score*5 %></span>
+                    <span>⏱️ <%= ranking.pace_of_play_rank %> | <%= ranking.pace_of_play_score %></span>
+                    <span>👟 <%= ranking.run_heavy_rank %> | <%= ranking.run_heavy_score %></span>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offense Rankings Table -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 mb-12">
+    <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl">🏈</span>
+        <div>
+          <h3 class="text-xl font-bold text-white">Offense Rankings</h3>
+          <p class="text-blue-100 text-sm">Offensive performance based on QB, receivers, and offensive line</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-xs font-mono text-gray-600 dark:text-gray-400 p-4">
+      <div>Offense Score = (🧠×0.15 + ⏱️×0.10 + 👟×0.10 + 🏈×0.20 + 🤲×0.15 + 🛡️×0.15 + 🏃×0.15)</div>
+    </div>
+    
+    <div class="p-6">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 dark:bg-gray-700">
+              <th class="text-left p-3 font-semibold text-gray-900 dark:text-white">Rank</th>
+              <th class="text-left p-3 font-semibold text-gray-900 dark:text-white">Team</th>
+              <th class="text-left p-3 font-semibold text-gray-900 dark:text-white">Offense Score</th>
+              <th class="text-left p-3 font-semibold text-gray-900 dark:text-white">Component Rankings</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @offense_rankings.each_with_index do |ranking, index| %>
+              <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+                <td class="py-3 px-3 font-semibold text-lg text-gray-900 dark:text-white"><%= index + 1 %></td>
+                <td class="py-3 px-3">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-2xl"><%= ranking.team&.emoji %></span>
+                    <span class="font-bold text-lg text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
+                  </div>
+                </td>
+                <td class="py-3 px-3">
+                  <div class="font-mono font-bold text-lg text-blue-600 dark:text-blue-400">
+                    <%= ranking.offense_score %>
+                  </div>
+                </td>
+                <td class="py-3 px-3">
+                  <div class="flex items-center space-x-2 mt-1 text-xs text-gray-600 dark:text-gray-400">
+                    <span>🏈 <%= ranking.qb_passing_rank %> | <%= (ranking.qb_score**1.6).round(1) %></span>  
+                    <span>🧠 <%= ranking.offensive_play_caller_rank %> | <%= ranking.offensive_play_caller_score*4 %></span>
+                    <span>🤲 <%= ranking.receiver_core_rank %> | <%= ranking.receiver_score*4 %></span>
+                    <span>🛡️ <%= ranking.pass_block_rank %> | <%= ranking.pass_block_score*2 %></span>
+                    <span>🫷 <%= ranking.rush_block_rank %> | <%= ranking.rush_block_score*2 %></span>
+                    <span>🏃 <%= ranking.rushing_rank %> | <%= ranking.rushing_score*5 %></span>
+                    <span>⏱️ <%= ranking.pace_of_play_rank %> | <%= ranking.pace_of_play_score %></span>
+                    <span>👟 <%= ranking.run_heavy_rank %> | <%= ranking.run_heavy_score %></span>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Defense Rankings Table -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+    <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl">🛡️</span>
+        <div>
+          <h3 class="text-xl font-bold text-white">Defense Rankings</h3>
+          <p class="text-green-100 text-sm">Defensive performance based on pass rush, coverage, and run defense</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-xs font-mono text-gray-600 dark:text-gray-400 p-4">
+      <div>Defense Score = (⚡×0.20 + 👁️×0.20 + 🛑×0.30 + 🏃×0.30)</div>
+    </div>
+    
+    <div class="p-6">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 dark:bg-gray-700">
+              <th class="text-left p-3 font-semibold text-gray-900 dark:text-white">Rank</th>
+              <th class="text-left p-3 font-semibold text-gray-900 dark:text-white">Team</th>
+              <th class="text-left p-3 font-semibold text-gray-900 dark:text-white">Defense Score</th>
+              <th class="text-left p-3 font-semibold text-gray-900 dark:text-white">Component Rankings</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @defense_rankings.each_with_index do |ranking, index| %>
+              <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+                <td class="py-3 px-3 font-semibold text-lg text-gray-900 dark:text-white"><%= index + 1 %></td>
+                <td class="py-3 px-3">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-2xl"><%= ranking.team&.emoji %></span>
+                    <span class="font-bold text-lg text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
+                  </div>
+                </td>
+                <td class="py-3 px-3">
+                  <div class="font-mono font-bold text-lg text-green-600 dark:text-green-400">
+                    <%= ranking.defense_score %>
+                  </div>
+                </td>
+                <td class="py-3 px-3">
+                  <div class="flex items-center space-x-2 mt-1 text-xs text-gray-600 dark:text-gray-400">
+                    <span>⚡ <%= ranking.pass_rush_rank %></span>
+                    <span>👁️ <%= ranking.coverage_rank %></span>
+                    <span>🛑 <%= ranking.run_defense_rank %></span>
+                    <span>🏃 <%= ranking.rushing_rank %></span>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="mt-16 text-center pb-8">
+    <div class="text-sm text-gray-500 dark:text-gray-400">
+      <p>Power Rankings for the <%= @year %> NFL season</p>
+      <p class="mt-2">
+        <a href="<%= matchups_week1_path(@year) %>" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline transition-colors">
+          View Matchups
+        </a>
+        <span class="mx-2">•</span>
+        <a href="<%= teams_rankings_path(@year) %>" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline transition-colors">
+          View Detailed Rankings
+        </a>
+        <span class="mx-2">•</span>
+        <a href="<%= teams_seasons_path(@year) %>" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline transition-colors">
+          View Team Rosters
+        </a>
       </p>
     </div>
-
-    <!-- Power Rankings Table -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 mb-12">
-      <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
-        <div class="flex items-center space-x-3">
-          <span class="text-2xl">🏆</span>
-          <div>
-            <h3 class="text-xl font-bold text-white">Power Rankings</h3>
-            <p class="text-purple-100 text-sm">Overall team strength: Offense (55%) + Defense (45%)</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="text-xs font-mono text-gray-600 p-4">
-        <div>Power Score = (Offense Score × 0.55) + (Defense Score × 0.45)</div>
-        <div>Offense Score = (🧠×0.15 + ⏱️×0.10 + 👟×0.10 + 🏈×0.20 + 🤲×0.15 + 🛡️×0.15 + 🏃×0.15)</div>
-        <div>Defense Score = (⚡×0.20 + 👁️×0.20 + 🛑×0.30 + 🏃×0.30)</div>
-      </div>
-      
-      <div class="p-6">
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="bg-gray-50">
-                <th class="text-left p-3 font-semibold">Rank</th>
-                <th class="text-left p-3 font-semibold">Team</th>
-                <th class="text-left p-3 font-semibold">Power Score</th>
-                <th class="text-left p-3 font-semibold">Offense Score</th>
-                <th class="text-left p-3 font-semibold">Defense Score</th>
-                <th class="text-left p-3 font-semibold">Component Rankings</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @power_rankings.each_with_index do |ranking, index| %>
-                <tr class="border-b border-gray-200 hover:bg-gray-50 cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
-                  <td class="py-3 px-3 font-semibold text-lg"><%= index + 1 %></td>
-                  <td class="py-3 px-3">
-                    <div class="flex items-center space-x-2">
-                      <span class="text-2xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-bold text-lg"><%= ranking.team&.name %></span>
-                    </div>
-                  </td>
-                  <td class="py-3 px-3">
-                    <div class="font-mono font-bold text-lg text-purple-600">
-                      <%= ranking.power_rank_score %>
-                    </div>
-                  </td>
-                  <td class="py-3 px-3">
-                    <div class="font-mono font-bold text-lg text-blue-600">
-                      <%= ranking.offense_score %>
-                    </div>
-                  </td>
-                  <td class="py-3 px-3">
-                    <div class="font-mono font-bold text-lg text-green-600">
-                      <%= ranking.defense_score %>
-                    </div>
-                  </td>
-                  <td class="py-3 px-3">
-                    <div class="flex items-center space-x-2 mt-1 text-xs">
-                      <span>🧠 <%= ranking.offensive_play_caller_rank %></span>
-                      <span>⏱️ <%= ranking.pace_of_play_rank %></span>
-                      <span>👟 <%= ranking.run_heavy_rank %></span>
-                      <span>🏈 <%= ranking.qb_passing_rank %></span>
-                      <span>🤲 <%= ranking.receiver_core_rank %></span>
-                      <span>🛡️ <%= ranking.pass_block_rank %></span>
-                      <span>🏃 <%= ranking.rush_block_rank %></span>
-                      <span>⚡ <%= ranking.pass_rush_rank %></span>
-                      <span>👁️ <%= ranking.coverage_rank %></span>
-                      <span>🛑 <%= ranking.run_defense_rank %></span>
-                    </div>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Offense Rankings Table -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 mb-12">
-      <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
-        <div class="flex items-center space-x-3">
-          <span class="text-2xl">🏈</span>
-          <div>
-            <h3 class="text-xl font-bold text-white">Offense Rankings</h3>
-            <p class="text-blue-100 text-sm">Offensive performance based on play calling, QB, receivers, and blocking</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="text-xs font-mono text-gray-600 p-4">
-        <div>Offense Score = (🧠×0.15 + ⏱️×0.10 + 👟×0.10 + 🏈×0.20 + 🤲×0.15 + 🛡️×0.15 + 🏃×0.15)</div>
-      </div>
-      
-      <div class="p-6">
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="bg-gray-50">
-                <th class="text-left p-3 font-semibold">Rank</th>
-                <th class="text-left p-3 font-semibold">Team</th>
-                <th class="text-left p-3 font-semibold">Offense Score</th>
-                <th class="text-left p-3 font-semibold">Component Rankings</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @offense_rankings.each_with_index do |ranking, index| %>
-                <tr class="border-b border-gray-200 hover:bg-gray-50 cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
-                  <td class="py-3 px-3 font-semibold text-lg"><%= index + 1 %></td>
-                  <td class="py-3 px-3">
-                    <div class="flex items-center space-x-2">
-                      <span class="text-2xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-bold text-lg"><%= ranking.team&.name %></span>
-                    </div>
-                  </td>
-                  <td class="py-3 px-3">
-                    <div class="font-mono font-bold text-lg text-blue-600">
-                      <%= ranking.offense_score %>
-                    </div>
-                  </td>
-                  <td class="py-3 px-3">
-                    <div class="flex items-center space-x-2 mt-1 text-xs">
-                      <span>🏈 <%= ranking.qb_passing_rank %> | <%= (ranking.qb_score**1.6).round(1) %></span>  
-                      <span>🧠 <%= ranking.offensive_play_caller_rank %> | <%= ranking.offensive_play_caller_score*4 %></span>
-                      <span>🤲 <%= ranking.receiver_core_rank %> | <%= ranking.receiver_score*4 %></span>
-                      <span>🛡️ <%= ranking.pass_block_rank %> | <%= ranking.pass_block_score*2 %></span>
-                      <span>🫷 <%= ranking.rush_block_rank %> | <%= ranking.rush_block_score*2 %></span>
-                      <span>🏃 <%= ranking.rushing_rank %> | <%= ranking.rushing_score*5 %></span>
-                      <span>⏱️ <%= ranking.pace_of_play_rank %> | <%= ranking.pace_of_play_score %></span>
-                      <span>👟 <%= ranking.run_heavy_rank %> | <%= ranking.run_heavy_score %></span>
-                    </div>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Defense Rankings Table -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-      <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
-        <div class="flex items-center space-x-3">
-          <span class="text-2xl">🛡️</span>
-          <div>
-            <h3 class="text-xl font-bold text-white">Defense Rankings</h3>
-            <p class="text-green-100 text-sm">Defensive performance based on pass rush, coverage, and run defense</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="text-xs font-mono text-gray-600 p-4">
-        <div>Defense Score = (⚡×0.20 + 👁️×0.20 + 🛑×0.30 + 🏃×0.30)</div>
-      </div>
-      
-      <div class="p-6">
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="bg-gray-50">
-                <th class="text-left p-3 font-semibold">Rank</th>
-                <th class="text-left p-3 font-semibold">Team</th>
-                <th class="text-left p-3 font-semibold">Defense Score</th>
-                <th class="text-left p-3 font-semibold">Component Rankings</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @defense_rankings.each_with_index do |ranking, index| %>
-                <tr class="border-b border-gray-200 hover:bg-gray-50 cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
-                  <td class="py-3 px-3 font-semibold text-lg"><%= index + 1 %></td>
-                  <td class="py-3 px-3">
-                    <div class="flex items-center space-x-2">
-                      <span class="text-2xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-bold text-lg"><%= ranking.team&.name %></span>
-                    </div>
-                  </td>
-                  <td class="py-3 px-3">
-                    <div class="font-mono font-bold text-lg text-green-600">
-                      <%= ranking.defense_score %>
-                    </div>
-                  </td>
-                  <td class="py-3 px-3">
-                    <div class="flex items-center space-x-2 mt-1 text-xs">
-                      <span>⚡ <%= ranking.pass_rush_rank %></span>
-                      <span>👁️ <%= ranking.coverage_rank %></span>
-                      <span>🛑 <%= ranking.run_defense_rank %></span>
-                      <span>🏃 <%= ranking.rushing_rank %></span>
-                    </div>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="mt-16 text-center">
-      <div class="text-sm text-gray-500">
-        <p>Power Rankings for the <%= @year %> NFL season</p>
-        <p class="mt-2">
-          <a href="<%= matchups_week1_path(@year) %>" class="text-blue-600 hover:text-blue-800 underline">
-            View Matchups
-          </a>
-          <span class="mx-2">•</span>
-          <a href="<%= teams_rankings_path(@year) %>" class="text-blue-600 hover:text-blue-800 underline">
-            View Detailed Rankings
-          </a>
-          <span class="mx-2">•</span>
-          <a href="<%= teams_seasons_path(@year) %>" class="text-blue-600 hover:text-blue-800 underline">
-            View Team Rosters
-          </a>
-        </p>
-      </div>
-    </footer>
-  </main>
-</body>
-</html> 
+  </footer>
+</div> 

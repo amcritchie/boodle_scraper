@@ -6,6 +6,8 @@ class TeamsSeason < ApplicationRecord
 
   validates :team_slug, :season_year, presence: true
 
+  has_many :teams_weeks, ->(team_season) { where(season_year: team_season.season_year) }, primary_key: :team_slug, foreign_key: :team_slug
+
   # Starting lineup attributes: qb, rb1, rb2, wr1, wr2, wr3, te, c, lt, rt, lg, rg (offense)
   # eg1, eg2, dl1, dl2, dl3, lb1, lb2, cb1, cb2, cb3, s1, s2 (defense)
   # Coach attributes: hc (head coach), oc (offensive coordinator), dc (defensive coordinator)

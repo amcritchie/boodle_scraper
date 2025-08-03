@@ -1,43 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>All Players - NFL Database</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-</head>
-<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-  <!-- Header -->
-  <header class="bg-white shadow-sm border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center py-6">
-        <div class="flex items-center space-x-4">
-          <h1 class="text-2xl font-bold text-gray-900">All Players</h1>
-          <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">2025 Season</span>
-        </div>
-        <nav class="flex space-x-4">
-          <a href="<%= teams_power_rankings_path(2025) %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            Power Rankings
-          </a>
-          <a href="<%= teams_rankings_path(2025) %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            All Rankings
-          </a>
-          <a href="<%= teams_seasons_path(2025) %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            Team Rosters
-          </a>
-          <a href="<%= players_index_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            All Players
-          </a>
-        </nav>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<!-- Page Title -->
+<div class="mb-8">
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">All Players</h1>
+  <p class="text-gray-600 dark:text-gray-400">Browse and search all players in the NFL database</p>
+</div>
     <!-- Filters Section -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 mb-8">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 mb-8">
       <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
         <div class="flex items-center space-x-3">
           <span class="text-2xl">🔍</span>
@@ -52,25 +19,25 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Search -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search</label>
               <%= form.text_field :search, 
                   value: params[:search], 
                   placeholder: "Player name or team name...",
-                  class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" %>
+                  class: "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" %>
             </div>
             
             <!-- Team Filter -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Team</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Team</label>
               <%= form.select :team, 
                   options_from_collection_for_select(@teams, :slug, :name, params[:team]),
                   { prompt: "All Teams" },
-                  { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" } %>
+                  { class: "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" } %>
             </div>
             
             <!-- Position Filter -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Position</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Position</label>
               <%= form.select :position, 
                   options_for_select([
                     ['All Positions', ''],
@@ -90,16 +57,16 @@
                     ['Punter', 'punter']
                   ], params[:position]),
                   {},
-                  { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" } %>
+                  { class: "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" } %>
             </div>
           </div>
           
           <div class="flex justify-between items-center">
-            <div class="text-sm text-gray-600">
+            <div class="text-sm text-gray-600 dark:text-gray-400">
               <%= pluralize(@players.total_count, 'player') %> found
             </div>
             <div class="flex space-x-2">
-              <%= link_to "Clear Filters", players_index_path, class: "bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded transition-colors" %>
+              <%= link_to "Clear Filters", players_index_path, class: "bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 px-4 py-2 rounded transition-colors" %>
               <%= form.submit "Search", class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors" %>
             </div>
           </div>
@@ -108,7 +75,7 @@
     </div>
 
     <!-- Players Table -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
       <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
         <div class="flex items-center space-x-3">
           <span class="text-2xl">👥</span>
@@ -120,28 +87,28 @@
       </div>
       
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Starter</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grades</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Player</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Position</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Team</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Starter</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Grades</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             <% @players.each do |player| %>
-              <tr class="hover:bg-gray-50 transition-colors">
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <!-- Player Name -->
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="flex-shrink-0">
-                      <div class="text-sm font-medium text-gray-900">
-                        <span class="text-gray-600 text-xs"><%= player.first_name %></span>
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">
+                        <span class="text-gray-600 dark:text-gray-400 text-xs"><%= player.first_name %></span>
                         <span class="font-bold"><%= player.last_name %></span>
                       </div>
-                      <div class="text-xs font-mono text-gray-400 mt-1">
+                      <div class="text-xs font-mono text-gray-400 dark:text-gray-500 mt-1">
                         <%= player.slug %>
                       </div>
                     </div>
@@ -160,21 +127,21 @@
                   <% if player.team %>
                     <div class="flex items-center space-x-2">
                       <span class="text-lg"><%= player.team.emoji %></span>
-                      <span class="text-sm text-gray-900"><%= player.team.name %></span>
+                      <span class="text-sm text-gray-900 dark:text-white"><%= player.team.name %></span>
                     </div>
                   <% else %>
-                    <span class="text-sm text-gray-500">No Team</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">No Team</span>
                   <% end %>
                 </td>
                 
                 <!-- Starter Status -->
                 <td class="px-6 py-4 whitespace-nowrap">
                   <% if @starter_positions[player.slug] %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
                       <%= @starter_positions[player.slug] %>
                     </span>
                   <% else %>
-                    <span class="text-sm text-gray-500">Bench</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Bench</span>
                   <% end %>
                 </td>
                 
@@ -212,20 +179,20 @@
       
       <!-- Pagination -->
       <% if @players.total_pages > 1 %>
-        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6">
           <div class="flex-1 flex justify-between sm:hidden">
             <% if @players.prev_page %>
               <%= link_to "Previous", players_index_path(page: @players.prev_page, search: params[:search], team: params[:team], position: params[:position]), 
-                  class: "relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+                  class: "relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600" %>
             <% end %>
             <% if @players.next_page %>
               <%= link_to "Next", players_index_path(page: @players.next_page, search: params[:search], team: params[:team], position: params[:position]), 
-                  class: "ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+                  class: "ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600" %>
             <% end %>
           </div>
           <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
-              <p class="text-sm text-gray-700">
+              <p class="text-sm text-gray-700 dark:text-gray-300">
                 Showing <span class="font-medium"><%= (@players.current_page - 1) * @players.limit_value + 1 %></span> to 
                 <span class="font-medium"><%= [@players.current_page * @players.limit_value, @players.total_count].min %></span> of 
                 <span class="font-medium"><%= @players.total_count %></span> results
@@ -235,7 +202,7 @@
               <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                 <% if @players.prev_page %>
                   <%= link_to players_index_path(page: @players.prev_page, search: params[:search], team: params[:team], position: params[:position]), 
-                      class: "relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50" do %>
+                      class: "relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600" do %>
                     <span class="sr-only">Previous</span>
                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -246,22 +213,22 @@
                 <% @players.total_pages.times do |page_num| %>
                   <% page = page_num + 1 %>
                   <% if page == @players.current_page %>
-                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-blue-50 dark:bg-blue-900 text-sm font-medium text-blue-600 dark:text-blue-300">
                       <%= page %>
                     </span>
                   <% elsif page <= 5 || page > @players.total_pages - 5 || (page >= @players.current_page - 2 && page <= @players.current_page + 2) %>
                     <%= link_to page, players_index_path(page: page, search: params[:search], team: params[:team], position: params[:position]), 
-                        class: "relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+                        class: "relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600" %>
                   <% elsif page == 6 && @players.current_page > 8 %>
-                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>
+                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">...</span>
                   <% elsif page == @players.total_pages - 4 && @players.current_page < @players.total_pages - 7 %>
-                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>
+                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">...</span>
                   <% end %>
                 <% end %>
                 
                 <% if @players.next_page %>
                   <%= link_to players_index_path(page: @players.next_page, search: params[:search], team: params[:team], position: params[:position]), 
-                      class: "relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50" do %>
+                      class: "relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600" do %>
                     <span class="sr-only">Next</span>
                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -273,7 +240,4 @@
           </div>
         </div>
       <% end %>
-    </div>
-  </main>
-</body>
-</html> 
+    </div> 

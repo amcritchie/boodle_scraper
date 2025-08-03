@@ -1,4 +1,5 @@
 class TeamsController < ApplicationController
+  layout 'application'
   def rankings
     @year = params[:year]
     @teams_weeks      = TeamsWeek.where(season_year: @year).includes(:team)  
@@ -60,6 +61,27 @@ class TeamsController < ApplicationController
     
     # Get TeamsWeek data for current team (week 1)
     @teams_week = TeamsWeek.find_by(team_slug: @team.slug, season_year: @year, week_number: 1)
+    
+    # Get power rankings to find adjacent teams
+    @power_rankings = TeamsWeek.where(season_year: @year).includes(:team).order(power_rank_score: :desc)
+    @current_team_ranking = @power_rankings.find { |ranking| ranking.team_slug == @team.slug }
+    
+    if @current_team_ranking
+      current_index = @power_rankings.index(@current_team_ranking)
+      @adjacent_teams = []
+      
+      # Get team above (lower rank number)
+      if current_index > 0
+        above_team = @power_rankings[current_index - 1]
+        @adjacent_teams << { team: above_team.team, rank: current_index, direction: 'above' }
+      end
+      
+      # Get team below (higher rank number)
+      if current_index < @power_rankings.length - 1
+        below_team = @power_rankings[current_index + 1]
+        @adjacent_teams << { team: below_team.team, rank: current_index + 2, direction: 'below' }
+      end
+    end
     
     # Get all players for this team
     @all_players = Player.where(team_slug: @team.slug)

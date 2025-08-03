@@ -6,11 +6,8 @@ namespace :teams_weeks do
     # First pass: Populate basic data from TeamsSeason
     TeamsSeason.where(season_year: 2025).each do |team_season|
       # Create TeamsWeek record for week 1
-      team_week = TeamsWeek.find_or_create_by(
-        team_slug: team_season.team_slug,
-        season_year: team_season.season_year,
-        week_number: 1
-      )
+      # team_week = team_season.teams_weeks.find_or_create_by(
+      team_week = TeamsWeek.find_or_create_by(week_number: 1)
       
       # Copy all player data
       team_week.update(
@@ -53,20 +50,6 @@ namespace :teams_weeks do
         offensive_play_caller: team_season.offensive_play_caller,
         defensive_play_caller: team_season.defensive_play_caller,
 
-        offensive_play_caller_rank: team_season.offensive_play_caller_rank,
-        defensive_play_caller_rank: team_season.defensive_play_caller_rank,
-        pace_of_play_rank: team_season.pace_of_play_rank,
-        run_heavy_rank: team_season.run_heavy_rank,
-        qb_passing_rank: team_season.qb_passing_rank,
-        receiver_core_rank: team_season.receiver_core_rank,
-        pass_block_rank: team_season.oline_pass_block_rank,
-        rush_block_rank: team_season.oline_run_block_rank,
-        pass_rush_rank: team_season.pass_rush_rank,
-        coverage_rank: team_season.coverage_rank,
-        run_defense_rank: team_season.run_defense_rank,
-        rushing_rank: team_season.rushing_rank,
-        field_goal_rank: team_season.field_goal_caller_rank,
-
         qb_score: team_season.qb_score,
         rushing_score: team_season.rushing_score,
         receiver_score: team_season.receiver_score,
@@ -94,6 +77,39 @@ namespace :teams_weeks do
         run_heavy_score: team_season.run_heavy_score,
         field_goal_score: team_season.field_goal_score,
       )
+      
+      puts "Created/Updated TeamsWeek for #{team_season.team&.name} - Week 1"
+    end
+    
+    # Second pass: Calculate rankings and scores
+    puts "Calculating rankings and scores..."
+
+
+
+
+    # First pass: Populate basic data from TeamsSeason
+    TeamsSeason.where(season_year: 2025).each do |team_season|
+      # Create TeamsWeek record for week 1
+      # team_week = team_season.teams_weeks.find_or_create_by(
+      team_week = TeamsWeek.find_or_create_by(week_number: 1)
+      
+      # Copy all player data
+      team_week.update(
+        # Ranks
+        offensive_play_caller_rank: team_season.offensive_play_caller_rank,
+        defensive_play_caller_rank: team_season.defensive_play_caller_rank,
+        pace_of_play_rank: team_season.pace_of_play_rank,
+        run_heavy_rank: team_season.run_heavy_rank,
+        qb_passing_rank: team_season.qb_passing_rank,
+        receiver_core_rank: team_season.receiver_core_rank,
+        pass_block_rank: team_season.oline_pass_block_rank,
+        rush_block_rank: team_season.oline_run_block_rank,
+        pass_rush_rank: team_season.pass_rush_rank,
+        coverage_rank: team_season.coverage_rank,
+        run_defense_rank: team_season.run_defense_rank,
+        rushing_rank: team_season.rushing_rank,
+        field_goal_rank: team_season.field_goal_caller_rank
+      )
 
       puts "play_caller_rank:     #{team_week.offensive_play_caller_rank}"
       puts "pace_of_play_rank:    #{team_week.pace_of_play_rank}"
@@ -110,9 +126,6 @@ namespace :teams_weeks do
       
       puts "Created/Updated TeamsWeek for #{team_season.team&.name} - Week 1"
     end
-    
-    # Second pass: Calculate rankings and scores
-    puts "Calculating rankings and scores..."
     
     # Get all teams_weeks for week 1
     all_teams_weeks = TeamsWeek.where(season_year: 2025, week_number: 1)

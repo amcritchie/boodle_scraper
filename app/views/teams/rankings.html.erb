@@ -1,50 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NFL Team Rankings <%= params[:year] %></title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'nfl-blue': '#013369',
-            'nfl-red': '#D50A0A',
-            'nfl-gold': '#FFB612'
-          }
-        }
-      }
-    }
-  </script>
-</head>
-<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-  <!-- Header -->
-  <header class="bg-white shadow-sm border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center py-6">
-        <div class="flex items-center space-x-4">
-          <div class="flex items-center space-x-2">
-            <span class="text-3xl">🏈</span>
-            <h1 class="text-2xl font-bold text-gray-900">NFL Team Rankings</h1>
-          </div>
-          <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full"><%= params[:year] %> Season</span>
-        </div>
-        <nav class="flex space-x-4">
-          <a href="<%= matchups_week1_path(@year) %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            ← Matchups
-          </a>
-          <a href="<%= teams_seasons_path %>" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            Rosters
-          </a>
-        </nav>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<!-- Page Title -->
+<div class="text-center mb-12">
+  <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Team Performance Rankings</h2>
+  <p class="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+    Comprehensive analysis of team strengths across key performance metrics
+  </p>
+</div>
     <!-- Page Title -->
     <div class="text-center mb-12">
       <h2 class="text-4xl font-bold text-gray-900 mb-4">Team Performance Rankings</h2>
@@ -57,7 +17,7 @@
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
       
       <!-- QB Passing Rankings -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
         <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
           <div class="flex items-center space-x-3">
             <span class="text-2xl">🖐️</span>
@@ -70,24 +30,24 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @qb_passing_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
                       <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900"><%= ranking.team&.name %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
-                    <div class="text-lg font-bold text-gray-900">
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">
                       <%= ranking.qb_player.passing_grade_x %>
                     </div>
                   </div>
                 </div>
-                <div class="text-xs text-gray-500 pl-11">
+                <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
                   <%= ranking.qb_player&.player %> <i>Pass: <%= ranking.qb_player&.passing_grade_x %></i>
                 </div>
               </div>
@@ -97,7 +57,7 @@
       </div>
 
       <!-- Receiver Core Rankings -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
         <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
           <div class="flex items-center space-x-3">
             <span class="text-2xl">🤲</span>
@@ -110,24 +70,24 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @receiving_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600 font-bold text-sm">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
                       <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900"><%= ranking.team&.name %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
-                    <div class="text-lg font-bold text-gray-900">
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">
                       <%= number_with_precision(ranking.receiver_score, precision: 1) %>
                     </div>
                   </div>
                 </div>
-                <div class="text-xs text-gray-500 pl-11">
+                <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
                   <%= ranking.top_three_receivers.map { |receiver| "#{receiver.last_name} #{receiver.grades_pass_route_print || 'N/A'}" }.join(', ') %>
                 </div>
               </div>
@@ -137,7 +97,7 @@
       </div>
 
       <!-- O-Line Pass Block Rankings -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
         <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
           <div class="flex items-center space-x-3">
             <span class="text-2xl">🛡️</span>
@@ -150,24 +110,24 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @pass_block_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold text-sm">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
                       <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900"><%= ranking.team&.name %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
-                    <div class="text-lg font-bold text-gray-900">
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">
                       <%= number_with_precision(ranking.pass_block_score, precision: 1) %>
                     </div>
                   </div>
                 </div>
-                <div class="text-xs text-gray-500 pl-11">
+                <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
                   <% if ranking.qb_player.left_handed? %>
                     <%= raw ranking.left_tackle_player.last_name %> (<%= raw ranking.left_tackle_player.pass_block_grade_x %>)
                   <% else %> 
@@ -194,7 +154,7 @@
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-12 mt-12">
       
       <!-- Pass Rush Core Rankings -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
         <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
           <div class="flex items-center space-x-3">
             <span class="text-2xl">💥</span>
@@ -207,24 +167,24 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @pass_rush_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-red-100 text-red-600 font-bold text-sm">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
                       <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900"><%= ranking.team&.name %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
-                    <div class="text-lg font-bold text-gray-900">
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">
                       <%= number_with_precision(ranking.pass_rush_score, precision: 1) %>
                     </div>
                   </div>
                 </div>
-                <div class="text-xs text-gray-500 pl-11">
+                <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
                   <strong><%= raw ranking.edge1_player.last_name %> (<%= raw ranking.edge1_player.pass_rush_grade_x %>)</strong>
                   <%= raw ranking.dl1_player.last_name %> (<%= raw ranking.dl1_player.pass_rush_grade_x %>)
                   <%= raw ranking.dl2_player.last_name %> (<%= raw ranking.dl2_player.pass_rush_grade_x %>)
@@ -238,7 +198,7 @@
       </div>
 
       <!-- Coverage Core Rankings -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
         <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
           <div class="flex items-center space-x-3">
             <span class="text-2xl">🔒</span>
@@ -251,24 +211,24 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @coverage_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 font-bold text-sm">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
                       <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900"><%= ranking.team&.name %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
-                    <div class="text-lg font-bold text-gray-900">
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">
                       <%= number_with_precision(ranking.coverage_score, precision: 1) %>
                     </div>
                   </div>
                 </div>
-                <div class="text-xs text-gray-500 pl-11">
+                <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
                   <strong><%= raw ranking.cb1_player.last_name %> (<%= raw ranking.cb1_player.coverage_grade_x %>)</strong>
                   <%= raw ranking.cb3_player.last_name %> (<%= raw ranking.cb3_player.coverage_grade_x %>)
                   <%= raw ranking.safety1_player.last_name %> (<%= raw ranking.safety1_player.coverage_grade_x %>)
@@ -287,7 +247,7 @@
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-12 mt-12">
       
       <!-- Rushing Core Rankings -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
         <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
           <div class="flex items-center space-x-3">
             <span class="text-2xl">🏃</span>
@@ -300,24 +260,24 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @rushing_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-600 font-bold text-sm">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
                       <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900"><%= ranking.team&.name %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
-                    <div class="text-lg font-bold text-gray-900">
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">
                       <%= number_with_precision(ranking.rushing_score, precision: 1) %>
                     </div>
                   </div>
                 </div>
-                <div class="text-xs text-gray-500 pl-11">
+                <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
                   <%= ranking.rushers.map { |rusher| "#{rusher.last_name} #{rusher.rush_grade_x || 'N/A'}" }.join(', ') %>
                 </div>
               </div>
@@ -327,7 +287,7 @@
       </div>
 
       <!-- O-Line Run Block Core Rankings -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
         <div class="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-4">
           <div class="flex items-center space-x-3">
             <span class="text-2xl">🏃</span>
@@ -340,24 +300,24 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @run_block_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 text-amber-600 font-bold text-sm">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
                       <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900"><%= ranking.team&.name %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
-                    <div class="text-lg font-bold text-gray-900">
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">
                       <%= number_with_precision(ranking.rush_block_score, precision: 1) %>
                     </div>
                   </div>
                 </div>
-                <div class="text-xs text-gray-500 pl-11">
+                <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
                   <%= raw ranking.left_tackle_player.last_name %> (<%= raw ranking.left_tackle_player.run_block_grade_x %>)
                   <strong><%= raw ranking.left_guard_player.last_name %> (<%= raw ranking.left_guard_player.run_block_grade_x %>)</strong>
                   <strong><%= raw ranking.center_player.last_name %> (<%= raw ranking.center_player.run_block_grade_x %>)</strong>
@@ -371,7 +331,7 @@
       </div>
 
       <!-- Run Defense Core Rankings -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
         <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
           <div class="flex items-center space-x-3">
             <span class="text-2xl">🛡️</span>
@@ -384,24 +344,24 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @run_defense_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600 font-bold text-sm">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
                       <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900"><%= ranking.team&.name %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
-                    <div class="text-lg font-bold text-gray-900">
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">
                       <%= number_with_precision(ranking.run_defense_score, precision: 1) %>
                     </div>
                   </div>
                 </div>
-                <div class="text-xs text-gray-500 pl-11">
+                <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
 
                 <%= raw ranking.edge1_player.last_name %> (<%= raw ranking.edge1_player.rush_defense_grade_x %>)
                 <strong><%= raw ranking.dl2_player.last_name %> (<%= raw ranking.dl2_player.rush_defense_grade_x %>)</strong>
@@ -427,7 +387,7 @@
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-12 mt-12">
       
       <!-- Play Caller Rankings -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
         <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
           <div class="flex items-center space-x-3">
             <span class="text-2xl">🏈</span>
@@ -440,24 +400,24 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @play_caller_rankings.each_with_index do |rank, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
                       <span class="text-xl"><%= rank.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900"><%= rank.team&.name %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= rank.team&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
-                    <div class="text-lg font-bold text-gray-900">
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">
                       <%= rank&.offensive_play_caller_rank %>
                     </div>
                   </div>
                 </div>
-                <div class="text-xs text-gray-500 pl-11">
+                <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
                   <%= rank&.offensive_play_caller_coach&.full_name %>
                 </div>
               </div>
@@ -467,7 +427,7 @@
       </div>
 
       <!-- Pace of Play Rankings -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
         <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
           <div class="flex items-center space-x-3">
             <span class="text-2xl">⚡</span>
@@ -480,24 +440,24 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @pace_rankings.each_with_index do |coach, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600 font-bold text-sm">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
                       <span class="text-xl"><%= coach.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900"><%= coach.team&.name %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= coach.team&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
-                    <div class="text-lg font-bold text-gray-900">
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">
                       <%= coach&.pace_of_play_rank %>
                     </div>
                   </div>
                 </div>
-                <div class="text-xs text-gray-500 pl-11">
+                <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
                   <%= coach.offensive_play_caller_coach&.full_name %>
                 </div>
               </div>
@@ -507,7 +467,7 @@
       </div>
 
       <!-- Run Heavy Rankings -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
         <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
           <div class="flex items-center space-x-3">
             <span class="text-2xl">🏃</span>
@@ -520,24 +480,24 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @run_heavy_rankings.each_with_index do |coach, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 transition-colors">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-600 font-bold text-sm">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
                       <span class="text-xl"><%= coach.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900"><%= coach.team&.name %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= coach.team&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
-                    <div class="text-lg font-bold text-gray-900">
+                    <div class="text-lg font-bold text-gray-900 dark:text-white">
                       <%= coach&.run_heavy_rank %>
                     </div>
                   </div>
                 </div>
-                <div class="text-xs text-gray-500 pl-11">
+                <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
                   <%= coach.offensive_play_caller_coach&.full_name %>
                 </div>
               </div>
@@ -550,19 +510,16 @@
 
     <!-- Footer -->
     <footer class="mt-16 text-center">
-      <div class="text-sm text-gray-500">
+      <div class="text-sm text-gray-500 dark:text-gray-400">
         <p>Data updated for the <%= params[:year] %> NFL season</p>
         <p class="mt-2">
-                      <a href="<%= matchups_week1_path(@year) %>" class="text-blue-600 hover:text-blue-800 underline">
+          <a href="<%= matchups_week1_path(@year) %>" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline">
             View Week 1 Matchups
           </a>
           <span class="mx-2">•</span>
-          <a href="<%= teams_seasons_path %>" class="text-blue-600 hover:text-blue-800 underline">
+          <a href="<%= teams_seasons_path %>" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline">
             View Team Rosters
           </a>
         </p>
       </div>
-    </footer>
-  </main>
-</body>
-</html> 
+    </footer> 

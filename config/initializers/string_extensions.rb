@@ -22,9 +22,22 @@ class String
 
   def player_slugify
     downcase
-    .gsub(' ', '-')
     .gsub('.', '')
     .gsub("'", "")
     .gsub('’', '')  # secondary-ji’ayir-brown
+    .gsub('.sr', '') # skill-aaron-jones-sr
+    .gsub('.jr', '')
+    .gsub('.ii', '')
+    .gsub('.iii', '')
+    .gsub('.iv', '')
+    .gsub(' sr', '') # skill-aaron-jones-sr
+    .gsub(' jr', '')
+    .gsub(' ii', '')
+    .gsub(' iii', '')
+    .gsub(' iv', '')
+    .strip  # Remove leading and trailing spaces
+    .gsub('   ', '-') 
+    .gsub('  ', '-')
+    .gsub(' ', '-')
   end
 end

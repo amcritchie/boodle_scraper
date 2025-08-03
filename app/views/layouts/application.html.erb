@@ -1,16 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>BoodleScraper</title>
+    <title>NFL Database</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta charset="UTF-8">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {}
+        }
+      }
+      
+      // Debug dark mode
+      console.log('Dark mode config loaded');
+    </script>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200" 
+        x-data="{ 
+          darkMode: localStorage.getItem('darkMode') === 'true',
+          init() {
+            this.$watch('darkMode', value => {
+              localStorage.setItem('darkMode', value);
+              document.documentElement.classList.toggle('dark', value);
+            });
+            // Apply initial state
+            document.documentElement.classList.toggle('dark', this.darkMode);
+          }
+        }" 
+        :class="{ 'dark': darkMode }">
+    
+      <!-- Universal Navbar -->
+      <%= render 'shared/navbar' %>
+    
+      <!-- Main Content -->
+      <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <%= yield %>
+      </main>
   </body>
 </html>
