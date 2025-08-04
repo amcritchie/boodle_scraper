@@ -84,9 +84,6 @@ namespace :teams_weeks do
     # Second pass: Calculate rankings and scores
     puts "Calculating rankings and scores..."
 
-
-
-
     # First pass: Populate basic data from TeamsSeason
     TeamsSeason.where(season_year: 2025).each do |team_season|
       # Create TeamsWeek record for week 1

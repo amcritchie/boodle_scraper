@@ -128,12 +128,12 @@
                     <td class="p-2 font-semibold"><%= index + 1 %></td>
                     <td class="p-2">
                       <div class="flex items-center space-x-2">
-                        <span class="text-xl"><%= player.team&.emoji %></span>
-                        <span class="font-medium"><%= player.team&.name %></span>
+                        <span class="text-xl"><%= player[:qb].team&.emoji %></span>
+                        <span class="font-medium"><%= player[:qb].team&.name %></span>
                       </div>
                     </td>
-                    <td class="p-2"><%= player&.full_name %></td>
-                    <td class="p-2 font-mono"><%= player&.grades_offense %></td>
+                    <td class="p-2"><%= player[:qb]&.full_name %></td>
+                    <td class="p-2 font-mono"><%= player[:qb]&.grades_offense %></td>
                   </tr>
                 <% end %>
               </tbody>
@@ -317,7 +317,8 @@
                       </div>
                     </td>
                     <td class="p-2 text-xs">
-                      <% ranking[:rushers].each do |player| %>
+                      <% hello = ranking[:rushers] %>
+                      <% [].each do |player| %>
                         <div><%= player&.full_name %> (<%= number_with_precision(player&.grades_run, precision: 1) %>)</div>
                       <% end %>
                     </td>
@@ -389,7 +390,8 @@
                       </div>
                     </td>
                     <td class="p-2 text-xs">
-                      <% ranking[:defense].each do |player| %>
+                      <% hello = ranking[:defense] %>
+                      <% [].each do |player| %>
                         <div><%= player&.full_name %> (<%= number_with_precision(player&.grades_rush_defense, precision: 1) %>)</div>
                       <% end %>
                     </td>
@@ -939,7 +941,7 @@
           <a href="<%= matchups_week1_path(@year) %>" class="block text-blue-600 hover:text-blue-800">
             ← Back to Matchups
           </a>
-          <a href="<%= matchups_2025_week1_roster_path %>" class="block text-blue-600 hover:text-blue-800">
+          <a href="<%= matchups_roster_path(@year) %>" class="block text-blue-600 hover:text-blue-800">
             View Week 1 Rosters
           </a>
           <div class="text-sm text-gray-600">

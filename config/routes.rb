@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   get 'teams/:year/all-rankings', to: 'teams#rankings', as: 'teams_rankings'
   get 'teams/:year/seasons', to: 'teams#teams_seasons', as: 'teams_seasons'
   get 'teams/:slug', to: 'teams#show', as: 'team_show'
+  patch 'teams/:slug/substitute', to: 'teams#substitute', as: 'team_substitute'
   get 'players', to: 'players#index', as: 'players_index'
   get 'matchups/:year/week1', to: 'matchups#week1', as: 'matchups_week1'
   get 'matchups/:year/week1/roster', to: 'matchups#roster', as: 'matchups_roster'

@@ -3,7 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = [
     "benchTable", "benchSearch", "benchPositionFilter", "benchGradeFilter", "benchCount",
-    "benchContent", "substitutionModal", "selectedPlayerName", "selectedPlayerPosition", "selectedPosition",
+    "benchContent", "substitutionModal", "selectedPlayerName", "selectedPlayerPosition", "positionDropdown",
     "offenseSubstitutionText", "defenseSubstitutionText", "benchToggleText"
   ]
   static values = {
@@ -75,10 +75,8 @@ export default class extends Controller {
   // Substitution methods
   selectPlayerForSubstitution(event) {
     const playerSlug = event.currentTarget.getAttribute('data-player-slug')
-    const position = event.currentTarget.getAttribute('data-position')
     
     this.selectedPlayerSlug = playerSlug
-    this.selectedPosition = position
     
     // Find player data from the row
     const row = event.currentTarget.closest('tr')
@@ -92,19 +90,56 @@ export default class extends Controller {
       this.selectedPlayerPositionTarget.textContent = positionElement.textContent.trim()
     }
     
-    this.selectedPositionTarget.textContent = position || 'Any Position'
+    // Reset position dropdown
+    this.positionDropdownTarget.value = ''
+    
     this.showSubstitutionModalValue = true
   }
 
-  confirmSubstitution() {
-    // Here you would make an AJAX call to update the substitution
-    console.log('Substituting', this.selectedPlayerSlug, 'for position', this.selectedPosition)
+  async confirmSubstitution() {
+    const selectedPosition = this.positionDropdownTarget.value
+    
+    if (!selectedPosition) {
+      alert('Please select a position to replace')
+      return
+    }
+    
+    if (!this.selectedPlayerSlug) {
+      alert('No player selected')
+      return
+    }
+    
+    try {
+      // Get the team slug from the URL
+      const teamSlug = window.location.pathname.split('/').pop()
+      
+      const response = await fetch(`/teams/${teamSlug}/substitute`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+          new_player_slug: this.selectedPlayerSlug,
+          position: selectedPosition
+        })
+      })
+      
+      const result = await response.json()
+      
+      if (response.ok) {
+        // Success - reload the page
+        window.location.reload()
+      } else {
+        alert(`Error: ${result.error || 'Substitution failed'}`)
+      }
+    } catch (error) {
+      console.error('Substitution error:', error)
+      alert('An error occurred while making the substitution')
+    }
     
     // Close modal
     this.showSubstitutionModalValue = false
-    
-    // You could reload the page or update the UI dynamically
-    // window.location.reload()
   }
 
   closeSubstitutionModal() {

@@ -192,19 +192,9 @@
               <% if @teams_season&.qb_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.qb_player,
-                    position: 'qb',
-                    position_label: @teams_season.qb_player.position_symbol,
-                    card_background: 'bg-gray-50 dark:bg-gray-700',
-                    padding_size: 'p-4',
-                    stats_alignment: 'text-right',
-                    grade1_name: 'Pass',
-                    grade1_value: @teams_season.qb_player.passing_grade_x,
-                    grade1_color: 'text-blue-600',
-                    grade1_dark_color: 'text-blue-400',
-                    grade2_name: 'Rush',
-                    grade2_value: @teams_season.qb_player.rush_grade_x,
-                    grade2_color: 'text-green-600',
-                    grade2_dark_color: 'text-green-400' %>
+                    grades: ['passing', 'rushing', 'grades_offense'],
+                    highlight: false,
+                    size: 'large' %>
               <% else %>
                 <div class="bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300 text-gray-400 text-sm">
                   No QB
@@ -218,36 +208,16 @@
               <% if @teams_season&.rb1_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.rb1_player,
-                    position: 'rb1',
-                    position_label: @teams_season.rb1_player.position_symbol,
-                    card_background: 'bg-gray-50 dark:bg-gray-700',
-                    padding_size: 'p-4',
-                    stats_alignment: 'text-right',
-                    grade1_name: 'Rush',
-                    grade1_value: @teams_season.rb1_player.rush_grade_x,
-                    grade1_color: 'text-green-600',
-                    grade1_dark_color: 'text-green-400',
-                    grade2_name: 'Off',
-                    grade2_value: @teams_season.rb1_player.grades_offense || 60,
-                    grade2_color: 'text-blue-600',
-                    grade2_dark_color: 'text-blue-400' %>
+                    grades: ['rushing', 'receiving', 'grades_offense'],
+                    highlight: false,
+                    size: 'large' %>
               <% end %>
               <% if @teams_season&.rb2_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.rb2_player,
-                    position: 'rb2',
-                    position_label: @teams_season.rb2_player.position_symbol,
-                    card_background: 'bg-gray-50 dark:bg-gray-700',
-                    padding_size: 'p-4',
-                    stats_alignment: 'text-right',
-                    grade1_name: 'Rush',
-                    grade1_value: @teams_season.rb2_player.rush_grade_x,
-                    grade1_color: 'text-green-600',
-                    grade1_dark_color: 'text-green-400',
-                    grade2_name: 'Off',
-                    grade2_value: @teams_season.rb2_player.grades_offense || 60,
-                    grade2_color: 'text-blue-600',
-                    grade2_dark_color: 'text-blue-400' %>
+                    grades: ['rushing', 'receiving', 'grades_offense'],
+                    highlight: false,
+                    size: 'large' %>
               <% end %>
             </div>
 
@@ -257,53 +227,23 @@
               <% if @teams_season&.wr1_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.wr1_player,
-                    position: 'wr1',
-                    position_label: @teams_season.wr1_player.position_symbol,
-                    card_background: 'bg-gray-50 dark:bg-gray-700',
-                    padding_size: 'p-4',
-                    stats_alignment: 'text-right',
-                    grade1_name: 'Route',
-                    grade1_value: @teams_season.wr1_player.receiving_grade_x,
-                    grade1_color: 'text-purple-600',
-                    grade1_dark_color: 'text-purple-400',
-                    grade2_name: 'Off',
-                    grade2_value: @teams_season.wr1_player.grades_offense || 60,
-                    grade2_color: 'text-blue-600',
-                    grade2_dark_color: 'text-blue-400' %>
+                    grades: ['receiving', 'run_block', 'grades_offense'],
+                    highlight: false,
+                    size: 'large' %>
               <% end %>
               <% if @teams_season&.wr2_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.wr2_player,
-                    position: 'wr2',
-                    position_label: @teams_season.wr2_player.position_symbol,
-                    card_background: 'bg-gray-50 dark:bg-gray-700',
-                    padding_size: 'p-4',
-                    stats_alignment: 'text-right',
-                    grade1_name: 'Route',
-                    grade1_value: @teams_season.wr2_player.receiving_grade_x,
-                    grade1_color: 'text-purple-600',
-                    grade1_dark_color: 'text-purple-400',
-                    grade2_name: 'Off',
-                    grade2_value: @teams_season.wr2_player.grades_offense || 60,
-                    grade2_color: 'text-blue-600',
-                    grade2_dark_color: 'text-blue-400' %>
+                    grades: ['receiving', 'run_block', 'grades_offense'],
+                    highlight: false,
+                    size: 'large' %>
               <% end %>
               <% if @teams_season&.wr3_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.wr3_player,
-                    position: 'wr3',
-                    position_label: @teams_season.wr3_player.position_symbol,
-                    card_background: 'bg-gray-50 dark:bg-gray-700',
-                    padding_size: 'p-4',
-                    stats_alignment: 'text-right',
-                    grade1_name: 'Route',
-                    grade1_value: @teams_season.wr3_player.receiving_grade_x,
-                    grade1_color: 'text-purple-600',
-                    grade1_dark_color: 'text-purple-400',
-                    grade2_name: 'Off',
-                    grade2_value: @teams_season.wr3_player.grades_offense || 60,
-                    grade2_color: 'text-blue-600',
-                    grade2_dark_color: 'text-blue-400' %>
+                    grades: ['receiving', 'run_block', 'grades_offense'],
+                    highlight: false,
+                    size: 'large' %>
               <% end %>
             </div>
 
@@ -313,19 +253,9 @@
               <% if @teams_season&.te_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.te_player,
-                    position: 'te',
-                    position_label: @teams_season.te_player.position_symbol,
-                    card_background: 'bg-gray-50 dark:bg-gray-700',
-                    padding_size: 'p-4',
-                    stats_alignment: 'text-right',
-                    grade1_name: 'Route',
-                    grade1_value: @teams_season.te_player.receiving_grade_x,
-                    grade1_color: 'text-purple-600',
-                    grade1_dark_color: 'text-purple-400',
-                    grade2_name: 'Run',
-                    grade2_value: @teams_season.te_player.run_block_grade_x,
-                    grade2_color: 'text-green-600',
-                    grade2_dark_color: 'text-green-400' %>
+                    grades: ['receiving', 'run_block', 'grades_offense'],
+                    highlight: false,
+                    size: 'large' %>
               <% end %>
             </div>
 
@@ -336,87 +266,37 @@
                 <% if @teams_season&.left_tackle_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.left_tackle_player,
-                      position: 'lt',
-                      position_label: 'LT',
-                      card_background: @teams_season.qb_player&.left_handed? ? 'bg-gray-50 dark:bg-gray-700' : 'bg-yellow-50 dark:bg-yellow-900 border-yellow-300 dark:border-yellow-600',
-                      padding_size: 'p-3',
-                      stats_alignment: 'text-left md:text-right',
-                      grade1_name: 'Pass',
-                      grade1_value: @teams_season.left_tackle_player.pass_block_grade_x,
-                      grade1_color: 'text-blue-600',
-                      grade1_dark_color: 'text-blue-400',
-                      grade2_name: 'Run',
-                      grade2_value: @teams_season.left_tackle_player.run_block_grade_x,
-                      grade2_color: 'text-green-600',
-                      grade2_dark_color: 'text-green-400' %>
+                      grades: ['pass_block', 'run_block', 'grades_offense'],
+                      highlight: !@teams_season.qb_player&.left_handed?,
+                      size: 'small' %>
                 <% end %>
                 <% if @teams_season&.left_guard_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.left_guard_player,
-                      position: 'lg',
-                      position_label: 'LG',
-                      card_background: 'bg-gray-50 dark:bg-gray-700',
-                      padding_size: 'p-3',
-                      stats_alignment: 'text-left md:text-right',
-                      grade1_name: 'Pass',
-                      grade1_value: @teams_season.left_guard_player.pass_block_grade_x,
-                      grade1_color: 'text-blue-600',
-                      grade1_dark_color: 'text-blue-400',
-                      grade2_name: 'Run',
-                      grade2_value: @teams_season.left_guard_player.run_block_grade_x,
-                      grade2_color: 'text-green-600',
-                      grade2_dark_color: 'text-green-400' %>
+                      grades: ['pass_block', 'run_block', 'grades_offense'],
+                      highlight: false,
+                      size: 'small' %>
                 <% end %>
                 <% if @teams_season&.center_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.center_player,
-                      position: 'c',
-                      position_label: 'C',
-                      card_background: 'bg-gray-50 dark:bg-gray-700',
-                      padding_size: 'p-3',
-                      stats_alignment: 'text-left md:text-right',
-                      grade1_name: 'Pass',
-                      grade1_value: @teams_season.center_player.pass_block_grade_x,
-                      grade1_color: 'text-blue-600',
-                      grade1_dark_color: 'text-blue-400',
-                      grade2_name: 'Run',
-                      grade2_value: @teams_season.center_player.run_block_grade_x,
-                      grade2_color: 'text-green-600',
-                      grade2_dark_color: 'text-green-400' %>
+                      grades: ['pass_block', 'run_block', 'grades_offense'],
+                      highlight: false,
+                      size: 'small' %>
                 <% end %>
                 <% if @teams_season&.right_guard_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.right_guard_player,
-                      position: 'rg',
-                      position_label: 'RG',
-                      card_background: 'bg-gray-50 dark:bg-gray-700',
-                      padding_size: 'p-3',
-                      stats_alignment: 'text-left md:text-right',
-                      grade1_name: 'Pass',
-                      grade1_value: @teams_season.right_guard_player.pass_block_grade_x,
-                      grade1_color: 'text-blue-600',
-                      grade1_dark_color: 'text-blue-400',
-                      grade2_name: 'Run',
-                      grade2_value: @teams_season.right_guard_player.run_block_grade_x,
-                      grade2_color: 'text-green-600',
-                      grade2_dark_color: 'text-green-400' %>
+                      grades: ['pass_block', 'run_block', 'grades_offense'],
+                      highlight: false,
+                      size: 'small' %>
                 <% end %>
                 <% if @teams_season&.right_tackle_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.right_tackle_player,
-                      position: 'rt',
-                      position_label: 'RT',
-                      card_background: @teams_season.qb_player&.left_handed? ? 'bg-yellow-50 dark:bg-yellow-900 border-yellow-300 dark:border-yellow-600' : 'bg-gray-50 dark:bg-gray-700',
-                      padding_size: 'p-3',
-                      stats_alignment: 'text-left md:text-right',
-                      grade1_name: 'Pass',
-                      grade1_value: @teams_season.right_tackle_player.pass_block_grade_x,
-                      grade1_color: 'text-blue-600',
-                      grade1_dark_color: 'text-blue-400',
-                      grade2_name: 'Run',
-                      grade2_value: @teams_season.right_tackle_player.run_block_grade_x,
-                      grade2_color: 'text-green-600',
-                      grade2_dark_color: 'text-green-400' %>
+                      grades: ['pass_block', 'run_block', 'grades_offense'],
+                      highlight: @teams_season.qb_player&.left_handed?,
+                      size: 'small' %>
                 <% end %>
               </div>
             </div>
@@ -449,36 +329,16 @@
               <% if @teams_season&.edge1_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.edge1_player,
-                    position: 'eg1',
-                    position_label: @teams_season.edge1_player.position_symbol,
-                    card_background: 'bg-gray-50 dark:bg-gray-700',
-                    padding_size: 'p-4',
-                    stats_alignment: 'text-right',
-                    grade1_name: 'Rush',
-                    grade1_value: @teams_season.edge1_player.pass_rush_grade_x,
-                    grade1_color: 'text-red-600',
-                    grade1_dark_color: 'text-red-400',
-                    grade2_name: 'Run',
-                    grade2_value: @teams_season.edge1_player.rush_defense_grade_x,
-                    grade2_color: 'text-orange-600',
-                    grade2_dark_color: 'text-orange-400' %>
+                    grades: ['pass_rush', 'rush_defense', 'grades_defence'],
+                    highlight: false,
+                    size: 'large' %>
               <% end %>
               <% if @teams_season&.edge2_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.edge2_player,
-                    position: 'eg2',
-                    position_label: @teams_season.edge2_player.position_symbol,
-                    card_background: 'bg-gray-50 dark:bg-gray-700',
-                    padding_size: 'p-4',
-                    stats_alignment: 'text-right',
-                    grade1_name: 'Rush',
-                    grade1_value: @teams_season.edge2_player.pass_rush_grade_x,
-                    grade1_color: 'text-red-600',
-                    grade1_dark_color: 'text-red-400',
-                    grade2_name: 'Run',
-                    grade2_value: @teams_season.edge2_player.rush_defense_grade_x,
-                    grade2_color: 'text-orange-600',
-                    grade2_dark_color: 'text-orange-400' %>
+                    grades: ['pass_rush', 'rush_defense', 'grades_defence'],
+                    highlight: false,
+                    size: 'large' %>
               <% end %>
             </div>
 
@@ -488,53 +348,23 @@
               <% if @teams_season&.dl1_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.dl1_player,
-                    position: 'dl1',
-                    position_label: @teams_season.dl1_player.position_symbol,
-                    card_background: 'bg-gray-50 dark:bg-gray-700',
-                    padding_size: 'p-4',
-                    stats_alignment: 'text-right',
-                    grade1_name: 'Run',
-                    grade1_value: @teams_season.dl1_player.rush_defense_grade_x,
-                    grade1_color: 'text-orange-600',
-                    grade1_dark_color: 'text-orange-400',
-                    grade2_name: 'Rush',
-                    grade2_value: @teams_season.dl1_player.pass_rush_grade_x,
-                    grade2_color: 'text-red-600',
-                    grade2_dark_color: 'text-red-400' %>
+                    grades: ['rush_defense', 'pass_rush', 'grades_defence'],
+                    highlight: false,
+                    size: 'large' %>
               <% end %>
               <% if @teams_season&.dl2_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.dl2_player,
-                    position: 'dl2',
-                    position_label: @teams_season.dl2_player.position_symbol,
-                    card_background: 'bg-gray-50 dark:bg-gray-700',
-                    padding_size: 'p-4',
-                    stats_alignment: 'text-right',
-                    grade1_name: 'Run',
-                    grade1_value: @teams_season.dl2_player.rush_defense_grade_x,
-                    grade1_color: 'text-orange-600',
-                    grade1_dark_color: 'text-orange-400',
-                    grade2_name: 'Rush',
-                    grade2_value: @teams_season.dl2_player.pass_rush_grade_x,
-                    grade2_color: 'text-red-600',
-                    grade2_dark_color: 'text-red-400' %>
+                    grades: ['rush_defense', 'pass_rush', 'grades_defence'],
+                    highlight: false,
+                    size: 'large' %>
               <% end %>
               <% if @teams_season&.dl3_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.dl3_player,
-                    position: 'dl3',
-                    position_label: @teams_season.dl3_player.position_symbol,
-                    card_background: 'bg-gray-50 dark:bg-gray-700',
-                    padding_size: 'p-4',
-                    stats_alignment: 'text-right',
-                    grade1_name: 'Run',
-                    grade1_value: @teams_season.dl3_player.rush_defense_grade_x,
-                    grade1_color: 'text-orange-600',
-                    grade1_dark_color: 'text-orange-400',
-                    grade2_name: 'Rush',
-                    grade2_value: @teams_season.dl3_player.pass_rush_grade_x,
-                    grade2_color: 'text-red-600',
-                    grade2_dark_color: 'text-red-400' %>
+                    grades: ['rush_defense', 'pass_rush', 'grades_defence'],
+                    highlight: false,
+                    size: 'large' %>
               <% end %>
             </div>
 
@@ -544,36 +374,16 @@
               <% if @teams_season&.lb1_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.lb1_player,
-                    position: 'lb1',
-                    position_label: @teams_season.lb1_player.position_symbol,
-                    card_background: 'bg-gray-50 dark:bg-gray-700',
-                    padding_size: 'p-4',
-                    stats_alignment: 'text-right',
-                    grade1_name: 'Run',
-                    grade1_value: @teams_season.lb1_player.rush_defense_grade_x,
-                    grade1_color: 'text-orange-600',
-                    grade1_dark_color: 'text-orange-400',
-                    grade2_name: 'Cover',
-                    grade2_value: @teams_season.lb1_player.coverage_grade_x,
-                    grade2_color: 'text-indigo-600',
-                    grade2_dark_color: 'text-indigo-400' %>
+                    grades: ['rush_defense', 'coverage', 'grades_defence'],
+                    highlight: false,
+                    size: 'large' %>
               <% end %>
               <% if @teams_season&.lb2_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.lb2_player,
-                    position: 'lb2',
-                    position_label: @teams_season.lb2_player.position_symbol,
-                    card_background: 'bg-gray-50 dark:bg-gray-700',
-                    padding_size: 'p-4',
-                    stats_alignment: 'text-right',
-                    grade1_name: 'Run',
-                    grade1_value: @teams_season.lb2_player.rush_defense_grade_x,
-                    grade1_color: 'text-orange-600',
-                    grade1_dark_color: 'text-orange-400',
-                    grade2_name: 'Cover',
-                    grade2_value: @teams_season.lb2_player.coverage_grade_x,
-                    grade2_color: 'text-indigo-600',
-                    grade2_dark_color: 'text-indigo-400' %>
+                    grades: ['rush_defense', 'coverage', 'grades_defence'],
+                    highlight: false,
+                    size: 'large' %>
               <% end %>
             </div>
 
@@ -584,87 +394,37 @@
                 <% if @teams_season&.cb1_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.cb1_player,
-                      position: 'cb1',
-                      position_label: 'CB1',
-                      card_background: 'bg-gray-50 dark:bg-gray-700',
-                      padding_size: 'p-3',
-                      stats_alignment: 'text-left md:text-right',
-                      grade1_name: 'Cover',
-                      grade1_value: @teams_season.cb1_player.coverage_grade_x,
-                      grade1_color: 'text-indigo-600',
-                      grade1_dark_color: 'text-indigo-400',
-                      grade2_name: 'Run',
-                      grade2_value: @teams_season.cb1_player.rush_defense_grade_x,
-                      grade2_color: 'text-orange-600',
-                      grade2_dark_color: 'text-orange-400' %>
+                      grades: ['coverage', 'rush_defense', 'grades_defence'],
+                      highlight: false,
+                      size: 'small' %>
                 <% end %>
                 <% if @teams_season&.cb2_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.cb2_player,
-                      position: 'cb2',
-                      position_label: 'CB2',
-                      card_background: 'bg-gray-50 dark:bg-gray-700',
-                      padding_size: 'p-3',
-                      stats_alignment: 'text-left md:text-right',
-                      grade1_name: 'Cover',
-                      grade1_value: @teams_season.cb2_player.coverage_grade_x,
-                      grade1_color: 'text-indigo-600',
-                      grade1_dark_color: 'text-indigo-400',
-                      grade2_name: 'Run',
-                      grade2_value: @teams_season.cb2_player.rush_defense_grade_x,
-                      grade2_color: 'text-orange-600',
-                      grade2_dark_color: 'text-orange-400' %>
+                      grades: ['coverage', 'rush_defense', 'grades_defence'],
+                      highlight: false,
+                      size: 'small' %>
                 <% end %>
                 <% if @teams_season&.cb3_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.cb3_player,
-                      position: 'cb3',
-                      position_label: 'CB3',
-                      card_background: 'bg-gray-50 dark:bg-gray-700',
-                      padding_size: 'p-3',
-                      stats_alignment: 'text-left md:text-right',
-                      grade1_name: 'Cover',
-                      grade1_value: @teams_season.cb3_player.coverage_grade_x,
-                      grade1_color: 'text-indigo-600',
-                      grade1_dark_color: 'text-indigo-400',
-                      grade2_name: 'Run',
-                      grade2_value: @teams_season.cb3_player.rush_defense_grade_x,
-                      grade2_color: 'text-orange-600',
-                      grade2_dark_color: 'text-orange-400' %>
+                      grades: ['coverage', 'rush_defense', 'grades_defence'],
+                      highlight: false,
+                      size: 'small' %>
                 <% end %>
                 <% if @teams_season&.safety1_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.safety1_player,
-                      position: 's1',
-                      position_label: 'S1',
-                      card_background: 'bg-gray-50 dark:bg-gray-700',
-                      padding_size: 'p-3',
-                      stats_alignment: 'text-left md:text-right',
-                      grade1_name: 'Cover',
-                      grade1_value: @teams_season.safety1_player.coverage_grade_x,
-                      grade1_color: 'text-indigo-600',
-                      grade1_dark_color: 'text-indigo-400',
-                      grade2_name: 'Run',
-                      grade2_value: @teams_season.safety1_player.rush_defense_grade_x,
-                      grade2_color: 'text-orange-600',
-                      grade2_dark_color: 'text-orange-400' %>
+                      grades: ['coverage', 'rush_defense', 'grades_defence'],
+                      highlight: false,
+                      size: 'small' %>
                 <% end %>
                 <% if @teams_season&.safety2_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.safety2_player,
-                      position: 's2',
-                      position_label: 'S2',
-                      card_background: 'bg-gray-50 dark:bg-gray-700',
-                      padding_size: 'p-3',
-                      stats_alignment: 'text-left md:text-right',
-                      grade1_name: 'Cover',
-                      grade1_value: @teams_season.safety2_player.coverage_grade_x,
-                      grade1_color: 'text-indigo-600',
-                      grade1_dark_color: 'text-indigo-400',
-                      grade2_name: 'Run',
-                      grade2_value: @teams_season.safety2_player.rush_defense_grade_x,
-                      grade2_color: 'text-orange-600',
-                      grade2_dark_color: 'text-orange-400' %>
+                      grades: ['coverage', 'rush_defense', 'grades_defence'],
+                      highlight: false,
+                      size: 'small' %>
                 <% end %>
               </div>
             </div>
@@ -931,21 +691,54 @@
     <div data-team-substitution-target="substitutionModal"
          data-team-substitution-show-substitution-modal-class="hidden"
          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-        <h3 class="text-lg font-bold mb-4">Substitute Player</h3>
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-lg w-full mx-4">
+        <h3 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Substitute Player</h3>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Current Player</label>
-            <div class="bg-gray-50 p-3 rounded border">
-              <div class="font-medium" data-team-substitution-target="selectedPlayerName"></div>
-              <div class="text-sm text-gray-500" data-team-substitution-target="selectedPlayerPosition"></div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">New Player</label>
+            <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded border dark:border-gray-600">
+              <div class="font-medium text-gray-900 dark:text-white" data-team-substitution-target="selectedPlayerName"></div>
+              <div class="text-sm text-gray-500 dark:text-gray-400" data-team-substitution-target="selectedPlayerPosition"></div>
             </div>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Position</label>
-            <div class="bg-blue-50 p-3 rounded border">
-              <div class="font-medium" data-team-substitution-target="selectedPosition"></div>
-            </div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Position to Replace</label>
+            <select data-team-substitution-target="positionDropdown"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <option value="">Choose a position...</option>
+              
+              <!-- Offense Positions -->
+              <optgroup label="Offense">
+                <option value="qb">QB - <%= @teams_season&.qb_player&.full_name || 'No QB' %></option>
+                <option value="rb1">RB1 - <%= @teams_season&.rb1_player&.full_name || 'No RB1' %></option>
+                <option value="rb2">RB2 - <%= @teams_season&.rb2_player&.full_name || 'No RB2' %></option>
+                <option value="wr1">WR1 - <%= @teams_season&.wr1_player&.full_name || 'No WR1' %></option>
+                <option value="wr2">WR2 - <%= @teams_season&.wr2_player&.full_name || 'No WR2' %></option>
+                <option value="wr3">WR3 - <%= @teams_season&.wr3_player&.full_name || 'No WR3' %></option>
+                <option value="te">TE - <%= @teams_season&.te_player&.full_name || 'No TE' %></option>
+                <option value="c">C - <%= @teams_season&.center_player&.full_name || 'No C' %></option>
+                <option value="lt">LT - <%= @teams_season&.left_tackle_player&.full_name || 'No LT' %></option>
+                <option value="lg">LG - <%= @teams_season&.left_guard_player&.full_name || 'No LG' %></option>
+                <option value="rg">RG - <%= @teams_season&.right_guard_player&.full_name || 'No RG' %></option>
+                <option value="rt">RT - <%= @teams_season&.right_tackle_player&.full_name || 'No RT' %></option>
+              </optgroup>
+              
+              <!-- Defense Positions -->
+              <optgroup label="Defense">
+                <option value="eg1">EDGE1 - <%= @teams_season&.edge1_player&.full_name || 'No EDGE1' %></option>
+                <option value="eg2">EDGE2 - <%= @teams_season&.edge2_player&.full_name || 'No EDGE2' %></option>
+                <option value="dl1">DL1 - <%= @teams_season&.dl1_player&.full_name || 'No DL1' %></option>
+                <option value="dl2">DL2 - <%= @teams_season&.dl2_player&.full_name || 'No DL2' %></option>
+                <option value="dl3">DL3 - <%= @teams_season&.dl3_player&.full_name || 'No DL3' %></option>
+                <option value="lb1">LB1 - <%= @teams_season&.lb1_player&.full_name || 'No LB1' %></option>
+                <option value="lb2">LB2 - <%= @teams_season&.lb2_player&.full_name || 'No LB2' %></option>
+                <option value="cb1">CB1 - <%= @teams_season&.cb1_player&.full_name || 'No CB1' %></option>
+                <option value="cb2">CB2 - <%= @teams_season&.cb2_player&.full_name || 'No CB2' %></option>
+                <option value="cb3">CB3 - <%= @teams_season&.cb3_player&.full_name || 'No CB3' %></option>
+                <option value="s1">S1 - <%= @teams_season&.safety1_player&.full_name || 'No S1' %></option>
+                <option value="s2">S2 - <%= @teams_season&.safety2_player&.full_name || 'No S2' %></option>
+              </optgroup>
+            </select>
           </div>
           <div class="flex space-x-3">
             <button data-action="click->team-substitution#closeSubstitutionModal" 

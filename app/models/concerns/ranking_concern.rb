@@ -46,6 +46,8 @@ module RankingConcern
         {
           score:  team.pass_block_score,
           team:   team.team,
+          roster: team,
+          qb:     team.qb_player,
           oline:  team.oline_players
         }
       end.sort_by { |ranking| -ranking[:score] }
@@ -57,6 +59,7 @@ module RankingConcern
         {
           score: team.rush_block_score,
           team: team.team,
+          roster: team,
           oline: team.oline_players
         }
       end.sort_by { |ranking| -ranking[:score] }
@@ -67,6 +70,7 @@ module RankingConcern
         {
           score: team.run_defense_score,
           team: team.team,
+          roster: team,
           run_defense: team.defense_starters
         }
       end.sort_by { |ranking| -ranking[:score] }
@@ -77,6 +81,7 @@ module RankingConcern
         {
           score: team.pass_rush_score,
           team: team.team,
+          roster: team,
           dline: team.dline_players
         }
       end.sort_by { |ranking| -ranking[:score] }
@@ -87,6 +92,7 @@ module RankingConcern
         {
           score: team.coverage_score,
           team: team.team,
+          roster: team,
           secondary: team.secondary_players
         }
       end.sort_by { |ranking| -ranking[:score] }

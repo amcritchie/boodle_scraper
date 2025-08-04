@@ -2,20 +2,21 @@ class TeamsController < ApplicationController
   layout 'application'
   def rankings
     @year = params[:year]
-    @teams_weeks      = TeamsWeek.where(season_year: @year).includes(:team)  
-    @play_caller_rankings = @teams_weeks.order(:offensive_play_caller_rank)
-    @offensive_play_caller_rankings = @teams_weeks.order(:offensive_play_caller_rank)
-    @defensive_play_caller_rankings = @teams_weeks.order(:defensive_play_caller_rank)
-    @pace_rankings        = @teams_weeks.order(:pace_of_play_rank)
-    @run_heavy_rankings   = @teams_weeks.order(:run_heavy_rank)
-    @qb_passing_rankings  = @teams_weeks.order(:qb_passing_rank)
-    @receiving_rankings   = @teams_weeks.order(:receiver_core_rank)
-    @pass_block_rankings  = @teams_weeks.order(:pass_block_rank)
-    @pass_rush_rankings   = @teams_weeks.order(:pass_rush_rank)
-    @coverage_rankings    = @teams_weeks.order(:coverage_rank)
-    @rushing_rankings     = @teams_weeks.order(:rushing_rank)
-    @run_block_rankings   = @teams_weeks.order(:rush_block_rank)
-    @run_defense_rankings = @teams_weeks.order(:run_defense_rank)
+    @teams_seasons = TeamsSeason.where(season_year: @year).includes(:team).order(:team_slug)
+    # @teams_weeks      = TeamsWeek.where(season_year: @year).includes(:team)  
+    @play_caller_rankings           = @teams_seasons.offensive_play_callers.by_play_caller_rank
+    @offensive_play_caller_rankings = @teams_seasons.offensive_play_callers.by_play_caller_rank
+    @defensive_play_caller_rankings = @teams_seasons.defensive_play_callers.by_play_caller_rank
+    @pace_rankings                  = @teams_seasons.offensive_play_callers.by_pace_rank
+    @run_heavy_rankings             = @teams_seasons.offensive_play_callers.by_run_heavy_rank
+    @qb_passing_rankings            = @teams_seasons.qb_rankings
+    @receiving_rankings             = @teams_seasons.receiver_core_rankings
+    @pass_block_rankings            = @teams_seasons.oline_pass_block_rankings
+    @pass_rush_rankings             = @teams_seasons.pass_rush_rankings
+    @coverage_rankings              = @teams_seasons.coverage_rankings
+    @rushing_rankings               = @teams_seasons.rushing_rankings
+    @run_block_rankings             = @teams_seasons.oline_run_block_rankings
+    @run_defense_rankings           = @teams_seasons.run_defense_rankings
 
 
   end
@@ -34,17 +35,17 @@ class TeamsController < ApplicationController
     @teams_seasons = TeamsSeason.where(season_year: @year).includes(:team).order(:team_slug)
     # Ranking data for tables
     # @play_caller_rankings = Coach.where(slug: TeamsSeason.where(season_year: 2025).pluck(:offensive_play_caller).flatten.compact).by_play_caller_rank
-    @play_caller_rankings = TeamsSeason.where(season_year: @year).offensive_play_callers.by_play_caller_rank
-    # @pace_rankings        = TeamsSeason.where(season_year: year).offensive_play_callers.by_pace_rank
-    # @run_heavy_rankings   = TeamsSeason.where(season_year: year).offensive_play_callers.by_run_heavy_rank
-    # @qb_passing_rankings  = TeamsSeason.where(season_year: year).qbs.by_grades_offense
-    # @receiving_rankings   = TeamsSeason.where(season_year: year).receiver_rankings
-    # @pass_block_rankings  = TeamsSeason.where(season_year: year).pass_block_rankings
-    # @pass_rush_rankings   = TeamsSeason.where(season_year: year).pass_rush_rankings
-    # @coverage_rankings    = TeamsSeason.where(season_year: year).coverage_rankings
-    # @rushing_rankings     = TeamsSeason.where(season_year: year).rushing_rankings
-    # @run_block_rankings   = TeamsSeason.where(season_year: year).run_block_rankings
-    # @run_defense_rankings = TeamsSeason.where(season_year: year).run_defense_rankings
+    @play_caller_rankings = @teams_seasons.offensive_play_callers.by_play_caller_rank
+    @pace_rankings        = @teams_seasons.offensive_play_callers.by_pace_rank
+    @run_heavy_rankings   = @teams_seasons.offensive_play_callers.by_run_heavy_rank
+    @qb_passing_rankings  = @teams_seasons.qb_rankings
+    @receiving_rankings   = @teams_seasons.receiver_core_rankings
+    @pass_block_rankings  = @teams_seasons.oline_pass_block_rankings
+    @run_block_rankings   = @teams_seasons.oline_run_block_rankings
+    @pass_rush_rankings   = @teams_seasons.pass_rush_rankings
+    @coverage_rankings    = @teams_seasons.coverage_rankings
+    @rushing_rankings     = @teams_seasons.rushing_rankings
+    @run_defense_rankings = @teams_seasons.run_defense_rankings
   end
 
   def show
@@ -111,5 +112,46 @@ class TeamsController < ApplicationController
       'K' => @bench_players.where(position: 'place-kicker'),
       'P' => @bench_players.where(position: 'punter')
     }
+  end
+
+  def substitute
+    @team = Team.find_by(slug: params[:slug])
+    @teams_season = TeamsSeason.find_by(team_slug: @team.slug, season_year: 2025)
+    
+    if @teams_season.nil?
+      render json: { error: 'Team season not found' }, status: :not_found
+      return
+    end
+
+    # Parse JSON body for AJAX requests
+    if request.content_type == 'application/json'
+      new_player_slug = params[:new_player_slug]
+      position = params[:position]
+    else
+      new_player_slug = params[:new_player_slug]
+      position = params[:position]
+    end
+    
+    # Validate position
+    valid_positions = %w[qb rb1 rb2 wr1 wr2 wr3 te c lt rt lg rg eg1 eg2 dl1 dl2 dl3 lb1 lb2 cb1 cb2 cb3 s1 s2]
+    
+    unless valid_positions.include?(position)
+      render json: { error: 'Invalid position' }, status: :bad_request
+      return
+    end
+    
+    # Validate that the new player exists and belongs to this team
+    new_player = Player.find_by(slug: new_player_slug, team_slug: @team.slug)
+    unless new_player
+      render json: { error: 'Player not found or does not belong to this team' }, status: :bad_request
+      return
+    end
+    
+    # Update the position with the new player
+    @teams_season.update!(position => new_player_slug)
+    
+    render json: { success: true, message: 'Substitution successful' }
+  rescue => e
+    render json: { error: e.message }, status: :unprocessable_entity
   end
 end 

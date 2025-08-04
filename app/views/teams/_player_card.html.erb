@@ -1,17 +1,54 @@
 <!-- Player Card Template -->
-<div class="<%= card_background %> <%= padding_size %> rounded-lg border dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-     @click="selectPlayerForSubstitution('<%= player.slug %>', '<%= position %>')">
+<% 
+  # Define grade configurations
+  grade_configs = {
+    'passing' => { name: 'Pass 🏈', color: 'text-green-600', dark_color: 'text-green-400', value: player.passing_grade_x },
+    'rushing' => { name: 'Rush 🏃', color: 'text-purple-600', dark_color: 'text-purple-400', value: player.rush_grade_x },
+    'receiving' => { name: 'Route 🤲', color: 'text-green-600', dark_color: 'text-green-400', value: player.receiving_grade_x },
+    'pass_block' => { name: 'Pass 🛡️', color: 'text-green-600', dark_color: 'text-green-400', value: player.pass_block_grade_x },
+    'run_block' => { name: 'Run 🛡️', color: 'text-purple-600', dark_color: 'text-purple-400', value: player.run_block_grade_x },
+    'pass_rush' => { name: 'Pass Rush 🔥', color: 'text-green-600', dark_color: 'text-green-400', value: player.pass_rush_grade_x },
+    'rush_defense' => { name: 'Run Def 🛑', color: 'text-red-600', dark_color: 'text-red-400', value: player.rush_defense_grade_x },
+    'coverage' => { name: 'Cover 🔒', color: 'text-green-600', dark_color: 'text-green-400', value: player.coverage_grade_x },
+    'grades_offense' => { name: 'Offense', color: 'text-blue-600', dark_color: 'text-blue-400', value: player.grades_offense || 60 },
+    'grades_defence' => { name: 'Defense', color: 'text-indigo-600', dark_color: 'text-indigo-400', value: player.grades_defence || 60 }
+  }
+  
+  # Determine card background based on highlight
+  card_bg = if highlight
+    'bg-yellow-50 dark:bg-yellow-900 border-yellow-300 dark:border-yellow-600'
+  else
+    'bg-gray-50 dark:bg-gray-700'
+  end
+  
+  # Determine padding size
+  padding = size == 'small' ? 'p-3' : 'p-4'
+%>
+<div class="<%= card_bg %> <%= padding %> rounded-lg border dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+     @click="selectPlayerForSubstitution('<%= player.slug %>', '<%= defined?(position) ? position : '' %>')">
   <div class="flex justify-between items-start">
     <div class="flex-1">
-      <div class="flex items-center space-x-1 mb-1">
-        <span class="text-xs text-gray-600 dark:text-gray-400"><%= player.first_name %></span>
-        <span class="font-bold text-sm text-gray-900 dark:text-white"><%= player.last_name %></span>
-      </div>
-      <div class="text-xs text-gray-500 dark:text-gray-400"><%= position_label %></div>
+      <% if size == 'small' %>
+        <div class="mb-1">
+          <div class="text-xs text-gray-600 dark:text-gray-400"><%= player.first_name %></div>
+          <div class="font-bold text-sm text-gray-900 dark:text-white"><%= player.last_name %></div>
+        </div>
+      <% else %>
+        <div class="flex items-center space-x-1 mb-1">
+          <span class="text-xs text-gray-600 dark:text-gray-400"><%= player.first_name %></span>
+          <span class="font-bold text-sm text-gray-900 dark:text-white"><%= player.last_name %></span>
+        </div>
+      <% end %>
+      <div class="text-xs text-gray-500 dark:text-gray-400"><%= defined?(position_label) ? position_label : player.position_symbol %></div>
     </div>
-    <div class="text-xs font-mono <%= stats_alignment %> space-y-1">
-      <div class="<%= grade1_color %> dark:<%= grade1_dark_color %>"><%= grade1_name %>: <%= grade1_value %></div>
-      <div class="<%= grade2_color %> dark:<%= grade2_dark_color %>"><%= grade2_name %>: <%= grade2_value %></div>
+    <div class="text-xs font-mono text-right space-y-1">
+      <% grades.each do |grade_slug| %>
+        <% if grade_configs[grade_slug] && grade_configs[grade_slug][:value] %>
+          <div class="<%= grade_configs[grade_slug][:color] %> dark:<%= grade_configs[grade_slug][:dark_color] %>">
+            <%= grade_configs[grade_slug][:name] %>: <%= grade_configs[grade_slug][:value] %>
+          </div>
+        <% end %>
+      <% end %>
     </div>
   </div>
 </div> 

@@ -5,14 +5,6 @@
     Comprehensive analysis of team strengths across key performance metrics
   </p>
 </div>
-    <!-- Page Title -->
-    <div class="text-center mb-12">
-      <h2 class="text-4xl font-bold text-gray-900 mb-4">Team Performance Rankings</h2>
-      <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-        Comprehensive analysis of team strengths across key performance metrics
-      </p>
-    </div>
-
     <!-- Rankings Grid -->
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
       
@@ -30,25 +22,25 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @qb_passing_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking[:team]&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
                     <div class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking[:team]&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
                     <div class="text-lg font-bold text-gray-900 dark:text-white">
-                      <%= ranking.qb_player.passing_grade_x %>
+                      <%= ranking[:qb].passing_grade_x %>
                     </div>
                   </div>
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
-                  <%= ranking.qb_player&.player %> <i>Pass: <%= ranking.qb_player&.passing_grade_x %></i>
+                  <%= ranking[:qb]&.player %> <i>Pass: <%= ranking[:qb]&.passing_grade_x %></i>
                 </div>
               </div>
             <% end %>
@@ -70,25 +62,25 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @receiving_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking[:team]&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
                     <div class="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking[:team]&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
                     <div class="text-lg font-bold text-gray-900 dark:text-white">
-                      <%= number_with_precision(ranking.receiver_score, precision: 1) %>
+                      <%= number_with_precision(ranking[:receiver_score], precision: 1) %>
                     </div>
                   </div>
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
-                  <%= ranking.top_three_receivers.map { |receiver| "#{receiver.last_name} #{receiver.grades_pass_route_print || 'N/A'}" }.join(', ') %>
+                  <%= ranking[:receivers].map { |receiver| "#{receiver.last_name} #{receiver.grades_pass_route_print || 'N/A'}" }.join(', ') %>
                 </div>
               </div>
             <% end %>
@@ -110,36 +102,36 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @pass_block_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking[:team]&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
                     <div class="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking[:team]&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
                     <div class="text-lg font-bold text-gray-900 dark:text-white">
-                      <%= number_with_precision(ranking.pass_block_score, precision: 1) %>
+                      <%= number_with_precision(ranking[:pass_block_score], precision: 1) %>
                     </div>
                   </div>
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
-                  <% if ranking.qb_player.left_handed? %>
-                    <%= raw ranking.left_tackle_player.last_name %> (<%= raw ranking.left_tackle_player.pass_block_grade_x %>)
+                  <% if ranking[:qb].left_handed? %>
+                    <%= raw ranking[:roster].left_tackle_player.last_name %> (<%= raw ranking[:roster].left_tackle_player.pass_block_grade_x %>)
                   <% else %> 
-                    <strong><%= raw ranking.left_tackle_player.last_name %> (<%= raw ranking.left_tackle_player.pass_block_grade_x %>)</strong>
+                    <strong><%= raw ranking[:roster].left_tackle_player.last_name %> (<%= raw ranking[:roster].left_tackle_player.pass_block_grade_x %>)</strong>
                   <% end %>
-                  <%= raw ranking.left_guard_player.last_name %> (<%= raw ranking.left_guard_player.pass_block_grade_x %>)
-                  <strong><%= raw ranking.center_player.last_name %> (<%= raw ranking.center_player.pass_block_grade_x %>)</strong>
-                    <%= raw ranking.right_guard_player.last_name %> (<%= raw ranking.right_guard_player.pass_block_grade_x %>)
-                  <% if ranking.qb_player.left_handed? %>
-                    <strong><%= raw ranking.right_tackle_player.last_name %> <%= raw ranking.right_tackle_player.pass_block_grade_x %></strong>
+                  <%= raw ranking[:roster].left_guard_player.last_name %> (<%= raw ranking[:roster].left_guard_player.pass_block_grade_x %>)
+                  <strong><%= raw ranking[:roster].center_player.last_name %> (<%= raw ranking[:roster].center_player.pass_block_grade_x %>)</strong>
+                    <%= raw ranking[:roster].right_guard_player.last_name %> (<%= raw ranking[:roster].right_guard_player.pass_block_grade_x %>)
+                  <% if ranking[:qb].left_handed? %>
+                    <strong><%= raw ranking[:roster].right_tackle_player.last_name %> <%= raw ranking[:roster].right_tackle_player.pass_block_grade_x %></strong>
                   <% else %>
-                    <%= raw ranking.right_tackle_player.last_name %> (<%= raw ranking.right_tackle_player.pass_block_grade_x %>)
+                    <%= raw ranking[:roster].right_tackle_player.last_name %> (<%= raw ranking[:roster].right_tackle_player.pass_block_grade_x %>)
                   <% end %>
                 </div>
               </div>
@@ -167,29 +159,29 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @pass_rush_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking[:team]&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
                     <div class="flex items-center justify-center w-8 h-8 rounded-full bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking[:team]&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
                     <div class="text-lg font-bold text-gray-900 dark:text-white">
-                      <%= number_with_precision(ranking.pass_rush_score, precision: 1) %>
+                      <%= number_with_precision(ranking[:score], precision: 1) %>
                     </div>
                   </div>
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
-                  <strong><%= raw ranking.edge1_player.last_name %> (<%= raw ranking.edge1_player.pass_rush_grade_x %>)</strong>
-                  <%= raw ranking.dl1_player.last_name %> (<%= raw ranking.dl1_player.pass_rush_grade_x %>)
-                  <%= raw ranking.dl2_player.last_name %> (<%= raw ranking.dl2_player.pass_rush_grade_x %>)
-                  <%= raw ranking.dl3_player.last_name %> (<%= raw ranking.dl3_player.pass_rush_grade_x %>)
-                  <strong><%= raw ranking.edge2_player.last_name %> (<%= raw ranking.edge2_player.pass_rush_grade_x %>)</strong>
+                  <strong><%= raw ranking[:roster].edge1_player.last_name %> (<%= raw ranking[:roster].edge1_player.pass_rush_grade_x %>)</strong>
+                  <%= raw ranking[:roster].dl1_player.last_name %> (<%= raw ranking[:roster].dl1_player.pass_rush_grade_x %>)
+                  <%= raw ranking[:roster].dl2_player.last_name %> (<%= raw ranking[:roster].dl2_player.pass_rush_grade_x %>)
+                  <%= raw ranking[:roster].dl3_player.last_name %> (<%= raw ranking[:roster].dl3_player.pass_rush_grade_x %>)
+                  <strong><%= raw ranking[:roster].edge2_player.last_name %> (<%= raw ranking[:roster].edge2_player.pass_rush_grade_x %>)</strong>
                 </div>
               </div>
             <% end %>
@@ -211,29 +203,29 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @coverage_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking[:team]&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
                     <div class="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking[:team]&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
                     <div class="text-lg font-bold text-gray-900 dark:text-white">
-                      <%= number_with_precision(ranking.coverage_score, precision: 1) %>
+                      <%= number_with_precision(ranking[:score], precision: 1) %>
                     </div>
                   </div>
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
-                  <strong><%= raw ranking.cb1_player.last_name %> (<%= raw ranking.cb1_player.coverage_grade_x %>)</strong>
-                  <%= raw ranking.cb3_player.last_name %> (<%= raw ranking.cb3_player.coverage_grade_x %>)
-                  <%= raw ranking.safety1_player.last_name %> (<%= raw ranking.safety1_player.coverage_grade_x %>)
-                  <%= raw ranking.safety2_player.last_name %> (<%= raw ranking.safety2_player.coverage_grade_x %>)
-                  <strong><%= raw ranking.cb2_player.last_name %> (<%= raw ranking.cb2_player.coverage_grade_x %>)</strong>
+                  <strong><%= raw ranking[:roster].cb1_player.last_name %> (<%= raw ranking[:roster].cb1_player.coverage_grade_x %>)</strong>
+                  <%= raw ranking[:roster].cb3_player.last_name %> (<%= raw ranking[:roster].cb3_player.coverage_grade_x %>)
+                  <%= raw ranking[:roster].safety1_player.last_name %> (<%= raw ranking[:roster].safety1_player.coverage_grade_x %>)
+                  <%= raw ranking[:roster].safety2_player.last_name %> (<%= raw ranking[:roster].safety2_player.coverage_grade_x %>)
+                  <strong><%= raw ranking[:roster].cb2_player.last_name %> (<%= raw ranking[:roster].cb2_player.coverage_grade_x %>)</strong>
                 </div>
               </div>
             <% end %>
@@ -260,25 +252,25 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @rushing_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking[:team]&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
                     <div class="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking[:team]&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
                     <div class="text-lg font-bold text-gray-900 dark:text-white">
-                      <%= number_with_precision(ranking.rushing_score, precision: 1) %>
+                      <%= number_with_precision(ranking[:score], precision: 1) %>
                     </div>
                   </div>
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
-                  <%= ranking.rushers.map { |rusher| "#{rusher.last_name} #{rusher.rush_grade_x || 'N/A'}" }.join(', ') %>
+                  <%= ranking[:rushers].map { |rusher| "#{rusher.last_name} #{rusher.rush_grade_x || 'N/A'}" }.join(', ') %>
                 </div>
               </div>
             <% end %>
@@ -300,29 +292,29 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @run_block_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking[:team]&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
                     <div class="flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking[:team]&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
                     <div class="text-lg font-bold text-gray-900 dark:text-white">
-                      <%= number_with_precision(ranking.rush_block_score, precision: 1) %>
+                      <%= number_with_precision(ranking[:score], precision: 1) %>
                     </div>
                   </div>
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
-                  <%= raw ranking.left_tackle_player.last_name %> (<%= raw ranking.left_tackle_player.run_block_grade_x %>)
-                  <strong><%= raw ranking.left_guard_player.last_name %> (<%= raw ranking.left_guard_player.run_block_grade_x %>)</strong>
-                  <strong><%= raw ranking.center_player.last_name %> (<%= raw ranking.center_player.run_block_grade_x %>)</strong>
-                  <strong><%= raw ranking.right_guard_player.last_name %> (<%= raw ranking.right_guard_player.run_block_grade_x %>)</strong>
-                  <%= raw ranking.right_tackle_player.last_name %> (<%= raw ranking.right_tackle_player.run_block_grade_x %>)
+                  <%= raw ranking[:roster].left_tackle_player.last_name %> (<%= raw ranking[:roster].left_tackle_player.run_block_grade_x %>)
+                  <strong><%= raw ranking[:roster].left_guard_player.last_name %> (<%= raw ranking[:roster].left_guard_player.run_block_grade_x %>)</strong>
+                  <strong><%= raw ranking[:roster].center_player.last_name %> (<%= raw ranking[:roster].center_player.run_block_grade_x %>)</strong>
+                  <strong><%= raw ranking[:roster].right_guard_player.last_name %> (<%= raw ranking[:roster].right_guard_player.run_block_grade_x %>)</strong>
+                  <%= raw ranking[:roster].right_tackle_player.last_name %> (<%= raw ranking[:roster].right_tackle_player.run_block_grade_x %>)
                 </div>
               </div>
             <% end %>
@@ -344,36 +336,36 @@
         <div class="p-6">
           <div class="space-y-3">
             <% @run_defense_rankings.each_with_index do |ranking, index| %>
-              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking.team&.slug) %>'">
+              <div class="p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" onclick="window.location.href='<%= team_show_path(ranking[:team]&.slug) %>'">
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-3">
                     <div class="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 font-bold text-sm">
                       <%= index + 1 %>
                     </div>
                     <div class="flex items-center space-x-2">
-                      <span class="text-xl"><%= ranking.team&.emoji %></span>
-                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking.team&.name %></span>
+                      <span class="text-xl"><%= ranking[:team]&.emoji %></span>
+                      <span class="font-semibold text-gray-900 dark:text-white"><%= ranking[:team]&.name %></span>
                     </div>
                   </div>
                   <div class="text-right">
                     <div class="text-lg font-bold text-gray-900 dark:text-white">
-                      <%= number_with_precision(ranking.run_defense_score, precision: 1) %>
+                      <%= number_with_precision(ranking[:score], precision: 1) %>
                     </div>
                   </div>
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
 
-                <%= raw ranking.edge1_player.last_name %> (<%= raw ranking.edge1_player.rush_defense_grade_x %>)
-                <strong><%= raw ranking.dl2_player.last_name %> (<%= raw ranking.dl2_player.rush_defense_grade_x %>)</strong>
-                <strong><%= raw ranking.dl1_player.last_name %> (<%= raw ranking.dl1_player.rush_defense_grade_x %>)</strong>
-                <strong><%= raw ranking.dl3_player.last_name %> (<%= raw ranking.dl3_player.rush_defense_grade_x %>)</strong>
-                <%= raw ranking.edge2_player.last_name %> (<%= raw ranking.edge2_player.rush_defense_grade_x %>)
+                <%= raw ranking[:roster].edge1_player.last_name %> (<%= raw ranking[:roster].edge1_player.rush_defense_grade_x %>)
+                <strong><%= raw ranking[:roster].dl2_player.last_name %> (<%= raw ranking[:roster].dl2_player.rush_defense_grade_x %>)</strong>
+                <strong><%= raw ranking[:roster].dl1_player.last_name %> (<%= raw ranking[:roster].dl1_player.rush_defense_grade_x %>)</strong>
+                <strong><%= raw ranking[:roster].dl3_player.last_name %> (<%= raw ranking[:roster].dl3_player.rush_defense_grade_x %>)</strong>
+                <%= raw ranking[:roster].edge2_player.last_name %> (<%= raw ranking[:roster].edge2_player.rush_defense_grade_x %>)
                 <br><br>
-                <%= raw ranking.cb3_player.last_name %> (<%= raw ranking.cb3_player.rush_defense_grade_x %>)
-                <strong><%= raw ranking.safety1_player.last_name %> (<%= raw ranking.safety1_player.rush_defense_grade_x %>)</strong>
-                <strong><%= raw ranking.lb1_player.last_name %> (<%= raw ranking.lb1_player.rush_defense_grade_x %>)</strong>
-                <strong><%= raw ranking.lb2_player.last_name %> (<%= raw ranking.lb2_player.rush_defense_grade_x %>)</strong>
-                <%= raw ranking.safety2_player.last_name %> (<%= raw ranking.safety2_player.rush_defense_grade_x %>)
+                <%= raw ranking[:roster].cb3_player.last_name %> (<%= raw ranking[:roster].cb3_player.rush_defense_grade_x %>)
+                <strong><%= raw ranking[:roster].safety1_player.last_name %> (<%= raw ranking[:roster].safety1_player.rush_defense_grade_x %>)</strong>
+                <strong><%= raw ranking[:roster].lb1_player.last_name %> (<%= raw ranking[:roster].lb1_player.rush_defense_grade_x %>)</strong>
+                <strong><%= raw ranking[:roster].lb2_player.last_name %> (<%= raw ranking[:roster].lb2_player.rush_defense_grade_x %>)</strong>
+                <%= raw ranking[:roster].safety2_player.last_name %> (<%= raw ranking[:roster].safety2_player.rush_defense_grade_x %>)
                 </div>
               </div>
             <% end %>
@@ -418,7 +410,7 @@
                   </div>
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
-                  <%= rank&.offensive_play_caller_coach&.full_name %>
+                  <%= rank&.full_name %>
                 </div>
               </div>
             <% end %>
@@ -458,7 +450,7 @@
                   </div>
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
-                  <%= coach.offensive_play_caller_coach&.full_name %>
+                  <%= coach&.full_name %>
                 </div>
               </div>
             <% end %>
@@ -498,7 +490,7 @@
                   </div>
                 </div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 pl-11">
-                  <%= coach.offensive_play_caller_coach&.full_name %>
+                  <%= coach&.full_name %>
                 </div>
               </div>
             <% end %>
