@@ -31,7 +31,7 @@ class Team < ApplicationRecord
       extract_mascot_from_name
     end
     
-    private
+    # private
     
     def extract_location_from_name
       return nil if name.blank?

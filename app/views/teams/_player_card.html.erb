@@ -14,6 +14,29 @@
     'grades_defence' => { name: 'Defense', color: 'text-indigo-600', dark_color: 'text-indigo-400', value: player.grades_defence || 60 }
   }
   
+  # Helper method for ordinal suffixes
+  def ordinal_suffix(number)
+    return 'th' if [11, 12, 13].include?(number % 100)
+    case number % 10
+    when 1 then 'st'
+    when 2 then 'nd'
+    when 3 then 'rd'
+    else 'th'
+    end
+  end
+  
+  # Calculate years in league
+  current_year = Date.current.year
+  if player.rookie_year.to_i > 1
+    years_in_league = player.rookie_year ? current_year - player.rookie_year : nil
+  else
+    years_in_league = 0
+  end 
+  
+  # Determine if they played last season
+  snaps_last_season = (player.snaps_on_offense || player.snaps_on_defence).to_i
+  played_last_season = (snaps_last_season > 500)
+  
   # Determine card background based on highlight
   card_bg = if highlight
     'bg-yellow-50 dark:bg-yellow-900 border-yellow-300 dark:border-yellow-600'
@@ -40,6 +63,15 @@
         </div>
       <% end %>
       <div class="text-xs text-gray-500 dark:text-gray-400"><%= defined?(position_label) ? position_label : player.position_symbol %></div>
+      <% if years_in_league > 0 %>
+        <div class="text-xs text-gray-500 dark:text-gray-400">
+          <%= years_in_league+1 %><%= ordinal_suffix(years_in_league+1) %> Season
+        </div>
+      <% else %>
+        <div class="text-xs text-orange-500 dark:text-orange-400">
+          Rookie 👶 
+        </div> 
+      <% end %>
     </div>
     <div class="text-xs font-mono text-right space-y-1">
       <% grades.each do |grade_slug| %>
@@ -51,4 +83,22 @@
       <% end %>
     </div>
   </div>
+  
+  <% if (years_in_league == 0) || (player.correction.present?) %>
+    <!-- Tenure Section - Full Width -->
+    <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+      
+        <div class="flex justify-between items-center">
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            <%= player.correction %> 📊
+          </div>
+          <% if years_in_league > 0 %>
+          <div class="text-xs <%= played_last_season ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+            <%= played_last_season ? '' : "#{snaps_last_season} snaps 2024" %>
+          </div>
+          <% end %>
+        </div>
+      
+    </div>
+  <% end %>
 </div> 
