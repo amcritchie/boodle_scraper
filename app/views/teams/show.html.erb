@@ -194,7 +194,8 @@
                     player: @teams_season.qb_player,
                     grades: ['passing', 'rushing', 'grades_offense'],
                     highlight: false,
-                    size: 'large' %>
+                    size: 'large',
+                    expected_position: 'quarterback' %>
               <% else %>
                 <div class="bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300 text-gray-400 text-sm">
                   No QB
@@ -210,14 +211,16 @@
                     player: @teams_season.rb1_player,
                     grades: ['rushing', 'receiving', 'grades_offense'],
                     highlight: false,
-                    size: 'large' %>
+                    size: 'large',
+                    expected_position: 'running-back' %>
               <% end %>
               <% if @teams_season&.rb2_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.rb2_player,
                     grades: ['rushing', 'receiving', 'grades_offense'],
                     highlight: false,
-                    size: 'large' %>
+                    size: 'large',
+                    expected_position: 'running-back' %>
               <% end %>
             </div>
 
@@ -229,21 +232,24 @@
                     player: @teams_season.wr1_player,
                     grades: ['receiving', 'run_block', 'grades_offense'],
                     highlight: false,
-                    size: 'large' %>
+                    size: 'large',
+                    expected_position: 'wide-receiver' %>
               <% end %>
               <% if @teams_season&.wr2_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.wr2_player,
                     grades: ['receiving', 'run_block', 'grades_offense'],
                     highlight: false,
-                    size: 'large' %>
+                    size: 'large',
+                    expected_position: 'wide-receiver' %>
               <% end %>
               <% if @teams_season&.wr3_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.wr3_player,
                     grades: ['receiving', 'run_block', 'grades_offense'],
                     highlight: false,
-                    size: 'large' %>
+                    size: 'large',
+                    expected_position: 'wide-receiver' %>
               <% end %>
             </div>
 
@@ -255,7 +261,8 @@
                     player: @teams_season.te_player,
                     grades: ['receiving', 'run_block', 'grades_offense'],
                     highlight: false,
-                    size: 'large' %>
+                    size: 'large',
+                    expected_position: 'tight-end' %>
               <% end %>
             </div>
 
@@ -268,35 +275,40 @@
                       player: @teams_season.left_tackle_player,
                       grades: ['pass_block', 'run_block', 'grades_offense'],
                       highlight: !@teams_season.qb_player&.left_handed?,
-                      size: 'small' %>
+                      size: 'small',
+                      expected_position: 'tackle' %>
                 <% end %>
                 <% if @teams_season&.left_guard_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.left_guard_player,
                       grades: ['pass_block', 'run_block', 'grades_offense'],
                       highlight: false,
-                      size: 'small' %>
+                      size: 'small',
+                      expected_position: 'gaurd' %>
                 <% end %>
                 <% if @teams_season&.center_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.center_player,
                       grades: ['pass_block', 'run_block', 'grades_offense'],
                       highlight: false,
-                      size: 'small' %>
+                      size: 'small',
+                      expected_position: 'center' %>
                 <% end %>
                 <% if @teams_season&.right_guard_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.right_guard_player,
                       grades: ['pass_block', 'run_block', 'grades_offense'],
                       highlight: false,
-                      size: 'small' %>
+                      size: 'small',
+                      expected_position: 'gaurd' %>
                 <% end %>
                 <% if @teams_season&.right_tackle_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.right_tackle_player,
                       grades: ['pass_block', 'run_block', 'grades_offense'],
                       highlight: @teams_season.qb_player&.left_handed?,
-                      size: 'small' %>
+                      size: 'small',
+                      expected_position: 'tackle' %>
                 <% end %>
               </div>
             </div>
@@ -331,14 +343,16 @@
                     player: @teams_season.edge1_player,
                     grades: ['pass_rush', 'rush_defense', 'grades_defence'],
                     highlight: false,
-                    size: 'large' %>
+                    size: 'large',
+                    expected_position: 'defensive-end' %>
               <% end %>
               <% if @teams_season&.edge2_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.edge2_player,
                     grades: ['pass_rush', 'rush_defense', 'grades_defence'],
                     highlight: false,
-                    size: 'large' %>
+                    size: 'large',
+                    expected_position: 'defensive-end' %>
               <% end %>
             </div>
 
@@ -350,21 +364,24 @@
                     player: @teams_season.dl1_player,
                     grades: ['rush_defense', 'pass_rush', 'grades_defence'],
                     highlight: false,
-                    size: 'large' %>
+                    size: 'large',
+                    expected_position: 'defensive-end' %>
               <% end %>
               <% if @teams_season&.dl2_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.dl2_player,
                     grades: ['rush_defense', 'pass_rush', 'grades_defence'],
                     highlight: false,
-                    size: 'large' %>
+                    size: 'large',
+                    expected_position: 'defensive-end' %>
               <% end %>
               <% if @teams_season&.dl3_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.dl3_player,
                     grades: ['rush_defense', 'pass_rush', 'grades_defence'],
                     highlight: false,
-                    size: 'large' %>
+                    size: 'large',
+                    expected_position: 'defensive-end' %>
               <% end %>
             </div>
 
@@ -376,14 +393,16 @@
                     player: @teams_season.lb1_player,
                     grades: ['rush_defense', 'coverage', 'grades_defence'],
                     highlight: false,
-                    size: 'large' %>
+                    size: 'large',
+                    expected_position: 'linebacker' %>
               <% end %>
               <% if @teams_season&.lb2_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.lb2_player,
                     grades: ['rush_defense', 'coverage', 'grades_defence'],
                     highlight: false,
-                    size: 'large' %>
+                    size: 'large',
+                    expected_position: 'linebacker' %>
               <% end %>
             </div>
 
@@ -396,35 +415,40 @@
                       player: @teams_season.cb1_player,
                       grades: ['coverage', 'rush_defense', 'grades_defence'],
                       highlight: false,
-                      size: 'small' %>
+                      size: 'small',
+                      expected_position: 'cornerback' %>
                 <% end %>
                 <% if @teams_season&.cb2_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.cb2_player,
                       grades: ['coverage', 'rush_defense', 'grades_defence'],
                       highlight: false,
-                      size: 'small' %>
+                      size: 'small',
+                      expected_position: 'cornerback' %>
                 <% end %>
                 <% if @teams_season&.cb3_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.cb3_player,
                       grades: ['coverage', 'rush_defense', 'grades_defence'],
                       highlight: false,
-                      size: 'small' %>
+                      size: 'small',
+                      expected_position: 'cornerback' %>
                 <% end %>
                 <% if @teams_season&.safety1_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.safety1_player,
                       grades: ['coverage', 'rush_defense', 'grades_defence'],
                       highlight: false,
-                      size: 'small' %>
+                      size: 'small',
+                      expected_position: 'safety' %>
                 <% end %>
                 <% if @teams_season&.safety2_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.safety2_player,
                       grades: ['coverage', 'rush_defense', 'grades_defence'],
                       highlight: false,
-                      size: 'small' %>
+                      size: 'small',
+                      expected_position: 'safety' %>
                 <% end %>
               </div>
             </div>

@@ -1,5 +1,7 @@
 module TeamPopulations
   def buffalo_bills_populate
+    self.location = "Buffalo"
+    self.alias = "Bills"
     self.slug = :buf
     self.slug_long = :buffalo_bills
     self.emoji = '🦬'
@@ -11,6 +13,8 @@ module TeamPopulations
   end
 
   def new_york_jets_populate
+    self.location = "New York"
+    self.alias = "Jets"
     self.slug = :nyj
     self.slug_long = :new_york_jets
     self.emoji = '🛩️ '
@@ -22,6 +26,8 @@ module TeamPopulations
   end
 
   def miami_dolphins_populate
+    self.location = "Miami"
+    self.alias = "Dolphins"
     self.slug = :mia
     self.slug_long = :miami_dolphins
     self.emoji = '🐬'
@@ -33,6 +39,8 @@ module TeamPopulations
   end
 
   def new_england_patriots_populate
+    self.location = "New England"
+    self.alias = "Patriots"
     self.slug = :ne
     self.slug_long = :new_england_patriots
     self.emoji = '🇺🇸 '
@@ -44,6 +52,8 @@ module TeamPopulations
   end
 
   def kansas_city_chiefs_populate
+    self.location = "Kansas City"
+    self.alias = "Chiefs"
     self.slug = :kc
     self.slug_long = :kansas_city_chiefs
     self.emoji = '🏹'
@@ -55,6 +65,8 @@ module TeamPopulations
   end
 
   def denver_broncos_populate
+    self.location = "Denver"
+    self.alias = "Broncos"
     self.slug = :den
     self.slug_long = :denver_broncos
     self.emoji = '🐴'
@@ -66,6 +78,8 @@ module TeamPopulations
   end
 
   def los_angeles_chargers_populate
+    self.location = "Los Angeles"
+    self.alias = "Chargers"
     self.slug = :lac
     self.slug_long = :los_angeles_chargers
     self.emoji = '⚡️'
@@ -77,6 +91,8 @@ module TeamPopulations
   end
 
   def las_vegas_raiders_populate
+    self.location = "Las Vegas"
+    self.alias = "Raiders"
     self.slug = :lv
     self.slug_long = :las_vegas_raiders
     self.emoji = '🎲'
@@ -88,6 +104,8 @@ module TeamPopulations
   end
 
   def cincinnati_bengals_populate
+    self.location = "Cincinnati"
+    self.alias = "Bengals"
     self.slug = :cin
     self.slug_long = :cincinnati_bengals
     self.emoji = '🐯'
@@ -99,6 +117,8 @@ module TeamPopulations
   end
 
   def baltimore_ravens_populate
+    self.location = "Baltimore"
+    self.alias = "Ravens"
     self.slug = :bal
     self.slug_long = :baltimore_ravens
     self.emoji = '🐦‍⬛'
@@ -110,6 +130,8 @@ module TeamPopulations
   end
 
   def pittsburgh_steelers_populate
+    self.location = "Pittsburgh"
+    self.alias = "Steelers"
     self.slug = :pit
     self.slug_long = :pittsburgh_steelers
     self.emoji = '👷‍♂️'
@@ -121,6 +143,8 @@ module TeamPopulations
   end
 
   def cleveland_browns_populate
+    self.location = "Cleveland"
+    self.alias = "Browns"
     self.slug = :cle
     self.slug_long = :cleveland_browns
     self.emoji = '🟤'
@@ -132,6 +156,8 @@ module TeamPopulations
   end
 
   def jacksonville_jaguars_populate
+    self.location = "Jacksonville"
+    self.alias = "Jaguars"
     self.slug = :jax
     self.slug_long = :jacksonville_jaguars
     self.emoji = '🐆'
@@ -143,6 +169,8 @@ module TeamPopulations
   end
 
   def houston_texans_populate
+    self.location = "Houston"
+    self.alias = "Texans"
     self.slug = :hou
     self.slug_long = :houston_texans
     self.emoji = '🐂'
@@ -154,6 +182,8 @@ module TeamPopulations
   end
 
   def tennessee_titans_populate
+    self.location = "Tennessee"
+    self.alias = "Titans"
     self.slug = :ten
     self.slug_long = :tennessee_titans
     self.emoji = '🗡️ '
@@ -165,6 +195,8 @@ module TeamPopulations
   end
 
   def indianapolis_colts_populate
+    self.location = "Indianapolis"
+    self.alias = "Colts"
     self.slug = :ind
     self.slug_long = :indianapolis_colts
     self.emoji = '🐎'
@@ -176,6 +208,8 @@ module TeamPopulations
   end
 
   def green_bay_packers_populate
+    self.location = "Green Bay"
+    self.alias = "Packers"
     self.slug = :gb
     self.slug_long = :green_bay_packers
     self.emoji = '🧀'
@@ -187,6 +221,8 @@ module TeamPopulations
   end
 
   def minnesota_vikings_populate
+    self.location = "Minnesota"
+    self.alias = "Vikings"
     self.slug = :min
     self.slug_long = :minnesota_vikings
     self.emoji = '😈'
@@ -198,6 +234,8 @@ module TeamPopulations
   end
 
   def chicago_bears_populate
+    self.location = "Chicago"
+    self.alias = "Bears"
     self.slug = :chi
     self.slug_long = :chicago_bears
     self.emoji = '🐻'
@@ -209,6 +247,8 @@ module TeamPopulations
   end
 
   def detroit_lions_populate
+    self.location = "Detroit"
+    self.alias = "Lions"
     self.slug = :det
     self.slug_long = :detroit_lions
     self.emoji = '🦁'
@@ -220,6 +260,8 @@ module TeamPopulations
   end
 
   def dallas_cowboys_populate
+    self.location = "Dallas"
+    self.alias = "Cowboys"
     self.slug = :dal
     self.slug_long = :dallas_cowboys
     self.emoji = '🤠'
@@ -231,6 +273,8 @@ module TeamPopulations
   end
 
   def new_york_giants_populate
+    self.location = "New York"
+    self.alias = "Giants"
     self.slug = :nyg
     self.slug_long = :new_york_giants
     self.emoji = '🗽'
@@ -242,6 +286,8 @@ module TeamPopulations
   end
 
   def philadelphia_eagles_populate
+    self.location = "Philadelphia"
+    self.alias = "Eagles"
     self.slug = :phi
     self.slug_long = :philadelphia_eagles
     self.emoji = '🦅'
@@ -253,6 +299,8 @@ module TeamPopulations
   end
 
   def washington_commanders_populate
+    self.location = "Washington"
+    self.alias = "Commanders"
     self.slug = :was
     self.slug_long = :washington_commanders
     self.emoji = '🪖'
@@ -264,6 +312,8 @@ module TeamPopulations
   end
 
   def seattle_seahawks_populate
+    self.location = "Seattle"
+    self.alias = "Seahawks"
     self.slug = :sea
     self.slug_long = :seattle_seahawks
     self.emoji = '‍‍🐦'
@@ -275,6 +325,8 @@ module TeamPopulations
   end
 
   def los_angeles_rams_populate
+    self.location = "Los Angeles"
+    self.alias = "Rams"
     self.slug = :lar
     self.slug_long = :los_angeles_rams
     self.emoji = '🐏'
@@ -286,6 +338,8 @@ module TeamPopulations
   end
 
   def san_francisco_49ers_populate
+    self.location = "San Francisco"
+    self.alias = "49ers"
     self.slug = :sf
     self.slug_long = :san_francisco_49ers
     self.emoji = '🌉'
@@ -297,6 +351,8 @@ module TeamPopulations
   end
 
   def arizona_cardinals_populate
+    self.location = "Arizona"
+    self.alias = "Cardinals"
     self.slug = :ari
     self.slug_long = :arizona_cardinals
     self.emoji = '🐤'
@@ -308,6 +364,8 @@ module TeamPopulations
   end
 
   def atlanta_falcons_populate
+    self.location = "Atlanta"
+    self.alias = "Falcons"
     self.slug = :atl
     self.slug_long = :atlanta_falcons
     self.emoji = '🐦‍🔥'
@@ -319,6 +377,8 @@ module TeamPopulations
   end
 
   def carolina_panthers_populate
+    self.location = "Carolina"
+    self.alias = "Panthers"
     self.slug = :car
     self.slug_long = :carolina_panthers
     self.emoji = '🐈‍⬛'
@@ -330,6 +390,8 @@ module TeamPopulations
   end
 
   def tampa_bay_buccaneers_populate
+    self.location = "Tampa Bay"
+    self.alias = "Buccaneers"
     self.slug = :tb
     self.slug_long = :tampa_bay_buccaneers
     self.emoji = '🏴‍☠️'
@@ -341,6 +403,8 @@ module TeamPopulations
   end
 
   def new_orleans_saints_populate
+    self.location = "New Orleans"
+    self.alias = "Saints"
     self.slug = :no
     self.slug_long = :new_orleans_saints
     self.emoji = '⚜️ '

@@ -62,7 +62,16 @@
           <span class="font-bold text-sm text-gray-900 dark:text-white"><%= player.last_name %></span>
         </div>
       <% end %>
-      <div class="text-xs text-gray-500 dark:text-gray-400"><%= defined?(position_label) ? position_label : player.position_symbol %></div>
+      <% 
+        # Check if expected_position is defined and different from player's position
+        position_mismatch = defined?(expected_position) && expected_position.present? && player.position != expected_position
+        position_classes = if position_mismatch
+          'text-xs font-bold text-red-600 dark:text-red-400'
+        else
+          'text-xs text-gray-500 dark:text-gray-400'
+        end
+      %>
+      <div class="<%= position_classes %>"><%= player.position %> <%= "😵‍💫" if position_mismatch %></div>
       <% if years_in_league > 0 %>
         <div class="text-xs text-gray-500 dark:text-gray-400">
           <%= years_in_league+1 %><%= ordinal_suffix(years_in_league+1) %> Season
@@ -92,13 +101,13 @@
           <div class="text-xs text-gray-500 dark:text-gray-400">
             <%= player.correction %> 📊
           </div>
-          <% if years_in_league > 0 %>
-          <div class="text-xs <%= played_last_season ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
-            <%= played_last_season ? '' : "#{snaps_last_season} snaps 2024" %>
-          </div>
-          <% end %>
         </div>
       
+    </div>
+  <% end %>
+  <% if years_in_league > 0 && !played_last_season %>
+    <div class="text-xs mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 <%= played_last_season ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">        
+    <%= played_last_season ? '' : "#{snaps_last_season} snaps in 2024" %>
     </div>
   <% end %>
 </div> 

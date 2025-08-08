@@ -103,7 +103,7 @@ class Team < ApplicationRecord
 
           # Update team name and other data based on Kaggle
           team.name = team_attrs['team_name']
-          team.alias = team_attrs['team_name_short']
+          # team.alias = team_attrs['team_name_short'] # Washington
           team.conference = team_attrs['team_conference']
           team.division = team_attrs['team_division']
           team.slug_pfr = team_attrs['team_id_pfr']
