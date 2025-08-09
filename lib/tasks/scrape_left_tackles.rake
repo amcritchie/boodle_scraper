@@ -7,7 +7,8 @@ namespace :scrape do
   task left_tackles: :environment do
     puts "Starting to scrape Left Tackles from PFF website..."
     
-    url = "https://www.pff.com/news/nfl-projecting-all-32-nfl-starting-lineups-2025-season"
+    base_url = ENV.fetch('PFF_BASE_URL', 'https://www.pff.com')
+    url = "#{base_url}/news/nfl-projecting-all-32-nfl-starting-lineups-2025-season"
     
     begin
       response = HTTParty.get(url)

@@ -127,14 +127,17 @@ class Team < ApplicationRecord
 
     def fetch_roster_sportradar
 
-      api_key = 'dBqzgfZiBp0sTpz06FIx3AjcLzCA2EzwFID6ZCl0' # amcr
-      # api_key = 'xtsJqdNDRcvoGeXZ5kcG7iVYVJkpX4umc8bxIoGh' # free@b
-      # api_key = 'HmAyXEUSsvWllyEVSCaniv3cnq8cLxKExAr2oAQD' # laurenalexm@g
-      # api_key = 'c9IaDr6BFd7tSrQdEDbtIclRe6gqHexujsLdevJw' # alex@boodle
+      api_key = ENV['SPORTRADAR_API_KEY']
+      
+      if api_key.blank?
+        raise "SPORTRADAR_API_KEY environment variable is required"
+      end
 
       # "0d855753-ea21-4953-89f9-0e20aff9eb73"
+      access_level = ENV.fetch('SPORTRADAR_ACCESS_LEVEL', 'trial')
+      base_url = ENV.fetch('SPORTRADAR_BASE_URL', 'https://api.sportradar.com/nfl/official')
       response = HTTParty.get(
-        "https://api.sportradar.com/nfl/official/trial/v7/en/teams/#{sportsradar_id}/full_roster.json",
+        "#{base_url}/#{access_level}/v7/en/teams/#{sportsradar_id}/full_roster.json",
         headers: {
           'accept' => 'application/json',
           'x-api-key' => api_key

@@ -630,17 +630,18 @@ module SportRadarConcern
   end
 
   def fetch_sport_radar_pbp
-    access_level  = "trial"
+    access_level  = ENV.fetch('SPORTRADAR_ACCESS_LEVEL', 'trial')
+    base_url      = ENV.fetch('SPORTRADAR_BASE_URL', 'https://api.sportradar.com/nfl/official')
     language_code = "en"
     game_id       = self.sportsradar_id
     format        = "json"
-    url_string    = "https://api.sportradar.com/nfl/official/#{access_level}/v7/#{language_code}/games/#{game_id}/pbp.#{format}"
+    url_string    = "#{base_url}/#{access_level}/v7/#{language_code}/games/#{game_id}/pbp.#{format}"
 
-    # api_key = 'dBqzgfZiBp0sTpz06FIx3AjcLzCA2EzwFID6ZCl0' # amcr
-    # api_key = 'xtsJqdNDRcvoGeXZ5kcG7iVYVJkpX4umc8bxIoGh' # free@b
-    # api_key = 'HmAyXEUSsvWllyEVSCaniv3cnq8cLxKExAr2oAQD' # laurenalexm@g
-    # api_key = 'c9IaDr6BFd7tSrQdEDbtIclRe6gqHexujsLdevJw' # alex@boodle
-    api_key = 'df3az0RfvWZa3xu2fxJlrafnqpMIiLC5IrGudJf6' # alex@leaguef
+    api_key = ENV['SPORTRADAR_API_KEY']
+    
+    if api_key.blank?
+      raise "SPORTRADAR_API_KEY environment variable is required"
+    end
     
     # Fetch data from SportRadar API
     response = HTTParty.get(url_string,

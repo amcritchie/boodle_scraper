@@ -1,5 +1,12 @@
 <!-- Universal Navbar with Dark Mode -->
-<header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+<header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 relative">
+  <!-- Environment Banner (non-production only) -->
+  <% unless Rails.env.production? %>
+    <div class="absolute top-0 left-0 right-0 bg-[#FF7C47] text-white text-center py-1 px-4 text-xs font-medium">
+      <%= Rails.env.titleize %> Environment
+    </div>
+  <% end %>
+  
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center py-6">
       <div class="flex items-center space-x-4">

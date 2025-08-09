@@ -320,7 +320,8 @@ class Game < ApplicationRecord
     return "Teams not initialized.  Run `Team.kaggle_import`" unless Team.active.count == 32
 
       # Load page
-      url = "https://www.sportsoddshistory.com/nfl-game-season/?y=#{season}"
+      base_url = ENV.fetch('SPORTSODDSHISTORY_BASE_URL', 'https://www.sportsoddshistory.com')
+      url = "#{base_url}/nfl-game-season/?y=#{season}"
       url_text = Net::HTTP.get(URI.parse url)
       doc = Nokogiri::HTML(url_text)
 
