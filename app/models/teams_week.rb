@@ -117,6 +117,12 @@ class TeamsWeek < ApplicationRecord
   def defense_starters
     Player.where(slug: [eg1, eg2, dl1, dl2, dl3, lb1, lb2, cb1, cb2, cb3, s1, s2].compact)
   end
+  def bench_players
+    roster_players = Player.where(team_slug: team_slug)
+    starter_slugs = (offense_starters + defense_starters).map(&:slug).compact
+    roster_players.where.not(slug: starter_slugs)
+  end
+
   def self.qbs
     Player.where(slug: all.pluck(:qb).flatten.compact)
   end

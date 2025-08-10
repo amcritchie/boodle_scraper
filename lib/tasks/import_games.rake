@@ -55,7 +55,7 @@ namespace :games do
         venue: venue,
         scheduled: scheduled,
         status: 'scheduled',
-        sr_id: "2024-#{row['Week']}-#{away_team.alias}-#{home_team.alias}",
+        sr_id: "2024_#{row['Week']}_#{away_team.slug_long}_#{home_team.slug_long}",
         game_type: 'regular',
         conference_game: true,
         title: "#{away_team.name} @ #{home_team.name}"

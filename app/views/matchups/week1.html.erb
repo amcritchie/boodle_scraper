@@ -171,7 +171,6 @@
                   <th class="text-left p-2 text-white">Team</th>
                   <th class="text-left p-2 text-white">Opponent</th>
                   <th class="text-left p-2 text-white">Attack Score</th>
-                  <th class="text-left p-2 text-white">Equation</th>
                 </tr>
               </thead>
               <tbody>
@@ -193,14 +192,6 @@
                     </td>
                     <td class="p-2 font-mono font-bold text-blue-400">
                       <%= number_with_precision(matchup.passing_attack_score, precision: 1) %>
-                    </td>
-                    <td class="p-2 text-xs font-mono">
-                      <div class="text-gray-400">
-                        play_caller×2 + pocket×1.5 + passing×1.0
-                      </div>
-                      <div class="text-gray-500 mt-1">
-                        pocket = oline - pass_rush | passing = qb×1.5 + rec×1.5 - coverage
-                      </div>
                     </td>
                   </tr>
                 <% end %>

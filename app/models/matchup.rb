@@ -755,7 +755,7 @@ class Matchup < ApplicationRecord
   # Player-based ranking methods
   def qb_ranking
     # Get this matchup's QB passing grade
-    qb_passing_grade = qb&.grades_pass
+    qb_passing_grade = qb_player&.grades_pass
     # Return default rank if no QB or passing grade
     return 16 unless qb_passing_grade    
     # Get all teams' QB passing grades sorted by grade (highest first)

@@ -8,10 +8,20 @@ Rails.application.routes.draw do
   get 'teams/:year/seasons', to: 'teams#teams_seasons', as: 'teams_seasons'
   get 'teams/:slug', to: 'teams#show', as: 'team_show'
   patch 'teams/:slug/substitute', to: 'teams#substitute', as: 'team_substitute'
+  
+  # API endpoints for teams
+  post 'api/teams/:slug', to: 'teams#api_show', as: 'api_team_show'
+  post 'api/teams/:year/week/:week', to: 'teams#api_week_collection', as: 'api_teams_week'
+  
   get 'players', to: 'players#index', as: 'players_index'
   get 'matchups/:year/week1', to: 'matchups#week1', as: 'matchups_week1'
   get 'matchups/:year/week1/roster', to: 'matchups#roster', as: 'matchups_roster'
   get 'matchups/:year/week1/summary', to: 'matchups#summary', as: 'matchups_summary'
+  
+  # API endpoints for matchups
+  post 'api/matchups/:season/week/:week/:away_slug/:home_slug', to: 'matchups#api_show', as: 'api_matchup_show'
+  post 'api/matchups/:year/week/:week', to: 'matchups#api_week_collection', as: 'api_matchups_week'
+  
   get 'games/:year/week1', to: 'games#week1', as: 'games_week1'
   get 'games/:year/week1/:game_slug', to: 'games#show', as: 'game_show'
 end
