@@ -23,5 +23,7 @@ Rails.application.routes.draw do
   post 'api/matchups/:year/week/:week', to: 'matchups#api_week_collection', as: 'api_matchups_week'
   
   get 'games/:year/week1', to: 'games#week1', as: 'games_week1'
+  get 'games/:year/week1/betting', to: 'games#betting', as: 'games_betting'
+  post 'games/:year/week1/betting', to: 'games#update_betting', as: 'update_betting'
   get 'games/:year/week1/:game_slug', to: 'games#show', as: 'game_show'
 end

@@ -1,59 +1,78 @@
 class CreateGames < ActiveRecord::Migration[7.0]
   def change
     create_table :games do |t|
+
+      # Game Details
       t.string    :slug, null: false, unique: true
-      t.integer   :season       # 2025
-      t.string    :week_slug    # "1"
-      t.string    :away_slug    # "buf"
-      t.string    :home_slug    # "kc"
-      t.string    :away_score, default: 0   # 10
-      t.string    :home_score, default: 0   # 17
-      t.jsonb     :away_scores  # []
-      t.jsonb     :home_scores  # []
-      t.string    :title        # "Super Bowl LVII"
-      t.string    :sportsradar_id     # 4254d319-1bc7-4f81-b4ab-b5e6f3402b69
-      t.string    :sportsradar_slug   # sr:player:2197894
-      t.datetime  :scheduled  # "2025-09-08T13:00:00.000Z"
-      t.integer :attendance               # 69142
-      t.string  :venue_slug   # "glendale_arizona"
-      t.string  :status       # "final"
-      t.string  :entry_mode                # "closed"
-      t.string  :game_type    # "regular"
-      t.boolean :conference_game         # true
-      t.string  :duration                # "4:25"
+      t.integer   :season         # 2025 (Season 2025z)
+      t.string    :week_slug      # "1" (Week 1)
+      t.string    :away_slug      # "buf" (Buffalo)
+      t.string    :home_slug      # "kc" (Kansas City)
+      t.string    :venue_slug     # Build logic
+      t.datetime  :kickoff_at
+
+      # Game Details (present and)
+      t.string    :title                    # "Super Bowl LVII"
+      t.string    :source                   # "kaggle","sportsoddshistory","sportsradar"
+      t.string    :sportsradar_id
+      t.string    :sportsradar_slug         # sr:player:2197894
+      t.integer   :away_score, default: 0   # 10
+      t.integer   :home_score, default: 0   # 17
+      t.integer   :total_points             # 27
+      t.jsonb     :away_scores              # []
+      t.jsonb     :home_scores              # []
+      t.datetime  :scheduled                # "2025-09-08T13:00:00.000Z"
+      t.integer   :attendance               # 69142
+      t.string    :status                   # "final"
+      t.string    :entry_mode               # "closed"
+      t.string    :game_type                # "regular"
+      t.boolean   :conference_game          # true
+      t.string    :duration                 # "4:25"
+      t.date      :date
+      t.string    :start_time               # "1:00 PM"
+      t.string    :day_of_week              # "Sunday"
+      t.string    :tv_network               # "CBS"
+      t.boolean   :primetime                # true
+      t.boolean   :overtime
+      t.integer   :away_team_seed
+      t.integer   :home_team_seed
+      t.string    :winning_team             # "phi"
+
+      # Weather fields
+      t.string    :weather_temperature
+      t.string    :weather_precipitation
+      t.string    :weather_wind_speed
+      t.string    :weather_snow
+      t.string    :weather_humidity
+      t.string    :weather_icon
+      t.json      :weather_object
+
+      # Betting fields
+      t.string  :favorite             # "phi"
+      t.float   :favorite_spread      # -3.5
       t.float   :away_spread          # -3.5
       t.float   :home_spread          # 3.5
-      t.float   :away_implied_total   # 45.5
+      t.float   :away_implied_total   # 45.5 
       t.float   :home_implied_total   # 45.5
       t.float   :away_multiple        # 1.2
       t.float   :home_multiple        # 1.2
       t.float   :over_under           # 50.5
       t.float   :over_under_odds      # 1.91
       t.string  :over_under_result
-      t.integer :total_points
-      t.integer :away_total
-      t.integer :home_total
-      t.datetime :kickoff_at
-      t.date    :date
-      t.string  :start_time
-      t.string  :day_of_week
-      t.string  :tv_network
-      t.boolean :primetime
-      t.boolean :overtime
-      t.integer :away_team_seed
-      t.integer :home_team_seed
-      t.string  :winning_team
-      t.integer :away_ot
-      t.integer :home_ot
-      t.integer :away_q4
-      t.integer :home_q4
-      t.integer :away_q3
-      t.integer :home_q3
-      t.integer :away_q2
-      t.integer :home_q2
+
+      # Points per quarter      
       t.integer :away_q1
       t.integer :home_q1
-      t.string  :source       # "kaggle","sportsoddshistory","sportsradar"
+      t.integer :away_q2
+      t.integer :home_q2
+      t.integer :away_q3
+      t.integer :home_q3
+      t.integer :away_q4
+      t.integer :home_q4
+      t.integer :away_ot
+      t.integer :home_ot
+      
+      # Other Attributes
       t.jsonb   :events_array
       t.jsonb   :stangest_events
       # t.references :week, null: false, foreign_key: { to_table: :weeks }, index: false

@@ -1,6 +1,13 @@
 class GamesController < ApplicationController
   def week1
     @year = params[:year] || 2025
+    @week = Week.find_by(season_year: @year, sequence: 1)
+    
+    if @week.nil?
+      redirect_to root_path, alert: "Week not found"
+      return
+    end
+    
     # Get all games for the specified year week 1
     @games = Game.where(season: @year, week_slug: "1").order(:kickoff_at)
     
@@ -19,11 +26,11 @@ class GamesController < ApplicationController
         game_slug: game.slug, 
         team_slug: game.away_slug
       )
-      
       {
         game: game,
         home_matchup: home_matchup,
-        away_matchup: away_matchup
+        away_matchup: away_matchup,
+        matchups: [home_matchup, away_matchup].compact
       }
     end
   end
@@ -38,31 +45,57 @@ class GamesController < ApplicationController
     end
 
     # Get the home and away matchups
-    @home_matchup = Matchup.find_by(
-      season: @year, 
-      week_slug: "1", 
-      game_slug: @game.slug, 
-      team_slug: @game.home_slug
-    )
-    
-    @away_matchup = Matchup.find_by(
-      season: @year, 
-      week_slug: "1", 
-      game_slug: @game.slug, 
-      team_slug: @game.away_slug
-    )
+    @home_matchup = @game.matchups.find_by(team_slug: @game.home_slug)
+    @away_matchup = @game.matchups.find_by(team_slug: @game.away_slug)
 
     # Calculate predicted scores
-    @home_predicted_score = calculate_predicted_score(@home_matchup)
-    @away_predicted_score = calculate_predicted_score(@away_matchup)
-    @total_predicted_score = @home_predicted_score + @away_predicted_score
+    @total_predicted_score = @home_matchup.predicted_score + @away_matchup.predicted_score
+  end
+
+  def betting
+    @year = params[:year] || 2025
+    @week = Week.find_by(season_year: @year, sequence: 1)
+    
+    if @week.nil?
+      redirect_to games_week1_path(@year), alert: "Week not found"
+      return
+    end
+    
+    # Get all games for the specified year week 1
+    @games = Game.where(season: @year, week_slug: "1").order(:kickoff_at)
+  end
+
+  def update_betting
+    @year = params[:year] || 2025
+    @week = Week.find_by(season_year: @year, sequence: 1)
+    
+    if @week.nil?
+      redirect_to games_week1_path(@year), alert: "Week not found"
+      return
+    end
+
+    # Process betting data for each game
+    params[:games].each do |game_slug, betting_data|
+      game = Game.find_by(slug: game_slug)
+      next unless game
+      
+      favorite = betting_data[:favorite]
+      favorite_spread = betting_data[:favorite_spread].to_f
+      over_under = betting_data[:over_under].to_f
+      
+      # Calculate implied team totals
+      implied_totals = game.set_implied_totals(favorite, favorite_spread, over_under)
+      
+      # Update game with betting data
+      game.update(
+        favorite: favorite,
+        favorite_spread: favorite_spread,
+        over_under: over_under
+      )
+    end
+    
+    redirect_to games_betting_path(@year), notice: "Betting data updated successfully!"
   end
 
   private
-
-  def calculate_predicted_score(matchup)
-    return 0 unless matchup
-    
-    (matchup.passing_td_points || 0) + (matchup.rushing_td_points || 0) + (matchup.field_goal_points || 0)
-  end
 end 

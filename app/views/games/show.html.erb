@@ -73,7 +73,7 @@
                 <div class="text-gray-500">Away Team</div>
               </div>
             </div>
-            <div class="text-7xl font-bold text-blue-600 mb-4"><%= @away_predicted_score %></div>
+            <div class="text-7xl font-bold text-blue-600 mb-4"><%= @away_matchup.predicted_score %></div>
             <div class="grid grid-cols-3 gap-3 text-sm">
               <div class="bg-blue-50 p-3 rounded-lg">
                 <div class="font-semibold text-blue-700">Pass</div>
@@ -108,7 +108,7 @@
               </div>
               <span class="text-6xl"><%= @game.home_team&.emoji %></span>
             </div>
-            <div class="text-7xl font-bold text-red-600 mb-4"><%= @home_predicted_score %></div>
+            <div class="text-7xl font-bold text-red-600 mb-4"><%= @home_matchup.predicted_score %></div>
             <div class="grid grid-cols-3 gap-3 text-sm">
               <div class="bg-blue-50 p-3 rounded-lg">
                 <div class="font-semibold text-blue-700">Pass</div>
@@ -446,11 +446,11 @@
       <div class="p-6">
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
           <div class="text-center">
-            <div class="text-3xl font-bold text-blue-600"><%= @away_predicted_score %></div>
+            <div class="text-3xl font-bold text-blue-600"><%= @away_matchup.predicted_score %></div>
             <div class="text-sm text-gray-600">Away Team Points</div>
           </div>
           <div class="text-center">
-            <div class="text-3xl font-bold text-red-600"><%= @home_predicted_score %></div>
+            <div class="text-3xl font-bold text-red-600"><%= @home_matchup.predicted_score %></div>
             <div class="text-sm text-gray-600">Home Team Points</div>
           </div>
           <div class="text-center">
@@ -459,9 +459,9 @@
           </div>
           <div class="text-center">
             <div class="text-3xl font-bold text-orange-600">
-              <% if @home_predicted_score > @away_predicted_score %>
+              <% if @home_matchup.predicted_score > @away_matchup.predicted_score %>
                 <%= @game.home_team&.name %>
-              <% elsif @away_predicted_score > @home_predicted_score %>
+              <% elsif @away_matchup.predicted_score > @home_matchup.predicted_score %>
                 <%= @game.away_team&.name %>
               <% else %>
                 Tie

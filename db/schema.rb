@@ -144,6 +144,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
     t.integer "away_field_goals", default: 0
     t.integer "away_extra_points", default: 0
     t.integer "alt_points", default: 0
+    t.string "favorite"
+    t.float "favorite_spread"
+    t.float "team_total"
     t.index ["away_slug"], name: "index_games_on_away_slug"
     t.index ["created_at"], name: "index_games_on_created_at"
     t.index ["home_slug"], name: "index_games_on_home_slug"
@@ -249,6 +252,11 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
     t.json "coverage_factors"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float "away_spread"
+    t.float "home_spread"
+    t.float "away_implied_total"
+    t.float "home_implied_total"
+    t.float "over_under"
   end
 
   create_table "periods", force: :cascade do |t|

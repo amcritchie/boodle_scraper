@@ -1,0 +1,193 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">Week <%= @week.sequence %> Betting Data</h1>
+      <p class="text-lg text-gray-600 dark:text-gray-300">Enter betting information for all games</p>
+    </div>
+
+    <form action="<%= update_betting_path(@year) %>" method="post" class="space-y-8">
+      <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+      
+      <% @games.each do |game| %>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+          <!-- Game Header -->
+          <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              <%= game.away_team&.name %> @ <%= game.home_team&.name %>
+            </h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              <%= game.kickoff_at&.strftime("%A, %B %d at %I:%M %p") %>
+            </p>
+          </div>
+
+          <!-- Betting Inputs -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Favorite Selection -->
+            <div class="lg:col-span-1">
+              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4 uppercase tracking-wide">
+                Select Favorite
+              </label>
+              <div class="grid grid-cols-2 gap-4">
+                <button type="button" onclick="selectFavorite(this, '<%= game.slug %>', 'away')"
+                        class="favorite-btn-<%= game.slug %> p-6 border-2 rounded-xl text-center transition-all duration-200 hover:shadow-md <%= game.favorite == 'away' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 shadow-lg' : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/10' %>">
+                  <div class="text-4xl mb-3"><%= game.away_team&.emoji %></div>
+                  <div class="text-sm font-bold mb-2 text-gray-900 dark:text-white">Away</div>
+                  <div class="text-xs text-gray-600 dark:text-gray-400 leading-tight"><%= game.away_team&.name %></div>
+                </button>
+                <button type="button" onclick="selectFavorite(this, '<%= game.slug %>', 'home')"
+                        class="favorite-btn-<%= game.slug %> p-6 border-2 rounded-xl text-center transition-all duration-200 hover:shadow-md <%= game.favorite == 'home' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 shadow-lg' : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/10' %>">
+                  <div class="text-4xl mb-3"><%= game.home_team&.emoji %></div>
+                  <div class="text-sm font-bold mb-2 text-gray-900 dark:text-white">Home</div>
+                  <div class="text-xs text-gray-600 dark:text-gray-400 leading-tight"><%= game.home_team&.name %></div>
+                </button>
+              </div>
+              <input type="hidden" name="games[<%= game.slug %>][favorite]" value="<%= game.favorite %>" required>
+            </div>
+
+            <!-- Favorite Spread -->
+            <div class="lg:col-span-2">
+              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4 uppercase tracking-wide">
+                Favorite Spread
+              </label>
+              <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
+                <div class="flex flex-wrap gap-1 justify-center">
+                  <% [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5,].each_with_index do |spread, index| %>
+                    <button type="button" onclick="selectSpread(this, '<%= game.slug %>', <%= spread %>)"
+                            class="spread-btn-<%= game.slug %> <%= index % 2 == 1 ? 'w-5' : 'w-7' %> h-10 px-1 text-xs font-medium border-2 rounded-lg transition-all duration-200 hover:scale-105 <%= 
+                              if game.favorite_spread == spread
+                                'border-blue-500 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 font-bold shadow-md'
+                              elsif [0, 2].include?(spread)
+                                'border-orange-500 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 font-semibold'
+                              elsif [3, 7, 10].include?(spread)
+                                'border-red-500 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 font-semibold'
+                              else
+                                'border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-600 text-gray-800 dark:text-gray-200 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                              end
+                            %>">
+                      <%= index % 2 == 1 ? '' : spread %>
+                    </button>
+                  <% end %>
+                </div>
+              </div>
+              <div class="flex items-center space-x-3">
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Custom:</span>
+                <input type="number" name="games[<%= game.slug %>][favorite_spread]" value="<%= game.favorite_spread %>"
+                       step="0.5" placeholder="3.5" min="0" max="20"
+                       class="flex-1 px-4 py-2.5 border-2 border-gray-300 dark:border-gray-500 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-200 text-center font-mono text-sm font-medium shadow-sm">
+              </div>
+            </div>
+          </div>
+
+          <!-- Team Total -->
+          <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4 uppercase tracking-wide">
+              Team Total (Over/Under)
+            </label>
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
+              <div class="flex flex-wrap gap-1 justify-center">
+                <% (33..54).step(0.5).each_with_index do |total, index| %>
+                  <button type="button" onclick="selectTotal(this, '<%= game.slug %>', <%= total %>)"
+                          class="total-btn-<%= game.slug %> <%= index % 2 == 1 ? 'w-5' : 'w-7' %> h-10 px-1 text-xs font-medium border-2 rounded-lg transition-all duration-200 hover:scale-105 <%= 
+                            if game.over_under == total
+                              'border-blue-500 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 font-bold shadow-md'
+                            elsif [51, 44, 40, 37].include?(total)
+                              'border-red-500 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 font-semibold'
+                            elsif [33, 41, 43, 48, 47].include?(total)
+                              'border-orange-500 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 font-semibold'
+                            else
+                              'border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-600 text-gray-800 dark:text-gray-200 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                            end
+                          %>">
+                    <%= index % 2 == 1 ? '' : total == total.to_i ? total.to_i : total %>
+                  </button>
+                <% end %>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Custom:</span>
+              <input type="number" name="games[<%= game.slug %>][over_under]" value="<%= game.over_under %>"
+                     step="0.5" placeholder="45.5" min="20" max="70"
+                     class="flex-1 px-4 py-2.5 border-2 border-gray-300 dark:border-gray-500 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-200 text-center font-mono text-sm font-medium shadow-sm">
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Submit Button -->
+      <div class="text-center pt-6">
+        <button type="submit" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+          <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          Save All Betting Data
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function selectFavorite(button, gameSlug, team) {
+  // Remove active class from all favorite buttons for this game
+  document.querySelectorAll(`.favorite-btn-${gameSlug}`).forEach(btn => {
+    btn.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20', 'text-blue-800', 'dark:text-blue-200', 'shadow-lg');
+    btn.classList.add('border-gray-200', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-gray-200');
+  });
+  
+  // Add active class to clicked button
+  button.classList.remove('border-gray-200', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-gray-200');
+  button.classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20', 'text-blue-800', 'dark:text-blue-200', 'shadow-lg');
+  
+  // Update hidden input
+  const hiddenInput = button.closest('.lg\\:col-span-1').querySelector('input[type="hidden"]');
+  hiddenInput.value = team;
+}
+
+function selectSpread(button, gameSlug, spread) {
+  // Remove active class from all spread buttons for this game
+  document.querySelectorAll(`.spread-btn-${gameSlug}`).forEach(btn => {
+    btn.classList.remove('border-blue-500', 'bg-blue-100', 'dark:bg-blue-900/30', 'text-blue-800', 'dark:text-blue-200', 'font-bold', 'shadow-md');
+    // Restore original colors based on key numbers
+    if ([0, 2].includes(parseFloat(btn.textContent || '0'))) {
+      btn.classList.add('border-orange-500', 'bg-orange-100', 'dark:bg-orange-900/30', 'text-orange-800', 'dark:text-orange-200', 'font-semibold');
+    } else if ([3, 7].includes(parseFloat(btn.textContent || '0'))) {
+      btn.classList.add('border-red-500', 'bg-red-100', 'dark:bg-red-900/30', 'text-red-800', 'dark:text-red-200', 'font-semibold');
+    } else {
+      btn.classList.add('border-gray-300', 'dark:border-gray-500', 'bg-white', 'dark:bg-gray-600', 'text-gray-800', 'dark:text-gray-200');
+    }
+  });
+  
+  // Add active class to clicked button
+  button.classList.remove('border-orange-500', 'bg-orange-100', 'dark:bg-orange-900/30', 'text-orange-800', 'dark:text-orange-200', 'font-semibold', 'border-red-500', 'bg-red-100', 'dark:bg-red-900/30', 'text-red-800', 'dark:text-red-200', 'font-semibold', 'border-gray-300', 'dark:border-gray-500', 'bg-white', 'dark:bg-gray-600', 'text-gray-800', 'dark:text-gray-200');
+  button.classList.add('border-blue-500', 'bg-blue-100', 'dark:bg-blue-900/30', 'text-blue-800', 'dark:text-blue-200', 'font-bold', 'shadow-md');
+  
+  // Update custom input
+  const customInput = button.closest('.bg-gray-50').nextElementSibling.querySelector('input');
+  customInput.value = spread;
+}
+
+function selectTotal(button, gameSlug, total) {
+  // Remove active class from all total buttons for this game
+  document.querySelectorAll(`.total-btn-${gameSlug}`).forEach(btn => {
+    btn.classList.remove('border-blue-500', 'bg-blue-100', 'dark:bg-blue-900/30', 'text-blue-800', 'dark:text-blue-200', 'font-bold', 'shadow-md');
+    // Restore original colors based on key numbers
+    const btnTotal = parseFloat(btn.textContent || '0');
+    if ([51, 44, 40, 37].includes(btnTotal)) {
+      btn.classList.add('border-red-500', 'bg-red-100', 'dark:bg-red-900/30', 'text-red-800', 'dark:text-red-200', 'font-semibold');
+    } else if ([33, 41, 43, 48, 47].includes(btnTotal)) {
+      btn.classList.add('border-orange-500', 'bg-orange-100', 'dark:bg-orange-900/30', 'text-orange-800', 'dark:text-orange-200', 'font-semibold');
+    } else {
+      btn.classList.add('border-gray-300', 'dark:border-gray-500', 'bg-white', 'dark:bg-gray-600', 'text-gray-800', 'dark:text-gray-200');
+    }
+  });
+  
+  // Add active class to clicked button
+  button.classList.remove('border-red-500', 'bg-red-100', 'dark:bg-red-900/30', 'text-red-800', 'dark:text-red-200', 'font-semibold', 'border-orange-500', 'bg-orange-100', 'dark:bg-orange-900/30', 'text-orange-800', 'dark:text-orange-200', 'font-semibold', 'border-gray-300', 'dark:border-gray-500', 'bg-white', 'dark:bg-gray-600', 'text-gray-800', 'dark:text-gray-200');
+  button.classList.add('border-blue-500', 'bg-blue-100', 'dark:bg-blue-900/30', 'text-blue-800', 'dark:text-blue-200', 'font-bold', 'shadow-md');
+  
+  // Update custom input
+  const customInput = button.closest('.bg-gray-50').nextElementSibling.querySelector('input');
+  customInput.value = total;
+}
+</script>

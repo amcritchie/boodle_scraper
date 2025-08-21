@@ -7,34 +7,41 @@
       </p>
     </div>
 
+    <!-- Navigation -->
+    <div class="flex justify-center mb-8">
+      <a href="<%= games_betting_path(@year) %>" class="inline-flex items-center px-6 py-3 bg-green-600 text-white text-lg font-semibold rounded-lg hover:bg-green-700 transition-colors shadow-lg">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+        </svg>
+        Enter Betting Data
+      </a>
+    </div>
+
     <!-- Games Grid -->
     <div class="grid gap-6 mb-12">
-      <% @games_with_predictions.each do |game_data| %>
-        <a href="<%= game_show_path(@year, game_data[:game].slug) %>" class="block bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1">
+      <% @games_with_predictions.each_with_index do |game_data, index| %>
+        <!-- Game Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           <!-- Game Header -->
-          <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
-            <div class="flex justify-between items-center">
-              <div class="flex items-center space-x-4">
-                <div class="text-white">
-                  <div class="text-lg font-semibold">
-                    <%= game_data[:game].day_of_week %> • <%= game_data[:game].start_time %>
-                  </div>
-                  <div class="text-sm text-blue-100">
-                    Week <%= game_data[:game].week_slug %> • <%= game_data[:game].date&.strftime("%B %d, %Y") %>
-                  </div>
-                </div>
-                <% if game_data[:game].primetime %>
-                  <span class="bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full">
-                    🏟️ Primetime
-                  </span>
-                <% end %>
+          <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+            <div class="text-white">
+              <div class="text-lg font-semibold">
+                Game <%= index + 1 %> • <%= game_data[:game].away_team&.name %> @ <%= game_data[:game].home_team&.name %>
+              </div>
+              <div class="text-sm text-blue-100" 
+                   data-controller="timezone" 
+                   data-timezone-kickoff-value="<%= game_data[:game].kickoff_at&.iso8601 %>">
+                <span data-timezone-target="time">
+                  <%= game_data[:game].browser_time_display %>
+                </span>
               </div>
             </div>
           </div>
 
           <!-- Game Content -->
           <div class="p-8">
-            <div class="grid grid-cols-3 gap-8 items-center">
+            <!-- Score Display -->
+            <div class="grid grid-cols-3 gap-8 items-center mb-8">
               <!-- Away Team -->
               <div class="text-center">
                 <div class="flex items-center justify-center space-x-3 mb-4">
@@ -47,41 +54,54 @@
                   </div>
                 </div>
                 <div class="text-5xl font-bold text-blue-600 mb-4">
-                  <% if game_data[:away_matchup] %>
-                    <%= (game_data[:away_matchup].passing_td_points || 0) + (game_data[:away_matchup].rushing_td_points || 0) + (game_data[:away_matchup].field_goal_points || 0) %>
+                  <% if game_data[:game].favorite && game_data[:game].favorite_spread && game_data[:game].over_under %>
+                    <%= game_data[:game].away_implied_total&.football_round || '0' %> 
                   <% else %>
-                    0
+                    <%= '--' %>
                   <% end %>
                 </div>
-                <% if game_data[:away_matchup] %>
-                  <div class="grid grid-cols-3 gap-2 text-xs text-gray-500 dark:text-gray-400">
-                    <div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
-                      <div class="font-semibold text-blue-700 dark:text-blue-300">Pass</div>
-                      <div class="font-mono"><%= game_data[:away_matchup].passing_td_points || 0 %></div>
-                    </div>
-                    <div class="bg-green-50 dark:bg-green-900/20 p-2 rounded">
-                      <div class="font-semibold text-green-700 dark:text-green-300">Rush</div>
-                      <div class="font-mono"><%= game_data[:away_matchup].rushing_td_points || 0 %></div>
-                    </div>
-                    <div class="bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded">
-                      <div class="font-semibold text-yellow-700 dark:text-yellow-300">FG</div>
-                      <div class="font-mono"><%= game_data[:away_matchup].field_goal_points || 0 %></div>
-                    </div>
+                <div class="relative">
+                  <div class="text-md -top-8 left-2 font-bold text-blue-600 mb-4 absolute inset-0 flex items-left justify-left z-10">
+                    <%= game_data[:game].away_implied_total&.score_emojis %>
                   </div>
-                <% end %>
+                  <% if game_data[:away_matchup] %>
+                    <div class="grid grid-cols-4 gap-1 text-xs text-gray-500 dark:text-gray-400">
+                      <div class="bg-red-50 dark:bg-red-900/20 p-2 rounded">
+                        <div class="font-semibold text-red-700 dark:text-red-300">Est</div>
+                        <div class="font-mono"><%= game_data[:away_matchup].predicted_score.to_i %></div>
+                      </div>
+                      <div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+                        <div class="font-semibold text-blue-700 dark:text-blue-300">Pass</div>
+                        <div class="font-mono"><%= game_data[:away_matchup].passing_td_points || 0 %></div>
+                      </div>
+                      <div class="bg-green-50 dark:bg-green-900/20 p-2 rounded">
+                        <div class="font-semibold text-green-700 dark:text-green-300">Rush</div>
+                        <div class="font-mono"><%= game_data[:away_matchup].rushing_td_points || 0 %></div>
+                      </div>
+                      <div class="bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded">
+                        <div class="font-semibold text-yellow-700 dark:text-yellow-300">FG</div>
+                        <div class="font-mono"><%= game_data[:away_matchup].field_goal_points || 0 %></div>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
               </div>
 
               <!-- VS -->
               <div class="text-center">
                 <div class="text-6xl font-bold text-gray-300 dark:text-gray-600 mb-4">VS</div>
-                <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
+                <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 mt-8">
                   <div class="text-sm text-gray-600 dark:text-gray-300 mb-1">Total Points</div>
                   <div class="text-2xl font-bold text-gray-800 dark:text-white">
-                    <% 
-                      away_score = game_data[:away_matchup] ? (game_data[:away_matchup].passing_td_points || 0) + (game_data[:away_matchup].rushing_td_points || 0) + (game_data[:away_matchup].field_goal_points || 0) : 0
-                      home_score = game_data[:home_matchup] ? (game_data[:home_matchup].passing_td_points || 0) + (game_data[:home_matchup].rushing_td_points || 0) + (game_data[:home_matchup].field_goal_points || 0) : 0
-                    %>
-                    <%= away_score + home_score %>
+                    <% if game_data[:game].favorite && game_data[:game].favorite_spread && game_data[:game].over_under %>
+                      <%= game_data[:game].over_under %>
+                    <% else %>
+                      <% 
+                        away_score = game_data[:away_matchup] ? (game_data[:away_matchup].passing_td_points || 0) + (game_data[:away_matchup].rushing_td_points || 0) + (game_data[:away_matchup].field_goal_points || 0) : 0
+                        home_score = game_data[:home_matchup] ? (game_data[:home_matchup].passing_td_points || 0) + (game_data[:home_matchup].rushing_td_points || 0) + (game_data[:home_matchup].field_goal_points || 0) : 0
+                      %>
+                      <%= away_score + home_score %>
+                    <% end %>
                   </div>
                 </div>
               </div>
@@ -98,30 +118,41 @@
                   <span class="text-4xl"><%= game_data[:game].home_team&.emoji %></span>
                 </div>
                 <div class="text-5xl font-bold text-red-600 mb-4">
-                  <% if game_data[:home_matchup] %>
-                    <%= (game_data[:home_matchup].passing_td_points || 0) + (game_data[:home_matchup].rushing_td_points || 0) + (game_data[:home_matchup].field_goal_points || 0) %>
+                  <% if game_data[:game].favorite && game_data[:game].favorite_spread && game_data[:game].over_under %>
+                    <%= game_data[:game].home_implied_total&.football_round || '0' %>
                   <% else %>
-                    0
+                    <%= '--' %>
                   <% end %>
                 </div>
-                <% if game_data[:home_matchup] %>
-                  <div class="grid grid-cols-3 gap-2 text-xs text-gray-500 dark:text-gray-400">
-                    <div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
-                      <div class="font-semibold text-blue-700 dark:text-blue-300">Pass</div>
-                      <div class="font-mono"><%= game_data[:home_matchup].passing_td_points || 0 %></div>
-                    </div>
-                    <div class="bg-green-50 dark:bg-green-900/20 p-2 rounded">
-                      <div class="font-semibold text-green-700 dark:text-green-300">Rush</div>
-                      <div class="font-mono"><%= game_data[:home_matchup].rushing_td_points || 0 %></div>
-                    </div>
-                    <div class="bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded">
-                      <div class="font-semibold text-yellow-700 dark:text-yellow-300">FG</div>
-                      <div class="font-mono"><%= game_data[:home_matchup].field_goal_points || 0 %></div>
+                <div class="relative">
+                  <div class="text-md -top-8 left-2 font-bold text-red-600 mb-4 absolute inset-0 flex items-left justify-left z-10">
+                    <%= game_data[:game].home_implied_total&.score_emojis %>
+                  </div>
+                  <% if game_data[:home_matchup] %>
+                    <div class="grid grid-cols-4 gap-2 text-xs text-gray-500 dark:text-gray-400">
+                      <div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+                        <div class="font-semibold text-blue-700 dark:text-blue-300">Est</div>
+                        <div class="font-mono"><%= game_data[:home_matchup].predicted_score.to_i %></div>
+                      </div>
+                      <div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+                        <div class="font-semibold text-blue-700 dark:text-blue-300">Pass</div>
+                        <div class="font-mono"><%= game_data[:home_matchup].passing_td_points || 0 %></div>
+                      </div>
+                      <div class="bg-green-50 dark:bg-green-900/20 p-2 rounded">
+                        <div class="font-semibold text-green-700 dark:text-green-300">Rush</div>
+                        <div class="font-mono"><%= game_data[:home_matchup].rushing_td_points || 0 %></div>
+                      </div>
+                      <div class="bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded">
+                        <div class="font-semibold text-yellow-700 dark:text-yellow-300">FG</div>
+                        <div class="font-mono"><%= game_data[:home_matchup].field_goal_points || 0 %></div>
                     </div>
                   </div>
                 <% end %>
+                </div>
               </div>
             </div>
+
+
 
             <!-- Matchup Details -->
             <% if game_data[:home_matchup] && game_data[:away_matchup] %>
@@ -160,7 +191,7 @@
                       </div>
                       <div class="flex justify-between">
                         <span class="text-gray-600 dark:text-gray-300">Rushing Attack:</span>
-                        <span class="font-mono font-semibold text-green-600 dark:text-green-400"><%= game_data[:home_matchup].rushing_attack_score || 0 %></span>
+                        <span class="font-mono font-semibold text-green-700 dark:text-green-400"><%= game_data[:home_matchup].rushing_attack_score || 0 %></span>
                       </div>
                       <div class="flex justify-between">
                         <span class="text-gray-600 dark:text-gray-300">Field Goal:</span>
@@ -171,8 +202,9 @@
                 </div>
               </div>
             <% end %>
+
           </div>
-        </a>
+        </div>
       <% end %>
     </div>
 
@@ -205,7 +237,7 @@
         <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
           <div class="text-3xl font-bold text-purple-600 dark:text-purple-400">
             <% 
-              avg_points = @games_with_predictions.count > 0 ? (total_points.to_f / @games_with_predictions.count).round(1) : 0
+              avg_points = @games_with_predictions.count > 0 ? (total_points.to_f / @games_with_predictions.count).football_round : 0
             %>
             <%= avg_points %>
           </div>
@@ -238,4 +270,4 @@
           </a>
         </p>
       </div>
- 
+    </footer>

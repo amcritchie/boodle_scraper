@@ -34,7 +34,7 @@
   end 
   
   # Determine if they played last season
-  snaps_last_season = (player.snaps_on_offense || player.snaps_on_defence).to_i
+  snaps_last_season = [player.snaps_on_offense, player.snaps_on_defence].compact.max.to_i
   played_last_season = (snaps_last_season > 500)
   
   # Determine card background based on highlight

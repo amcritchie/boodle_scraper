@@ -4,7 +4,7 @@ namespace :seed do
     
     # rake teams:populate                 | Fetch Teams 2025        | Kaggle | 32 Teams
     Rake::Task['teams:populate'].invoke
-    # rake seasons:matchups               | Fetch Games 2025        | Sports Radar | 2025 | Coming matchups
+    # rake seasons:populate2025           | Fetch Games 2025        | Sports Radar | 2025 | Coming matchups
     Rake::Task['seasons:populate2025'].invoke
     # rake players:populate               | Fetch Players 2025      | Pro Football Focus | Player Stats
     Rake::Task['players:populate'].invoke
@@ -39,9 +39,6 @@ namespace :seed do
     # # Init 2024
     # Rake::Task['seasons:populate_2024'].invoke
     # Rake::Task['matchups:populate_2024'].invoke
-
-
-
 
     # # rake players:populate | Kaggle | 10s
     # Rake::Task['contracts:populate'].invoke

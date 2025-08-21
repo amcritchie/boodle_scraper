@@ -132,10 +132,10 @@ class Game < ApplicationRecord
       obj[:season] = game.season
       obj[:away_team] = away_team.name
       obj[:away_team_slug] = away_team.slug
-      obj[:away_total] = game.away_total
+      obj[:away_total] = game.away_score
       obj[:home_team] = home_team.name
       obj[:home_team_slug] = home_team.slug
-      obj[:home_total] = game.home_total
+      obj[:home_total] = game.home_score
       obj[:total_points] = game.total_points
       obj[:over_under] = game.over_under
       obj[:over_under_result] = game.over_under_result
@@ -239,7 +239,7 @@ class Game < ApplicationRecord
     # Date string
     output_sting += "#{day_of_week} @ #{start_time} on #{date} | #{week_slug} | " if self.day_of_week
     # Add game summary
-    output_sting += "#{away_team.name} (#{away_total}) @ #{home_team.name} (#{home_total}) "
+    output_sting += "#{away_team.name} (#{away_score}) @ #{home_team.name} (#{home_score}) "
     output_sting += "| ou: #{over_under} (#{over_under_result})" if self.over_under 
     puts output_sting
   end
@@ -285,9 +285,9 @@ class Game < ApplicationRecord
         away_team: a_team.slug
       )
       # Add additional game data.
-      game.home_total = team_attrs['score_home']
-      game.away_total = team_attrs['score_away']
-      game.total_points = game.home_total + game.away_total
+      game.home_score = team_attrs['score_home']
+      game.away_score = team_attrs['score_away']
+      game.total_points = game.home_score + game.away_score
       game.over_under = team_attrs['over_under_line']
       game.over_under_odds = 0.95
       game.date = date_of_game
@@ -530,13 +530,13 @@ class Game < ApplicationRecord
       away_slug: a_team.slug,
       overtime: was_there_ot,
       primetime: primetime,
-      home_total: home_total, 
-      away_total: away_total, 
+      home_score: home_total, 
+      away_score: away_total, 
       total_points: total_points,
       over_under: over_under_float, 
       over_under_odds: 0.95,
       over_under_result: over_under_result,
-      kickoff_at: kickoff_at,
+      # kickoff_at: kickoff_at,
       date: game_date,
       day_of_week: day_of_week,
       start_time: time_of_game,
@@ -610,10 +610,10 @@ class Game < ApplicationRecord
   def self.score_frequency_report
     score_counts = Hash.new(0)
 
-    # Count occurrences of scores in away_total and home_total
+    # Count occurrences of scores in away_score and home_total
     all.each do |game|
-      score_counts[game.away_total] += 1 if game.away_total
-      score_counts[game.home_total] += 1 if game.home_total
+      score_counts[game.away_score] += 1 if game.away_score
+      score_counts[game.home_score] += 1 if game.home_score
     end
 
     # Sort scores by frequency in descending order
@@ -632,7 +632,7 @@ class Game < ApplicationRecord
   def self.total_frequency_report
     score_counts = Hash.new(0)
 
-    # Count occurrences of scores in away_total and home_total
+    # Count occurrences of scores in away_score and home_score
     all.each do |game|
       score_counts[game.total_points] += 1 if game.total_points
     end
@@ -681,7 +681,6 @@ class Game < ApplicationRecord
     all.where(season: 2)
   end
 
-
   def self.week_1_reports
     # Select week 1 games
     week_1_games = all.where(season: 2024, week_slug: "1")
@@ -690,8 +689,8 @@ class Game < ApplicationRecord
     # Each through games
     week_1_games.each do |game|
       # Push to array
-      array.push("#{game.away_team},#{game.away_total},#{game.away_implied_total},#{game.away_multiple},#{game.week_slug}")
-      array.push("#{game.home_team},#{game.home_total},#{game.home_implied_total},#{game.home_multiple},#{game.week_slug}")
+      array.push("#{game.away_team},#{game.away_score},#{game.away_implied_total},#{game.away_multiple},#{game.week_slug}")
+      array.push("#{game.home_team},#{game.home_score},#{game.home_implied_total},#{game.home_multiple},#{game.week_slug}")
     end
     puts "Team,Implied Total,Multiple,Week"
     puts array
@@ -707,18 +706,20 @@ class Game < ApplicationRecord
     # Each through games
     season_2024_games.each do |game|
       # Push to array
-      array.push("#{game.away_team},#{game.away_total},#{game.away_multiple},#{game.week_slug},#{game.season}")
-      array.push("#{game.home_team},#{game.home_total},#{game.home_multiple},#{game.week_slug},#{game.season}")
+      array.push("#{game.away_team},#{game.away_score},#{game.away_multiple},#{game.week_slug},#{game.season}")
+      array.push("#{game.home_team},#{game.home_score},#{game.home_multiple},#{game.week_slug},#{game.season}")
     end
     puts "Team,Real Total,Multiple,Week,Season"
     puts array
   end
 
   def self.parse_datetime(time_of_game, game_date)
-    # Combine game_date and time_of_game into a DateTime object in Eastern Time Zone
+    # Combine game_date and time_of_game into a DateTime object in Mountain Time Zone
+    # Parse as Eastern first (since CSV has Time_ET), then convert to Mountain
     eastern_time_zone = ActiveSupport::TimeZone['Eastern Time (US & Canada)']
     datetime_string = "#{game_date} #{time_of_game} PM" # Assume PM for NFL games
-    eastern_time_zone.parse(datetime_string)
+    eastern_time = eastern_time_zone.parse(datetime_string)
+    eastern_time.in_time_zone('Mountain Time (US & Canada)')
   end
 
   def self.create_games_from_csv(file_path)
@@ -767,5 +768,32 @@ class Game < ApplicationRecord
 
   def week
     Week.find_by(season_year: self.season, sequence: self.week_slug)
+  end
+
+  def browser_time_display
+    return nil unless kickoff_at
+    
+    # Return a simple format that users can easily read
+    # Times are stored in Mountain Time (US & Canada) as per application config
+    kickoff_at.strftime("%A, %B %d, %Y at %I:%M %p %Z")
+  end
+
+  def set_implied_totals(favorite, favorite_spread, over_under)
+    # Convert spread to positive for calculations
+    spread_abs = favorite_spread.abs
+    # Set implied totals
+    if favorite == self.away_slug
+      self.away_spread = favorite_spread
+      self.away_implied_total = (over_under / 2.0) + (favorite_spread / 2.0)
+      self.home_spread = -favorite_spread 
+      self.home_implied_total = (over_under / 2.0) - (favorite_spread / 2.0)
+    else
+      self.home_spread = favorite_spread
+      self.home_implied_total = (over_under / 2.0) + (favorite_spread / 2.0)
+      self.away_spread = -favorite_spread
+      self.away_implied_total = (over_under / 2.0) - (favorite_spread / 2.0)
+    end
+    # Save game
+    self.save!
   end
 end

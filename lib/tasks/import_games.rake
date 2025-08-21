@@ -18,10 +18,12 @@ namespace :games do
     end
 
     CSV.foreach(csv_path, headers: true) do |row|
-      # Parse the date and time
+      # Parse the date and time (convert from Eastern to Mountain Time)
       date = Date.parse(row['Date'])
       time = row['Time_ET']
-      scheduled = Time.parse("#{date} #{time}")
+      # Parse as Eastern Time first, then convert to Mountain
+      eastern_time = ActiveSupport::TimeZone['Eastern Time (US & Canada)'].parse("#{date} #{time}")
+      scheduled = eastern_time.in_time_zone('Mountain Time (US & Canada)')
 
       # Find or create teams
       home_team = Team.find_by(name: row['Home'])

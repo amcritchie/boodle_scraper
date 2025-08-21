@@ -42,6 +42,10 @@ class Matchup < ApplicationRecord
     where(week_slug: 2)
   end
 
+  def predicted_score
+    passing_td_points.to_f + rushing_td_points.to_f + field_goal_points.to_f
+  end
+
   def self.pass_offense_rank
     summary = []
     s2025.w1.order(passing_offense_score: :desc).each_with_index do |offense, index|

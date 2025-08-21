@@ -225,8 +225,8 @@ module SportRadarConcern
 
       if @event_type == 'game_over'
         puts "Game Over"
-        puts "Home Total: #{self.home_total}"
-        puts "Away Total: #{self.away_total}"
+        puts "Home Total: #{self.home_score}"
+        puts "Away Total: #{self.away_score}"
         sleep(5)
       end
       return result

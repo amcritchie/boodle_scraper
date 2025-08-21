@@ -13,6 +13,9 @@ class Season < ApplicationRecord
   def self.s2024
     find_by(year: 2024, season_type: :nfl)
   end
+  def week1
+    weeks.find_by(sequence: 1)
+  end
 
   def increment_passing_touchdowns!(amount = 1)
     increment!(:passing_touchdowns, amount)
@@ -96,13 +99,20 @@ class Season < ApplicationRecord
           venue = game_data['venue']
           # Create slug for the game
           slug = "#{away_team.slug}-#{home_team.slug}-#{week.sequence}-#{year}".downcase
-          scheduled = DateTime.parse(game_data['scheduled'])
+          # Parse the scheduled time and convert to Mountain Standard Time
+          scheduled_utc = DateTime.parse(game_data['scheduled'])
+          mountain_timezone = ActiveSupport::TimeZone['Mountain Time (US & Canada)']
+          scheduled_mst = scheduled_utc.in_time_zone(mountain_timezone)
+          
           # Find or create game
           unless game = Game.find_by(sportsradar_id: game_data['id'])
             unless game = Game.find_by(sportsradar_slug: game_data['sr_id'])
               game = Game.find_or_create_by(slug: slug)
             end
           end
+
+          # game_date = Date.parse("#{date_of_game}")
+          # kickoff_at = Game.parse_datetime(time_of_game, game_date)
           # Update game
           game.update!(
             sportsradar_id:   game_data['id'],
@@ -111,11 +121,12 @@ class Season < ApplicationRecord
             week_slug:        week_data['sequence'],
             away_slug:        away_team.slug,
             home_slug:        home_team.slug,
+            kickoff_at:       scheduled_mst,
+            date:             scheduled_mst.to_date,
+            day_of_week:      scheduled_mst.strftime('%A'),
+            start_time:       scheduled_mst.strftime('%I:%M %p'),
             scheduled:        game_data['scheduled'],
             attendance:       game_data['attendance'],
-            date:             scheduled.to_date,
-            day_of_week:      scheduled.strftime('%A'),
-            start_time:       scheduled.strftime('%I:%M %p')
           )
           # Puts game description
           puts "#{game.away_team.emoji} #{game.away_team.name.ljust(23)} @ #{game.home_team.emoji} #{game.home_team.name.ljust(23)} | #{venue['city'].rjust(15)} | #{venue['name'].rjust(15)} " 
