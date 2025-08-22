@@ -4,11 +4,16 @@ namespace :teams do
     Team.kaggle_import_teams
   end
 
+  desc "Populate Current Roster for Active Teams (Sport Radar)"
+  task startersCurrent: :environment do
+    year = 2025
+    Team.active.reverse.each do |team| 
+      team.teams_seasons.find_by(season_year: year).espn_starters
+    end
+  end
+
   desc "Populate TeamsSeason with CSV starting lineups and coaches"
   task starters2025: :environment do
-    # Clean all TeamsSeason records
-    # TeamsSeason.destroy_all
-
     # Count manually so create or update works
     new_team = nil
     rb_count = 0 # RB1
@@ -59,11 +64,13 @@ namespace :teams do
           correction: nil,
           grades_offense: row['Grade'].to_f
         )
+        player.prepend_sync("Starters2025 offense grade update - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
       else
         player.update(
           correction: nil,
           grades_defence: row['Grade'].to_f
         )
+        player.prepend_sync("Starters2025 defense grade update - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
       end
       
       # Find or create TeamsSeason record
@@ -178,13 +185,6 @@ namespace :teams do
     puts "============="
   end
 
-  desc "Populate Current Roster for Active Teams (Sport Radar)"
-  task rosterr: :environment do
-    Team.active.reverse.each do |team| 
-      team.fetch_roster_sportradar
-    end
-  end
-
   desc "Populate TeamsSeason with current starters and coaches"
   task roster2025: :environment do
     puts "Populating TeamsSeason with current starters and coaches..."
@@ -242,7 +242,10 @@ namespace :teams do
       starter_overrides.each do |override|
         team = Team.active.find_by(slug: override[:team])
         player = Player.find_by(slug: override[:slug])
-        player.update(left_handed: true) if override[:left_handed]
+        if override[:left_handed]
+          player.update(left_handed: true)
+          player.prepend_sync("Starters2025 left_handed update - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
+        end
         # Update TeamsSeason
         teams_season = TeamsSeason.find_or_create_by(team_slug: team.slug, season_year: 2025)
         teams_season.update(qb: player.slug)
@@ -269,7 +272,10 @@ namespace :teams do
       slug_overrides.each do |override|
         team = Team.active.find_by(slug: override[:team])
         player = Player.find_by(slug: override[:original_slug])
-        player.update(slug: override[:slug]) if player
+        if player
+          player.update(slug: override[:slug])
+          player.prepend_sync("Starters2025 slug update - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
+        end
       end
   end
 
@@ -318,6 +324,7 @@ namespace :teams do
       end
 
       player.update(correction: correction)
+      player.prepend_sync("ModifyGrades2025 correction update - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
       
       # Calculate new grade based on correction type
       new_grade = case correction
@@ -350,10 +357,12 @@ namespace :teams do
       if is_offensive
         old_grade = player.grades_offense
         player.update(grades_offense: new_grade)
+        player.prepend_sync("ModifyGrades2025 offense grade update - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
         puts "📈 #{row['Player'].ljust(20)} (#{team_name.ljust(10)} #{position.ljust(10)}): #{old_grade} → #{new_grade.round(1)} (#{correction.ljust(10)})"
       elsif is_defensive
         old_grade = player.grades_defence
         player.update(grades_defence: new_grade)
+        player.prepend_sync("ModifyGrades2025 defense grade update - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
         puts "📈 #{row['Player'].ljust(20)} (#{team_name.ljust(10)} #{position.ljust(10)}): #{old_grade.round(1)} → #{new_grade.round(1)} (#{correction.ljust(10)})"
       end
     end

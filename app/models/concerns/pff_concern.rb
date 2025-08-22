@@ -26,14 +26,16 @@ module PffConcern
       # position        = Player.pff_position(attrs["position"]) rescue "unknown"
       position_class  = Player.position_class(position) rescue "unknown"
       last_name = extract_last_name(player_name)
-
+      first_name = player_name.split(last_name).first.strip
       # team            = Team.pff_team(team_name) rescue "unknown"
       # Create player slug
       slug_player = "#{position_class}-#{player_name}".player_slugify
       # Find or create player
       player = Player.find_or_create_by(slug: slug_player) 
+      player.first_name = first_name
       player.last_name = last_name
       player.save!
+      # player.prepend_sync("PFF player creation - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
       player
     end
 
@@ -96,6 +98,7 @@ module PffConcern
         player.team_slug                  = team.slug
         player.position                   = position
         player.save!
+        player.prepend_sync("PFF passer import - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
 
         # Puts details
         puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_offense.to_s.rjust(6)} /#{player.grades_pass.to_s.rjust(6)} 🏈 | #{player.team.description.ljust(30)}"
@@ -162,6 +165,7 @@ module PffConcern
         player.team_slug                         = team.slug
         player.position                          = position
         player.save!
+        player.prepend_sync("PFF rusher import - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
         # Puts details
         puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_offense.to_s.rjust(6)} /#{player.grades_run.to_s.rjust(6)} 👟 | #{player.team.description.ljust(30)}"
       end
@@ -230,6 +234,7 @@ module PffConcern
         player.team_slug                        = team.slug
         player.position                         = position
         player.save!
+        player.prepend_sync("PFF receiver import - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
         # Puts details
         puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_offense.to_s.rjust(6)} /#{player.grades_pass_route.to_s.rjust(6)} 🙌 | #{player.team.description.ljust(30)}"
       end
@@ -264,6 +269,7 @@ module PffConcern
         player.team_slug                        = team.slug
         player.position                         = position
         player.save!
+        player.prepend_sync("PFF blocker import - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
         # Puts details
         puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_offense.to_s.rjust(6)} /#{player.grades_pass_block.to_s.rjust(6)} 🛡️ | #{player.team.description.ljust(30)}"
       end
@@ -304,6 +310,7 @@ module PffConcern
         player.team_slug                        = team.slug
         player.position                         = position
         player.save!
+        player.prepend_sync("PFF defense import - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
         # Puts details
         puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_defence.to_s.rjust(6)} /#{player.grades_coverage.to_s.rjust(6)} 🏈 | #{player.team.description.ljust(30)}"
       end
@@ -408,6 +415,7 @@ module PffConcern
       player.draft_round = pff_row['DraftRound']
       player.draft_pick = pff_row['DraftPick']
       player.save!
+      player.prepend_sync("PFF player import - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
 
   # Puts description
   puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.offense_grade.to_s.rjust(6)} /#{player.grades_defence.to_s.rjust(6)} | #{player.team.description.ljust(30)}"

@@ -48,7 +48,9 @@
                   <td class="py-3 px-3">
                     <div class="flex items-center space-x-2">
                       <span class="text-2xl"><%= matchup.team&.emoji %></span>
-                      <span class="font-bold text-lg text-white"><%= matchup.team&.name %></span>
+                      <a href="/teams/<%= matchup.team&.slug %>" target="_blank" class="font-bold text-lg text-white hover:text-blue-300 transition-colors">
+                        <%= matchup.team&.name %>
+                      </a>
                       <% if matchup.home %>
                         <span class="text-sm">🏠</span>
                       <% end %>
@@ -65,7 +67,9 @@
                   <td class="py-3 px-3">
                     <div class="flex items-center space-x-2">
                       <span class="text-2xl"><%= matchup.team_defense&.emoji %></span>
-                      <span class="font-bold text-lg text-white"><%= matchup.team_defense&.name %></span>
+                      <a href="/teams/<%= matchup.team_defense&.slug %>" target="_blank" class="font-bold text-lg text-white hover:text-blue-300 transition-colors">
+                        <%= matchup.team_defense&.name %>
+                      </a>
                       <% if !matchup.home %>
                         <span class="text-sm">🏠</span>
                       <% end %>
@@ -128,7 +132,9 @@
                   <td class="py-3 px-3">
                     <div class="flex items-center space-x-2">
                       <span class="text-2xl"><%= matchup.team&.emoji %></span>
-                      <span class="font-bold text-lg text-white"><%= matchup.team&.name %></span>
+                      <a href="/teams/<%= matchup.team&.slug %>" target="_blank" class="font-bold text-lg text-white hover:text-blue-300 transition-colors">
+                        <%= matchup.team&.name %>
+                      </a>
                       <% if matchup.home %>
                         <span class="text-sm">🏠</span>
                       <% end %>
@@ -144,7 +150,9 @@
                   <td class="py-3 px-3">
                     <div class="flex items-center space-x-2">
                       <span class="text-2xl"><%= matchup.team_defense&.emoji %></span>
-                      <span class="font-bold text-lg text-white"><%= matchup.team_defense&.name %></span>
+                      <a href="/teams/<%= matchup.team_defense&.slug %>" target="_blank" class="font-bold text-lg text-white hover:text-blue-300 transition-colors">
+                        <%= matchup.team_defense&.name %>
+                      </a>
                       <% if !matchup.home %>
                         <span class="text-sm">🏠</span>
                       <% end %>
@@ -206,7 +214,9 @@
                   <td class="py-3 px-3">
                     <div class="flex items-center space-x-2">
                       <span class="text-2xl"><%= matchup.team&.emoji %></span>
-                      <span class="font-bold text-lg text-white"><%= matchup.team&.name %></span>
+                      <a href="/teams/<%= matchup.team&.slug %>" target="_blank" class="font-bold text-lg text-white hover:text-blue-300 transition-colors">
+                        <%= matchup.team&.name %>
+                      </a>
                       <% if matchup.home %>
                         <span class="text-sm">🏠</span>
                       <% end %>
@@ -222,7 +232,9 @@
                   <td class="py-3 px-3">
                     <div class="flex items-center space-x-2">
                       <span class="text-2xl"><%= matchup.team_defense&.emoji %></span>
-                      <span class="font-bold text-lg text-white"><%= matchup.team_defense&.name %></span>
+                      <a href="/teams/<%= matchup.team_defense&.slug %>" target="_blank" class="font-bold text-lg text-white hover:text-blue-300 transition-colors">
+                        <%= matchup.team_defense&.name %>
+                      </a>
                       <% if !matchup.home %>
                         <span class="text-sm">🏠</span>
                       <% end %>

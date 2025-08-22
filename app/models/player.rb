@@ -1,9 +1,9 @@
 class Player < ApplicationRecord
   include PositionConcern
   
+  before_save :initialize_syncs
+  
   belongs_to :team, optional: true
-  has_many :player_seasons
-  has_many :seasons, through: :player_seasons
 
   # validates :slug, presence: true, uniqueness: true
 
@@ -236,6 +236,8 @@ class Player < ApplicationRecord
     position_class    = position_class(position)
     college           = row["college"].downcase.gsub(' ', '-') rescue 'undrafted'
     player_slug       = "#{position_class}-#{name}".player_slugify
+
+    player_slug = "secondary-kamren-curl" if player_slug == "secondary-kam-curl"
     # Find or create player
     unless player = Player.find_by(slug: player_slug)
       # Some Dlines might be labeled as linebackers in PFF
@@ -254,6 +256,7 @@ class Player < ApplicationRecord
         puts "Dline / Linebacker Swap (listed as linebacker) | Slug: #{player_slug}"
       else
         player = Player.find_or_create_by(slug: player_slug)
+        player.prepend_sync("PFF starters fetch creation - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
       end
     end
     # Return player
@@ -295,6 +298,7 @@ class Player < ApplicationRecord
             puts "Dline / Linebacker Swap (listed as dline) | Slug: #{player_slug}"
           else
             player = Player.find_or_create_by(slug: player_slug)
+            player.prepend_sync("SportsRadar creation - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
           end
         end
       end
@@ -320,6 +324,7 @@ class Player < ApplicationRecord
       sportsradar_slug:   player_sportsradar["sr_id"],
       season_experience:  player_sportsradar["experience"]
     )
+    player.prepend_sync("SportsRadar update - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
     # Return player
     player
   end
@@ -345,6 +350,7 @@ class Player < ApplicationRecord
     player = Player.find_or_create_by(slug: player_slug) do |player|
       player.slug_pff = 1
     end
+    player.prepend_sync("PFF general creation - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}") if player.persisted?
     # Return player
     player
   end
@@ -447,5 +453,23 @@ class Player < ApplicationRecord
 
   def full_name
     "#{first_name} #{last_name}"
+  end
+
+  # Initialize syncs as empty array if nil
+  def initialize_syncs
+    self.syncs ||= []
+  end
+
+  # Prepend a string to the syncs array
+  def prepend_sync(sync_string)
+    initialize_syncs
+    self.syncs.push(sync_string)
+    save
+  end
+
+  # Get syncs with initialization
+  def syncs_with_init
+    initialize_syncs
+    syncs
   end
 end

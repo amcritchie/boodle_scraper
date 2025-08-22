@@ -99,7 +99,10 @@
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             <% @players.each do |player| %>
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" 
+                  data-syncs="<%= player.syncs.present? && player.syncs.any? ? player.syncs.to_json : '[]' %>"
+                  data-player-name="<%= player.full_name %>"
+                  onclick="showSyncModal(this)">
                 <!-- Player Name -->
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
@@ -241,3 +244,63 @@
         </div>
       <% end %>
     </div> 
+    
+    <!-- Sync History Modal -->
+    <div id="sync-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+        <div class="mt-3">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white" id="modal-title">Sync History</h3>
+            <button onclick="closeSyncModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="max-h-64 overflow-y-auto" id="modal-content">
+            <!-- Content will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showSyncModal(row) {
+        const syncs = JSON.parse(row.dataset.syncs);
+        const playerName = row.dataset.playerName;
+        
+        document.getElementById('modal-title').textContent = `Sync History for ${playerName}`;
+        
+        let content = '';
+        if (syncs.length > 0) {
+          syncs.forEach(function(sync, index) {
+            const className = index === 0 ? 'text-green-600 dark:text-green-400 font-medium' : 'text-gray-600 dark:text-gray-400';
+            content += `<div class="${className} text-sm mb-2 p-2 bg-gray-50 dark:bg-gray-700 rounded">${sync}</div>`;
+          });
+        } else {
+          content = '<div class="text-gray-500 dark:text-gray-400 text-sm">No syncs available for this player.</div>';
+        }
+        
+        document.getElementById('modal-content').innerHTML = content;
+        document.getElementById('sync-modal').classList.remove('hidden');
+      }
+      
+      function closeSyncModal() {
+        document.getElementById('sync-modal').classList.add('hidden');
+      }
+      
+      // Close modal when clicking outside of it
+      document.getElementById('sync-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeSyncModal();
+        }
+      });
+      
+      // Close modal with Escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeSyncModal();
+        }
+      });
+    </script>
+  </div> 

@@ -9,6 +9,7 @@ class Team < ApplicationRecord
     
     has_many :players, foreign_key: :team_slug, primary_key: :slug
     has_many :coaches, foreign_key: :team_slug, primary_key: :slug
+    has_many :teams_seasons, foreign_key: :team_slug, primary_key: :slug
 
     def self.active
         where(active: true)

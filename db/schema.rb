@@ -269,26 +269,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "player_seasons", force: :cascade do |t|
-    t.bigint "player_id", null: false
-    t.bigint "season_id", null: false
-    t.bigint "team_id"
-    t.integer "passing_touchdowns", default: 0
-    t.integer "rushing_touchdowns", default: 0
-    t.integer "receiving_touchdowns", default: 0
-    t.integer "field_goals_made", default: 0
-    t.integer "tackles", default: 0
-    t.integer "interceptions", default: 0
-    t.integer "sacks", default: 0
-    t.integer "return_touchdowns", default: 0
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["player_id", "season_id"], name: "index_player_seasons_on_player_id_and_season_id", unique: true
-    t.index ["player_id"], name: "index_player_seasons_on_player_id"
-    t.index ["season_id"], name: "index_player_seasons_on_season_id"
-    t.index ["team_id"], name: "index_player_seasons_on_team_id"
-  end
-
   create_table "players", force: :cascade do |t|
     t.string "slug", null: false
     t.integer "rank"
@@ -308,6 +288,10 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
     t.integer "season_experience"
     t.integer "height_inches"
     t.float "weight_pounds"
+    t.json "syncs"
+    t.string "position_starter"
+    t.boolean "left_handed", default: false
+    t.string "correction"
     t.float "grades_offense"
     t.float "grades_pass"
     t.float "grades_run"
@@ -448,9 +432,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
     t.integer "yards_per_reception"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "position_starter"
-    t.boolean "left_handed", default: false
-    t.string "correction"
     t.index ["created_at"], name: "index_players_on_created_at"
     t.index ["first_name"], name: "index_players_on_first_name"
     t.index ["import_slug"], name: "index_players_on_import_slug"
@@ -738,8 +719,5 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
   end
 
   add_foreign_key "broadcasts", "games"
-  add_foreign_key "player_seasons", "players"
-  add_foreign_key "player_seasons", "seasons"
-  add_foreign_key "player_seasons", "teams"
   add_foreign_key "weathers", "games"
 end

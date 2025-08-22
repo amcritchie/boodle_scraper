@@ -1,7 +1,5 @@
 class Season < ApplicationRecord
   has_many :weeks, -> { order(:sequence) }, foreign_key: :season_year, primary_key: :year
-  has_many :player_seasons
-  has_many :players, through: :player_seasons
 
   validates :year, presence: true, uniqueness: { scope: :season_type }
   validates :season_type, presence: true

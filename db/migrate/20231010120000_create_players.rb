@@ -18,7 +18,11 @@ class CreatePlayers < ActiveRecord::Migration[6.1]
       t.string  :status
       t.integer :season_experience
       t.integer :height_inches
-      t.float  :weight_pounds
+      t.float   :weight_pounds
+      t.json    :syncs
+      t.string  :position_starter
+      t.boolean :left_handed, default: false
+      t.string  :correction
 
       # PFF Grades
       t.float   :grades_offense          

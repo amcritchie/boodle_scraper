@@ -15,24 +15,25 @@
       </div>
       <div class="flex items-center space-x-4">
         <nav class="flex space-x-4">
+          <a href="<%= games_week1_path(2025) %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            Week 1 Scores
+          </a>
+          <a href="<%= matchups_week1_path(2025) %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            Ranks
+          </a>
+          <a href="<%= matchups_summary_path(2025) %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            Matchups
+          </a>
           <a href="<%= teams_power_rankings_path(2025) %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
             Power Rankings
           </a>
           <a href="<%= teams_rankings_path(2025) %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
             All Rankings
           </a>
-          <a href="<%= matchups_week1_path(2025) %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            View Matchups
-          </a>
-          <a href="<%= matchups_summary_path(2025) %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            View Summary
-          </a>
           <a href="<%= players_index_path %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
             All Players
           </a>
-          <a href="<%= games_week1_path(2025) %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            Week 1 Games
-          </a>
+
         </nav>
         <!-- Dark Mode Toggle -->
         <button @click="darkMode = !darkMode" 
