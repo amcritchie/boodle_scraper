@@ -1,12 +1,13 @@
 class CreateMatchups < ActiveRecord::Migration[7.0]
   def change
     create_table :matchups do |t|
-      t.integer :season
-      t.integer :week_slug
-      t.string :game_slug
-      t.string :team_slug
-      t.string :team_defense_slug
-      t.boolean :home
+      t.integer   :season
+      t.integer   :week_slug
+      t.string    :game_slug
+      t.string    :team_slug               # "kc"
+      t.string    :team_defense_slug       # "kc"
+      t.boolean   :home                    # true
+
 
       # Offensive players
       t.string :qb
@@ -45,6 +46,14 @@ class CreateMatchups < ActiveRecord::Migration[7.0]
       t.string :offensive_coordinator
       t.string :defensive_coordinator
       t.string :special_teams_coordinator
+
+      t.float   :prediction_seconds_until_pressure
+      t.integer :prediction_passing_attempts
+      t.integer :prediction_yards_per_attempt
+      t.integer :prediction_passing_yards
+      t.integer :prediction_carry_attempts
+      t.integer :prediction_yards_per_carry
+      t.integer :prediction_rushing_yards
 
       # Offensive and defensive rankings
       t.integer :offensive_play_caller_rank

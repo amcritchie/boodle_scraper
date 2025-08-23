@@ -238,6 +238,7 @@ class Player < ApplicationRecord
     player_slug       = "#{position_class}-#{name}".player_slugify
 
     player_slug = "secondary-kamren-curl" if player_slug == "secondary-kam-curl"
+    player_slug = "secondary-tariq-woolen" if player_slug == "secondary-riq-woolen"
     # Find or create player
     unless player = Player.find_by(slug: player_slug)
       # Some Dlines might be labeled as linebackers in PFF

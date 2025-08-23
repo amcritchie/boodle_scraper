@@ -782,16 +782,16 @@ class Game < ApplicationRecord
     # Convert spread to positive for calculations
     spread_abs = favorite_spread.abs
     # Set implied totals
-    if favorite == self.away_slug
+    if favorite == 'away'
       self.away_spread = favorite_spread
       self.away_implied_total = (over_under / 2.0) + (favorite_spread / 2.0)
       self.home_spread = -favorite_spread 
       self.home_implied_total = (over_under / 2.0) - (favorite_spread / 2.0)
     else
-      self.home_spread = favorite_spread
-      self.home_implied_total = (over_under / 2.0) + (favorite_spread / 2.0)
-      self.away_spread = -favorite_spread
+      self.away_spread = favorite_spread
       self.away_implied_total = (over_under / 2.0) - (favorite_spread / 2.0)
+      self.home_spread = -favorite_spread
+      self.home_implied_total = (over_under / 2.0) + (favorite_spread / 2.0)
     end
     # Save game
     self.save!

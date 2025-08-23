@@ -849,6 +849,7 @@ class Matchup < ApplicationRecord
     # Get TeamsSeason snapshots for both teams
     home_teams_season = TeamsSeason.find_by(team_slug: home_team.slug, season_year: game.season)
     away_teams_season = TeamsSeason.find_by(team_slug: away_team.slug, season_year: game.season)
+    
     # Update roster fields
     update_roster_fields(
       home: false,
@@ -918,6 +919,18 @@ class Matchup < ApplicationRecord
       # Todo build out this ranking
       update(field_goal_score: (33 - offense_teams_season.offensive_play_caller_coach.field_goal_rank))
 
+      # Time in Pocket
+      calculate_prediction_seconds_until_pressure(offense_teams_season,defense_teams_season)
+      # Passing Effectiveness
+      calculate_prediction_passing_attempts(offense_teams_season,defense_teams_season)
+      calculate_prediction_yards_per_attempt(offense_teams_season,defense_teams_season)
+      calculate_prediction_passing_yards(offense_teams_season,defense_teams_season)
+      # Rushing Effectiveness
+      calculate_prediction_passing_yards(offense_teams_season,defense_teams_season)
+      calculate_prediction_carry_attempts(offense_teams_season,defense_teams_season)
+      calculate_prediction_yards_per_carry(offense_teams_season,defense_teams_season)
+      calculate_prediction_rushing_yards(offense_teams_season,defense_teams_season)
+      
       # Calculate offense scores using rankings
       calculate_passing_offense_score(offense_teams_season)
       calculate_rushing_offense_score(offense_teams_season)
@@ -1007,6 +1020,118 @@ class Matchup < ApplicationRecord
     )
   end
 
+  def calculate_prediction_seconds_until_pressure(offense_teams_season,defense_teams_season)
+    # Pull relevant ranks
+    play_caller_rank  = (offense_teams_season.offensive_play_caller_rank || 16)
+    qb_rank           = (offense_teams_season.qb_passing_rank || 16)
+    oline_rank        = (offense_teams_season.oline_pass_block_rank || 16)
+    pass_rush_rank    = (defense_teams_season.pass_rush_rank || 16)
+
+    play_caller_score = (33 - play_caller_rank) / 32.0
+    qb_score          = (33 - qb_rank) / 32.0
+    oline_score       = (33 - oline_rank) / 32.0
+    pass_rush_score   = (33 - pass_rush_rank) / 32.0
+
+    # Calculate pocket time
+    pocket_time = 2.5 + (0.3*oline_score) + (0.2*qb_score) + (0.2*play_caller_score) - (0.3*pass_rush_score)
+    # Update the matchup
+    update(prediction_seconds_until_pressure: pocket_time)
+  end 
+
+  def calculate_prediction_passing_yards(offense_teams_season,defense_teams_season)
+    # Update the matchup
+    update(prediction_passing_yards: prediction_passing_attempts*prediction_yards_per_attempt)
+  end
+
+  def calculate_prediction_rushing_yards(offense_teams_season,defense_teams_season)
+    # Update the matchup
+    update(prediction_rushing_yards: prediction_carry_attempts*prediction_yards_per_carry)
+  end
+
+  def calculate_prediction_passing_attempts(offense_teams_season,defense_teams_season)
+    # Pull relevant ranks
+    play_caller_rank  = (offense_teams_season.offensive_play_caller_rank || 16)
+    qb_rank           = (offense_teams_season.qb_passing_rank || 16)
+    # pace_of_play_rank = (offense_teams_season.pace_of_play_rank || 16)
+    # run_heavy_rank    = (offense_teams_season.run_heavy_rank || 16)
+    coverage_rank     = (defense_teams_season.coverage_rank || 16)
+
+    play_caller_score = (33 - play_caller_rank) / 32.0
+    qb_score        = (33 - qb_rank) / 32.0
+    # run_heavy_score   = (33 - run_heavy_rank) / 32.0
+    coverage_score    = (33 - coverage_rank) / 32.0
+
+    # Calculate passing attempts (base 35 attempts, adjusted by play calling, pace, and coverage)
+    pass_attempts = 34 + (4*play_caller_score) + (2*qb_score) - (2*coverage_score)
+    # Update the matchup
+    update(prediction_passing_attempts: pass_attempts.round)
+  end
+
+  def calculate_prediction_yards_per_attempt(offense_teams_season,defense_teams_season)
+
+    # Pull relevant ranks
+    play_caller_rank  = (offense_teams_season.offensive_play_caller_rank || 16)
+    qb_rank           = (offense_teams_season.qb_passing_rank || 16)
+    receiver_rank     = (offense_teams_season.receiver_core_rank || 16)
+    coverage_rank     = (defense_teams_season.coverage_rank || 16)
+
+    play_caller_score = (33 - play_caller_rank) / 32.0
+    qb_score          = (33 - qb_rank) / 32.0
+    receiver_score    = (33 - receiver_rank) / 32.0
+    coverage_score    = (33 - coverage_rank) / 32.0
+
+    puts "================================="
+    puts "Matchup #{team.name} vs #{team_defense.name}"
+    puts "play_caller_score:      🧠 #{play_caller_score}"
+    puts "qb_score:               🏈 #{qb_score}"
+    puts "receiver_score:            🏠 #{receiver_score}"
+    puts "coverage_score:        💨 #{coverage_score}"
+    puts "================================="
+    # Calculate pass yards
+    yards_per_attempt = 7.1 + (0.5*qb_score) + (0.45*receiver_score) + (0.2*play_caller_score) - (0.55*coverage_score) + (0.35*(receiver_score-coverage_score))
+    # Update the matchup
+    update(prediction_yards_per_attempt: yards_per_attempt)
+  end
+
+  def calculate_prediction_carry_attempts(offense_teams_season,defense_teams_season)
+    # Pull relevant ranks
+    play_caller_rank  = (offense_teams_season.offensive_play_caller_rank || 16)
+    oline_rank        = (offense_teams_season.oline_run_block_rank || 16)
+    rushing_rank      = (offense_teams_season.rushing_rank || 16)
+    run_defense_rank  = (defense_teams_season.run_defense_rank || 16)
+
+    # pace_of_play_rank = (offense_teams_season.pace_of_play_rank || 16)
+    # run_heavy_rank    = (offense_teams_season.run_heavy_rank || 16)
+
+    play_caller_score = (33 - play_caller_rank) / 32.0
+    oline_score     = (33 - oline_rank) / 32.0
+    rushing_score     = (33 - rushing_rank) / 32.0
+    run_defense_score = (33 - run_defense_rank) / 32.0
+    # pace_score        = (33 - pace_of_play_rank) / 32.0
+    # run_heavy_score   = (33 - run_heavy_rank) / 32.0
+
+    # Calculate carry attempts (base 25 carries, adjusted by play calling, rushing ability, pace, and run tendency)
+    carry_attempts = 26 + (4.5*play_caller_score) + (2.5*oline_score) + (1.5*rushing_score) - (3.5*run_defense_score)
+    # Update the matchup
+    update(prediction_carry_attempts: carry_attempts.round)
+  end
+
+  def calculate_prediction_yards_per_carry(offense_teams_season,defense_teams_season)
+    # Pull relevant ranks
+    rushing_rank      = (offense_teams_season.rushing_rank || 16)
+    oline_rank        = (offense_teams_season.oline_run_block_rank || 16)
+    run_defense_rank  = (defense_teams_season.run_defense_rank || 16)
+
+    rushing_score     = (33 - rushing_rank) / 32.0
+    oline_score       = (33 - oline_rank) / 32.0
+    run_defense_score = (33 - run_defense_rank) / 32.0
+
+    # Calculate yards per carry (base 4.3 yards, adjusted by rushing ability, o-line, and run defense)
+    yards_per_carry = 4.3 + (0.35*rushing_score) + (0.55*oline_score) - (0.6*run_defense_score) + 0.35*(oline_score - run_defense_score)+ 0.15*(rushing_score - run_defense_score)
+    # Update the matchup
+    update(prediction_yards_per_carry: yards_per_carry)
+  end
+
   def calculate_passing_attack_score(offense_teams_season,defense_teams_season)
     play_caller_rank  = (offense_teams_season.offensive_play_caller_rank || 16)
     qb_rank           = (offense_teams_season.qb_passing_rank || 16)
@@ -1085,7 +1210,7 @@ class Matchup < ApplicationRecord
 
 
     puts "================================="
-    puts "Matchup #{team.name} vs #{team_defense.name}"
+    puts "Matchup #{team.name} #{team.emoji} vs #{team_defense.name} #{team_defense.emoji}"
     puts "rushing_attack_score:   👟 #{rushing_attack_score}"
     puts "rushing_attack_score_after_reductions:   👟 #{rushing_attack_score_after_reductions}"
     puts "---------------------------------"
@@ -1122,16 +1247,16 @@ class Matchup < ApplicationRecord
     # Apply reductions (ensure field goal score doesn't go below 0)
     field_goal_score_after_reductions = [field_goal_score - rushing_attack_reduction - passing_attack_reduction, 0].max
     
-    puts "================================="
-    puts "Matchup #{team.name} vs #{team_defense.name}"
-    puts "field_goal_score_after_reductions: 🥅 #{field_goal_score_after_reductions}"
-    puts "---------------------------------"
-    puts "field_goal_score:        🥅 #{field_goal_score}"
-    puts "pace_score:              ⏱️  #{pace_score}"
-    puts "run_heavy_score:         👟 #{run_heavy_score}"
-    puts "rushing_attack_reduction:👟 #{rushing_attack_score} | #{rushing_attack_reduction}"
-    puts "passing_attack_reduction:🏈 #{passing_attack_score} | #{passing_attack_reduction}"
-    puts "================================="
+    # puts "================================="
+    # puts "Matchup #{team.name} vs #{team_defense.name}"
+    # puts "field_goal_score_after_reductions: 🥅 #{field_goal_score_after_reductions}"
+    # puts "---------------------------------"
+    # puts "field_goal_score:        🥅 #{field_goal_score}"
+    # puts "pace_score:              ⏱️  #{pace_score}"
+    # puts "run_heavy_score:         👟 #{run_heavy_score}"
+    # puts "rushing_attack_reduction:👟 #{rushing_attack_score} | #{rushing_attack_reduction}"
+    # puts "passing_attack_reduction:🏈 #{passing_attack_score} | #{passing_attack_reduction}"
+    # puts "================================="
     
     # Update the matchup
     update(field_goal_score: field_goal_score_after_reductions.to_i)

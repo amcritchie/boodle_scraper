@@ -39,6 +39,10 @@
                 <th class="text-left p-3 font-semibold text-white">Defense</th>
                 <th class="text-left p-3 font-semibold text-white">Offense Score</th>
                 <th class="text-left p-3 font-semibold text-white">Passing Points</th>
+                <th class="text-left p-3 font-semibold text-white">Pressure</th>
+                <th class="text-left p-3 font-semibold text-white">Pass Yds</th>
+                <th class="text-left p-3 font-semibold text-white">Att</th>
+                <th class="text-left p-3 font-semibold text-white">Yds/Att</th>
               </tr>
             </thead>
             <tbody>
@@ -89,6 +93,26 @@
                       <%= number_with_precision(matchup.passing_td_points, precision: 0) %>
                     </div>
                   </td>
+                  <td class="py-3 px-3">
+                    <div class="font-mono font-bold text-lg text-blue-600">
+                      <%= number_with_precision(matchup.prediction_seconds_until_pressure, precision: 2) %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="font-mono font-bold text-lg text-blue-600">
+                      <%= number_with_precision(matchup.prediction_passing_yards, precision: 0) %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="font-mono font-bold text-lg text-blue-600">
+                      <%= number_with_precision(matchup.prediction_passing_attempts, precision: 0) %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="font-mono font-bold text-lg text-blue-600">
+                      <%= number_with_precision(matchup.prediction_yards_per_attempt, precision: 2) %>
+                    </div>
+                  </td>
                 </tr>
               <% end %>
             </tbody>
@@ -123,6 +147,9 @@
                 <th class="text-left p-3 font-semibold text-white">Defense</th>
                 <th class="text-left p-3 font-semibold text-white">Offense Score</th>
                 <th class="text-left p-3 font-semibold text-white">Rushing Points</th>
+                <th class="text-left p-3 font-semibold text-white">Pred. Rush Yds</th>
+                <th class="text-left p-3 font-semibold text-white">Pred. Rush Att</th>
+                <th class="text-left p-3 font-semibold text-white">Pred. Yds/Carry</th>
               </tr>
             </thead>
             <tbody>
@@ -169,6 +196,21 @@
                   <td class="py-3 px-3">
                     <div class="font-mono font-bold text-lg text-green-600">
                       <%= number_with_precision(matchup.rushing_td_points, precision: 0) %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="font-mono font-bold text-lg text-green-600">
+                      <%= number_with_precision(matchup.prediction_rushing_yards, precision: 0) %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="font-mono font-bold text-lg text-green-600">
+                      <%= number_with_precision(matchup.prediction_carry_attempts, precision: 0) %>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="font-mono font-bold text-lg text-green-600">
+                      <%= number_with_precision(matchup.prediction_yards_per_carry, precision: 2) %>
                     </div>
                   </td>
                 </tr>

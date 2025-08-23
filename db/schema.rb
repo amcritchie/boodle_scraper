@@ -198,6 +198,13 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
     t.string "offensive_coordinator"
     t.string "defensive_coordinator"
     t.string "special_teams_coordinator"
+    t.float "prediction_seconds_until_pressure"
+    t.integer "prediction_passing_attempts"
+    t.integer "prediction_yards_per_attempt"
+    t.integer "prediction_passing_yards"
+    t.integer "prediction_carry_attempts"
+    t.integer "prediction_yards_per_carry"
+    t.integer "prediction_rushing_yards"
     t.integer "offensive_play_caller_rank"
     t.integer "pace_of_play_rank"
     t.integer "run_heavy_rank"
@@ -252,11 +259,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
     t.json "coverage_factors"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.float "away_spread"
-    t.float "home_spread"
-    t.float "away_implied_total"
-    t.float "home_implied_total"
-    t.float "over_under"
   end
 
   create_table "periods", force: :cascade do |t|
