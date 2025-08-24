@@ -1,0 +1,304 @@
+<!-- Hero Section with Newsletter CTA -->
+<section id="hero" class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#121E18] via-[#1a2d24] to-[#4BAF50] dark:from-[#121E18] dark:via-[#1a2d24] dark:to-[#4BAF50] overflow-hidden">
+  <!-- Background Pattern -->
+  <div class="absolute inset-0 opacity-10">
+    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, #A5B1AA 1px, transparent 0); background-size: 20px 20px;"></div>
+  </div>
+  
+  <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <!-- Logo and Title -->
+    <div class="mb-8">
+      <%= image_tag "turf-monster-meditation.png", alt: "Turf Monster Logo", class: "h-24 w-auto mx-auto mb-6 drop-shadow-2xl" %>
+      <h1 class="text-5xl md:text-7xl font-bold text-[#E8F0E6] mb-4 drop-shadow-lg">
+        Turf Monster
+      </h1>
+      <p class="text-xl md:text-2xl text-[#A5B1AA] max-w-3xl mx-auto leading-relaxed">
+        Advanced NFL analysis on Passing and Rushing matchups to capitalize on weekly NFL Team Total markets.
+      </p>
+      
+    </div>
+
+    <!-- Newsletter CTA -->
+    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 md:p-12 border border-white/20 shadow-2xl max-w-2xl mx-auto">
+      <h2 class="text-3xl md:text-4xl font-bold text-[#E8F0E6] mb-4">
+        Tuesday Morning Picks ☕
+      </h2>
+      <p class="text-lg text-[#A5B1AA] mb-6">
+        Join our newsletter and receive the Turf Monster Report with expert analysis on Team Totals opportunities
+      </p>
+      <a href="https://magic.beehiiv.com/v1/6ac03aae-56af-4dc5-b741-1ec40831e0c6" 
+         target="_blank"
+         class="inline-flex items-center px-8 py-4 bg-[#FF7C47] hover:bg-[#e66a3a] text-white font-bold text-lg rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+        Get Turf Monster Report 🐊 
+      </a>
+    </div>
+  </div>
+
+  <!-- Scroll Indicator -->
+  <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+    <svg class="w-6 h-6 text-[#A5B1AA]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+    </svg>
+  </div>
+</section>
+
+<!-- P/L Tracker Section -->
+<section id="tracker" class=" hidden py-20 bg-white dark:bg-[#1a2d24]">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold text-[#121E18] dark:text-[#E8F0E6] mb-6">
+        Performance Tracker
+      </h2>
+      <p class="text-xl text-[#A5B1AA] dark:text-[#A5B1AA] max-w-2xl mx-auto">
+        Track the success of our Turf Monster Report picks with real-time performance metrics
+      </p>
+    </div>
+
+    <!-- P/L Widget -->
+    <div class="bg-gradient-to-br from-[#121E18] to-[#1a2d24] dark:from-[#121E18] dark:to-[#1a2d24] rounded-3xl p-8 md:p-12 shadow-2xl border border-[#4BAF50]/20">
+      <!-- Summary Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <div class="text-center">
+          <div class="text-3xl md:text-4xl font-bold text-[#4BAF50] mb-2">4</div>
+          <div class="text-[#A5B1AA] text-sm">Wins</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl md:text-4xl font-bold text-red-400 mb-2">1</div>
+          <div class="text-[#A5B1AA] text-sm">Losses</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl md:text-4xl font-bold text-[#E8F0E6] mb-2">80%</div>
+          <div class="text-[#A5B1AA] text-sm">Win Rate</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl md:text-4xl font-bold text-[#FF7C47] mb-2">+$427</div>
+          <div class="text-[#A5B1AA] text-sm">Total P&L</div>
+        </div>
+      </div>
+
+      <!-- Recent Bets -->
+      <div class="space-y-4">
+        <h3 class="text-2xl font-bold text-[#E8F0E6] mb-6 text-center">Recent Team Total Bets</h3>
+        <% @pl_data.each do |bet| %>
+          <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-[#4BAF50] rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                  <%= bet[:bet_on].upcase %>
+                </div>
+                <div>
+                  <div class="text-[#E8F0E6] font-semibold"><%= bet[:bet_type].titleize %> Over</div>
+                  <div class="text-[#A5B1AA] text-sm"><%= bet[:odds] > 0 ? "+#{bet[:odds]}" : bet[:odds] %></div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-lg font-bold <%= bet[:status] == 'won' ? 'text-[#4BAF50]' : 'text-red-400' %>">
+                  <%= bet[:status] == 'won' ? '+' : '' %>$<%= bet[:payout] %>
+                </div>
+                <div class="text-[#A5B1AA] text-sm"><%= bet[:status].titleize %></div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Social Media Section -->
+<section id="social" class="py-20 bg-[#E8F0E6] dark:bg-[#121E18]">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold text-[#121E18] dark:text-[#E8F0E6] mb-6">
+        Follow the Turf Monster
+      </h2>
+      <p class="text-xl text-[#A5B1AA] dark:text-[#A5B1AA] max-w-2xl mx-auto">
+        Stay connected for live shows, real-time updates, and exclusive content
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      <!-- YouTube -->
+      <a href="https://youtube.com/@turfmonstershow" target="_blank" 
+         class="group bg-white dark:bg-[#1a2d24] rounded-2xl p-8 text-center shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-red-500">
+        <div class="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-red-600 transition-colors">
+          <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold text-[#121E18] dark:text-[#E8F0E6] mb-2">YouTube</h3>
+        <p class="text-[#A5B1AA] dark:text-[#A5B1AA]">Live shows and highlights</p>
+      </a>
+
+      <!-- X (Twitter) -->
+      <a href="https://twitter.com/turfmonstershow" target="_blank"
+         class="group bg-white dark:bg-[#1a2d24] rounded-2xl p-8 text-center shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-black dark:hover:border-white">
+        <div class="w-20 h-20 bg-black dark:bg-white rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-gray-800 dark:group-hover:bg-gray-200 transition-colors">
+          <svg class="w-10 h-10 text-white dark:text-black" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold text-[#121E18] dark:text-[#E8F0E6] mb-2">X</h3>
+        <p class="text-[#A5B1AA] dark:text-[#A5B1AA]">Real-time updates and analysis</p>
+      </a>
+
+      <!-- TikTok -->
+      <a href="https://tiktok.com/@turfmonstershow" target="_blank"
+         class="group bg-white dark:bg-[#1a2d24] rounded-2xl p-8 text-center shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-black dark:hover:border-white">
+        <div class="w-20 h-20 bg-black dark:bg-white rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-gray-800 dark:group-hover:bg-gray-200 transition-colors">
+          <svg class="w-10 h-10 text-white dark:text-black" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.2.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold text-[#121E18] dark:text-[#E8F0E6] mb-2">TikTok</h3>
+        <p class="text-[#A5B1AA] dark:text-[#A5B1AA]">Quick insights and highlights</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Matchups Tool Section -->
+<section id="matchups" class="py-20 bg-white dark:bg-[#1a2d24]">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold text-[#121E18] dark:text-[#E8F0E6] mb-6">
+        Free Analysis Tool
+      </h2>
+      <p class="text-xl text-[#A5B1AA] dark:text-[#A5B1AA] max-w-3xl mx-auto">
+        Review our 16 passing and rushing matchups for the latest week. Analyze the data that drives our Team Totals strategy.
+      </p>
+    </div>
+
+    <div class="bg-gradient-to-br from-[#4BAF50] to-[#3d8a40] rounded-3xl p-12 text-center text-white shadow-2xl">
+      <div class="max-w-2xl mx-auto">
+        <div class="text-6xl mb-6">📊</div>
+        <h3 class="text-3xl md:text-4xl font-bold mb-4">
+          Weekly Matchup Analysis
+        </h3>
+        <p class="text-xl mb-8 opacity-90 leading-relaxed">
+          Get access to our comprehensive passing and rushing matchup data. This is the same analysis we use to identify Team Totals opportunities and maximize winnings.
+        </p>
+        <a href="/matchups" 
+           class="inline-flex items-center px-8 py-4 bg-white text-[#4BAF50] hover:bg-gray-100 font-bold text-lg rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          View Matchups Analysis
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Turf Monster Show Section -->
+<section id="show" class="py-20 bg-[#E8F0E6] dark:bg-[#121E18]">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold text-[#121E18] dark:text-[#E8F0E6] mb-6">
+        The Turf Monster Show
+      </h2>
+      <p class="text-xl text-[#4BAF50] dark:text-[#4BAF50] font-semibold">
+        Live Tuesday Nights All Season Long
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+      <!-- Show Description -->
+      <div class="space-y-6">
+        <h3 class="text-3xl font-bold text-[#121E18] dark:text-[#E8F0E6]">
+          Get Deeper Analysis
+        </h3>
+        <p class="text-lg text-[#A5B1AA] dark:text-[#A5B1AA] leading-relaxed">
+          Tune in every Tuesday night for in-depth breakdowns of the week's matchups, expert insights on Team Totals opportunities, and live analysis of the Turf Monster Report picks.
+        </p>
+        <div class="space-y-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-3 h-3 bg-[#4BAF50] rounded-full"></div>
+            <span class="text-[#121E18] dark:text-[#E8F0E6]">Stream live on YouTube and Twitter</span>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="w-3 h-3 bg-[#4BAF50] rounded-full"></div>
+            <span class="text-[#121E18] dark:text-[#E8F0E6]">Listen on your favorite podcast feed</span>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="w-3 h-3 bg-[#4BAF50] rounded-full"></div>
+            <span class="text-[#121E18] dark:text-[#E8F0E6]">Interactive Q&A with viewers</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Show Visual -->
+      <div class="relative">
+        <div class="bg-gradient-to-br from-[#4BAF50] to-[#3d8a40] rounded-2xl p-8 text-center text-white shadow-2xl">
+          <div class="text-6xl mb-4">🎙️</div>
+          <h4 class="text-2xl font-bold mb-2">Live Every Tuesday</h4>
+          <p class="text-lg opacity-90">8:00 PM EST</p>
+        </div>
+        <!-- Floating elements -->
+        <div class="absolute -top-4 -right-4 w-8 h-8 bg-[#FF7C47] rounded-full animate-pulse"></div>
+        <div class="absolute -bottom-4 -left-4 w-6 h-6 bg-[#4BAF50] rounded-full animate-pulse" style="animation-delay: 1s;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-[#121E18] dark:bg-[#0a1510] py-12">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+      <div class="flex justify-center mb-6">
+        <%= image_tag "turf-monster-icon.png", alt: "Turf Monster Logo", class: "h-12 w-auto" %>
+      </div>
+      <p class="text-[#A5B1AA] mb-4">
+        Advanced NFL analysis through passing and rushing matchups
+      </p>
+      <p class="text-[#A5B1AA] text-sm">
+        © 2025 Turf Monster. All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<!-- Smooth scrolling and URL anchor updates -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+        // Update URL without page jump
+        history.pushState(null, null, this.getAttribute('href'));
+      }
+    });
+  });
+
+  // Update URL on scroll for sections
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('a[href^="#"]');
+  
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.clientHeight;
+      if (scrollY >= (sectionTop - 200)) {
+        current = section.getAttribute('id');
+      }
+    });
+
+    navLinks.forEach(link => {
+      link.classList.remove('text-[#4BAF50]');
+      if (link.getAttribute('href') === `#${current}`) {
+        link.classList.add('text-[#4BAF50]');
+      }
+    });
+  });
+});
+</script>

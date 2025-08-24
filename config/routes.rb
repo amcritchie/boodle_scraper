@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")
-  # root "articles#index"
+  root "home#index"
   get 'teams/:year/power-rankings', to: 'teams#power_rankings', as: 'teams_power_rankings'
   get 'teams/:year/all-rankings', to: 'teams#rankings', as: 'teams_rankings'
   get 'teams/:year/seasons', to: 'teams#teams_seasons', as: 'teams_seasons'
