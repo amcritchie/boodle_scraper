@@ -38,27 +38,10 @@ module PredictionConcern
   # Pocket Time
   def calculate_prediction_seconds_until_pressure(offense_teams_season, defense_teams_season)
     # Pull relevant ranks
-
-
     qb_score            = (33 - offense_teams_season.qb_passing_rank)               / 32.0
     oline_score         = (33 - offense_teams_season.oline_pass_block_rank)         / 32.0
     play_caller_score   = (33 - offense_teams_season.offensive_play_caller_rank)    / 32.0
     pass_rush_score     = (33 - defense_teams_season.pass_rush_rank)                / 32.0
-
-
-
-
-    # play_caller_rank  = (offense_teams_season.offensive_play_caller_rank || 16)
-    # qb_rank           = (offense_teams_season.qb_passing_rank || 16)
-    # oline_rank        = (offense_teams_season.oline_pass_block_rank || 16)
-    # pass_rush_rank    = (defense_teams_season.pass_rush_rank || 16)
-
-    # play_caller_score = (33 - play_caller_rank) / 32.0
-    # qb_score          = (33 - qb_rank) / 32.0
-    # oline_score       = (33 - oline_rank) / 32.0
-    # pass_rush_score   = (33 - pass_rush_rank) / 32.0
-
-
     # -1.5 ... 1
     trench_matchup = (oline_score - (1.5*pass_rush_score))
     # Calculate pocket time
@@ -66,7 +49,7 @@ module PredictionConcern
     # Update the matchup
     update(prediction_seconds_until_pressure: pocket_time)
   end
-
+  # Pocket time buckets
   def pocket_score
     case prediction_seconds_until_pressure
     when 0...2.3    then -1.0
@@ -76,7 +59,7 @@ module PredictionConcern
     else                  1.0
     end
   end
-
+  # Run Threat buckets
   def run_threat_score
     case prediction_yards_per_carry
     when 0...3.4    then -1.0
@@ -86,61 +69,17 @@ module PredictionConcern
     else                  1.0
     end
   end
-
-
-
+  # Yards per attempt
   def calculate_prediction_yards_per_attempt(offense_teams_season, defense_teams_season)
     # Pull relevant ranks
-
     qb_score            = (33 - offense_teams_season.qb_passing_rank)               / 32.0
     receiver_score      = (33 - offense_teams_season.receiver_core_rank)            / 32.0
     play_caller_score   = (33 - offense_teams_season.offensive_play_caller_rank)    / 32.0
     coverage_score      = (33 - defense_teams_season.coverage_rank)                 / 32.0
-
-    prediction_seconds_until_pressure
-    prediction_yards_per_carry
-
-
-
-    receiver_matchup    = (33 - offense_teams_season.receiver_core_rank)  / 32.0
-
     # -1 ... 1
     receiver_matchup = receiver_score - coverage_score
-
-    # # -1 ... 1
-    # pocket_score = (2.0 * (prediction_seconds_until_pressure - 2.6)).clamp(-1.0, 1.0)
-
-
+    # 5.5 ... 9.5
     yards_per_attempt = 7.1 + (0.7*pocket_score) + (0.6*receiver_matchup) + (0.5*qb_score) + (0.3*run_threat_score) + (0.2*play_caller_score)
-
-
-    # # -2 ... 2
-    # pocket_score = pocket_score + receiver_matchup
-
-
-
-
-
-
-    # play_caller_rank  = (offense_teams_season.offensive_play_caller_rank || 16)
-    # qb_rank           = (offense_teams_season.qb_passing_rank || 16)
-    # receiver_rank     = (offense_teams_season.receiver_core_rank || 16)
-    # coverage_rank     = (defense_teams_season.coverage_rank || 16)
-
-    # play_caller_score = (33 - play_caller_rank) / 32.0
-    # qb_score          = (33 - qb_rank) / 32.0
-    # receiver_score    = (33 - receiver_rank) / 32.0
-    # coverage_score    = (33 - coverage_rank) / 32.0
-
-    # puts "================================="
-    # puts "Matchup #{team.name} vs #{team_defense.name}"
-    # puts "play_caller_score:      🧠 #{play_caller_score}"
-    # puts "qb_score:               🏈 #{qb_score}"
-    # puts "receiver_score:            🏠 #{receiver_score}"
-    # puts "coverage_score:        💨 #{coverage_score}"
-    # puts "================================="
-    # # Calculate pass yards
-    # yards_per_attempt = 7.1 + (0.5*qb_score) + (0.45*receiver_score) + (0.2*play_caller_score) - (0.55*coverage_score) + (0.35*(receiver_score-coverage_score))
     # Update the matchup
     update(prediction_yards_per_attempt: yards_per_attempt)
   end

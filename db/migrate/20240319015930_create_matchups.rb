@@ -47,12 +47,13 @@ class CreateMatchups < ActiveRecord::Migration[7.0]
       t.string :defensive_coordinator
       t.string :special_teams_coordinator
 
+      # Predictions
       t.integer :prediction_carry_attempts
       t.float   :prediction_yards_per_carry
       t.integer :prediction_rushing_yards
       t.float   :prediction_seconds_until_pressure
+      t.float   :prediction_yards_per_attempt
       t.integer :prediction_passing_attempts
-      t.integer :prediction_yards_per_attempt
       t.integer :prediction_passing_yards
 
       # Offensive and defensive rankings
