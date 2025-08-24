@@ -32,19 +32,9 @@
     </script>
   </head>
 
-  <body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200" 
-        x-data="{ 
-          darkMode: localStorage.getItem('darkMode') === 'true',
-          init() {
-            this.$watch('darkMode', value => {
-              localStorage.setItem('darkMode', value);
-              document.documentElement.classList.toggle('dark', value);
-            });
-            // Apply initial state
-            document.documentElement.classList.toggle('dark', this.darkMode);
-          }
-        }" 
-        :class="{ 'dark': darkMode }">
+  <body class="theme-bg-secondary min-h-screen" 
+        data-controller="theme"
+        data-theme-system-preference-value="true">
     
     <!-- Universal Navbar -->
     <%= render 'shared/navbar' %>

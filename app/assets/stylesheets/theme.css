@@ -1,0 +1,188 @@
+/* ===== THEME SYSTEM ===== */
+/* Centralized theme management with CSS custom properties */
+
+:root {
+  /* Light Theme Colors */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f9fafb;
+  --color-bg-tertiary: #f3f4f6;
+  --color-bg-accent: #e5e7eb;
+  
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-tertiary: #6b7280;
+  --color-text-muted: #9ca3af;
+  
+  --color-border-primary: #d1d5db;
+  --color-border-secondary: #e5e7eb;
+  --color-border-accent: #f3f4f6;
+  
+  --color-accent-primary: #3b82f6;
+  --color-accent-secondary: #1d4ed8;
+  --color-accent-success: #10b981;
+  --color-accent-warning: #f59e0b;
+  --color-accent-danger: #ef4444;
+  
+  /* Brand Colors - Light */
+  --color-brand-primary: #4BAF50;
+  --color-brand-secondary: #3d8a40;
+  --color-brand-accent: #FF7C47;
+  --color-brand-dark: #121E18;
+  --color-brand-light: #E8F0E6;
+  --color-brand-muted: #A5B1AA;
+  
+  /* Component Colors - Light */
+  --color-card-bg: #ffffff;
+  --color-card-border: #e5e7eb;
+  --color-table-header-bg: #f9fafb;
+  --color-table-row-hover: #f3f4f6;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+.dark {
+  /* Dark Theme Colors */
+  --color-bg-primary: #111827;
+  --color-bg-secondary: #1f2937;
+  --color-bg-tertiary: #374151;
+  --color-bg-accent: #4b5563;
+  
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #e5e7eb;
+  --color-text-tertiary: #d1d5db;
+  --color-text-muted: #9ca3af;
+  
+  --color-border-primary: #4b5563;
+  --color-border-secondary: #6b7280;
+  --color-border-accent: #374151;
+  
+  --color-accent-primary: #60a5fa;
+  --color-accent-secondary: #3b82f6;
+  --color-accent-success: #34d399;
+  --color-accent-warning: #fbbf24;
+  --color-accent-danger: #f87171;
+  
+  /* Brand Colors - Dark */
+  --color-brand-primary: #4BAF50;
+  --color-brand-secondary: #3d8a40;
+  --color-brand-accent: #FF7C47;
+  --color-brand-dark: #0a1510;
+  --color-brand-light: #121E18;
+  --color-brand-muted: #1a2d24;
+  
+  /* Component Colors - Dark */
+  --color-card-bg: #1f2937;
+  --color-card-border: #374151;
+  --color-table-header-bg: #374151;
+  --color-table-row-hover: #4b5563;
+  
+  /* Shadows - Dark */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+}
+
+/* ===== THEME UTILITY CLASSES ===== */
+/* Use these classes instead of hardcoded dark: variants */
+
+.theme-bg-primary { background-color: var(--color-bg-primary); }
+.theme-bg-secondary { background-color: var(--color-bg-secondary); }
+.theme-bg-tertiary { background-color: var(--color-bg-tertiary); }
+.theme-bg-accent { background-color: var(--color-bg-accent); }
+
+.theme-text-primary { color: var(--color-text-primary); }
+.theme-text-secondary { color: var(--color-text-secondary); }
+.theme-text-tertiary { color: var(--color-text-tertiary); }
+.theme-text-muted { color: var(--color-text-muted); }
+
+.theme-border-primary { border-color: var(--color-border-primary); }
+.theme-border-secondary { border-color: var(--color-border-secondary); }
+.theme-border-accent { border-color: var(--color-border-accent); }
+
+.theme-card-bg { background-color: var(--color-card-bg); }
+.theme-card-border { border-color: var(--color-card-border); }
+
+.theme-table-header-bg { background-color: var(--color-table-header-bg); }
+.theme-table-row-hover:hover { background-color: var(--color-table-row-hover); }
+
+/* ===== COMPONENT THEMES ===== */
+/* Pre-built themed components */
+
+.theme-card {
+  @apply rounded-xl shadow-lg overflow-hidden border transition-colors duration-200;
+  background-color: var(--color-card-bg);
+  border-color: var(--color-card-border);
+}
+
+.theme-card-header {
+  @apply px-6 py-4;
+  background: linear-gradient(to right, var(--color-accent-primary), var(--color-accent-secondary));
+}
+
+.theme-table {
+  @apply w-full text-sm;
+}
+
+.theme-table-header {
+  @apply p-3 font-semibold text-left;
+  color: var(--color-text-primary);
+  background-color: var(--color-table-header-bg);
+}
+
+.theme-table-row {
+  @apply border-b transition-colors duration-200;
+  border-color: var(--color-border-secondary);
+}
+
+.theme-table-row:hover {
+  background-color: var(--color-table-row-hover);
+}
+
+.theme-table-cell {
+  @apply py-3 px-3;
+  color: var(--color-text-primary);
+}
+
+.theme-button-primary {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+  background-color: var(--color-accent-primary);
+  color: white;
+}
+
+.theme-button-primary:hover {
+  background-color: var(--color-accent-secondary);
+}
+
+.theme-button-secondary {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 border;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-primary);
+}
+
+.theme-button-secondary:hover {
+  background-color: var(--color-bg-tertiary);
+}
+
+/* ===== TRANSITIONS ===== */
+/* Smooth theme transitions */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* ===== RESPONSIVE THEME HELPERS ===== */
+/* Theme-aware responsive utilities */
+@media (prefers-color-scheme: dark) {
+  .theme-auto {
+    /* These will automatically use dark theme when system preference is dark */
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+  }
+}

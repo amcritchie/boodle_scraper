@@ -1,5 +1,5 @@
-<!-- Universal Navbar with Dark Mode -->
-<header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 relative">
+<!-- Universal Navbar with Theme System -->
+<header class="theme-bg-primary shadow-sm border-b theme-border-primary relative">
   <!-- Environment Banner (non-production only) -->
   <% unless Rails.env.production? %>
     <div class="absolute top-0 left-0 right-0 bg-[#FF7C47] text-white text-center py-1 px-4 text-xs font-medium">
@@ -11,16 +11,16 @@
     <div class="flex justify-between items-center py-6">
       <div class="flex items-center space-x-4">
         <a href="/" class="flex items-center space-x-4 hover:opacity-80 transition-opacity">
-          <%= image_tag "turf-monster-icon.png", alt: "Turf Monster Logo", class: "h-10 w-auto" %>
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Turf Monster</h1>
+          <%= image_tag("turf-monster-icon.png", { alt: "Turf Monster Logo", class: "h-10 w-auto" }) %>
+          <h1 class="text-2xl font-bold theme-text-primary">Turf Monster</h1>
         </a>
       </div>
       <div class="flex items-center space-x-4">
         <nav class="flex space-x-4">
-        <a href="https://magic.beehiiv.com/v1/6ac03aae-56af-4dc5-b741-1ec40831e0c6" target="_blank" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-          Get Picks
-        </a>  
-          <a href="/matchups" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+          <a href="https://magic.beehiiv.com/v1/6ac03aae-56af-4dc5-b741-1ec40831e0c6" target="_blank" class="theme-text-secondary hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            Picks
+          </a>  
+          <a href="/matchups" class="theme-text-secondary hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
             Matchups
           </a>
 
@@ -29,7 +29,7 @@
           <% unless Rails.env.production? %>
             <div class="relative" x-data="{ open: false }">
               <button @click="open = !open" 
-                      class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center">
+                      class="theme-text-secondary hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center">
                 Admin
                 <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -44,24 +44,24 @@
                    x-transition:leave="transition ease-in duration-75"
                    x-transition:leave-start="transform opacity-100 scale-100"
                    x-transition:leave-end="transform opacity-0 scale-95"
-                   class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
+                   class="absolute right-0 mt-2 w-48 theme-bg-primary rounded-md shadow-lg py-1 z-50 border theme-border-primary">
                 
-                <a href="<%= games_week1_path(2025) %>" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <a href="<%= games_week1_path(2025) %>" class="block px-4 py-2 text-sm theme-text-secondary hover:theme-bg-tertiary">
                   Week 1
                 </a>
-                <a href="<%= matchups_summary_path(2025) %>" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <a href="<%= matchups_summary_path(2025) %>" class="block px-4 py-2 text-sm theme-text-secondary hover:theme-bg-tertiary">
                   Matchups
                 </a>
-                <a href="<%= matchups_week1_path(2025) %>" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <a href="<%= matchups_week1_path(2025) %>" class="block px-4 py-2 text-sm theme-text-secondary hover:theme-bg-tertiary">
                   Ranks
                 </a>
-                <a href="<%= teams_power_rankings_path(2025) %>" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <a href="<%= teams_power_rankings_path(2025) %>" class="block px-4 py-2 text-sm theme-text-secondary hover:theme-bg-tertiary">
                   Power Rankings
                 </a>
-                <a href="<%= teams_rankings_path(2025) %>" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <a href="<%= teams_rankings_path(2025) %>" class="block px-4 py-2 text-sm theme-text-secondary hover:theme-bg-tertiary">
                   All Rankings
                 </a>
-                <a href="<%= players_index_path %>" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <a href="<%= players_index_path %>" class="block px-4 py-2 text-sm theme-text-secondary hover:theme-bg-tertiary">
                   All Players
                 </a>
               </div>
@@ -69,14 +69,17 @@
           <% end %>
 
         </nav>
-        <!-- Dark Mode Toggle -->
-        <button data-action="click->dark-mode#toggle"
-                class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-          <svg x-show="!darkMode" class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+        <!-- Theme Toggle -->
+        <button data-action="click->theme#toggle"
+                data-theme-target="toggle"
+                class="p-2 rounded-lg theme-bg-accent hover:theme-bg-tertiary transition-colors">
+          <!-- Moon icon (shown when in light mode) -->
+          <svg data-theme-target="icon" data-theme-value="light" class="w-5 h-5 theme-text-secondary" fill="currentColor" viewBox="0 0 20 20">
             <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
           </svg>
-          <svg x-show="darkMode" class="w-5 h-5 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+          <!-- Sun icon (shown when in dark mode) -->
+          <svg data-theme-target="icon" data-theme-value="dark" class="w-5 h-5 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
           </svg>
         </button>
       </div>
