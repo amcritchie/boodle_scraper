@@ -10,30 +10,58 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center py-6">
       <div class="flex items-center space-x-4">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">NFL Database</h1>
-        <span class="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">2025 Season</span>
+        <%= image_tag "tuft-monster-icon.png", alt: "Turf Monster Logo", class: "h-10 w-auto" %>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Turf Monster</h1>
       </div>
       <div class="flex items-center space-x-4">
         <nav class="flex space-x-4">
+          <a href="https://magic.beehiiv.com/v1/6ac03aae-56af-4dc5-b741-1ec40831e0c6" target="_blank" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            Picks
+          </a>
+          <a href="/matchups" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            Matchups
+          </a>
           <a href="<%= games_week1_path(2025) %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
             Week 1
           </a>
-          <a href="<%= matchups_summary_path(2025) %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            Matchups
-          </a>
-          <a href="<%= matchups_week1_path(2025) %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            Ranks
-          </a>
           
-          <a href="<%= teams_power_rankings_path(2025) %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            Power Rankings
-          </a>
-          <a href="<%= teams_rankings_path(2025) %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            All Rankings
-          </a>
-          <a href="<%= players_index_path %>" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            All Players
-          </a>
+          <!-- Admin Dropdown -->
+          <div class="relative" x-data="{ open: false }">
+            <button @click="open = !open" 
+                    class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center">
+              Admin
+              <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            
+            <div x-show="open" 
+                 @click.away="open = false"
+                 x-transition:enter="transition ease-out duration-100"
+                 x-transition:enter-start="transform opacity-0 scale-95"
+                 x-transition:enter-end="transform opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-75"
+                 x-transition:leave-start="transform opacity-100 scale-100"
+                 x-transition:leave-end="transform opacity-0 scale-95"
+                 class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
+              
+              <a href="<%= matchups_summary_path(2025) %>" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                Matchups
+              </a>
+              <a href="<%= matchups_week1_path(2025) %>" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                Ranks
+              </a>
+              <a href="<%= teams_power_rankings_path(2025) %>" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                Power Rankings
+              </a>
+              <a href="<%= teams_rankings_path(2025) %>" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                All Rankings
+              </a>
+              <a href="<%= players_index_path %>" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                All Players
+              </a>
+            </div>
+          </div>
 
         </nav>
         <!-- Dark Mode Toggle -->

@@ -2,6 +2,67 @@ class MatchupsController < ApplicationController
   # Skip CSRF token verification for API endpoints
   skip_before_action :verify_authenticity_token, only: [:api_show, :api_week_collection]
   
+  def landing
+    # Find the latest available week for the current season
+    @year = 2025 # Default to current season
+    @latest_week = Week.where(season_year: @year).order(:sequence).last
+    
+    if @latest_week
+      @week_number = @latest_week.sequence
+      @week_number = 1
+      @matchups = Matchup.where(season: @year, week_slug: @week_number)
+    else
+      # Fallback to week 1 if no weeks found
+      @week_number = 1
+      @matchups = Matchup.where(season: @year, week_slug: 1)
+    end
+    
+    @passing_sort = 'passing_yards'
+    @rushing_sort = 'rushing_yards'
+    
+    # Apply sorting for passing table
+    case @passing_sort
+    when 'passing_yards'
+      @passing_matchups = @matchups.order(prediction_passing_yards: :desc)
+    when 'pocket_time'
+      @passing_matchups = @matchups.order(prediction_seconds_until_pressure: :desc)
+    when 'passing_attempts'
+      @passing_matchups = @matchups.order(prediction_passing_attempts: :desc)
+    when 'yards_per_attempt'
+      @passing_matchups = @matchups.order(prediction_yards_per_attempt: :desc)
+    else
+      @passing_matchups = @matchups.order(passing_attack_rank: :asc)
+    end
+    
+    # Apply sorting for rushing table
+    case @rushing_sort
+    when 'rushing_yards'
+      @rushing_matchups = @matchups.order(prediction_rushing_yards: :desc)
+    when 'carry_attempts'
+      @rushing_matchups = @matchups.order(prediction_carry_attempts: :desc)
+    when 'yards_per_carry'
+      @rushing_matchups = @matchups.order(prediction_yards_per_carry: :desc)
+    else
+      @rushing_matchups = @matchups.order(:rushing_attack_rank)
+    end
+
+    # Prepare background colors for each matchup based on their rank
+    @passing_matchups_with_colors = @passing_matchups.map.with_index do |matchup, index|
+      {
+        matchup: matchup,
+        background_color: get_rank_background_color(index + 1)
+      }
+    end
+    
+    # Prepare rushing table data with colors
+    @rushing_matchups_with_colors = @rushing_matchups.map.with_index do |matchup, index|
+      {
+        matchup: matchup,
+        background_color: get_rushing_rank_background_color(index + 1)
+      }
+    end
+  end
+  
   def week1
     @year = params[:year] || 2025
     # Use cached passing_attack_score for ranking

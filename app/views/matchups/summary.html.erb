@@ -17,17 +17,12 @@
         <div class="flex items-center space-x-3">
           <span class="text-2xl">🏃</span>
           <div>
-            <h3 class="text-xl font-bold text-white">Rushing Matchup Rankings</h3>
-            <p class="text-indigo-100 text-sm">Shows the raw equation: play_caller×1.5 + rushing×2.0 + oline×1.2 - run_defense×1.5</p>
+            <h3 class="text-xl font-bold text-white">Rushing Matchups</h3>
           </div>
         </div>
         
         <!-- Rushing Sorting Buttons -->
         <div class="flex flex-wrap gap-2">
-          <a href="<%= matchups_summary_path(@year, passing_sort: @passing_sort, rushing_sort: 'rushing_attack_rank') %>" 
-             class="px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= @rushing_sort == 'rushing_attack_rank' ? 'bg-white text-indigo-600 shadow-lg scale-105' : 'bg-indigo-700 text-white hover:bg-indigo-600 hover:scale-102' %>">
-            🏆 Rank
-          </a>
           <a href="<%= matchups_summary_path(@year, passing_sort: @passing_sort, rushing_sort: 'rushing_yards') %>" 
              class="px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= @rushing_sort == 'rushing_yards' ? 'bg-white text-indigo-600 shadow-lg scale-105' : 'bg-indigo-700 text-white hover:bg-indigo-600 hover:scale-102' %>">
             📏 Rush Yds
@@ -147,22 +142,12 @@
           <div class="flex items-center space-x-3">
             <span class="text-2xl">🖐️</span>
             <div>
-              <h3 class="text-xl font-bold text-white">Passing Matchup Rankings</h3>
-              <p class="text-purple-100 text-sm">
-                Shows the raw equation: play_caller×2 + pocket×1.5 + passing×1.0
-                <% if @passing_sort != 'passing_attack_rank' %>
-                  <br><span class="text-purple-200">Sorted by: <%= @passing_sort.gsub('_', ' ').titleize %></span>
-                <% end %>
-              </p>
+              <h3 class="text-xl font-bold text-white">Passing Matchups</h3>
             </div>
           </div>
           
           <!-- Sorting Buttons -->
           <div class="flex flex-wrap gap-2">
-            <a href="<%= matchups_summary_path(@year, passing_sort: 'passing_attack_rank', rushing_sort: @rushing_sort) %>" 
-               class="px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= @passing_sort == 'passing_attack_rank' ? 'bg-white text-purple-600 shadow-lg scale-105' : 'bg-purple-700 text-white hover:bg-purple-600 hover:scale-102' %>">
-              🏆 Rank
-            </a>
             <a href="<%= matchups_summary_path(@year, passing_sort: 'passing_yards', rushing_sort: @rushing_sort) %>" 
                class="px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= @passing_sort == 'passing_yards' ? 'bg-white text-purple-600 shadow-lg scale-105' : 'bg-purple-700 text-white hover:bg-purple-600 hover:scale-102' %>">
               📏 Pass Yds
@@ -170,10 +155,6 @@
             <a href="<%= matchups_summary_path(@year, passing_sort: 'pocket_time', rushing_sort: @rushing_sort) %>" 
                class="px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= @passing_sort == 'pocket_time' ? 'bg-white text-purple-600 shadow-lg scale-105' : 'bg-purple-700 text-white hover:bg-purple-600 hover:scale-102' %>">
               ⏱️ Pocket
-            </a>
-            <a href="<%= matchups_summary_path(@year, passing_sort: 'passing_attempts', rushing_sort: @rushing_sort) %>" 
-               class="px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= @passing_sort == 'passing_attempts' ? 'bg-white text-purple-600 shadow-lg scale-105' : 'bg-purple-700 text-white hover:bg-purple-600 hover:scale-102' %>">
-              🎯 Attempts
             </a>
             <a href="<%= matchups_summary_path(@year, passing_sort: 'yards_per_attempt', rushing_sort: @rushing_sort) %>" 
                class="px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 <%= @passing_sort == 'yards_per_attempt' ? 'bg-white text-purple-600 shadow-lg scale-105' : 'bg-purple-700 text-white hover:bg-purple-600 hover:scale-102' %>">

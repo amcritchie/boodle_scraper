@@ -14,13 +14,14 @@ Rails.application.routes.draw do
   post 'api/teams/:year/week/:week', to: 'teams#api_week_collection', as: 'api_teams_week'
   
   get 'players', to: 'players#index', as: 'players_index'
+  get 'matchups', to: 'matchups#landing', as: 'matchups_landing'
   get 'matchups/:year/week1', to: 'matchups#week1', as: 'matchups_week1'
   get 'matchups/:year/week1/roster', to: 'matchups#roster', as: 'matchups_roster'
   get 'matchups/:year/week1/summary', to: 'matchups#summary', as: 'matchups_summary'
   
   # API endpoints for matchups
   post 'api/matchups/:season/week/:week/:away_slug/:home_slug', to: 'matchups#api_show', as: 'api_matchup_show'
-  post 'api/matchups/:year/week/:week', to: 'matchups#api_week_collection', as: 'api_matchups_week'
+  post 'api/matchups/:year/week/:week', to: 'matchups#week_collection', as: 'api_matchups_week'
   
   get 'games/:year/week1', to: 'games#week1', as: 'games_week1'
   get 'games/:year/week1/betting', to: 'games#betting', as: 'games_betting'
