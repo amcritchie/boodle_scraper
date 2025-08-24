@@ -18,8 +18,61 @@ class MatchupsController < ApplicationController
 
   def summary
     @year = params[:year] || 2025
+    @passing_sort = params[:passing_sort] || 'passing_attack_rank'
+    @rushing_sort = params[:rushing_sort] || 'rushing_attack_rank'
+    
     # Use cached values for ranking - passing_attack_score and rushing_attack_score
     @matchups = Matchup.where(season: @year, week_slug: 1)
+    
+    # Apply sorting based on the passing_sort parameter for passing table
+    case @passing_sort
+    when 'passing_yards'
+      @passing_matchups = @matchups.order(prediction_passing_yards: :desc)
+    when 'pocket_time'
+      @passing_matchups = @matchups.order(prediction_seconds_until_pressure: :desc)
+    when 'passing_attempts'
+      @passing_matchups = @matchups.order(prediction_passing_attempts: :desc)
+    when 'yards_per_attempt'
+      @passing_matchups = @matchups.order(prediction_yards_per_attempt: :desc)
+    else
+      @passing_matchups = @matchups.order(passing_attack_rank: :asc)
+    end
+    
+    # Apply sorting based on the rushing_sort parameter for rushing table
+    case @rushing_sort
+    when 'rushing_yards'
+      @rushing_matchups = @matchups.order(prediction_rushing_yards: :desc)
+    when 'carry_attempts'
+      @rushing_matchups = @matchups.order(prediction_carry_attempts: :desc)
+    when 'yards_per_carry'
+      @rushing_matchups = @matchups.order(prediction_yards_per_carry: :desc)
+    else
+      @rushing_matchups = @matchups.order(:rushing_attack_rank)
+    end
+
+    # Prepare background colors for each matchup based on their rank
+    @passing_matchups_with_colors = @passing_matchups.map.with_index do |matchup, index|
+      {
+        matchup: matchup,
+        background_color: get_rank_background_color(index + 1)
+      }
+    end
+    
+    # Prepare rushing table data with colors (using separate sorting and color logic)
+    @rushing_matchups_with_colors = @rushing_matchups.map.with_index do |matchup, index|
+      {
+        matchup: matchup,
+        background_color: get_rushing_rank_background_color(index + 1)
+      }
+    end
+    
+    # Prepare field goal table data with colors
+    @field_goal_matchups_with_colors = @matchups.order(:field_goal_points).reverse.map.with_index do |matchup, index|
+      {
+        matchup: matchup,
+        background_color: get_rank_background_color(index + 1)
+      }
+    end
   end
   
   def api_show
@@ -192,6 +245,34 @@ class MatchupsController < ApplicationController
   end
   
   private
+  
+  def get_rank_background_color(rank)
+    case rank
+    when 1..2
+      'bg-green-600 hover:bg-green-700'
+    when 3..5
+      'bg-green-500 hover:bg-green-600'
+    when 6..14
+      'bg-green-400 hover:bg-green-500'
+    when 26..32
+      'bg-red-400 hover:bg-red-500'
+    else
+      'hover:bg-gray-700'
+    end
+  end
+  
+  def get_rushing_rank_background_color(rank)
+    case rank
+    when 1..2
+      'bg-green-600 hover:bg-green-700'
+    when 3..7
+      'bg-green-500 hover:bg-green-600'
+    when 21..32
+      'bg-red-400 hover:bg-red-500'
+    else
+      'hover:bg-gray-700'
+    end
+  end
   
   def player_data(player_slug)
     return nil if player_slug.blank?

@@ -64,7 +64,10 @@
                     <td class="py-1 px-2">
                       <div class="flex items-center space-x-2">
                         <span class="text-xl"><%= matchup.team&.emoji %></span>
-                        <span class="font-medium text-white"><%= matchup.team&.name %></span>
+                        <div class="text-sm text-gray-300">
+                          <span class="block lg:inline"><%= matchup.team&.location %></span>
+                          <span class="font-bold text-lg text-white block lg:inline"><%= matchup.team&.alias %></span>
+                        </div>
                       </div>
                     </td>
                     <td class="py-1 px-2">
@@ -121,7 +124,10 @@
                     <td class="py-1 px-2">
                       <div class="flex items-center space-x-2">
                         <span class="text-xl"><%= matchup.team_defense&.emoji %></span>
-                        <span class="font-medium text-white"><%= matchup.team_defense&.name %></span>
+                        <div class="text-sm text-gray-300">
+                          <span class="block lg:inline"><%= matchup.team_defense&.location %></span>
+                          <span class="font-bold text-lg text-white block lg:inline"><%= matchup.team_defense&.alias %></span>
+                        </div>
                       </div>
                     </td>
                     <td class="py-1 px-2">
@@ -180,14 +186,20 @@
                     <td class="p-2">
                       <div class="flex items-center space-x-2">
                         <span class="text-xl"><%= matchup.team&.emoji %></span>
-                        <span class="font-medium text-white"><%= matchup.team&.name %></span>
+                        <div class="text-sm text-gray-300">
+                          <span class="block lg:inline"><%= matchup.team&.location %></span>
+                          <span class="font-bold text-lg text-white block lg:inline"><%= matchup.team&.alias %></span>
+                        </div>
                       </div>
                     </td>
                     <td class="p-2">
                       <div class="flex items-center space-x-2">
                         <span class="text-sm text-gray-300"><%= matchup.home ? 'vs' : '@' %></span>
                         <span class="text-lg"><%= matchup.team_defense&.emoji %></span>
-                        <span class="font-medium text-white"><%= matchup.team_defense&.name %></span>
+                        <div class="text-sm text-gray-300">
+                          <span class="block lg:inline"><%= matchup.team_defense&.location %></span>
+                          <span class="font-bold text-lg text-white block lg:inline"><%= matchup.team_defense&.alias %></span>
+                        </div>
                       </div>
                     </td>
                     <td class="p-2 font-mono font-bold text-blue-400">
@@ -231,14 +243,20 @@
                     <td class="p-2">
                       <div class="flex items-center space-x-2">
                         <span class="text-xl"><%= matchup.team&.emoji %></span>
-                        <span class="font-medium text-white"><%= matchup.team&.name %></span>
+                        <div class="text-sm text-gray-300">
+                          <span class="block lg:inline"><%= matchup.team&.location %></span>
+                          <span class="font-bold text-lg text-white block lg:inline"><%= matchup.team&.alias %></span>
+                        </div>
                       </div>
                     </td>
                     <td class="p-2">
                       <div class="flex items-center space-x-2">
                         <span class="text-sm text-gray-300"><%= matchup.home ? 'vs' : '@' %></span>
                         <span class="text-lg"><%= matchup.team_defense&.emoji %></span>
-                        <span class="font-medium text-white"><%= matchup.team_defense&.name %></span>
+                        <div class="text-sm text-gray-300">
+                          <span class="block lg:inline"><%= matchup.team_defense&.location %></span>
+                          <span class="font-bold text-lg text-white block lg:inline"><%= matchup.team_defense&.alias %></span>
+                        </div>
                       </div>
                     </td>
                     <td class="p-2 font-mono font-bold text-green-400">
