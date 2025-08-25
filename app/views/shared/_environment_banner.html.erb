@@ -1,0 +1,20 @@
+<!-- Environment Banner (non-production only) -->
+<% unless Rails.env.production? %>
+  <div x-data="{ bannerVisible: true }" 
+       x-show="bannerVisible"
+       x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="opacity-0 transform -translate-y-1"
+       x-transition:enter-end="opacity-100 transform translate-y-0"
+       x-transition:leave="transition ease-in duration-150"
+       x-transition:leave-start="opacity-100 transform translate-y-0"
+       x-transition:leave-end="opacity-0 transform -translate-y-1"
+       class="absolute top-0 left-0 right-0 bg-[#FF7C47] text-white text-center py-1 px-4 text-xs font-medium flex items-center justify-between">
+    <span class="flex-1 text-center"><%= Rails.env.titleize %> Environment</span>
+    <button @click="bannerVisible = false" 
+            class="ml-2 text-white hover:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 rounded">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+<% end %>

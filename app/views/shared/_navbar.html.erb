@@ -1,14 +1,13 @@
 <!-- Universal Navbar with Theme System -->
-<header class="theme-bg-primary shadow-sm border-b theme-border-primary relative">
-  <!-- Environment Banner (non-production only) -->
-  <% unless Rails.env.production? %>
-    <div class="absolute top-0 left-0 right-0 bg-[#FF7C47] text-white text-center py-1 px-4 text-xs font-medium">
-      <%= Rails.env.titleize %> Environment
-    </div>
-  <% end %>
+<header class="fixed top-0 left-0 right-0 z-50 theme-bg-primary shadow-sm border-b theme-border-primary transition-all duration-300"
+        x-data="{ scrolled: false }"
+        x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 10 })"
+        :class="scrolled ? 'py-1' : 'py-4'">
+  
+  <%= render 'shared/environment_banner' %>
   
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center py-4">
+    <div class="flex justify-between items-center">
       <div class="flex items-center space-x-6">
         <a href="/" class="flex items-center space-x-6 hover:opacity-80 transition-opacity">
           <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-6">
@@ -91,4 +90,7 @@
       </div>
     </div>
   </div>
-</header> 
+</header>
+
+<!-- Spacer to prevent content from being hidden behind fixed navbar -->
+<div class="h-20"></div> 
