@@ -3,13 +3,14 @@
   <a href="/teams/<%= team&.slug %>" target="_blank" class="hover:text-[#4BAF50] transition-colors">
     <div class="text-sm text-[#A5B1AA] dark:text-[#A5B1AA]">
       <!-- Small screen: show capitalized slug -->
-      <span class="sm:hidden font-bold text-lg text-[#121E18] dark:text-[#E8F0E6] block"><%= team&.slug&.upcase %></span>
+      <span class="sm:hidden font-bold text-lg text-[#121E18] dark:text-[#E8F0E6] inline"><%= team&.slug&.upcase %></span>
       
       <!-- Medium and larger screens: show full team name -->
       <span class="hidden sm:inline"><%= team&.location %></span>
-      <span class="hidden sm:inline font-bold text-lg text-[#121E18] dark:text-[#E8F0E6] block md:inline"><%= team&.alias %></span>
+      <span class="hidden sm:inline font-bold text-lg text-[#121E18] dark:text-[#E8F0E6] inline md:inline"><%= team&.alias %></span>
       
       <% if is_home %>
+        <span class="ml-1 text-xs sm:hidden">🏠</span>
         <span class="ml-2 text-sm hidden md:inline">🏠</span>
       <% end %>
     </div>
