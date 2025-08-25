@@ -34,10 +34,9 @@
       <div class="bg-gradient-to-r from-[#4BAF50] to-[#3d8a40] px-6 py-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <span class="text-2xl">🖐️</span>
+            <span class="text-2xl">🎯</span>
             <div>
               <h3 class="text-xl font-bold text-white">Passing Matchups</h3>
-              <p class="text-white/90 text-sm">Ranked by predicted passing yards - Key to Team Totals Over opportunities</p>
             </div>
           </div>
         </div>
@@ -69,18 +68,18 @@
                   <td class="py-3 px-3">
                     <%= render 'matchups/team_display', team: matchup.team, is_home: matchup.home %>
                       
-                    <div class="flex items-center space-x-1 sm:space-x-2 mt-1 text-[10px] sm:text-xs text-[#A5B1AA] dark:text-[#A5B1AA]">
-                      <span>🛡️ <%= matchup.pass_block_rank %></span>
-                      <span>🏈 <%= matchup.qb_passing_rank %></span>
-                      <span>🤲 <%= matchup.receiver_core_rank %></span>
-                    </div>
+                    <%= render 'matchups/ranks_display', ranks: [
+                      { emoji: '🛡️', value: matchup.pass_block_rank },
+                      { emoji: '🎯', value: matchup.qb_passing_rank },
+                      { emoji: '🤲', value: matchup.receiver_core_rank }
+                    ] %>
                   </td>
                   <td class="py-3 px-3">
                     <%= render 'matchups/team_display', team: matchup.team_defense, is_home: !matchup.home %>
-                    <div class="flex items-center space-x-2 mt-1 text-xs text-[#A5B1AA] dark:text-[#A5B1AA]">
-                      <span>⚡ <%= matchup.pass_rush_rank %></span>
-                      <span>👁️ <%= matchup.coverage_rank %></span>
-                    </div>
+                    <%= render 'matchups/ranks_display', ranks: [
+                      { emoji: '⚡', value: matchup.pass_rush_rank },
+                      { emoji: '👁️', value: matchup.coverage_rank }
+                    ] %>
                   </td>
                   <td class="py-3 px-3">
                     <div class="font-mono text-lg font-bold text-[#4BAF50]">
@@ -135,10 +134,9 @@
       <div class="bg-gradient-to-r from-[#4BAF50] to-[#3d8a40] px-6 py-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <span class="text-2xl">🏃</span>
+            <span class="text-2xl">👟</span>
             <div>
               <h3 class="text-xl font-bold text-white">Rushing Matchups</h3>
-              <p class="text-white/90 text-sm">Ranked by predicted rushing yards - Critical for Team Totals strategy</p>
             </div>
           </div>
         </div>
@@ -168,16 +166,16 @@
                   <td class="py-1 px-1 font-semibold text-lg text-white text-center <%= bg_color %> rounded"><%= index + 1 %></td>
                   <td class="py-3 px-3">
                     <%= render 'matchups/team_display', team: matchup.team, is_home: matchup.home %>
-                    <div class="flex items-center space-x-2 mt-1 text-xs text-[#A5B1AA] dark:text-[#A5B1AA]">
-                      <span>🛡️ <%= matchup.pass_block_rank %></span>
-                      <span>🏃 <%= matchup.rushing_rank %></span>
-                    </div>
+                    <%= render 'matchups/ranks_display', ranks: [
+                      { emoji: '🛡️', value: matchup.pass_block_rank },
+                      { emoji: '👟', value: matchup.rushing_rank }
+                    ] %>
                   </td>
                   <td class="py-3 px-3">
                     <%= render 'matchups/team_display', team: matchup.team_defense, is_home: !matchup.home %>
-                    <div class="flex items-center space-x-2 mt-1 text-xs text-[#A5B1AA] dark:text-[#A5B1AA]">
-                      <span>🛑 <%= matchup.run_defense_rank %></span>
-                    </div>
+                    <%= render 'matchups/ranks_display', ranks: [
+                      { emoji: '🛑', value: matchup.run_defense_rank }
+                    ] %>
                   </td>
                   <td class="py-3 px-3">
                     <div class="font-mono text-lg font-bold text-[#4BAF50]">
