@@ -8,11 +8,17 @@
   <% end %>
   
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center py-6">
+    <div class="flex justify-between items-center py-4">
       <div class="flex items-center space-x-6">
         <a href="/" class="flex items-center space-x-6 hover:opacity-80 transition-opacity">
-          <%= image_tag("turf-monster-icon.png", { alt: "Turf Monster Logo", class: "h-10 w-auto" }) %>
-          <h1 class="text-2xl font-bold theme-text-primary">Turf Monster</h1>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-6">
+            <div class="flex items-center space-x-3 sm:space-x-6">
+              <%= image_tag("turf-monster-icon.png", { alt: "Turf Monster Logo", class: "h-6 w-auto" }) %>
+              <span class="text-xl font-bold theme-text-primary sm:hidden">Turf</span>
+            </div>
+            <h1 class="text-lg font-bold theme-text-primary sm:hidden -mt-1">Monster</h1>
+            <h1 class="hidden sm:block text-2xl font-bold theme-text-primary">Turf Monster</h1>
+          </div>
         </a>
       </div>
       <div class="flex items-center space-x-4">
