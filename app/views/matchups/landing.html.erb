@@ -69,7 +69,7 @@
                   <td class="py-3 px-3">
                     <%= render 'matchups/team_display', team: matchup.team, is_home: matchup.home %>
                       
-                    <div class="flex items-center space-x-2 mt-1 text-xs text-[#A5B1AA] dark:text-[#A5B1AA]">
+                    <div class="flex items-center space-x-1 sm:space-x-2 mt-1 text-[10px] sm:text-xs text-[#A5B1AA] dark:text-[#A5B1AA]">
                       <span>🛡️ <%= matchup.pass_block_rank %></span>
                       <span>🏈 <%= matchup.qb_passing_rank %></span>
                       <span>🤲 <%= matchup.receiver_core_rank %></span>
