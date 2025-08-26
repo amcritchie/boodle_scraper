@@ -136,6 +136,68 @@ class MatchupsController < ApplicationController
     end
   end
   
+  def matchup_summary
+    @offense_slug = params[:offense]
+    @defense_slug = params[:defense]
+    @week = params[:week]
+    @season = params[:season]
+    
+    # Find the specific matchup
+    @matchup = Matchup.find_by(
+      season: @season,
+      week_slug: @week,
+      team_slug: @offense_slug,
+      team_defense_slug: @defense_slug
+    )
+    
+    # If not found with offense team first, try the reverse
+    if @matchup.nil?
+      @matchup = Matchup.find_by(
+        season: @season,
+        week_slug: @week,
+        team_slug: @defense_slug,
+        team_defense_slug: @offense_slug
+      )
+    end
+    
+    if @matchup.nil?
+      redirect_to root_path, alert: "Matchup not found"
+      return
+    end
+    
+    # Set the offense and defense teams based on the found matchup
+    @offense_team = @matchup.team
+    @defense_team = @matchup.team_defense
+    
+    # Get offensive players
+    @qb = Player.find_by(slug: @matchup.qb) if @matchup.qb
+    @rb1 = Player.find_by(slug: @matchup.rb1) if @matchup.rb1
+    @rb2 = Player.find_by(slug: @matchup.rb2) if @matchup.rb2
+    @wr1 = Player.find_by(slug: @matchup.wr1) if @matchup.wr1
+    @wr2 = Player.find_by(slug: @matchup.wr2) if @matchup.wr2
+    @wr3 = Player.find_by(slug: @matchup.wr3) if @matchup.wr3
+    @te = Player.find_by(slug: @matchup.te) if @matchup.te
+    @c = Player.find_by(slug: @matchup.c) if @matchup.c
+    @lt = Player.find_by(slug: @matchup.lt) if @matchup.lt
+    @rt = Player.find_by(slug: @matchup.rt) if @matchup.rt
+    @lg = Player.find_by(slug: @matchup.lg) if @matchup.lg
+    @rg = Player.find_by(slug: @matchup.rg) if @matchup.rg
+    
+    # Get defensive players
+    @eg1 = Player.find_by(slug: @matchup.eg1) if @matchup.eg1
+    @eg2 = Player.find_by(slug: @matchup.eg2) if @matchup.eg2
+    @dl1 = Player.find_by(slug: @matchup.dl1) if @matchup.dl1
+    @dl2 = Player.find_by(slug: @matchup.dl2) if @matchup.dl2
+    @dl3 = Player.find_by(slug: @matchup.dl3) if @matchup.dl3
+    @lb1 = Player.find_by(slug: @matchup.lb1) if @matchup.lb1
+    @lb2 = Player.find_by(slug: @matchup.lb2) if @matchup.lb2
+    @cb1 = Player.find_by(slug: @matchup.cb1) if @matchup.cb1
+    @cb2 = Player.find_by(slug: @matchup.cb2) if @matchup.cb2
+    @cb3 = Player.find_by(slug: @matchup.cb3) if @matchup.cb3
+    @s1 = Player.find_by(slug: @matchup.s1) if @matchup.s1
+    @s2 = Player.find_by(slug: @matchup.s2) if @matchup.s2
+  end
+  
   def api_show
     @season = params[:season]
     @week = params[:week]
@@ -321,6 +383,8 @@ class MatchupsController < ApplicationController
       'hover:bg-gray-700'
     end
   end
+  
+
   
   def get_rushing_rank_background_color(rank)
     case rank

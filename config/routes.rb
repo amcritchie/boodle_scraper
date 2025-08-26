@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   get 'matchups/:year/week1', to: 'matchups#week1', as: 'matchups_week1'
   get 'matchups/:year/week1/roster', to: 'matchups#roster', as: 'matchups_roster'
   get 'matchups/:year/week1/summary', to: 'matchups#summary', as: 'matchups_summary'
+  get ':offense/:defense/:week/:season', to: 'matchups#matchup_summary', as: 'matchup_summary'
   
   # API endpoints for matchups
   post 'api/matchups/:season/week/:week/:away_slug/:home_slug', to: 'matchups#api_show', as: 'api_matchup_show'

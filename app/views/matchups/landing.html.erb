@@ -73,6 +73,14 @@
                       { emoji: '🎯', value: matchup.qb_passing_rank },
                       { emoji: '🤲', value: matchup.receiver_core_rank }
                     ] %>
+                    
+                    <div class="mt-2">
+                      <a href="<%= matchup_summary_path(matchup.team.slug, matchup.team_defense.slug, matchup.week_slug, matchup.season) %>" 
+                         class="inline-flex items-center px-3 py-1 bg-[#4BAF50] hover:bg-[#3d8a40] text-white text-xs font-medium rounded-lg transition-colors">
+                        <span class="mr-1">📊</span>
+                        View Matchup
+                      </a>
+                    </div>
                   </td>
                   <td class="py-3 px-3">
                     <%= render 'matchups/team_display', team: matchup.team_defense, is_home: !matchup.home %>
@@ -170,6 +178,14 @@
                       { emoji: '🛡️', value: matchup.pass_block_rank },
                       { emoji: '👟', value: matchup.rushing_rank }
                     ] %>
+                    
+                    <div class="mt-2">
+                      <a href="<%= matchup_summary_path(matchup.team.slug, matchup.team_defense.slug, matchup.week_slug, matchup.season) %>" 
+                         class="inline-flex items-center px-3 py-1 bg-[#4BAF50] hover:bg-[#3d8a40] text-white text-xs font-medium rounded-lg transition-colors">
+                        <span class="mr-1">📊</span>
+                        View Matchup
+                      </a>
+                    </div>
                   </td>
                   <td class="py-3 px-3">
                     <%= render 'matchups/team_display', team: matchup.team_defense, is_home: !matchup.home %>

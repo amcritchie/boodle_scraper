@@ -59,7 +59,100 @@ class Player < ApplicationRecord
   end
 
 
+  # Calculate rank based on position and grade type
+  def rank_by_grade(grade_type)
+    return nil unless self.position.present?
+    
+    # Get all players at the same position
+    position_players = Player.where(position: self.position).where.not(id: nil)
+    
+    # Get the grade value for this player
+    grade_value = case grade_type
+                  when :pass
+                    grades_pass
+                  when :run
+                    grades_run
+                  when :pass_route
+                    grades_pass_route
+                  when :pass_block
+                    grades_pass_block
+                  when :run_block
+                    grades_run_block
+                  when :pass_rush
+                    grades_pass_rush
+                  when :coverage
+                    grades_coverage
+                  when :rush_defense
+                    grades_rush_defense
+                  else
+                    nil
+                  end
+    
+    return nil if grade_value.nil?
+    
+    # Map grade types to actual database column names
+    column_name = case grade_type
+                  when :pass
+                    'grades_pass'
+                  when :run
+                    'grades_run'
+                  when :pass_route
+                    'grades_pass_route'
+                  when :pass_block
+                    'grades_pass_block'
+                  when :run_block
+                    'grades_run_block'
+                  when :pass_rush
+                    'grades_pass_rush'
+                  when :coverage
+                    'grades_coverage'
+                  when :rush_defense
+                    'grades_rush_defense'
+                  else
+                    nil
+                  end
+    
+    return nil if column_name.nil?
+    
+    # Count how many players have a higher grade
+    better_players = position_players.where("#{column_name} > ?", grade_value).count
+    
+    # Return rank (1-based)
+    better_players + 1
+  end
   
+  # Convenience methods for specific grade types
+  def pass_rank
+    rank_by_grade(:pass)
+  end
+  
+  def run_rank
+    rank_by_grade(:run)
+  end
+  
+  def pass_route_rank
+    rank_by_grade(:pass_route)
+  end
+  
+  def pass_block_rank
+    rank_by_grade(:pass_block)
+  end
+  
+  def run_block_rank
+    rank_by_grade(:run_block)
+  end
+  
+  def pass_rush_rank
+    rank_by_grade(:pass_rush)
+  end
+  
+  def coverage_rank
+    rank_by_grade(:coverage)
+  end
+  
+  def rush_defense_rank
+    rank_by_grade(:rush_defense)
+  end
 
 
   # Sort General Grades

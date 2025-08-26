@@ -1,0 +1,652 @@
+<!-- Page Container with Dark Mode Support -->
+<div class="min-h-screen transition-colors duration-200" x-data="{ darkMode: $parent.darkMode }">
+
+  <!-- Hero Section -->
+  <div class="bg-gradient-to-br from-[#121E18] via-[#1a2d24] to-[#4BAF50] dark:from-[#121E18] dark:via-[#1a2d24] dark:to-[#4BAF50] text-[#E8F0E6] border-b border-[#4BAF50]/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 text-[#E8F0E6] drop-shadow-lg">
+          Week <%= @week %> Matchup
+        </h1>
+        <p class="text-lg md:text-xl text-[#A5B1AA] mb-6">
+          Season <%= @season %> - Advanced matchup analysis
+        </p>
+        
+        <!-- Team Matchup Display -->
+        <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
+          <!-- Offense Team -->
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+            <div class="text-center">
+              <span class="text-4xl mb-2 block"><%= @offense_team&.emoji %></span>
+              <h2 class="text-2xl font-bold text-[#E8F0E6] mb-2">
+                <%= @offense_team&.location %> <%= @offense_team&.alias %>
+              </h2>
+              <div class="text-[#4BAF50] font-semibold">OFFENSE</div>
+            </div>
+          </div>
+          
+          <!-- VS -->
+          <div class="text-4xl font-bold text-[#4BAF50]">VS</div>
+          
+          <!-- Defense Team -->
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+            <div class="text-center">
+              <span class="text-4xl mb-2 block"><%= @defense_team&.emoji %></span>
+              <h2 class="text-2xl font-bold text-[#E8F0E6] mb-2">
+                <%= @defense_team&.location %> <%= @defense_team&.alias %>
+              </h2>
+              <div class="text-[#FF7C47] font-semibold">DEFENSE</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Game Info Row -->
+        <div class="flex flex-col md:flex-row items-center justify-center space-y-2 md:space-y-0 md:space-x-8 mt-4">
+          <!-- Home Team Indicator -->
+          <div class="text-center">
+            <% if @matchup.home %>
+              <span class="text-sm text-[#A5B1AA]">🏠 Home: <%= @offense_team&.location %> <%= @offense_team&.alias %></span>
+            <% else %>
+              <span class="text-sm text-[#A5B1AA]">🏠 Home: <%= @defense_team&.location %> <%= @defense_team&.alias %></span>
+            <% end %>
+          </div>
+          
+          <!-- Weather Conditions -->
+          <div class="text-center">
+            <span class="text-sm text-[#A5B1AA]">☀️ Sunny</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content - Two Column Layout -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      
+      <!-- LEFT SIDE - OFFENSE -->
+      <div class="space-y-6">
+        
+        <!-- Offensive Overview Card -->
+        <div class="hidden bg-white dark:bg-[#1a2d24] rounded-2xl shadow-2xl overflow-hidden border border-[#4BAF50]/20">
+          <div class="bg-gradient-to-r from-[#4BAF50] to-[#3d8a40] px-6 py-4">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">⚡</span>
+              <h3 class="text-xl font-bold text-white">Offensive Overview</h3>
+            </div>
+          </div>
+          
+          <div class="p-6">
+            <!-- Offensive Line Rankings -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div class="text-center p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                <div class="text-sm text-[#A5B1AA]">Pass Block Rank</div>
+                <div class="text-2xl font-bold text-[#4BAF50]"><%= @matchup.pass_block_rank %></div>
+              </div>
+              <div class="text-center p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                <div class="text-sm text-[#A5B1AA]">Run Block Rank</div>
+                <div class="text-2xl font-bold text-[#4BAF50]"><%= @matchup.rush_block_rank %></div>
+              </div>
+            </div>
+            
+            <!-- Passing Predictions -->
+            <div class="mb-6">
+              <h4 class="text-lg font-semibold text-[#121E18] dark:text-[#E8F0E6] mb-3">Passing Predictions</h4>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">Pass Yards</div>
+                  <div class="text-xl font-bold text-blue-600"><%= number_with_precision(@matchup.prediction_passing_yards, precision: 0) %></div>
+                </div>
+                <div class="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">Pocket Time</div>
+                  <div class="text-xl font-bold text-blue-600"><%= number_with_precision(@matchup.prediction_seconds_until_pressure, precision: 2) %>s</div>
+                </div>
+                <div class="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">Yards/Att</div>
+                  <div class="text-xl font-bold text-blue-600"><%= number_with_precision(@matchup.prediction_yards_per_attempt, precision: 1) %></div>
+                </div>
+                <div class="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">Attempts</div>
+                  <div class="text-xl font-bold text-blue-600"><%= number_with_precision(@matchup.prediction_passing_attempts, precision: 0) %></div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Rushing Predictions -->
+            <div class="mb-6">
+              <h4 class="text-lg font-semibold text-[#121E18] dark:text-[#E8F0E6] mb-3">Rushing Predictions</h4>
+              <div class="grid grid-cols-3 gap-4">
+                <div class="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">Rush Yards</div>
+                  <div class="text-xl font-bold text-green-600"><%= number_with_precision(@matchup.prediction_rushing_yards, precision: 0) %></div>
+                </div>
+                <div class="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">Yards/Carry</div>
+                  <div class="text-xl font-bold text-green-600"><%= number_with_precision(@matchup.prediction_yards_per_carry, precision: 2) %></div>
+                </div>
+                <div class="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">Carries</div>
+                  <div class="text-xl font-bold text-green-600"><%= number_with_precision(@matchup.prediction_carry_attempts, precision: 0) %></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Offensive Lineup Card -->
+        <div class="bg-white dark:bg-[#1a2d24] rounded-2xl shadow-2xl overflow-hidden border border-[#4BAF50]/20">
+          <div class="bg-gradient-to-r from-[#4BAF50] to-[#3d8a40] px-6 py-4">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">👥</span>
+              <h3 class="text-xl font-bold text-white">Offensive Lineup</h3>
+            </div>
+          </div>
+          
+          <div class="p-6">
+            <!-- Offensive Line -->
+            <div class="mb-6">
+              
+              
+    
+              
+            <!-- Pass Blocking and Run Blocking Ranks -->
+            <div class="mb-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="flex items-center justify-between">
+                    <span class="text-2xl font-bold text-[#4BAF50] w-8 text-center"><%= @matchup.pass_block_rank || 'N/A' %></span>
+                    <span class="text-sm text-[#A5B1AA]">Pass Block Rank</span>
+                  </div>
+                </div>
+                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="flex items-center justify-between">
+                    <span class="text-2xl font-bold text-[#4BAF50] w-8 text-center"><%= @matchup.rush_block_rank || 'N/A' %></span>
+                    <span class="text-sm text-[#A5B1AA]">Run Block Rank</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+              <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+                <% if @lt %>
+                <div class="p-2 <%= !@qb&.left_handed? ? 'bg-yellow-100 dark:bg-yellow-900/30 border-2 border-yellow-400' : 'bg-[#E8F0E6] dark:bg-[#121E18]' %> rounded-lg text-center">
+                  <div class="text-xs text-[#A5B1AA]">LT</div>
+                  <div class="text-xs font-bold text-[#121E18] dark:text-[#E8F0E6] leading-tight">
+                    <%= @lt.first_name %> <%= @lt.last_name %>
+                  </div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @lt.pass_block_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+                
+                <% if @lg %>
+                <div class="p-2 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg text-center">
+                  <div class="text-xs text-[#A5B1AA]">LG</div>
+                  <div class="text-xs font-bold text-[#121E18] dark:text-[#E8F0E6] leading-tight">
+                    <%= @lg.first_name %> <%= @lg.last_name %>
+                  </div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @lg.run_block_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+                
+                <% if @c %>
+                <div class="p-2 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg text-center">
+                  <div class="text-xs text-[#A5B1AA]">C</div>
+                  <div class="text-xs font-bold text-[#121E18] dark:text-[#E8F0E6] leading-tight">
+                    <%= @c.first_name %> <%= @c.last_name %>
+                  </div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @c.run_block_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+                
+                <% if @rg %>
+                <div class="p-2 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg text-center">
+                  <div class="text-xs text-[#A5B1AA]">RG</div>
+                  <div class="text-xs font-bold text-[#121E18] dark:text-[#E8F0E6] leading-tight">
+                    <%= @rg.first_name %> <%= @rg.last_name %>
+                  </div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @rg.run_block_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+                
+                <% if @rt %>
+                <div class="p-2 <%= @qb&.left_handed? ? 'bg-yellow-100 dark:bg-yellow-900/30 border-2 border-yellow-400' : 'bg-[#E8F0E6] dark:bg-[#121E18]' %> rounded-lg text-center">
+                  <div class="text-xs text-[#A5B1AA]">RT</div>
+                  <div class="text-xs font-bold text-[#121E18] dark:text-[#E8F0E6] leading-tight">
+                    <%= @rt.first_name %> <%= @rt.last_name %>
+                  </div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @rt.pass_block_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+              </div>
+            </div>
+            
+            <!-- Passing and Rushing Ranks -->
+            <div class="mb-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="flex items-center justify-between">
+                    <span class="text-2xl font-bold text-[#4BAF50] w-8 text-center"><%= @matchup.qb_passing_rank || 'N/A' %></span>
+                    <span class="text-sm text-[#A5B1AA]">Passing Rank</span>
+                  </div>
+                </div>
+                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="flex items-center justify-between">
+                    <span class="text-2xl font-bold text-[#4BAF50] w-8 text-center"><%= @rb1&.run_rank || 'N/A' %></span>
+                    <span class="text-sm text-[#A5B1AA]">Rushing Rank</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Quarterback and RB1 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <% if @qb %>
+              <div class="p-4 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-sm text-[#A5B1AA]">Quarterback</div>
+                    <div class="text-lg font-bold text-[#121E18] dark:text-[#E8F0E6]">
+                      <%= @qb.first_name %> <%= @qb.last_name %>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm text-[#A5B1AA]">Pass Grade</div>
+                    <div class="text-xl font-bold text-[#4BAF50]"><%= @qb.grades_pass || 'N/A' %></div>
+                    <div class="text-xs text-[#A5B1AA]">Rank: <%= @qb.pass_rank || 'N/A' %></div>
+                  </div>
+                </div>
+              </div>
+              <% end %>
+              
+              <% if @rb1 %>
+              <div class="p-4 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-sm text-[#A5B1AA]">RB1</div>
+                    <div class="text-lg font-bold text-[#121E18] dark:text-[#E8F0E6]">
+                      <%= @rb1.first_name %> <%= @rb1.last_name %>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm text-[#A5B1AA]">Rush Grade</div>
+                    <div class="text-xl font-bold text-[#4BAF50]"><%= @rb1.grades_run || 'N/A' %></div>
+                    <div class="text-xs text-[#A5B1AA]">Rank: <%= @rb1.run_rank || 'N/A' %></div>
+                  </div>
+                </div>
+              </div>
+              <% end %>
+            </div>
+            
+            <!-- Receiving Rank -->
+            <div class="mb-4">
+              <div class="flex items-center justify-start">
+                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg w-full">
+                  <div class="flex items-center justify-between">
+                    <span class="text-2xl font-bold text-[#4BAF50] w-8 text-center"><%= @wr1&.pass_route_rank || 'N/A' %></span>
+                    <span class="text-sm text-[#A5B1AA]">Receiving Rank</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Receivers -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <% if @wr1 %>
+              <div class="p-4 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                <div class="text-sm text-[#A5B1AA]">WR1</div>
+                <div class="text-lg font-bold text-[#121E18] dark:text-[#E8F0E6]">
+                  <%= @wr1.first_name %> <%= @wr1.last_name %>
+                </div>
+                <div class="text-sm text-[#4BAF50]">Route: <%= @wr1.grades_pass_route || 'N/A' %></div>
+                <div class="text-xs text-[#A5B1AA]">Rank: <%= @wr1.pass_route_rank || 'N/A' %></div>
+              </div>
+              <% end %>
+              
+              <% if @wr2 %>
+              <div class="p-4 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                <div class="text-sm text-[#A5B1AA]">WR2</div>
+                <div class="text-lg font-bold text-[#121E18] dark:text-[#E8F0E6]">
+                  <%= @wr2.first_name %> <%= @wr2.last_name %>
+                </div>
+                <div class="text-sm text-[#4BAF50]">Route: <%= @wr2.grades_pass_route || 'N/A' %></div>
+                <div class="text-xs text-[#A5B1AA]">Rank: <%= @wr2.pass_route_rank || 'N/A' %></div>
+              </div>
+              <% end %>
+              
+              <% if @wr3 %>
+              <div class="p-4 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                <div class="text-sm text-[#A5B1AA]">WR3</div>
+                <div class="text-lg font-bold text-[#121E18] dark:text-[#E8F0E6]">
+                  <%= @wr3.first_name %> <%= @wr3.last_name %>
+                </div>
+                <div class="text-sm text-[#4BAF50]">Route: <%= @wr3.grades_pass_route || 'N/A' %></div>
+                <div class="text-xs text-[#A5B1AA]">Rank: <%= @wr3.pass_route_rank || 'N/A' %></div>
+              </div>
+              <% end %>
+            </div>
+            
+
+            
+            <!-- Tight End and RB2 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <% if @te %>
+              <div class="p-4 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-sm text-[#A5B1AA]">Tight End</div>
+                    <div class="text-lg font-bold text-[#121E18] dark:text-[#E8F0E6]">
+                      <%= @te.first_name %> <%= @te.last_name %>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm text-[#A5B1AA]">Route Grade</div>
+                    <div class="text-xl font-bold text-[#4BAF50]"><%= @te.grades_pass_route || 'N/A' %></div>
+                    <div class="text-xs text-[#A5B1AA]">Rank: <%= @te.pass_route_rank || 'N/A' %></div>
+                  </div>
+                </div>
+              </div>
+              <% end %>
+              
+              <% if @rb2 %>
+              <div class="p-4 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-sm text-[#A5B1AA]">RB2</div>
+                    <div class="text-lg font-bold text-[#121E18] dark:text-[#E8F0E6]">
+                      <%= @rb2.first_name %> <%= @rb2.last_name %>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm text-[#A5B1AA]">Rush Grade</div>
+                    <div class="text-xl font-bold text-[#4BAF50]"><%= @rb2.grades_run || 'N/A' %></div>
+                    <div class="text-xs text-[#A5B1AA]">Rank: <%= @rb2.run_rank || 'N/A' %></div>
+                  </div>
+                </div>
+              </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- RIGHT SIDE - DEFENSE -->
+      <div class="space-y-6">
+        
+        <!-- Defensive Overview Card -->
+        <div class="hidden bg-white dark:bg-[#1a2d24] rounded-2xl shadow-2xl overflow-hidden border border-[#FF7C47]/20">
+          <div class="bg-gradient-to-r from-[#FF7C47] to-[#e66a3a] px-6 py-4">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">🛡️</span>
+              <h3 class="text-xl font-bold text-white">Defensive Overview</h3>
+            </div>
+          </div>
+          
+          <div class="p-6">
+            <!-- Defensive Rankings -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div class="text-center p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                <div class="text-sm text-[#A5B1AA]">Pass Rush</div>
+                <div class="text-2xl font-bold text-[#FF7C47]"><%= @matchup.pass_rush_rank %></div>
+              </div>
+              <div class="text-center p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                <div class="text-sm text-[#A5B1AA]">Coverage</div>
+                <div class="text-2xl font-bold text-[#FF7C47]"><%= @matchup.coverage_rank %></div>
+              </div>
+              <div class="text-center p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                <div class="text-sm text-[#A5B1AA]">Run Defense</div>
+                <div class="text-2xl font-bold text-[#FF7C47]"><%= @matchup.run_defense_rank %></div>
+              </div>
+              <div class="text-center p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                <div class="text-sm text-[#A5B1AA]">Rush Block</div>
+                <div class="text-2xl font-bold text-[#FF7C47]"><%= @matchup.rush_block_rank %></div>
+              </div>
+            </div>
+            
+            <!-- Defensive Scores -->
+            <div class="mb-6">
+              <h4 class="text-lg font-semibold text-[#121E18] dark:text-[#E8F0E6] mb-3">Defensive Scores</h4>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">Pass Defense</div>
+                  <div class="text-xl font-bold text-red-600"><%= @matchup.passing_defense_score %></div>
+                </div>
+                <div class="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">Rush Defense</div>
+                  <div class="text-xl font-bold text-red-600"><%= @matchup.rushing_defense_score %></div>
+                </div>
+                <div class="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">Sack Score</div>
+                  <div class="text-xl font-bold text-red-600"><%= @matchup.sack_score %></div>
+                </div>
+                <div class="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">Coverage Score</div>
+                  <div class="text-xl font-bold text-red-600"><%= @matchup.coverage_score %></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Defensive Lineup Card -->
+        <div class="bg-white dark:bg-[#1a2d24] rounded-2xl shadow-2xl overflow-hidden border border-[#FF7C47]/20">
+          <div class="bg-gradient-to-r from-[#FF7C47] to-[#e66a3a] px-6 py-4">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">👥</span>
+              <h3 class="text-xl font-bold text-white">Defensive Lineup</h3>
+            </div>
+          </div>
+          
+          <div class="p-6">
+            <!-- Pass Rush Rank -->
+            <div class="mb-4">
+              <div class="flex items-center justify-start">
+                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg w-full">
+                  <div class="flex items-center justify-between">
+                    <span class="text-2xl font-bold text-[#FF7C47] w-8 text-center"><%= @eg1&.pass_rush_rank || @dl1&.pass_rush_rank || 'N/A' %></span>
+                    <span class="text-sm text-[#A5B1AA]">Pass Rush Rank</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Row 1: Edge Rushers and Defensive Line -->
+            <div class="mb-4">
+
+              <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <% if @eg1 %>
+                <div class="p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="text-xs text-[#A5B1AA]">EG1</div>
+                  <div class="text-sm font-bold text-[#121E18] dark:text-[#E8F0E6] leading-tight">
+                    <%= @eg1.first_name %> <%= @eg1.last_name %>
+                  </div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @eg1.pass_rush_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+                
+                <% if @dl1 %>
+                <div class="p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="text-xs text-[#A5B1AA]">DE1</div>
+                  <div class="text-sm font-bold text-[#121E18] dark:text-[#E8F0E6] leading-tight">
+                    <%= @dl1.first_name %> <%= @dl1.last_name %>
+                  </div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @dl1.pass_rush_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+                
+                <% if @dl2 %>
+                <div class="p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="text-xs text-[#A5B1AA]">DE2</div>
+                  <div class="text-sm font-bold text-[#121E18] dark:text-[#E8F0E6] leading-tight">
+                    <%= @dl2.first_name %> <%= @dl2.last_name %>
+                  </div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @dl2.pass_rush_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+                
+                <% if @dl3 %>
+                <div class="p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="text-xs text-[#A5B1AA]">DE3</div>
+                  <div class="text-sm font-bold text-[#121E18] dark:text-[#E8F0E6] leading-tight">
+                    <%= @dl3.first_name %> <%= @dl3.last_name %>
+                  </div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @dl3.pass_rush_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+                
+                <% if @eg2 %>
+                <div class="p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="text-xs text-[#A5B1AA]">EG2</div>
+                  <div class="text-sm font-bold text-[#121E18] dark:text-[#E8F0E6] leading-tight">
+                    <%= @eg2.first_name %> <%= @eg2.last_name %>
+                  </div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @eg2.pass_rush_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+              </div>
+            </div>
+            
+            <!-- Run Defense Rank -->
+            <div class="mb-4">
+              <div class="flex items-center justify-start">
+                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg w-full">
+                  <div class="flex items-center justify-between">
+                    <span class="text-2xl font-bold text-[#FF7C47] w-8 text-center"><%= @lb1&.rush_defense_rank || 'N/A' %></span>
+                    <span class="text-sm text-[#A5B1AA]">Run Defense Rank</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Row 2: Linebackers -->
+            <div class="mb-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <% if @lb1 %>
+                <div class="p-4 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">LB1</div>
+                  <div class="text-lg font-bold text-[#121E18] dark:text-[#E8F0E6]">
+                    <%= @lb1.first_name %> <%= @lb1.last_name %>
+                  </div>
+                  <div class="hidden text-sm text-[#FF7C47]">Run Def: <%= @lb1.grades_rush_defense || 'N/A' %></div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @lb1.rush_defense_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+                
+                <% if @lb2 %>
+                <div class="p-4 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">LB2</div>
+                  <div class="text-lg font-bold text-[#121E18] dark:text-[#E8F0E6]">
+                    <%= @lb2.first_name %> <%= @lb2.last_name %>
+                  </div>
+                  <div class="hidden text-sm text-[#FF7C47]">Run Def: <%= @lb2.grades_rush_defense || 'N/A' %></div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @lb2.rush_defense_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+              </div>
+            </div>
+            
+            <!-- Coverage Rank -->
+            <div class="mb-4">
+              <div class="flex items-center justify-start">
+                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg w-full">
+                  <div class="flex items-center justify-between">
+                    <span class="text-2xl font-bold text-[#FF7C47] w-8 text-center"><%= @s1&.coverage_rank || 'N/A' %></span>
+                    <span class="text-sm text-[#A5B1AA]">Coverage Rank</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Row 3: Safeties -->
+            <div class="mb-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <% if @s1 %>
+                <div class="p-4 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">SF1</div>
+                  <div class="text-lg font-bold text-[#121E18] dark:text-[#E8F0E6]">
+                    <%= @s1.first_name %> <%= @s1.last_name %>
+                  </div>
+                  <div class="text-sm text-[#FF7C47]">Coverage: <%= @s1.grades_coverage || 'N/A' %></div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @s1.coverage_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+                
+                <% if @s2 %>
+                <div class="p-4 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="text-sm text-[#A5B1AA]">SF2</div>
+                  <div class="text-lg font-bold text-[#121E18] dark:text-[#E8F0E6]">
+                    <%= @s2.first_name %> <%= @s2.last_name %>
+                  </div>
+                  <div class="text-sm text-[#FF7C47]">Coverage: <%= @s2.grades_coverage || 'N/A' %></div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @s2.coverage_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+              </div>
+            </div>
+            
+            <!-- Row 3: Cornerbacks -->
+            <div class="mb-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <% if @cb1 %>
+                <div class="p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="text-xs text-[#A5B1AA] mb-2">CB1</div>
+                  <div class="text-sm font-bold text-[#121E18] dark:text-[#E8F0E6] mb-2 leading-tight">
+                    <%= @cb1.first_name %> <%= @cb1.last_name %>
+                  </div>
+                  <div class="text-xs text-[#FF7C47] mb-1">Coverage: <%= @cb1.grades_coverage || 'N/A' %></div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @cb1.coverage_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+                
+                <% if @cb2 %>
+                <div class="p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="text-xs text-[#A5B1AA] mb-2">CB2</div>
+                  <div class="text-sm font-bold text-[#121E18] dark:text-[#E8F0E6] mb-2 leading-tight">
+                    <%= @cb2.first_name %> <%= @cb2.last_name %>
+                  </div>
+                  <div class="text-xs text-[#FF7C47] mb-1">Coverage: <%= @cb2.grades_coverage || 'N/A' %></div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @cb2.coverage_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+                
+                <% if @cb3 %>
+                <div class="p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
+                  <div class="text-xs text-[#A5B1AA] mb-2">CB3</div>
+                  <div class="text-sm font-bold text-[#121E18] dark:text-[#E8F0E6] mb-2 leading-tight">
+                    <%= @cb3.first_name %> <%= @cb3.last_name %>
+                  </div>
+                  <div class="text-xs text-[#FF7C47] mb-1">Coverage: <%= @cb3.grades_coverage || 'N/A' %></div>
+                  <div class="text-xs text-[#A5B1AA]">Rank: <%= @cb3.coverage_rank || 'N/A' %></div>
+                </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-[#121E18] dark:bg-[#0a1510] text-[#A5B1AA] py-12 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <p class="text-sm">
+          Data updated for Week <%= @week %> of the <%= @season %> NFL season
+        </p>
+        <p class="mt-4">
+          <a href="<%= matchups_landing_path %>" class="text-[#4BAF50] hover:text-[#3d8a40] underline mx-2 transition-colors">
+            View All Matchups
+          </a>
+          <span class="mx-2">•</span>
+          <a href="<%= teams_rankings_path(@season) %>" class="text-[#4BAF50] hover:text-[#3d8a40] underline mx-2 transition-colors">
+            View Team Rankings
+          </a>
+          <span class="mx-2">•</span>
+          <a href="<%= teams_seasons_path(@season) %>" class="text-[#4BAF50] hover:text-[#3d8a40] underline mx-2 transition-colors">
+            View Team Rosters
+          </a>
+        </p>
+      </div>
+    </div>
+  </footer>
+</div>
