@@ -27,51 +27,67 @@
     </div>
     
     <!-- Offensive Line -->
+    <!-- Rankings now use stored data from Ranking model when available, fallback to live calculation -->
     <div class="mb-4">
       <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
         <% if matchup.left_tackle_player %>
+          <% lt_ranking = matchup.left_tackle_player.olinemen_ranking %>
           <%= render 'matchups/player_card', 
+              player: matchup.left_tackle_player,
               position: 'LT', 
-              first_name: matchup.left_tackle_player.first_name, 
-              last_name: matchup.left_tackle_player.last_name, 
-              rank: matchup.left_tackle_player.pass_block_rank,
-              highlight: !matchup.qb_player&.left_handed? %>
+              rank: lt_ranking&.rank_for_category('pass_block'),
+              sample_size: lt_ranking&.sample_size,
+              percentile: lt_ranking&.percentile_for_category('pass_block'),
+              highlight: !matchup.qb_player&.left_handed?,
+              link: "/nfl-offensive-line-rankings?team=#{matchup.team.alias}" %>
         <% end %>
         
         <% if matchup.left_guard_player %>
+          <% lg_ranking = matchup.left_guard_player.olinemen_ranking %>
           <%= render 'matchups/player_card', 
+              player: matchup.left_guard_player,
               position: 'LG', 
-              first_name: matchup.left_guard_player.first_name, 
-              last_name: matchup.left_guard_player.last_name, 
-              rank: matchup.left_guard_player.run_block_rank,
-              highlight: false %>
+              rank: lg_ranking&.rank_for_category('pass_block'),
+              sample_size: lg_ranking&.sample_size,
+              percentile: lg_ranking&.percentile_for_category('pass_block'),
+              highlight: false,
+              link: "/nfl-offensive-line-rankings?team=#{matchup.team.alias}" %>
         <% end %>
         
         <% if matchup.center_player %>
+          <% c_ranking = matchup.center_player.olinemen_ranking %>
           <%= render 'matchups/player_card', 
+              player: matchup.center_player,
               position: 'C', 
-              first_name: matchup.center_player.first_name, 
-              last_name: matchup.center_player.last_name, 
-              rank: matchup.center_player.run_block_rank,
-              highlight: false %>
+              rank: c_ranking&.rank_for_category('pass_block'),
+              sample_size: c_ranking&.sample_size,
+              percentile: c_ranking&.percentile_for_category('pass_block'),
+              highlight: false,
+              link: "/nfl-offensive-line-rankings?team=#{matchup.team.alias}" %>
         <% end %>
         
         <% if matchup.right_guard_player %>
+          <% rg_ranking = matchup.right_guard_player.olinemen_ranking %>
           <%= render 'matchups/player_card', 
+              player: matchup.right_guard_player,
               position: 'RG', 
-              first_name: matchup.right_guard_player.first_name, 
-              last_name: matchup.right_guard_player.last_name, 
-              rank: matchup.right_guard_player.run_block_rank,
-              highlight: false %>
+              rank: rg_ranking&.rank_for_category('pass_block'),
+              sample_size: rg_ranking&.sample_size,
+              percentile: rg_ranking&.percentile_for_category('pass_block'),
+              highlight: false,
+              link: "/nfl-offensive-line-rankings?team=#{matchup.team.alias}" %>
         <% end %>
         
         <% if matchup.right_tackle_player %>
+          <% rt_ranking = matchup.right_tackle_player.olinemen_ranking %>
           <%= render 'matchups/player_card', 
+              player: matchup.right_tackle_player,
               position: 'RT', 
-              first_name: matchup.right_tackle_player.first_name, 
-              last_name: matchup.right_tackle_player.last_name, 
-              rank: matchup.right_tackle_player.pass_block_rank,
-              highlight: matchup.qb_player&.left_handed? %>
+              rank: rt_ranking&.rank_for_category('pass_block'),
+              sample_size: rt_ranking&.sample_size,
+              percentile: rt_ranking&.percentile_for_category('pass_block'),
+              highlight: matchup.qb_player&.left_handed?,
+              link: "/nfl-offensive-line-rankings?team=#{matchup.team.alias}" %>
         <% end %>
       </div>
     </div>
@@ -98,17 +114,15 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <% if matchup.qb_player %>
         <%= render 'matchups/player_card', 
+            player: matchup.qb_player,
             position: 'Quarterback', 
-            first_name: matchup.qb_player.first_name, 
-            last_name: matchup.qb_player.last_name, 
             rank: matchup.qb_player.pass_rank %>
       <% end %>
       
       <% if matchup.rb1_player %>
         <%= render 'matchups/player_card', 
+            player: matchup.rb1_player,
             position: 'Running Back', 
-            first_name: matchup.rb1_player.first_name, 
-            last_name: matchup.rb1_player.last_name, 
             rank: matchup.rb1_player.run_rank %>
       <% end %>
     </div>
@@ -129,25 +143,22 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
       <% if matchup.wr1_player %>
         <%= render 'matchups/player_card', 
+            player: matchup.wr1_player,
             position: 'Receiver', 
-            first_name: matchup.wr1_player.first_name, 
-            last_name: matchup.wr1_player.last_name, 
             rank: matchup.wr1_player.pass_route_rank %>
       <% end %>
       
       <% if matchup.wr2_player %>
         <%= render 'matchups/player_card', 
+            player: matchup.wr2_player,
             position: 'Receiver', 
-            first_name: matchup.wr2_player.first_name, 
-            last_name: matchup.wr2_player.last_name, 
             rank: matchup.wr2_player.pass_route_rank %>
       <% end %>
       
       <% if matchup.wr3_player %>
         <%= render 'matchups/player_card', 
+            player: matchup.wr3_player,
             position: 'Receiver', 
-            first_name: matchup.wr3_player.first_name, 
-            last_name: matchup.wr3_player.last_name, 
             rank: matchup.wr3_player.pass_route_rank %>
       <% end %>
     </div>
@@ -156,17 +167,15 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <% if matchup.te_player %>
         <%= render 'matchups/player_card', 
+            player: matchup.te_player,
             position: 'Tight End', 
-            first_name: matchup.te_player.first_name, 
-            last_name: matchup.te_player.last_name, 
             rank: matchup.te_player.pass_route_rank %>
       <% end %>
       
       <% if matchup.rb2_player %>
         <%= render 'matchups/player_card', 
+            player: matchup.rb2_player,
             position: 'Running Back', 
-            first_name: matchup.rb2_player.first_name, 
-            last_name: matchup.rb2_player.last_name, 
             rank: matchup.rb2_player.run_rank %>
       <% end %>
     </div>

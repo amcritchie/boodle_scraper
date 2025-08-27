@@ -5,9 +5,9 @@ namespace :teams_weeks do
     
     # First pass: Populate basic data from TeamsSeason
     TeamsSeason.where(season_year: 2025).each do |team_season|
+
       # Create TeamsWeek record for week 1
-      # team_week = team_season.teams_weeks.find_or_create_by(
-      team_week = TeamsWeek.find_or_create_by(week_number: 1)
+      team_week = team_season.teams_weeks.find_or_create_by(week_number: 1)
       
       # Copy all player data
       team_week.update(

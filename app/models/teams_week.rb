@@ -5,7 +5,11 @@ class TeamsWeek < ApplicationRecord
   
   belongs_to :team, primary_key: :slug, foreign_key: :team_slug, optional: true
 
-  validates :team_slug, :season_year, :week_number, presence: true
+  # Find the associated week for this teams_week record
+  def week
+    Week.find_by(season_year: season_year, sequence: week_number)
+  end
+  # validates :team_slug, :season_year, :week_number, presence: true
 
   # Starting lineup attributes: qb, rb1, rb2, wr1, wr2, wr3, te, c, lt, rt, lg, rg (offense)
   # eg1, eg2, dl1, dl2, dl3, lb1, lb2, cb1, cb2, cb3, s1, s2 (defense)

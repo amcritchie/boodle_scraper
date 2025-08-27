@@ -1,16 +1,13 @@
 class Ranking < ApplicationRecord
   belongs_to :player, primary_key: :slug, foreign_key: :player_slug, optional: true
   
-  validates :ranking_slug, presence: true
-  validates :week, presence: true
-  validates :player_slug, presence: true
-  validates :position, presence: true, inclusion: { in: %w[C LT RT LG RG] }
-  
   # Scopes
   scope :by_ranking_slug, ->(slug) { where(ranking_slug: slug) }
   scope :by_week, ->(week) { where(week: week) }
   scope :by_player, ->(player_slug) { where(player_slug: player_slug) }
   scope :by_position, ->(position) { where(position: position) }
+  scope :with_player, -> { joins(:player) }
+  scope :with_valid_player, -> { where.not(player_slug: nil).joins(:player) }
   
   # Find rankings for a specific ranking set
   def self.find_rankings(ranking_slug)

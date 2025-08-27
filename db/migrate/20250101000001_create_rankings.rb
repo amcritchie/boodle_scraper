@@ -1,8 +1,11 @@
 class CreateRankings < ActiveRecord::Migration[7.0]
   def change
     create_table :rankings do |t|
-      t.string :ranking_slug, null: false
       t.integer :week, null: false
+      t.integer :season, null: false
+      t.integer :sample_size, null: true, default: nil # Sample size adjested
+      t.string :ranking_slug, null: false
+      t.string :ranking_slug_detail, null: false
       t.string :player_slug, null: false
       t.string :position  # C, LT, RT, LG, RG
       t.integer :rank_1  # grades_offense rank
@@ -13,7 +16,10 @@ class CreateRankings < ActiveRecord::Migration[7.0]
     end
     
     add_index :rankings, :ranking_slug
+    add_index :rankings, :ranking_slug_detail
     add_index :rankings, :week
+    add_index :rankings, :season
+    add_index :rankings, :sample_size
     add_index :rankings, :player_slug
     add_index :rankings, :position
     add_index :rankings, [:ranking_slug, :week]

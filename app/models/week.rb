@@ -6,6 +6,11 @@ class Week < ApplicationRecord
     Matchup.where(season: season_year, week_slug: sequence)
   end
 
+  # Return all teams_weeks for this week
+  def teams_weeks
+    TeamsWeek.where(season_year: season_year, week_number: sequence)
+  end
+
   def self.week1
     all.find_by(sequence: 1)
   end

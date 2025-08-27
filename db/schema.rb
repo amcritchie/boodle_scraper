@@ -477,8 +477,11 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
   end
 
   create_table "rankings", force: :cascade do |t|
-    t.string "ranking_slug", null: false
     t.integer "week", null: false
+    t.integer "season", null: false
+    t.integer "sample_size"
+    t.string "ranking_slug", null: false
+    t.string "ranking_slug_detail", null: false
     t.string "player_slug", null: false
     t.string "position"
     t.integer "rank_1"
@@ -493,6 +496,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
     t.index ["ranking_slug", "rank_3"], name: "index_rankings_on_ranking_slug_and_rank_3"
     t.index ["ranking_slug", "week"], name: "index_rankings_on_ranking_slug_and_week"
     t.index ["ranking_slug"], name: "index_rankings_on_ranking_slug"
+    t.index ["ranking_slug_detail"], name: "index_rankings_on_ranking_slug_detail"
+    t.index ["sample_size"], name: "index_rankings_on_sample_size"
+    t.index ["season"], name: "index_rankings_on_season"
     t.index ["week"], name: "index_rankings_on_week"
   end
 

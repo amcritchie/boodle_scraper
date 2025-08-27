@@ -4,17 +4,29 @@ class RankingsController < ApplicationController
     @week = params[:week]&.to_i || 1
     
     # Use the new Ranking model for offensive line rankings
-    ranking_slug = "#{@year}_week_#{@week}_olinemen_rank"
+    # ranking_slug = "#{@year}_week_#{@week}_olinemen_rank"
+    ranking_slug = "olinemen_rank"
     
     # Get rankings from the Ranking model
     # @rankings = Ranking.find_rankings(ranking_slug)
     @rankings = Ranking.where(ranking_slug: ranking_slug)
+    @rankings = Ranking.where(ranking_slug: "olinemen_rank")
     
     # If no rankings exist, fall back to the old method
     if @rankings.empty?
       puts "No rankings found for #{ranking_slug}, falling back to live calculation..."
       fallback_to_live_calculation
     else
+      # Apply team filter if present
+      if params[:team].present?
+        # Find the team by alias to get the slug
+        team = Team.find_by(alias: params[:team])
+        if team
+          @rankings = @rankings.joins(:player).where(players: { team_slug: team.slug })
+          @filtered_team_name = team.alias
+        end
+      end
+      
       # Apply search filter if present
       if params[:search].present?
         search_term = "%#{params[:search].downcase}%"
@@ -117,6 +129,8 @@ class RankingsController < ApplicationController
       run_block_percentile = (run_block_rank / total_players.to_f * 100).round(1)
       
       # Add rank and percentile attributes to the player object
+      # Note: These singleton methods will override the model's pass_block_rank/run_block_rank methods
+      # which now use stored rankings. This fallback is only used when no stored rankings exist.
       player.define_singleton_method(:pass_block_rank) { pass_block_rank }
       player.define_singleton_method(:run_block_rank) { run_block_rank }
       player.define_singleton_method(:percentile_pass_block) { pass_block_percentile }

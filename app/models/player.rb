@@ -4,6 +4,7 @@ class Player < ApplicationRecord
   before_save :initialize_syncs
   
   belongs_to :team, optional: true
+  has_many :rankings, primary_key: :slug, foreign_key: :player_slug, dependent: :destroy
 
   # validates :slug, presence: true, uniqueness: true
 
@@ -32,7 +33,13 @@ class Player < ApplicationRecord
     return nil
   end
 
-
+  # Get grages
+  def grades_offense_x
+    grades_offense || 60
+  end
+  def grades_defence_x
+    grades_defence || 60
+  end
   def passing_grade_x
     grades_pass || grades_offense || 60
   end
@@ -58,6 +65,11 @@ class Player < ApplicationRecord
     grades_rush_defense || grades_offense || 60
   end
 
+  # Get rankings
+  def olinemen_ranking
+    rankings.where(ranking_slug: "olinemen_rank").last
+  end
+  
 
   # Calculate rank based on position and grade type
   def rank_by_grade(grade_type)
