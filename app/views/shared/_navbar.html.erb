@@ -107,3 +107,6 @@
   </div>
 </header>
 
+<!-- Spacer to prevent content from being hidden behind fixed navbar -->
+<!-- Height accounts for navbar + environment banner in development -->
+<div class="<%= Rails.env.production? ? 'h-24' : 'h-28' %>"></div>

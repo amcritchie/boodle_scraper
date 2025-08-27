@@ -778,6 +778,20 @@ class Game < ApplicationRecord
     kickoff_at.strftime("%A, %B %d, %Y at %I:%M %p %Z")
   end
 
+  def game_time_display
+    # Primary: Use kickoff_at if available
+    if kickoff_at.present?
+      day_with_ordinal = kickoff_at.day.ordinalize
+      kickoff_at.strftime("%A, %B #{day_with_ordinal} at %l:%M%P %Z").strip
+    # Fallback: Use date and start_time fields
+    elsif date.present? && start_time.present?
+      day_with_ordinal = date.day.ordinalize
+      "#{day_of_week}, #{date.strftime('%B')} #{day_with_ordinal} at #{start_time}"
+    else
+      nil
+    end
+  end
+
   def set_implied_totals(favorite, favorite_spread, over_under)
     # Convert spread to positive for calculations
     spread_abs = favorite_spread.abs

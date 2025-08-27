@@ -8,51 +8,65 @@
   <div class="bg-gradient-to-br from-[#121E18] via-[#1a2d24] to-[#4BAF50] dark:from-[#121E18] dark:via-[#1a2d24] dark:to-[#4BAF50] text-[#E8F0E6] border-b border-[#4BAF50]/20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="text-center">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4 text-[#E8F0E6] drop-shadow-lg">
-          Week <%= @week_number %> Game Summary
-        </h1>
-        <p class="text-lg md:text-xl text-[#A5B1AA] mb-6">
-          Season <%= @season %> - Advanced game analysis
-        </p>
-        
         <!-- Team Matchup Display with Team Colors -->
-        <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
+        <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8 mb-6">
           <!-- Away Team -->
-          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20" style="border-color: <%= @away_color_accent %>/40;">
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 w-full md:w-64 md:flex-shrink-0" style="border-color: <%= @away_color_accent %>/40;">
             <div class="text-center">
               <span class="text-4xl mb-2 block"><%= @away_team&.emoji %></span>
-              <h2 class="text-2xl font-bold text-[#E8F0E6] mb-2">
-                <%= @away_team&.location %> <%= @away_team&.alias %>
-              </h2>
+              <div class="mb-2">
+                <div class="text-lg text-[#E8F0E6]"><%= @away_team&.location %></div>
+                <h2 class="text-2xl font-bold text-[#E8F0E6]">
+                  <%= @away_team&.alias %>
+                </h2>
+              </div>
               <div class="font-semibold" style="color: <%= @away_color_accent %>;">AWAY</div>
             </div>
           </div>
           
           <!-- VS -->
-          <div class="text-4xl font-bold text-[#4BAF50]">VS</div>
+          <div class="text-4xl font-bold text-[#4BAF50] md:mx-4">VS</div>
           
           <!-- Home Team -->
-          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20" style="border-color: <%= @home_color_accent %>/40;">
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 w-full md:w-64 md:flex-shrink-0" style="border-color: <%= @home_color_accent %>/40;">
             <div class="text-center">
               <span class="text-4xl mb-2 block"><%= @home_team&.emoji %></span>
-              <h2 class="text-2xl font-bold text-[#E8F0E6] mb-2">
-                <%= @home_team&.location %> <%= @home_team&.alias %>
-              </h2>
+              <div class="mb-2">
+                <div class="text-lg text-[#E8F0E6]"><%= @home_team&.location %></div>
+                <h2 class="text-2xl font-bold text-[#E8F0E6]">
+                  <%= @home_team&.alias %>
+                </h2>
+              </div>
               <div class="font-semibold" style="color: <%= @home_color_accent %>;">HOME</div>
             </div>
           </div>
         </div>
+
+          <!-- Game Date and Time -->
+          <% if @game&.game_time_display.present? %>
+            <div class="text-center mb-4">
+              <p class="text-lg md:text-xl text-[#A5B1AA] mb-6">
+                <%= @game.game_time_display %>
+              </p>
+            </div>
+          <% end %>
+        
         
         <!-- Game Info Row -->
         <div class="flex flex-col md:flex-row items-center justify-center space-y-2 md:space-y-0 md:space-x-8 mt-4">
           <!-- Home Team Indicator -->
           <div class="text-center">
-            <span class="text-sm text-[#A5B1AA]">🏠 Home: <%= @home_team&.location %> <%= @home_team&.alias %></span>
+            <span class="text-sm text-[#A5B1AA]"><%= @home_team&.alias %> Home <%= @home_team&.emoji %> 🏠</span>
           </div>
           
           <!-- Weather Conditions -->
           <div class="text-center">
             <span class="text-sm text-[#A5B1AA]">☀️ Sunny</span>
+          </div>
+          
+          <!-- Weather Conditions -->
+          <div class="text-center">
+            <span class="text-sm text-[#A5B1AA]">🇧🇷 Location</span>
           </div>
         </div>
       </div>
@@ -63,44 +77,20 @@
   <div class="max-w-7xl mx-auto py-8">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       
-      <!-- TOP LEFT - AWAY OFFENSE vs HOME DEFENSE -->
+      <!-- TOP LEFT -->
       <div class="space-y-6">
-        <h2 class="text-2xl font-bold text-[#121E18] dark:text-[#E8F0E6] mb-4">
-          <%= @away_team&.location %> <%= @away_team&.alias %> Offense
-        </h2>
-
-        <%= render 'matchups/defensive_lineup', 
-        matchup: @home_matchup %>
-        
-    
+        <%= render 'matchups/offensive_lineup', matchup: @home_matchup %>
+      </div>
+      <div class="space-y-6">
+        <%= render 'matchups/defensive_lineup', matchup: @away_matchup %>
       </div>
       
-      <!-- TOP RIGHT - HOME OFFENSE vs AWAY DEFENSE -->
+      <!-- BOTTOM -->
       <div class="space-y-6">
-        <h2 class="text-2xl font-bold text-[#121E18] dark:text-[#E8F0E6] mb-4">
-          <%= @home_team&.location %> <%= @home_team&.alias %> Offense
-        </h2>
-        
-        <%= render 'matchups/offensive_lineup', 
-            matchup: @home_matchup %>
-      </div>
-      
-      <!-- BOTTOM LEFT - HOME DEFENSE vs AWAY OFFENSE -->
+      <%= render 'matchups/defensive_lineup', matchup: @away_matchup %>
+    </div>
       <div class="space-y-6">
-        <h2 class="text-2xl font-bold text-[#121E18] dark:text-[#E8F0E6] mb-4">
-          <%= @home_team&.location %> <%= @home_team&.alias %> Defense
-        </h2>
         <%= render 'matchups/offensive_lineup', matchup: @away_matchup %>
-      </div>
-      
-      <!-- BOTTOM RIGHT - AWAY DEFENSE vs HOME OFFENSE -->
-      <div class="space-y-6">
-        <h2 class="text-2xl font-bold text-[#121E18] dark:text-[#E8F0E6] mb-4">
-          <%= @away_team&.location %> <%= @away_team&.alias %> Defense
-        </h2>
-        
-        <%= render 'matchups/defensive_lineup', 
-            matchup: @away_matchup %>
       </div>
     </div>
   </div>
