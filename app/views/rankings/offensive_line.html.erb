@@ -90,10 +90,15 @@
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th class="px-1 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">Rank</th>
-              <th class="px-1 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">Pos</th>
-              <th class="px-1 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">Team</th>
-              <th class="px-2 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Player</th>
+              <!-- Mobile: Single "Player" header -->
+              <th class="md:hidden px-1 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-10">📈</th>
+              <th class="md:hidden px-0 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" colspan="3">Player</th>
+              
+              <!-- Desktop: Separate headers -->
+              <th class="hidden md:table-cell px-1 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">Rank</th>
+              <th class="hidden md:table-cell px-1 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">Pos</th>
+              <th class="hidden md:table-cell px-1 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">Team</th>
+              <th class="hidden md:table-cell px-2 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Player</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 <span id="grade-header-col">Pass Block</span>
               </th>
@@ -106,22 +111,41 @@
                 <% @rankings.each_with_index do |ranking, index| %>
                   <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                       data-search="<%= "#{ranking.player.first_name} #{ranking.player.last_name} #{ranking.player.team&.name || ranking.player.team_slug&.upcase} #{ranking.position}".downcase %>">
-                    <td class="px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
+                    <!-- Mobile: Show rank, pos, team inline with player name -->
+                    <td class="md:hidden px-2 py-4 whitespace-nowrap" colspan="4">
+                      <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#4BAF50] text-white text-xs font-bold">
+                          <%= index + 1 %>
+                        </span>
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 text-white text-xs font-bold">
+                          <%= ranking.position %>
+                        </span>
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 text-sm">
+                          <%= ranking.player.team&.emoji || '🏈' %>
+                        </span>
+                        <div class="text-sm font-medium text-gray-900 dark:text-white">
+                          <%= ranking.player.first_name %> <%= ranking.player.last_name %>
+                        </div>
+                      </div>
+                    </td>
+                    
+                    <!-- Desktop: Separate columns -->
+                    <td class="hidden md:table-cell px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
                       <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#4BAF50] text-white text-sm font-bold">
                         <%= index + 1 %>
                       </span>
                     </td>
-                    <td class="px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
+                    <td class="hidden md:table-cell px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
                       <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-500 text-white text-xs font-bold">
                         <%= ranking.position %>
                       </span>
                     </td>
-                    <td class="px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
+                    <td class="hidden md:table-cell px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
                       <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-lg">
                         <%= ranking.player.team&.emoji || '🏈' %>
                       </span>
                     </td>
-                    <td class="px-2 py-4 whitespace-nowrap">
+                    <td class="hidden md:table-cell px-2 py-4 whitespace-nowrap">
                       <div class="flex items-center">
 
 
@@ -176,17 +200,36 @@
                 <% @oline_players.each_with_index do |player, index| %>
                   <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                       data-search="<%= "#{player.first_name} #{player.last_name} #{player.team&.name || player.team_slug&.upcase} #{@starter_positions&.dig(player.slug)}".downcase %>">
-                    <td class="px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
+                    <!-- Mobile: Show rank, pos, team inline with player name -->
+                    <td class="md:hidden px-2 py-4 whitespace-nowrap" colspan="4">
+                      <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#4BAF50] text-white text-xs font-bold">
+                          <%= index + 1 %>
+                        </span>
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 text-white text-xs font-bold">
+                          <%= @starter_positions&.dig(player.slug) %>
+                        </span>
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 text-sm">
+                          <%= player.team&.emoji || '🏈' %>
+                        </span>
+                        <div class="text-sm font-medium text-gray-900 dark:text-white">
+                          <%= player.first_name %> <%= player.last_name %>
+                        </div>
+                      </div>
+                    </td>
+                    
+                    <!-- Desktop: Separate columns -->
+                    <td class="hidden md:table-cell px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
                       <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#4BAF50] text-white text-sm font-bold">
                         <%= index + 1 %>
                       </span>
                     </td>
-                    <td class="px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-12">
+                    <td class="hidden md:table-cell px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
                       <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-500 text-white text-xs font-bold">
                         <%= @starter_positions&.dig(player.slug) %>
                       </span>
                     </td>
-                    <td class="px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
+                    <td class="hidden md:table-cell px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
                       <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-lg">
                         <%= player.team&.emoji || '🏈' %>
                       </span>
