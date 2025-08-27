@@ -267,7 +267,7 @@ module PlayerRosterConcern
 
   def top_three_receivers
     offense_starters
-      .where(position: [:wide_receiver, :tight_end])
+      .where(position: ["wide-receiver", "tight-end"])
       .by_grades_pass_route
       .limit(3)
   end

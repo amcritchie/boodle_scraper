@@ -2,8 +2,6 @@ class Matchup < ApplicationRecord
   include PredictionConcern
   include PlayerRosterConcern
   
-
-  
   belongs_to :game, foreign_key: :game_slug, primary_key: :slug, optional: true
 #   belongs_to :team
 
