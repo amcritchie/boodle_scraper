@@ -198,6 +198,37 @@ class MatchupsController < ApplicationController
     @s2 = Player.find_by(slug: @matchup.s2) if @matchup.s2
   end
   
+  def game_summary
+    @home_slug = params[:home]
+    @away_slug = params[:away]
+    @week = params[:week]
+    @season = params[:season]
+    
+    # Find the specific matchup
+    @home_matchup = Matchup.find_by(
+      season: @season,
+      week_slug: @week,
+      team_slug: @home_slug,
+      team_defense_slug: @away_slug
+    )
+    #  Get team records
+    @home_team = @home_matchup.team_defense
+    @away_team = @home_matchup.team
+    # Find the opposite matchup (home offense vs away defense)
+    @away_matchup = Matchup.find_by(
+      season: @season,
+      week_slug: @week,
+      team_slug: @away_team.slug,
+      team_defense_slug: @home_team.slug
+    )
+    # Hardcoded team colors for now
+    @home_color_dark = "#1a2d24"
+    @home_color_accent = "#4BAF50"
+    @away_color_dark = "#2d1a24"
+    @away_color_accent = "#FF7C47"
+
+  end
+  
   def api_show
     @season = params[:season]
     @week = params[:week]

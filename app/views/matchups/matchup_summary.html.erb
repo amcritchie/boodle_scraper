@@ -61,7 +61,7 @@
   </div>
 
   <!-- Main Content - Two Column Layout -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-7xl mx-auto py-8">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       
       <!-- LEFT SIDE - OFFENSE -->
@@ -133,186 +133,20 @@
           </div>
         </div>
         
-        <!-- Offensive Lineup Card -->
-        <div class="bg-white dark:bg-[#1a2d24] rounded-2xl shadow-2xl overflow-hidden border border-[#4BAF50]/20">
-          <div class="bg-gradient-to-r from-[#4BAF50] to-[#3d8a40] px-6 py-4">
-            <div class="flex items-center space-x-3">
-              <span class="text-2xl">👥</span>
-              <h3 class="text-xl font-bold text-white">Offensive Lineup</h3>
-            </div>
-          </div>
-          
-          <div class="p-6">
-            <!-- Offensive Line -->
-            <div class="mb-4">
-              
-              
-    
-              
-            <!-- Pass Blocking and Run Blocking Ranks -->
-            <div class="mb-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
-                  <div class="flex items-center justify-between">
-                    <span class="text-2xl font-bold text-[#4BAF50] w-8 text-center"><%= @matchup.pass_block_rank || 'N/A' %></span>
-                    <span class="text-sm text-[#A5B1AA]">Pass Block Rank</span>
-                  </div>
-                </div>
-                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
-                  <div class="flex items-center justify-between">
-                    <span class="text-2xl font-bold text-[#4BAF50] w-8 text-center"><%= @matchup.rush_block_rank || 'N/A' %></span>
-                    <span class="text-sm text-[#A5B1AA]">Run Block Rank</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-              <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
-                <% if @lt %>
-                  <%= render 'matchups/player_card', 
-                      position: 'LT', 
-                      first_name: @lt.first_name, 
-                      last_name: @lt.last_name, 
-                      rank: @lt.pass_block_rank,
-                      highlight: !@qb&.left_handed? %>
-                <% end %>
-                
-                <% if @lg %>
-                  <%= render 'matchups/player_card', 
-                      position: 'LG', 
-                      first_name: @lg.first_name, 
-                      last_name: @lg.last_name, 
-                      rank: @lg.run_block_rank,
-                      highlight: false %>
-                <% end %>
-                
-                <% if @c %>
-                  <%= render 'matchups/player_card', 
-                      position: 'C', 
-                      first_name: @c.first_name, 
-                      last_name: @c.last_name, 
-                      rank: @c.run_block_rank,
-                      highlight: false %>
-                <% end %>
-                
-                <% if @rg %>
-                  <%= render 'matchups/player_card', 
-                      position: 'RG', 
-                      first_name: @rg.first_name, 
-                      last_name: @rg.last_name, 
-                      rank: @rg.run_block_rank,
-                      highlight: false %>
-                <% end %>
-                
-                <% if @rt %>
-                  <%= render 'matchups/player_card', 
-                      position: 'RT', 
-                      first_name: @rt.first_name, 
-                      last_name: @rt.last_name, 
-                      rank: @rt.pass_block_rank,
-                      highlight: @qb&.left_handed? %>
-                <% end %>
-              </div>
-            </div>
-            
-            <!-- Passing and Rushing Ranks -->
-            <div class="mb-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
-                  <div class="flex items-center justify-between">
-                    <span class="text-2xl font-bold text-[#4BAF50] w-8 text-center"><%= @matchup.passing_attack_rank || 'N/A' %></span>
-                    <span class="text-sm text-[#A5B1AA]">Passing Rank</span>
-                  </div>
-                </div>
-                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg">
-                  <div class="flex items-center justify-between">
-                    <span class="text-2xl font-bold text-[#4BAF50] w-8 text-center"><%= @matchup&.rushing_attack_rank || 'N/A' %></span>
-                    <span class="text-sm text-[#A5B1AA]">Rushing Rank</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Quarterback and RB1 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <% if @qb %>
-                <%= render 'matchups/player_card', 
-                    position: 'Quarterback', 
-                    first_name: @qb.first_name, 
-                    last_name: @qb.last_name, 
-                    rank: @qb.pass_rank %>
-              <% end %>
-              
-              <% if @rb1 %>
-                <%= render 'matchups/player_card', 
-                    position: 'Running Back', 
-                    first_name: @rb1.first_name, 
-                    last_name: @rb1.last_name, 
-                    rank: @rb1.run_rank %>
-              <% end %>
-            </div>
-            
-            <!-- Receiving Rank -->
-            <div class="mb-4">
-              <div class="flex items-center justify-start">
-                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg w-full">
-                  <div class="flex items-center justify-between">
-                    <span class="text-2xl font-bold text-[#4BAF50] w-8 text-center"><%= @matchup&.receiver_core_rank || 'N/A' %></span>
-                    <span class="text-sm text-[#A5B1AA]">Receiving Rank</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Receivers -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <% if @wr1 %>
-                <%= render 'matchups/player_card', 
-                    position: 'Receiver', 
-                    first_name: @wr1.first_name, 
-                    last_name: @wr1.last_name, 
-                    rank: @wr1.pass_route_rank %>
-              <% end %>
-              
-              <% if @wr2 %>
-                <%= render 'matchups/player_card', 
-                    position: 'Receiver', 
-                    first_name: @wr2.first_name, 
-                    last_name: @wr2.last_name, 
-                    rank: @wr2.pass_route_rank %>
-              <% end %>
-              
-              <% if @wr3 %>
-                <%= render 'matchups/player_card', 
-                    position: 'Receiver', 
-                    first_name: @wr3.first_name, 
-                    last_name: @wr3.last_name, 
-                    rank: @wr3.pass_route_rank %>
-              <% end %>
-            </div>
-            
-
-            
-            <!-- Tight End and RB2 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <% if @te %>
-                <%= render 'matchups/player_card', 
-                    position: 'Tight End', 
-                    first_name: @te.first_name, 
-                    last_name: @te.last_name, 
-                    rank: @te.pass_route_rank %>
-              <% end %>
-              
-              <% if @rb2 %>
-                <%= render 'matchups/player_card', 
-                    position: 'Running Back', 
-                    first_name: @rb2.first_name, 
-                    last_name: @rb2.last_name, 
-                    rank: @rb2.run_rank %>
-              <% end %>
-            </div>
-          </div>
-        </div>
+        <%= render 'matchups/offensive_lineup', 
+            matchup: @matchup,
+            qb: @qb,
+            rb1: @rb1,
+            rb2: @rb2,
+            wr1: @wr1,
+            wr2: @wr2,
+            wr3: @wr3,
+            te: @te,
+            c: @c,
+            lt: @lt,
+            rt: @rt,
+            lg: @lg,
+            rg: @rg %>
       </div>
       
       <!-- RIGHT SIDE - DEFENSE -->
@@ -386,10 +220,10 @@
             <!-- Pass Rush Rank -->
             <div class="mb-4">
               <div class="flex items-center justify-start">
-                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg w-full">
+                <div class="text-left p-3 rounded-lg w-full <%= (@matchup&.pass_rush_rank&.between?(1, 9) ? 'bg-[#FF7C47] dark:bg-[#FF7C47] text-white' : 'bg-[#E8F0E6] dark:bg-[#121E18]') %>">
                   <div class="flex items-center justify-between">
-                    <span class="text-2xl font-bold text-[#FF7C47] w-8 text-center"><%= @matchup&.pass_rush_rank || 'N/A' %></span>
-                    <span class="text-sm text-[#A5B1AA]">Pass Rush Rank</span>
+                    <span class="text-2xl font-bold w-8 text-center <%= (@matchup&.pass_rush_rank&.between?(1, 9) ? 'text-white' : 'text-[#FF7C47]') %>"><%= @matchup&.pass_rush_rank || 'N/A' %></span>
+                    <span class="text-sm <%= (@matchup&.pass_rush_rank&.between?(1, 9) ? 'text-white/90' : 'text-[#A5B1AA]') %>">Pass Rush Rank</span>
                   </div>
                 </div>
               </div>
@@ -445,10 +279,10 @@
             <!-- Run Defense Rank -->
             <div class="mb-4">
               <div class="flex items-center justify-start">
-                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg w-full">
+                <div class="text-left p-3 rounded-lg w-full <%= (@matchup&.run_defense_rank&.between?(1, 9) ? 'bg-[#FF7C47] dark:bg-[#FF7C47] text-white' : 'bg-[#E8F0E6] dark:bg-[#121E18]') %>">
                   <div class="flex items-center justify-between">
-                    <span class="text-2xl font-bold text-[#FF7C47] w-8 text-center"><%= @matchup&.run_defense_rank || 'N/A' %></span>
-                    <span class="text-sm text-[#A5B1AA]">Run Defense Rank</span>
+                    <span class="text-2xl font-bold w-8 text-center <%= (@matchup&.run_defense_rank&.between?(1, 9) ? 'text-white' : 'text-[#FF7C47]') %>"><%= @matchup&.run_defense_rank || 'N/A' %></span>
+                    <span class="text-sm <%= (@matchup&.run_defense_rank&.between?(1, 9) ? 'text-white/90' : 'text-[#A5B1AA]') %>">Run Defense Rank</span>
                   </div>
                 </div>
               </div>
@@ -478,10 +312,10 @@
             <!-- Coverage Rank -->
             <div class="mb-4">
               <div class="flex items-center justify-start">
-                <div class="text-left p-3 bg-[#E8F0E6] dark:bg-[#121E18] rounded-lg w-full">
+                <div class="text-left p-3 rounded-lg w-full <%= (@matchup&.coverage_rank&.between?(1, 9) ? 'bg-[#FF7C47] dark:bg-[#FF7C47] text-white' : 'bg-[#E8F0E6] dark:bg-[#121E18]') %>">
                   <div class="flex items-center justify-between">
-                    <span class="text-2xl font-bold text-[#FF7C47] w-8 text-center"><%= @matchup&.coverage_rank || 'N/A' %></span>
-                    <span class="text-sm text-[#A5B1AA]">Coverage Rank</span>
+                    <span class="text-2xl font-bold w-8 text-center <%= (@matchup&.coverage_rank&.between?(1, 9) ? 'text-white' : 'text-[#FF7C47]') %>"><%= @matchup&.coverage_rank || 'N/A' %></span>
+                    <span class="text-sm <%= (@matchup&.coverage_rank&.between?(1, 9) ? 'text-white/90' : 'text-[#A5B1AA]') %>">Coverage Rank</span>
                   </div>
                 </div>
               </div>
@@ -541,7 +375,7 @@
       </div>
     </div>
   </div>
-
+xxxx
   <!-- Footer -->
   <footer class="bg-[#121E18] dark:bg-[#0a1510] text-[#A5B1AA] py-12 mt-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -560,6 +394,10 @@
           <span class="mx-2">•</span>
           <a href="<%= teams_seasons_path(@season) %>" class="text-[#4BAF50] hover:text-[#3d8a40] underline mx-2 transition-colors">
             View Team Rosters
+          </a>
+          <span class="mx-2">•</span>
+          <a href="/phi/dal/1/2025/game-summary" class="text-[#4BAF50] hover:text-[#3d8a40] underline mx-2 transition-colors">
+            View Game Summary
           </a>
         </p>
       </div>

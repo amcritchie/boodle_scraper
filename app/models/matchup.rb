@@ -1,5 +1,8 @@
 class Matchup < ApplicationRecord
   include PredictionConcern
+  include PlayerRosterConcern
+  
+
   
   belongs_to :game, foreign_key: :game_slug, primary_key: :slug, optional: true
 #   belongs_to :team
@@ -169,9 +172,9 @@ class Matchup < ApplicationRecord
   end
 
   def set_rushing_offense_score
-    qb_rushing          = 0.8 * qb.rushing_grade rescue 60
-    rb_rushing          = 1.2 * rb.rushing_grade rescue 60
-    # oline_blocking      = 1.0 * (oline.sum { |line| line.run_block_grade rescue 60 } / oline.count).to_i
+    qb_rushing          = 0.8 * qb_player.rushing_grade rescue 60
+    rb_rushing          = 1.2 * rb1_player.rushing_grade rescue 60
+    oline_blocking      = 1.0 * (oline.sum { |line| line.run_block_grade rescue 60 } / oline.count).to_i
     receivers_blocking  = 0.8 * (receivers.sum { |receiver| receiver.run_block_grade } / receivers.count).to_i
 
     # Rushing Tandem RB + QB
@@ -224,7 +227,7 @@ class Matchup < ApplicationRecord
   end
 
   def set_passing_offense_score
-    qb_passing          = 4.0 * qb.passing_grade rescue 60
+    qb_passing          = 4.0 * qb_player.passing_grade rescue 60
     # Most Impactful Rushing Players
     update(reciever_factors: top_three_receivers.map { |player| "#{player.receiving_grade.to_i} #{player.last_name}" })
     oline_holes = oline.sort_by { |player| -player.pass_block_grade rescue 60 }.last(2)
@@ -241,7 +244,7 @@ class Matchup < ApplicationRecord
     update(passer_score: qb_passing)
     update(reciever_score: rec1_receiving + rec2_receiving + rec3_receiving)
     # RB + OLINE
-    rb_passing          = 0.5 * rb.offense_grade rescue 60
+    rb_passing          = 0.5 * rb1_player.offense_grade rescue 60
     oline_passing       = 2.0 * (oline.sum { |line| line.pass_block_grade rescue 60 } / oline.count).to_i
     # oline grades
     interior_grade = interior_oline.sum { |p| p.pass_block_grade rescue 60 } / interior_oline.size
@@ -385,176 +388,24 @@ class Matchup < ApplicationRecord
     return matchups.first(2).last.passer_score, matchups.last(2).first.passer_score
   end
 
-  def offense_starters
-    Player.where(slug: [self.qb, self.rb1, self.rb2, self.wr1, self.wr2, self.wr3, self.te, self.c, self.lt, self.rt, self.lg, self.rg].compact)
-    # [self.qb, self.rb1, self.rb2, self.wr1, self.wr2, self.wr3, self.te, self.c, self.lt, self.rt, self.lg, self.rg].filter_map { |slug| Player.find_by_slug(slug) }
-  end
 
-  def qbb
-    Player.find_by_slug(self.qb)
-  end
 
-  def rb
-    Player.find_by_slug(self.rb1)
-  end
 
-  def rbb2
-    Player.find_by_slug(self.rb2)
-  end
 
-  def off_flex
-    Player.find_by_slug(self.rb2) # Using rb2 as flex
-  end
 
-  def def_flex
-    Player.find_by_slug(self.cb3) # Using cb3 as defensive flex
-  end
 
-  def full_backs
-    offense_starters.filter_map { |player| player if player.slug&.start_with?("full_back") }
-  end
 
-  def running_backs
-    offense_starters.filter_map { |player| player if player.slug&.start_with?("running_back") }
-  end
 
-  def wide_receivers
-    offense_starters.filter_map { |player| player if player.position == "wide-receiver" }
-  end
 
-  def tight_ends
-    offense_starters.filter_map { |player| player if player.position == "tight-end" }
-  end
 
-  # def fullbacks
-  #   [] # Add logic if fullbacks are included in the dataset
-  # end
 
-  def receivers
-    wide_receivers + tight_ends
-  end
 
-  def skill_positions
-    full_backs + running_backs  + receivers
-  end
 
-  def oline
-    interior_oline + exterior_oline
-  end
-
-  def center
-    offense_starters
-    .where(position: [:center])
-    .limit(1).first
-  end
-
-  def guards
-    offense_starters
-    .where(position: [:gaurd])
-    .limit(2)
-  end
-
-  def tackles
-    offense_starters
-    .where(position: [:tackle])
-    .limit(2)
-  end
-
-  def interior_oline
-    offense_starters
-    .where(position: [:gaurd, :center])
-    .limit(3)
-  end
-
-  def exterior_oline
-    offense_starters
-    .where(position: [:tackle])
-    .limit(2)
-  end
-
-  def rushing_tandem
-    offense_starters
-    .where(position: [:runningback, :quarterback])
-    .limit(2)
-  end
-
-  def defense_starters
-    Player.where(slug: [self.eg1, self.eg2, self.dl1, self.dl2, self.dl3, self.lb1, self.lb2, self.cb1, self.cb2, self.cb3, self.s1, self.s2].compact)
-      # .where("grades_pass_rush > ?", 70) # Filter players with grades_pass_rush > 70
-      # .order(grades_pass_rush: :desc)   # Order by grades_pass_rush descending
-      # .limit(2)                        # Limit to top 2 players
-  end
-
-  # Edge Rushers, 2, Pass Rush
-  def edge_rushers
-    defense_starters
-    .where(position: ['edge-rusher'])
-    .limit(2)
-  end
-
-  # Defensive Ends, 2, Pass Rush
-  def defensive_ends
-    defense_starters
-    .where(position: ['defensive-end'])
-    .limit(2)
-  end
-
-  def dline
-    defensive_ends + edge_rushers
-  end
-
-  # Linebackers, 2, Defence grade
-  def linebackers
-    defense_starters
-    .where(position: ['linebacker'])
-    .limit(2)
-  end
-
-  def cornerbacks
-    defense_starters
-    .where(position: ['cornerback'])
-    .limit(2)
-  end
-
-  def safeties
-    defense_starters
-    .where(position: ['safety'])
-    .limit(2)
-  end
-
-  def secondary
-    cornerbacks + safeties
-  end
-
-  def back_7
-    secondary + linebackers
-  end
-
-  def top_three_receivers
-    offense_starters
-    .where(position: [:wide_receiver, :tight_end])
-    .by_grades_pass_route
-    .limit(3)
-  end
-
-  def nickle_package
-    secondary
-      .filter_map { |player| player if player.grades_coverage }
-      .sort_by { |player| -player.grades_coverage }
-      .first(5)
-  end
-
-  def pass_rush
-    dline
-      .filter_map { |player| player if player.grades_pass_rush }
-      .sort_by { |player| -player.grades_pass_rush }
-      .first(2)
-  end
 
   def index_grade
     puts "=QB=============="
-    puts qb.slug
-    puts "🏈 #{qb.passing_grade}  🏃 #{qb.rushing_grade} 🙌 #{qb.receiving_grade}"
+    puts qb_player.slug
+    puts "🏈 #{qb_player.passing_grade}  🏃 #{qb_player.rushing_grade} 🙌 #{qb_player.receiving_grade}"
     puts "---------------"
     puts "=O-LINE=============="
     oline.each do |blocker|
@@ -562,8 +413,8 @@ class Matchup < ApplicationRecord
       puts "🏈 #{blocker.pass_block_grade}  🏃 #{blocker.run_block_grade}"
     end
     puts "=RB=============="
-    puts rb.slug
-    puts "🏈 #{rb.pass_block_grade}  🏃 #{rb.rushing_grade} 🙌 #{rb.receiving_grade}"
+    puts rb1_player.slug
+    puts "🏈 #{rb1_player.pass_block_grade}  🏃 #{rb1_player.rushing_grade} 🙌 #{rb1_player.receiving_grade}"
     puts "---------------"
     puts "=Receivers=============="
     receivers.each do |receiver|

@@ -23,10 +23,9 @@ class PredictionsController < ApplicationController
     @home_team = Team.find_by(slug: @game.home_slug)
     @away_team = Team.find_by(slug: @game.away_slug)
     
-    # Calculate predicted scores
-    @home_predicted_score = @home_matchup&.predicted_score || 0
-    @away_predicted_score = @away_matchup&.predicted_score || 0
-    @total_predicted_score = @home_predicted_score + @away_predicted_score
+    # Set week and season for the view
+    @week_number = @week.sequence
+    @season = @year
     
     # Get week display name
     @week_display = case @week.sequence
@@ -44,8 +43,14 @@ class PredictionsController < ApplicationController
                       "Week #{@week.sequence}"
                     end
     
+    # Hardcoded team colors for now
+    @home_color_dark = "#1a2d24"
+    @home_color_accent = "#4BAF50"
+    @away_color_dark = "#2d1a24"
+    @away_color_accent = "#FF7C47"
+    
     # Set page title for SEO
-    @page_title = "#{@away_team&.alias} vs #{@home_team&.alias} Prediction - #{@week_display} #{@year}"
-    @page_description = "Get the latest #{@away_team&.alias} vs #{@home_team&.alias} prediction for #{@week_display} of the #{@year} NFL season. Expert analysis, predicted scores, and betting insights."
+    @page_title = "#{@away_team&.alias} vs #{@home_team&.alias} Game Summary - #{@week_display} #{@year}"
+    @page_description = "Get the latest #{@away_team&.alias} vs #{@home_team&.alias} game summary for #{@week_display} of the #{@year} NFL season. Advanced game analysis and player matchups."
   end
 end

@@ -1,0 +1,174 @@
+<!-- Offensive Lineup Card -->
+<div class="bg-white dark:bg-[#1a2d24] rounded-2xl shadow-2xl overflow-hidden border border-[#4BAF50]/20">
+  <div class="bg-gradient-to-r from-[#4BAF50] to-[#3d8a40] px-6 py-4">
+    <div class="flex items-center space-x-3">
+      <span class="text-2xl"><%= matchup.team.emoji %> </span>
+      <h3 class="text-xl text-white"><%= matchup.team.location %> <span class="font-bold">Offense</span></h3>
+    </div>
+  </div>
+  
+  <div class="p-6">
+    <!-- Pass Blocking and Run Blocking Ranks -->
+    <div class="mb-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="text-left p-3 rounded-lg <%= (matchup.pass_block_rank&.between?(1, 9) ? 'bg-[#4BAF50] dark:bg-[#4BAF50] text-white' : 'bg-[#E8F0E6] dark:bg-[#121E18]') %>">
+          <div class="flex items-center justify-between">
+            <span class="text-2xl font-bold w-8 text-center <%= (matchup.pass_block_rank&.between?(1, 9) ? 'text-white' : 'text-[#4BAF50]') %>"><%= matchup.pass_block_rank || 'N/A' %></span>
+            <span class="text-sm <%= (matchup.pass_block_rank&.between?(1, 9) ? 'text-white/90' : 'text-[#A5B1AA]') %>">Pass Block Rank</span>
+          </div>
+        </div>
+        <div class="text-left p-3 rounded-lg <%= (matchup.rush_block_rank&.between?(1, 9) ? 'bg-[#4BAF50] dark:bg-[#4BAF50] text-white' : 'bg-[#E8F0E6] dark:bg-[#121E18]') %>">
+          <div class="flex items-center justify-between">
+            <span class="text-2xl font-bold w-8 text-center <%= (matchup.rush_block_rank&.between?(1, 9) ? 'text-white' : 'text-[#4BAF50]') %>"><%= matchup.rush_block_rank || 'N/A' %></span>
+            <span class="text-sm <%= (matchup.rush_block_rank&.between?(1, 9) ? 'text-white/90' : 'text-[#A5B1AA]') %>">Run Block Rank</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Offensive Line -->
+    <div class="mb-4">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+        <% if matchup.left_tackle_player %>
+          <%= render 'matchups/player_card', 
+              position: 'LT', 
+              first_name: matchup.left_tackle_player.first_name, 
+              last_name: matchup.left_tackle_player.last_name, 
+              rank: matchup.left_tackle_player.pass_block_rank,
+              highlight: !matchup.qb_player&.left_handed? %>
+        <% end %>
+        
+        <% if matchup.left_guard_player %>
+          <%= render 'matchups/player_card', 
+              position: 'LG', 
+              first_name: matchup.left_guard_player.first_name, 
+              last_name: matchup.left_guard_player.last_name, 
+              rank: matchup.left_guard_player.run_block_rank,
+              highlight: false %>
+        <% end %>
+        
+        <% if matchup.center_player %>
+          <%= render 'matchups/player_card', 
+              position: 'C', 
+              first_name: matchup.center_player.first_name, 
+              last_name: matchup.center_player.last_name, 
+              rank: matchup.center_player.run_block_rank,
+              highlight: false %>
+        <% end %>
+        
+        <% if matchup.right_guard_player %>
+          <%= render 'matchups/player_card', 
+              position: 'RG', 
+              first_name: matchup.right_guard_player.first_name, 
+              last_name: matchup.right_guard_player.last_name, 
+              rank: matchup.right_guard_player.run_block_rank,
+              highlight: false %>
+        <% end %>
+        
+        <% if matchup.right_tackle_player %>
+          <%= render 'matchups/player_card', 
+              position: 'RT', 
+              first_name: matchup.right_tackle_player.first_name, 
+              last_name: matchup.right_tackle_player.last_name, 
+              rank: matchup.right_tackle_player.pass_block_rank,
+              highlight: matchup.qb_player&.left_handed? %>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Passing and Rushing Ranks -->
+    <div class="mb-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="text-left p-3 rounded-lg <%= (matchup.passing_attack_rank&.between?(1, 9) ? 'bg-[#4BAF50] dark:bg-[#4BAF50] text-white' : 'bg-[#E8F0E6] dark:bg-[#121E18]') %>">
+          <div class="flex items-center justify-between">
+            <span class="text-2xl font-bold w-8 text-center <%= (matchup.passing_attack_rank&.between?(1, 9) ? 'text-white' : 'text-[#4BAF50]') %>"><%= matchup.passing_attack_rank || 'N/A' %></span>
+            <span class="text-sm <%= (matchup.passing_attack_rank&.between?(1, 9) ? 'text-white/90' : 'text-[#A5B1AA]') %>">Passing Rank</span>
+          </div>
+        </div>
+        <div class="text-left p-3 rounded-lg <%= (matchup&.rushing_attack_rank&.between?(1, 9) ? 'bg-[#4BAF50] dark:bg-[#4BAF50] text-white' : 'bg-[#E8F0E6] dark:bg-[#121E18]') %>">
+          <div class="flex items-center justify-between">
+            <span class="text-2xl font-bold w-8 text-center <%= (matchup&.rushing_attack_rank&.between?(1, 9) ? 'text-white' : 'text-[#4BAF50]') %>"><%= matchup&.rushing_attack_rank || 'N/A' %></span>
+            <span class="text-sm <%= (matchup&.rushing_attack_rank&.between?(1, 9) ? 'text-white/90' : 'text-[#A5B1AA]') %>">Rushing Rank</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quarterback and RB1 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <% if matchup.qb_player %>
+        <%= render 'matchups/player_card', 
+            position: 'Quarterback', 
+            first_name: matchup.qb_player.first_name, 
+            last_name: matchup.qb_player.last_name, 
+            rank: matchup.qb_player.pass_rank %>
+      <% end %>
+      
+      <% if matchup.rb1_player %>
+        <%= render 'matchups/player_card', 
+            position: 'Running Back', 
+            first_name: matchup.rb1_player.first_name, 
+            last_name: matchup.rb1_player.last_name, 
+            rank: matchup.rb1_player.run_rank %>
+      <% end %>
+    </div>
+    
+    <!-- Receiving Rank -->
+    <div class="mb-4">
+      <div class="flex items-center justify-start">
+        <div class="text-left p-3 rounded-lg w-full <%= (matchup&.receiver_core_rank&.between?(1, 9) ? 'bg-[#4BAF50] dark:bg-[#4BAF50] text-white' : 'bg-[#E8F0E6] dark:bg-[#121E18]') %>">
+          <div class="flex items-center justify-between">
+            <span class="text-2xl font-bold w-8 text-center <%= (matchup&.receiver_core_rank&.between?(1, 9) ? 'text-white' : 'text-[#4BAF50]') %>"><%= matchup&.receiver_core_rank || 'N/A' %></span>
+            <span class="text-sm <%= (matchup&.receiver_core_rank&.between?(1, 9) ? 'text-white/90' : 'text-[#A5B1AA]') %>">Receiving Rank</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Receivers -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <% if matchup.wr1_player %>
+        <%= render 'matchups/player_card', 
+            position: 'Receiver', 
+            first_name: matchup.wr1_player.first_name, 
+            last_name: matchup.wr1_player.last_name, 
+            rank: matchup.wr1_player.pass_route_rank %>
+      <% end %>
+      
+      <% if matchup.wr2_player %>
+        <%= render 'matchups/player_card', 
+            position: 'Receiver', 
+            first_name: matchup.wr2_player.first_name, 
+            last_name: matchup.wr2_player.last_name, 
+            rank: matchup.wr2_player.pass_route_rank %>
+      <% end %>
+      
+      <% if matchup.wr3_player %>
+        <%= render 'matchups/player_card', 
+            position: 'Receiver', 
+            first_name: matchup.wr3_player.first_name, 
+            last_name: matchup.wr3_player.last_name, 
+            rank: matchup.wr3_player.pass_route_rank %>
+      <% end %>
+    </div>
+    
+    <!-- Tight End and RB2 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <% if matchup.te_player %>
+        <%= render 'matchups/player_card', 
+            position: 'Tight End', 
+            first_name: matchup.te_player.first_name, 
+            last_name: matchup.te_player.last_name, 
+            rank: matchup.te_player.pass_route_rank %>
+      <% end %>
+      
+      <% if matchup.rb2_player %>
+        <%= render 'matchups/player_card', 
+            position: 'Running Back', 
+            first_name: matchup.rb2_player.first_name, 
+            last_name: matchup.rb2_player.last_name, 
+            rank: matchup.rb2_player.run_rank %>
+      <% end %>
+    </div>
+  </div>
+</div>
