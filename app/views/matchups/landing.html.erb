@@ -63,7 +63,8 @@
               <% @passing_matchups_with_colors.each_with_index do |item, index| %>
                 <% matchup = item[:matchup] %>
                 <% bg_color = item[:background_color] %>
-                <tr class="text-center border-b border-[#A5B1AA]/20 hover:bg-[#E8F0E6]/50 dark:hover:bg-[#121E18]/50 transition-colors duration-200">
+                <tr class="text-center border-b border-[#A5B1AA]/20 hover:bg-[#E8F0E6]/50 dark:hover:bg-[#121E18]/50 transition-colors duration-200 cursor-pointer"
+                    onclick="window.location.href='<%= matchup_summary_path(matchup.team.slug, matchup.team_defense.slug, matchup.week_slug, matchup.season) %>'">
                   <td class="py-1 px-1 font-semibold text-lg text-white text-center <%= bg_color %> rounded"><%= index + 1 %></td>
                   <td class="py-3 px-3">
                     <%= render 'matchups/team_display', team: matchup.team, is_home: matchup.home %>
@@ -73,14 +74,6 @@
                       { emoji: '🎯', value: matchup.qb_passing_rank },
                       { emoji: '🤲', value: matchup.receiver_core_rank }
                     ] %>
-                    
-                    <div class="mt-2">
-                      <a href="<%= matchup_summary_path(matchup.team.slug, matchup.team_defense.slug, matchup.week_slug, matchup.season) %>" 
-                         class="inline-flex items-center px-3 py-1 bg-[#4BAF50] hover:bg-[#3d8a40] text-white text-xs font-medium rounded-lg transition-colors">
-                        <span class="mr-1">📊</span>
-                        View Matchup
-                      </a>
-                    </div>
                   </td>
                   <td class="py-3 px-3">
                     <%= render 'matchups/team_display', team: matchup.team_defense, is_home: !matchup.home %>
@@ -170,7 +163,8 @@
               <% @rushing_matchups_with_colors.each_with_index do |item, index| %>
                 <% matchup = item[:matchup] %>
                 <% bg_color = item[:background_color] %>
-                <tr class="text-center border-b border-[#A5B1AA]/20 hover:bg-[#E8F0E6]/50 dark:hover:bg-[#121E18]/50 transition-colors duration-200">
+                <tr class="text-center border-b border-[#A5B1AA]/20 hover:bg-[#E8F0E6]/50 dark:hover:bg-[#121E18]/50 transition-colors duration-200 cursor-pointer"
+                    onclick="window.location.href='<%= matchup_summary_path(matchup.team.slug, matchup.team_defense.slug, matchup.week_slug, matchup.season) %>'">
                   <td class="py-1 px-1 font-semibold text-lg text-white text-center <%= bg_color %> rounded"><%= index + 1 %></td>
                   <td class="py-3 px-3">
                     <%= render 'matchups/team_display', team: matchup.team, is_home: matchup.home %>
@@ -178,14 +172,6 @@
                       { emoji: '🛡️', value: matchup.pass_block_rank },
                       { emoji: '👟', value: matchup.rushing_rank }
                     ] %>
-                    
-                    <div class="mt-2">
-                      <a href="<%= matchup_summary_path(matchup.team.slug, matchup.team_defense.slug, matchup.week_slug, matchup.season) %>" 
-                         class="inline-flex items-center px-3 py-1 bg-[#4BAF50] hover:bg-[#3d8a40] text-white text-xs font-medium rounded-lg transition-colors">
-                        <span class="mr-1">📊</span>
-                        View Matchup
-                      </a>
-                    </div>
                   </td>
                   <td class="py-3 px-3">
                     <%= render 'matchups/team_display', team: matchup.team_defense, is_home: !matchup.home %>
