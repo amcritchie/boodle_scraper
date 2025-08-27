@@ -1,0 +1,15 @@
+<% highlight ||= false %>
+<div class="p-3 <%= highlight ? 'bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-400' : 'bg-[#E8F0E6] dark:bg-[#121E18]' %> rounded-lg">
+  <div class="flex justify-between items-center text-xs text-[#A5B1AA]">
+    <span><%= position %></span>
+    <span class="w-10 text-right px-0 py-.5 text-xs font-medium <%= (rank && rank.between?(1, 10)) ? 'text-green-500' : 'text-orange-500' %>">
+      <%= rank || 'N/A' %>
+    </span>
+  </div>
+  <div class="text-xs text-[#121E18] dark:text-[#E8F0E6] leading-tight truncate">
+    <%= first_name %>
+  </div>
+  <div class="text-xs font-bold text-[#121E18] dark:text-[#E8F0E6] leading-tight truncate">
+    <%= last_name %>
+  </div>
+</div>

@@ -28,4 +28,7 @@ Rails.application.routes.draw do
   get 'games/:year/week1/betting', to: 'games#betting', as: 'games_betting'
   post 'games/:year/week1/betting', to: 'games#update_betting', as: 'update_betting'
   get 'games/:year/week1/:game_slug', to: 'games#show', as: 'game_show'
+  
+  # Predictions routes for SEO optimization
+  get 'predictions/:year/week:week/:week/:game_slug', to: 'predictions#show', as: 'prediction_show'
 end
