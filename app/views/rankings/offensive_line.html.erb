@@ -5,12 +5,13 @@
   <div class="bg-gradient-to-br from-[#121E18] via-[#1a2d24] to-[#4BAF50] dark:from-[#121E18] dark:via-[#1a2d24] dark:to-[#4BAF50] text-[#E8F0E6] border-b border-[#4BAF50]/20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="text-center">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4 text-[#E8F0E6] drop-shadow-lg">
-          NFL Offensive Line Rankings
+        <h1 class="text-4xl md:text-5xl font-bold mb-2 text-[#E8F0E6] drop-shadow-lg">
+          Offensive Linemen
         </h1>
-        <p class="text-lg md:text-xl text-[#A5B1AA] mb-6">
-          Week <%= @week %> • <%= @year %> Season • Advanced Performance Analysis
-        </p>
+        <h2 class="text-2xl md:text-3xl font-semibold mb-4 text-[#A5B1AA] drop-shadow-lg">
+          Week <%= @week %> Rankings
+        </h2>
+
         
       </div>
     </div>
@@ -29,7 +30,7 @@
               type="text" 
               id="search-input"
               placeholder="Search players, teams..." 
-              class="w-full px-4 py-3 pl-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#4BAF50] focus:border-transparent text-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              class="w-full px-4 py-3 pl-12 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#4BAF50] focus:border-transparent text-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               value="<%= params[:search] || @filtered_team_name %>"
             >
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -37,6 +38,16 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
               </svg>
             </div>
+            <button 
+              type="button" 
+              id="clear-search"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              style="display: none;"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
           </div>
         </div>
         
@@ -47,14 +58,14 @@
             class="px-6 py-3 rounded-lg font-semibold transition-colors <%= @sort_by == 'pass_block' ? 'bg-[#4BAF50] text-white' : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500' %>"
             data-sort="pass_block"
           >
-            Pass Block Rankings
+            Pass Block
           </button>
           <button 
             id="run-block-btn"
             class="px-6 py-3 rounded-lg font-semibold transition-colors <%= @sort_by == 'run_block' ? 'bg-[#4BAF50] text-white' : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500' %>"
             data-sort="run_block"
           >
-            Run Block Rankings
+            Run Block
           </button>
         </div>
       </div>
@@ -69,7 +80,7 @@
             <h2 class="text-xl font-bold text-white">Offensive Line Rankings</h2>
             <p class="text-green-100 text-sm">
               <span id="grade-header">Pass Block Grades</span> • 
-              Showing <%= @rankings&.count || @oline_players&.count %> players
+              Showing <%= @rankings&.count || @oline_players&.count %>
             </p>
           </div>
         </div>
@@ -102,13 +113,16 @@
                       <div class="flex items-center">
                         <div class="flex-shrink-0 h-10 w-10">
                           <div class="h-10 w-10 rounded-full bg-[#4BAF50]/20 flex items-center justify-center border-2 border-[#4BAF50]">
-                            <span class="text-sm font-medium text-[#4BAF50]">
-                              <%= ranking.player.first_name&.first %><%= ranking.player.last_name&.first %>
+                            <span class="text-xs font-bold text-[#4BAF50]">
+                              <%= ranking.position %>
                             </span>
                           </div>
                         </div>
                         <div class="ml-4">
                           <div class="text-sm font-medium text-gray-900 dark:text-white">
+                            <span class="font-bold text-lg mr-2">
+                            <%= ranking.player.team&.emoji %>
+                            </span>
                             <%= ranking.player.first_name %> <%= ranking.player.last_name %>
                           </div>
                           <div class="text-sm text-gray-500 dark:text-gray-400">
@@ -171,8 +185,8 @@
                       <div class="flex items-center">
                         <div class="flex-shrink-0 h-10 w-10">
                           <div class="h-10 w-10 rounded-full bg-[#4BAF50]/20 flex items-center justify-center border-2 border-[#4BAF50]">
-                            <span class="text-sm font-medium text-[#4BAF50]">
-                              <%= player.first_name&.first %><%= player.last_name&.first %>
+                            <span class="text-xs font-bold text-[#4BAF50]">
+                              <%= @starter_positions&.dig(player.slug) %>
                             </span>
                           </div>
                         </div>
@@ -264,18 +278,28 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const searchInput = document.getElementById('search-input');
+  const clearButton = document.getElementById('clear-search');
   const passBlockBtn = document.getElementById('pass-block-btn');
   const runBlockBtn = document.getElementById('run-block-btn');
   const gradeHeader = document.getElementById('grade-header');
   const gradeHeaderCol = document.getElementById('grade-header-col');
   
-  // Auto-focus search input
-  searchInput.focus();
+  // Show/hide clear button based on input value
+  function toggleClearButton() {
+    if (searchInput.value.trim().length > 0) {
+      clearButton.style.display = 'flex';
+    } else {
+      clearButton.style.display = 'none';
+    }
+  }
   
   // Search functionality
   searchInput.addEventListener('input', function() {
     const searchTerm = this.value.toLowerCase();
     const rows = document.querySelectorAll('#players-table-body tr');
+    
+    // Toggle clear button visibility
+    toggleClearButton();
     
     rows.forEach(row => {
       const playerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
@@ -288,6 +312,28 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
+  
+  // Clear search functionality
+  clearButton.addEventListener('click', function() {
+    searchInput.value = '';
+    searchInput.focus();
+    toggleClearButton();
+    // Trigger search to show all rows
+    const event = new Event('input', { bubbles: true });
+    searchInput.dispatchEvent(event);
+  });
+  
+  // Initialize: Set up initial state after event listeners are ready
+  toggleClearButton();
+  
+  // Trigger initial search if there's a pre-filled value
+  if (searchInput.value.trim().length > 0) {
+    const event = new Event('input', { bubbles: true });
+    searchInput.dispatchEvent(event);
+  }
+  
+  // Auto-focus search input
+  searchInput.focus();
   
   // Toggle between pass block and run block grades
   function updateSort(sortType) {

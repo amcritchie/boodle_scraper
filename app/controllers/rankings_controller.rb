@@ -21,10 +21,7 @@ class RankingsController < ApplicationController
       if params[:team].present?
         # Find the team by alias to get the slug
         team = Team.find_by(alias: params[:team])
-        if team
-          @rankings = @rankings.joins(:player).where(players: { team_slug: team.slug })
-          @filtered_team_name = team.alias
-        end
+        @filtered_team_name = team.alias if team
       end
       
       # Apply search filter if present
