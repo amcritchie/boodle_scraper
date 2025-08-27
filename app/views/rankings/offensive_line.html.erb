@@ -1,0 +1,318 @@
+<!-- Page Container with Dark Mode Support -->
+<div class="min-h-screen transition-colors duration-200" x-data="{ darkMode: $parent.darkMode }">
+
+  <!-- Hero Section -->
+  <div class="bg-gradient-to-br from-[#121E18] via-[#1a2d24] to-[#4BAF50] dark:from-[#121E18] dark:via-[#1a2d24] dark:to-[#4BAF50] text-[#E8F0E6] border-b border-[#4BAF50]/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 text-[#E8F0E6] drop-shadow-lg">
+          NFL Offensive Line Rankings
+        </h1>
+        <p class="text-lg md:text-xl text-[#A5B1AA] mb-6">
+          Week <%= @week %> • <%= @year %> Season • Advanced Performance Analysis
+        </p>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    
+    <!-- Search and Toggle Controls -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-8 p-6">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <!-- Search Bar -->
+        <div class="flex-1 max-w-md">
+          <div class="relative">
+            <input 
+              type="text" 
+              id="search-input"
+              placeholder="Search players, teams..." 
+              class="w-full px-4 py-3 pl-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#4BAF50] focus:border-transparent text-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              value="<%= params[:search] %>"
+            >
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-6 w-6 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Toggle Buttons -->
+        <div class="flex space-x-2">
+          <button 
+            id="pass-block-btn"
+            class="px-6 py-3 rounded-lg font-semibold transition-colors <%= @sort_by == 'pass_block' ? 'bg-[#4BAF50] text-white' : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500' %>"
+            data-sort="pass_block"
+          >
+            Pass Block Rankings
+          </button>
+          <button 
+            id="run-block-btn"
+            class="px-6 py-3 rounded-lg font-semibold transition-colors <%= @sort_by == 'run_block' ? 'bg-[#4BAF50] text-white' : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500' %>"
+            data-sort="run_block"
+          >
+            Run Block Rankings
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Players List -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div class="bg-gradient-to-r from-[#4BAF50] to-[#45a049] px-6 py-4">
+        <div class="flex items-center space-x-3">
+          <span class="text-2xl">🛡️</span>
+          <div>
+            <h2 class="text-xl font-bold text-white">Offensive Line Rankings</h2>
+            <p class="text-green-100 text-sm">
+              <span id="grade-header">Pass Block Grades</span> • 
+              Showing <%= @rankings&.count || @oline_players&.count %> players
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rank</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Player</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Team</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Position</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <span id="grade-header-col">Pass Block Grade</span>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Run Block Grade</th>
+            </tr>
+          </thead>
+                      <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" id="players-table-body">
+              <% if @rankings&.any? %>
+                <% @rankings.each_with_index do |ranking, index| %>
+                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                      <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#4BAF50] text-white text-sm font-bold">
+                        <%= index + 1 %>
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center">
+                        <div class="flex-shrink-0 h-10 w-10">
+                          <div class="h-10 w-10 rounded-full bg-[#4BAF50]/20 flex items-center justify-center border-2 border-[#4BAF50]">
+                            <span class="text-sm font-medium text-[#4BAF50]">
+                              <%= ranking.player.first_name&.first %><%= ranking.player.last_name&.first %>
+                            </span>
+                          </div>
+                        </div>
+                        <div class="ml-4">
+                          <div class="text-sm font-medium text-gray-900 dark:text-white">
+                            <%= ranking.player.first_name %> <%= ranking.player.last_name %>
+                          </div>
+                          <div class="text-sm text-gray-500 dark:text-gray-400">
+                            <%= ranking.player.jersey_number if ranking.player.respond_to?(:jersey_number) %>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#4BAF50]/20 text-[#4BAF50] border border-[#4BAF50]/30">
+                        <%= ranking.player.team&.name || ranking.player.team_slug&.upcase %>
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700">
+                        <%= ranking.position %>
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      <div class="flex flex-col">
+                        <div class="flex items-center">
+                                                  <span class="font-semibold <%= if ranking.rank_2 <= 20; 'text-green-600 dark:text-green-400'; elsif ranking.rank_2 <= 50; 'text-yellow-600 dark:text-yellow-400'; else; 'text-red-600 dark:text-red-400'; end %>">
+                          <%= (100 - ranking.percentile_for_category('pass_block').to_f).round(1) %>%
+                        </span>
+                        <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                          (#<%= ranking.rank_2 %>)
+                        </span>
+                      </div>
+                      <div class="mt-1 w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
+                        <div class="bg-[#4BAF50] h-1.5 rounded-full" style="width: <%= (100 - ranking.percentile_for_category('pass_block').to_f).round(1) %>%"></div>
+                      </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      <div class="flex flex-col">
+                        <div class="flex items-center">
+                                                  <span class="font-semibold <%= if ranking.rank_3 <= 20; 'text-green-600 dark:text-green-400'; elsif ranking.rank_3 <= 50; 'text-yellow-600 dark:text-yellow-400'; else; 'text-red-600 dark:text-red-400'; end %>">
+                          <%= (100 - ranking.percentile_for_category('run_block').to_f).round(1) %>%
+                        </span>
+                        <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                          (#<%= ranking.rank_3 %>)
+                        </span>
+                      </div>
+                      <div class="mt-1 w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
+                        <div class="bg-blue-500 h-1.5 rounded-full" style="width: <%= (100 - ranking.percentile_for_category('run_block').to_f).round(1) %>%"></div>
+                      </div>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              <% elsif @oline_players&.any? %>
+                <% @oline_players.each_with_index do |player, index| %>
+                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                      <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#4BAF50] text-white text-sm font-bold">
+                        <%= index + 1 %>
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center">
+                        <div class="flex-shrink-0 h-10 w-10">
+                          <div class="h-10 w-10 rounded-full bg-[#4BAF50]/20 flex items-center justify-center border-2 border-[#4BAF50]">
+                            <span class="text-sm font-medium text-[#4BAF50]">
+                              <%= player.first_name&.first %><%= player.last_name&.first %>
+                            </span>
+                          </div>
+                        </div>
+                        <div class="ml-4">
+                          <div class="text-sm font-medium text-gray-900 dark:text-white">
+                            <%= player.first_name %> <%= player.last_name %>
+                          </div>
+                          <div class="text-sm text-gray-500 dark:text-gray-400">
+                            <%= player.jersey_number if player.respond_to?(:jersey_number) %>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#4BAF50]/20 text-[#4BAF50] border border-[#4BAF50]/30">
+                        <%= player.team&.name || player.team_slug&.upcase %>
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700">
+                        <%= @starter_positions&.dig(player.slug) %>
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      <div class="flex flex-col">
+                        <div class="flex items-center">
+                                                     <span class="font-semibold <%= if player.percentile_pass_block&.to_f&.<= 20; 'text-green-600 dark:text-green-400'; elsif player.percentile_pass_block&.to_f&.<= 50; 'text-yellow-600 dark:text-yellow-400'; else; 'text-red-600 dark:text-red-400'; end %>">
+                             <%= (100 - (player.percentile_pass_block || 0).to_f).round(1) %>%
+                           </span>
+                           <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                             (#<%= player.pass_block_rank %>)
+                           </span>
+                         </div>
+                         <div class="mt-1 w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
+                           <div class="bg-[#4BAF50] h-1.5 rounded-full" style="width: <%= (100 - (player.percentile_pass_block || 0).to_f).round(1) %>%"></div>
+                         </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      <div class="flex flex-col">
+                        <div class="flex items-center">
+                                                     <span class="font-semibold <%= if player.percentile_run_block&.to_f&.<= 20; 'text-green-600 dark:text-green-400'; elsif player.percentile_run_block&.to_f&.<= 50; 'text-yellow-600 dark:text-yellow-400'; else; 'text-red-600 dark:text-red-400'; end %>">
+                             <%= (100 - (player.percentile_run_block || 0).to_f).round(1) %>%
+                           </span>
+
+                           <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                             (#<%= player.run_block_rank %>)
+                           </span>
+                         </div>
+                         <div class="mt-1 w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
+                           <div class="bg-blue-500 h-1.5 rounded-full" style="width: <%= (100 - (player.percentile_run_block || 0).to_f).round(1) %>%"></div>
+                         </div>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              <% end %>
+            </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- No Results Message -->
+    <% if (@rankings&.empty? || @rankings.nil?) && (@oline_players&.empty? || @oline_players.nil?) %>
+      <div class="text-center py-12">
+        <div class="text-gray-400 dark:text-gray-500 mb-4">
+          <svg class="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No players found</h3>
+        <p class="text-gray-500 dark:text-gray-400">Try adjusting your search terms or check back later.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-[#121E18] dark:bg-[#0a1510] text-[#A5B1AA] py-12 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <p class="text-sm">
+          NFL Offensive Line Rankings updated for Week <%= @week %> of the <%= @year %> season
+        </p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('search-input');
+  const passBlockBtn = document.getElementById('pass-block-btn');
+  const runBlockBtn = document.getElementById('run-block-btn');
+  const gradeHeader = document.getElementById('grade-header');
+  const gradeHeaderCol = document.getElementById('grade-header-col');
+  
+  // Auto-focus search input
+  searchInput.focus();
+  
+  // Search functionality
+  searchInput.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#players-table-body tr');
+    
+    rows.forEach(row => {
+      const playerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+      const teamName = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+      
+      if (playerName.includes(searchTerm) || teamName.includes(searchTerm)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+  
+  // Toggle between pass block and run block grades
+  function updateSort(sortType) {
+    const currentUrl = new URL(window.location);
+    currentUrl.searchParams.set('sort', sortType);
+    window.location.href = currentUrl.toString();
+  }
+  
+  passBlockBtn.addEventListener('click', () => updateSort('pass_block'));
+  runBlockBtn.addEventListener('click', () => updateSort('run_block'));
+  
+  // Update button states and headers based on current sort
+  const currentSort = '<%= @sort_by %>';
+  if (currentSort === 'run_block') {
+    passBlockBtn.className = 'px-6 py-3 rounded-lg font-semibold transition-colors bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500';
+    runBlockBtn.className = 'px-6 py-3 rounded-lg font-semibold transition-colors bg-[#4BAF50] text-white';
+    gradeHeader.textContent = 'Run Block Grades';
+    gradeHeaderCol.textContent = 'Run Block Grade';
+  } else {
+    passBlockBtn.className = 'px-6 py-3 rounded-lg font-semibold transition-colors bg-[#4BAF50] text-white';
+    runBlockBtn.className = 'px-6 py-3 rounded-lg font-semibold transition-colors bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500';
+    gradeHeader.textContent = 'Pass Block Grades';
+    gradeHeaderCol.textContent = 'Pass Block Grade';
+  }
+  
+
+});
+</script>

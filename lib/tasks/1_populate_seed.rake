@@ -26,6 +26,10 @@ namespace :seed do
     Rake::Task['teams:startersCurrent'].invoke
     # rake teams_weeks:populate_2025_week_1  | TeamsWeeks (Sports Radar) | 2025 | Rankings and Scores
     Rake::Task['teams_weeks:populate_2025_week_1'].invoke
+
+    # Run Oline ranking
+    Rake::Task['rankings:populate_oline_rankings'].invoke
+
     # rake matchups:populate_2025_week_1      | Matchups (Sports Radar) | Sports Radar | 2025 | Coming matchups
     Rake::Task['matchups:populate_2025_week_1'].invoke
  

@@ -73,4 +73,6 @@ class PlayersController < ApplicationController
     # Paginate results
     @players = @players.page(params[:page]).per(50)
   end
+
+
 end 

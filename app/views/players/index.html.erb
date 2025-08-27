@@ -2,6 +2,13 @@
 <div class="mb-8">
   <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">All Players</h1>
   <p class="text-gray-600 dark:text-gray-400">Browse and search all players in the NFL database</p>
+  
+  <!-- Quick Links -->
+  <div class="mt-4 flex flex-wrap gap-3">
+    <%= link_to nfl_offensive_line_rankings_path, class: "inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors" do %>
+      🛡️ Offensive Line Rankings
+    <% end %>
+  </div>
 </div>
     <!-- Filters Section -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 mb-8">

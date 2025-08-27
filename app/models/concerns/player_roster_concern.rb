@@ -1,6 +1,21 @@
 module PlayerRosterConcern
   extend ActiveSupport::Concern
 
+  # Class method to collect all offensive line players from all matches
+  def self.all_oline_players
+    # Collect all offensive line player slugs from matchups
+    matchup_oline_slugs = Matchup.pluck(:c, :lt, :rt, :lg, :rg).flatten.compact.uniq
+    
+    # Collect all offensive line player slugs from teams_weeks
+    teams_week_oline_slugs = TeamsWeek.pluck(:c, :lt, :rt, :lg, :rg).flatten.compact.uniq
+    
+    # Combine and deduplicate all slugs
+    all_oline_slugs = (matchup_oline_slugs + teams_week_oline_slugs).uniq
+    
+    # Return the actual Player objects
+    Player.where(slug: all_oline_slugs)
+  end
+
   # Individual player methods
   def qb_player
     Player.find_by_slug(qb)

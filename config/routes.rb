@@ -30,6 +30,11 @@ Rails.application.routes.draw do
   post 'games/:year/week1/betting', to: 'games#update_betting', as: 'update_betting'
   get 'games/:year/week1/:game_slug', to: 'games#show', as: 'game_show'
   
+  # Offensive line rankings - SEO optimized
+  get 'nfl-offensive-line-rankings', to: 'rankings#offensive_line', as: 'nfl_offensive_line_rankings'
+  get 'rankings/offensive-line', to: 'rankings#offensive_line', as: 'offensive_line_rankings'
+  get 'oline-rankings', to: 'rankings#offensive_line', as: 'oline_rankings' # Keep for backward compatibility
+  
   # Predictions routes for SEO optimization
   get 'predictions/:year/week:week/:week/:game_slug', to: 'predictions#show', as: 'prediction_show'
 end

@@ -476,6 +476,26 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
     t.index ["week_slug"], name: "index_plays_on_week_slug"
   end
 
+  create_table "rankings", force: :cascade do |t|
+    t.string "ranking_slug", null: false
+    t.integer "week", null: false
+    t.string "player_slug", null: false
+    t.string "position"
+    t.integer "rank_1"
+    t.integer "rank_2"
+    t.integer "rank_3"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_slug"], name: "index_rankings_on_player_slug"
+    t.index ["position"], name: "index_rankings_on_position"
+    t.index ["ranking_slug", "rank_1"], name: "index_rankings_on_ranking_slug_and_rank_1"
+    t.index ["ranking_slug", "rank_2"], name: "index_rankings_on_ranking_slug_and_rank_2"
+    t.index ["ranking_slug", "rank_3"], name: "index_rankings_on_ranking_slug_and_rank_3"
+    t.index ["ranking_slug", "week"], name: "index_rankings_on_ranking_slug_and_week"
+    t.index ["ranking_slug"], name: "index_rankings_on_ranking_slug"
+    t.index ["week"], name: "index_rankings_on_week"
+  end
+
   create_table "scores", force: :cascade do |t|
     t.integer "game_id", null: false
     t.integer "player_id", null: false
