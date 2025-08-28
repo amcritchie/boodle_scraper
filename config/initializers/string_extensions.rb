@@ -20,6 +20,11 @@ class String
     end
   end
 
+  def venue_slugify
+    downcase
+    .gsub(' ', '-')
+  end
+
   def player_slugify
     downcase
     .gsub('.', '')

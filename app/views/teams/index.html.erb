@@ -1,0 +1,162 @@
+<!-- Page Container with Dark Mode Support -->
+<div class="min-h-screen transition-colors duration-200">
+
+  <!-- Page Title -->
+  <div class="text-center mb-12 pt-8">
+    <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">NFL Teams</h2>
+    <p class="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+      All 32 active NFL teams with their home stadiums and team colors
+    </p>
+  </div>
+
+  <!-- AFC Conference -->
+  <div class="mb-12">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+      <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
+        <div class="flex items-center space-x-3">
+          <span class="text-2xl">🏈</span>
+          <h3 class="text-xl font-bold text-white">AFC Conference</h3>
+        </div>
+      </div>
+      
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <% @teams.select { |team| team.conference == 'AFC' }.each do |team| %>
+            <div class="rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-600"
+                 style="background-color: <%= team.color_dark || '#374151' %>;">
+              
+              <!-- Team Header -->
+              <div class="p-4 text-center">
+                <div class="text-4xl mb-2"><%= team.emoji %></div>
+                <h4 class="text-xl font-bold text-white mb-1"><%= team.name %></h4>
+                <p class="text-sm text-white opacity-75 uppercase tracking-wide"><%= team.division %></p>
+              </div>
+              
+              <!-- Stadium Info -->
+              <div class="px-4 pb-4">
+                <div class="bg-black bg-opacity-20 rounded-lg p-3">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <span class="text-lg">🏟️</span>
+                    <span class="text-white font-medium text-sm">Home Stadium</span>
+                  </div>
+                  <p class="text-white text-sm">
+                    <%= team.venue&.name || 'Stadium TBD' %>
+                  </p>
+                  <% if team.venue&.city && team.venue&.state %>
+                    <p class="text-white text-xs opacity-75 mt-1">
+                      <%= team.venue.city %>, <%= team.venue.state %>
+                    </p>
+                  <% end %>
+                </div>
+              </div>
+              
+              <!-- Team Colors -->
+              <div class="px-4 pb-4">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="text-sm text-white font-medium">Colors:</span>
+                </div>
+                <div class="flex space-x-2">
+                  <!-- Primary Color -->
+                  <div class="w-8 h-8 rounded-full border-2 border-white shadow-sm"
+                       style="background-color: <%= team.color_dark || '#374151' %>;"
+                       title="Primary"></div>
+                  
+                  <!-- Accent Color -->
+                  <% if team.color_accent.present? %>
+                    <div class="w-8 h-8 rounded-full border-2 border-white shadow-sm"
+                         style="background-color: <%= team.color_accent %>;"
+                         title="Accent"></div>
+                  <% end %>
+                  
+                  <!-- Alt Colors -->
+                  <% [team.color_alt1, team.color_alt2, team.color_alt3].compact.each do |color| %>
+                    <div class="w-6 h-6 rounded-full border border-white shadow-sm"
+                         style="background-color: <%= color %>;"
+                         title="Alt Color"></div>
+                  <% end %>
+                </div>
+              </div>
+              
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NFC Conference -->
+  <div class="mb-12">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+      <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+        <div class="flex items-center space-x-3">
+          <span class="text-2xl">🏈</span>
+          <h3 class="text-xl font-bold text-white">NFC Conference</h3>
+        </div>
+      </div>
+      
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <% @teams.select { |team| team.conference == 'NFC' }.each do |team| %>
+            <div class="rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-600"
+                 style="background-color: <%= team.color_dark || '#374151' %>;">
+              
+              <!-- Team Header -->
+              <div class="p-4 text-center">
+                <div class="text-4xl mb-2"><%= team.emoji %></div>
+                <h4 class="text-xl font-bold text-white mb-1"><%= team.name %></h4>
+                <p class="text-sm text-white opacity-75 uppercase tracking-wide"><%= team.division %></p>
+              </div>
+              
+              <!-- Stadium Info -->
+              <div class="px-4 pb-4">
+                <div class="bg-black bg-opacity-20 rounded-lg p-3">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <span class="text-lg">🏟️</span>
+                    <span class="text-white font-medium text-sm">Home Stadium</span>
+                  </div>
+                  <p class="text-white text-sm">
+                    <%= team.venue&.name || 'Stadium TBD' %>
+                  </p>
+                  <% if team.venue&.city && team.venue&.state %>
+                    <p class="text-white text-xs opacity-75 mt-1">
+                      <%= team.venue.city %>, <%= team.venue.state %>
+                    </p>
+                  <% end %>
+                </div>
+              </div>
+              
+              <!-- Team Colors -->
+              <div class="px-4 pb-4">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="text-sm text-white font-medium">Colors:</span>
+                </div>
+                <div class="flex space-x-2">
+                  <!-- Primary Color -->
+                  <div class="w-8 h-8 rounded-full border-2 border-white shadow-sm"
+                       style="background-color: <%= team.color_dark || '#374151' %>;"
+                       title="Primary"></div>
+                  
+                  <!-- Accent Color -->
+                  <% if team.color_accent.present? %>
+                    <div class="w-8 h-8 rounded-full border-2 border-white shadow-sm"
+                         style="background-color: <%= team.color_accent %>;"
+                         title="Accent"></div>
+                  <% end %>
+                  
+                  <!-- Alt Colors -->
+                  <% [team.color_alt1, team.color_alt2, team.color_alt3].compact.each do |color| %>
+                    <div class="w-6 h-6 rounded-full border border-white shadow-sm"
+                         style="background-color: <%= color %>;"
+                         title="Alt Color"></div>
+                  <% end %>
+                </div>
+              </div>
+              
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -3,6 +3,7 @@ class CreateTeams < ActiveRecord::Migration[7.0]
     create_table :teams do |t|
       t.string :slug                    # ari
       t.string :slug_long               # arizona_cardinals
+      t.string :venue_slug              # arizona_cardinals_venue
       t.string :emoji
       t.string :name                    # Arizona Cardinals
       t.string :location                # Arizona
@@ -17,10 +18,18 @@ class CreateTeams < ActiveRecord::Migration[7.0]
       t.string :conference_pre_2002
       t.string :division_pre_2002
 
+      t.string :color_dark
+      t.string :color_accent
+      t.string :color_alt1
+      t.string :color_alt2
+      t.string :color_alt3
+      t.string :color_rule
+
       t.timestamps
     end
     add_index :teams, :slug
     add_index :teams, :slug_long
+    add_index :teams, :venue_slug
     add_index :teams, :name
     add_index :teams, :location
     add_index :teams, :alias

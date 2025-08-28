@@ -4,8 +4,10 @@ namespace :seed do
     
     # rake teams:populate                     | Create Teams (Kaggle)                       | Kaggle | 32 Teams
     Rake::Task['teams:populate'].invoke
-    # rake seasons:populate2025               | Create Season, Week, Games (Sports Radar)   | Sports Radar | 2025 | Coming matchups
+    # rake seasons:populate2025               | Create Season, Week, Games, Venue (Sports Radar)   | Sports Radar | 2025 | Coming matchups
     Rake::Task['seasons:populate2025'].invoke
+    # rake venues:populate                     | Create Venues (Sports Radar)               | Sports Radar | 32 Venues
+    Rake::Task['venues:populate'].invoke
     # rake players:populate                   | Create Players (PFF Grades)                 | Pro Football Focus | Player Stats
     Rake::Task['players:populate'].invoke
     # rake coaches:populate                   | Create Coaches (HC, OC, DC)                 | 32 Coaches

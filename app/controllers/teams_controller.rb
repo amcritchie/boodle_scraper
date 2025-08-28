@@ -4,6 +4,10 @@ class TeamsController < ApplicationController
   # Skip CSRF token verification for API endpoints
   skip_before_action :verify_authenticity_token, only: [:api_show, :api_week_collection]
   
+  def index
+    @teams = Team.active.includes(:venue).order(:conference, :division, :name)
+  end
+  
   def rankings
     @year = params[:year]
     @teams_seasons = TeamsSeason.where(season_year: @year).includes(:team).order(:team_slug)

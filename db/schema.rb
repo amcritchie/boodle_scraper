@@ -528,6 +528,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
   create_table "teams", force: :cascade do |t|
     t.string "slug"
     t.string "slug_long"
+    t.string "venue_slug"
     t.string "emoji"
     t.string "name"
     t.string "location"
@@ -541,6 +542,12 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
     t.string "slug_sportsradar"
     t.string "conference_pre_2002"
     t.string "division_pre_2002"
+    t.string "color_dark"
+    t.string "color_accent"
+    t.string "color_alt1"
+    t.string "color_alt2"
+    t.string "color_alt3"
+    t.string "color_rule"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["active"], name: "index_teams_on_active"
@@ -554,6 +561,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
     t.index ["slug_sportrac"], name: "index_teams_on_slug_sportrac"
     t.index ["slug_sportsradar"], name: "index_teams_on_slug_sportsradar"
     t.index ["updated_at"], name: "index_teams_on_updated_at"
+    t.index ["venue_slug"], name: "index_teams_on_venue_slug"
   end
 
   create_table "teams_seasons", force: :cascade do |t|
@@ -675,20 +683,23 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
   end
 
   create_table "venues", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "city", null: false
-    t.string "state", null: false
-    t.string "country", null: false
+    t.string "slug", null: false
+    t.string "name"
+    t.string "city"
+    t.string "state"
+    t.string "country"
     t.string "zip"
     t.string "address"
     t.integer "capacity"
     t.string "surface"
     t.string "roof_type"
+    t.boolean "true_home"
     t.string "sr_id", null: false
     t.decimal "latitude", precision: 10, scale: 6
     t.decimal "longitude", precision: 10, scale: 6
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_venues_on_slug", unique: true
     t.index ["sr_id"], name: "index_venues_on_sr_id", unique: true
   end
 

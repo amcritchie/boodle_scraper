@@ -94,7 +94,25 @@ class Season < ApplicationRecord
           # Parse Teams and Games
           home_team = Team.sports_radar_team(game_data['home']['alias'])
           away_team = Team.sports_radar_team(game_data['away']['alias'])
-          venue = game_data['venue']
+          # Get Venue
+          venue_obj = game_data['venue']
+          # Set Venue
+          venue = Venue.find_or_create_by(slug: venue_obj['name'].venue_slugify)
+          venue.name = venue_obj['name']
+          venue.city = venue_obj['city']
+          venue.state = venue_obj['state'] || 'N/A'  # Handle nil states
+          venue.country = venue_obj['country'] || 'USA'  # Handle nil countries
+          venue.zip = venue_obj['zip']
+          venue.address = venue_obj['address']
+          venue.capacity = venue_obj['capacity']
+          venue.surface = venue_obj['surface']
+          venue.roof_type = venue_obj['roof_type']
+          venue.true_home = venue_obj['true_home']
+          venue.sr_id = venue_obj['sr_id']
+          venue.latitude = venue_obj['location']['lat']
+          venue.longitude = venue_obj['location']['lng']
+          venue.save!
+
           # Create slug for the game
           slug = "#{away_team.slug}-#{home_team.slug}-#{week.sequence}-#{year}".downcase
           # Parse the scheduled time and convert to Mountain Standard Time
@@ -127,7 +145,7 @@ class Season < ApplicationRecord
             attendance:       game_data['attendance'],
           )
           # Puts game description
-          puts "#{game.away_team.emoji} #{game.away_team.name.ljust(23)} @ #{game.home_team.emoji} #{game.home_team.name.ljust(23)} | #{venue['city'].rjust(15)} | #{venue['name'].rjust(15)} " 
+          puts "#{game.away_team.emoji} #{game.away_team.name.ljust(23)} @ #{game.home_team.emoji} #{game.home_team.name.ljust(23)} | #{venue.city.rjust(15)} | #{venue.name.rjust(15)} " 
           sleep(0.2)
         end
       end
