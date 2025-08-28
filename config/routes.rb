@@ -19,7 +19,7 @@ Rails.application.routes.draw do
   get 'matchups/:year/week1', to: 'matchups#week1', as: 'matchups_week1'
   get 'matchups/:year/week1/roster', to: 'matchups#roster', as: 'matchups_roster'
   get 'matchups/:year/week1/summary', to: 'matchups#summary', as: 'matchups_summary'
-  get ':offense/:defense/:week/:season', to: 'matchups#matchup_summary', as: 'matchup_summary'
+  # get ':offense/:defense/:week/:season', to: 'matchups#matchup_summary', as: 'matchup_summary'
   get ':home/:away/:week/:season/game-summary', to: 'matchups#game_summary', as: 'game_summary'
   
   # API endpoints for matchups
@@ -37,5 +37,7 @@ Rails.application.routes.draw do
   get 'oline-rankings', to: 'rankings#offensive_line', as: 'oline_rankings' # Keep for backward compatibility
   
   # Predictions routes for SEO optimization
-  get 'predictions/:year/week:week/:week/:game_slug', to: 'predictions#show', as: 'prediction_show'
+  get 'predictions/:year/week/:week/:game_slug', to: 'predictions#show', as: 'prediction_show'
+  get 'nfl-week-1-predictions', to: 'predictions#week', as: 'nfl_week1_predictions'
+  get 'predictions/:year/week/:week', to: 'predictions#week', as: 'predictions_week'
 end

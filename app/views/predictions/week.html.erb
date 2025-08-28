@@ -1,0 +1,92 @@
+<% content_for :title, @page_title %>
+<% content_for :meta_description, @page_description %>
+
+<!-- Page Container with Dark Mode Support -->
+<div class="min-h-screen transition-colors duration-200" x-data="{ darkMode: $parent.darkMode }">
+
+  <%= render 'shared/hero_section', 
+             title: 'NFL Week ' + @week_number.to_s,
+             subtitle:  @year.to_s + ' Predictions',
+             week: @week_number,
+             year: @year,
+             gradient_title: true,
+             padding: 'py-12' %>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    
+    <!-- Games by Day and Time -->
+    <% @games_by_day_time.each do |day, times| %>
+      <% times.each do |time, games| %>
+        <div class="mb-12">
+          <div class="flex items-center space-x-3 mb-6">
+            <div class="bg-gradient-to-r from-blue-600 to-purple-700 text-white px-4 py-2 rounded-lg font-semibold">
+              <%= day %> • <%= time %>
+            </div>
+            <span class="text-lg text-gray-600">
+              <% case day %>
+              <% when 'Thursday' %>
+                Thursday Night Football
+              <% when 'Friday' %>
+                Friday Night Game
+              <% when 'Saturday' %>
+                Saturday Games
+              <% when 'Sunday' %>
+                <% if time.match?(/11:|12:|1:/) %>
+                  Sunday Early Games
+                <% elsif time.match?(/2:|3:|4:/) %>
+                  Sunday Late Games
+                <% else %>
+                  Sunday Games
+                <% end %>
+              <% when 'Monday' %>
+                Monday Night Football
+              <% else %>
+                <%= day %> Games
+              <% end %>
+            </span>
+          </div>
+          
+          <div class="space-y-6">
+            <% games.each do |game_data| %>
+              <%= render 'game_card', game_data: game_data %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+
+    <!-- SEO Content Section -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-8 mt-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6">NFL Week <%= @week_number %> Predictions & Analysis</h2>
+      <div class="prose prose-lg max-w-none text-gray-700">
+        <p class="mb-4">
+          Welcome to our comprehensive NFL Week <%= @week_number %> predictions for the <%= @year %> season. Our expert analysis provides detailed insights into every matchup, including predicted scores, key player matchups, and strategic considerations that could impact the outcome of each game.
+        </p>
+        <p class="mb-4">
+          Each prediction is based on advanced statistical models that analyze offensive and defensive rankings, player performance metrics, historical matchup data, and current team dynamics. Whether you're looking for betting insights, fantasy football guidance, or simply want to understand what to expect in Week <%= @week_number %>, our predictions provide the analysis you need.
+        </p>
+        <p class="mb-4">
+          The games are organized by day and time slots to help you plan your viewing schedule. Each game card displays the predicted final score, venue information, and key matchup details.
+        </p>
+        <p>
+          Click on any game card below to view our detailed analysis, including offensive and defensive breakdowns, player matchups, and comprehensive game predictions. Our Week <%= @week_number %> predictions are updated regularly to reflect the latest team news, injury reports, and roster changes.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-[#121E18] dark:bg-[#0a1510] text-[#A5B1AA] py-12 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <p class="text-sm">
+          NFL Week <%= @week_number %> predictions updated for the <%= @year %> season
+        </p>
+        <p class="text-sm mt-2">
+          Expert analysis and predicted scores for every matchup
+        </p>
+      </div>
+    </div>
+  </footer>
+</div>

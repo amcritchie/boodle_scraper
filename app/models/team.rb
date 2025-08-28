@@ -10,6 +10,8 @@ class Team < ApplicationRecord
     has_many :players, foreign_key: :team_slug, primary_key: :slug
     has_many :coaches, foreign_key: :team_slug, primary_key: :slug
     has_many :teams_seasons, foreign_key: :team_slug, primary_key: :slug
+    has_many :teams_weeks, foreign_key: :team_slug, primary_key: :slug
+    has_many :matchups, foreign_key: :team_slug, primary_key: :slug
     belongs_to :venue, foreign_key: :venue_slug, primary_key: :slug, optional: true
 
     def self.active

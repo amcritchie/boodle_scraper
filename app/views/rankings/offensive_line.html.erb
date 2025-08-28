@@ -1,19 +1,11 @@
 <!-- Page Container with Dark Mode Support -->
 <div class="min-h-screen transition-colors duration-200" x-data="{ darkMode: false }">
 
-  <!-- Hero Section -->
-  <div class="bg-gradient-to-br from-[#121E18] via-[#1a2d24] to-[#4BAF50] dark:from-[#121E18] dark:via-[#1a2d24] dark:to-[#4BAF50] text-[#E8F0E6] border-b border-[#4BAF50]/20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="text-center">
-        <h1 class="text-4xl md:text-5xl font-bold mb-2 text-[#E8F0E6] drop-shadow-lg">
-          Offensive Linemen
-        </h1>
-        <h2 class="text-2xl md:text-3xl font-semibold mb-4 text-[#A5B1AA] drop-shadow-lg">
-          Week <%= @week %> Rankings
-        </h2>
-      </div>
-    </div>
-  </div>
+  <%= render 'shared/hero_section', 
+             title: 'Offensive Linemen',
+             subtitle: 'Week ' + @week.to_s + ' Rankings',
+             week: @week,
+             gradient_title: true %>
 
   <!-- Main Content -->
   <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8"
