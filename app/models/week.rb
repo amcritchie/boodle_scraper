@@ -15,6 +15,23 @@ class Week < ApplicationRecord
     all.find_by(sequence: 1)
   end
 
+  def display_name
+    case sequence
+    when 1..18
+      "Week #{sequence}"
+    when 19
+      "Wild Card Game"
+    when 20
+      "Divisional Round"
+    when 21
+      "Conference Championship"
+    when 22
+      "Super Bowl"
+    else
+      "Week #{sequence}"
+    end
+  end
+
   def games
     return 'no-sports-radar-id' if sportsradar_id.blank?
     Game.where(season: season_year, week_slug: sequence).where.not(sportsradar_id: nil)

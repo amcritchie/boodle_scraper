@@ -135,6 +135,7 @@ class Season < ApplicationRecord
             sportsradar_slug: game_data['sr_id'],
             season:           year,
             week_slug:        week_data['sequence'],
+            venue_slug:       venue.slug,
             away_slug:        away_team.slug,
             home_slug:        home_team.slug,
             kickoff_at:       scheduled_mst,

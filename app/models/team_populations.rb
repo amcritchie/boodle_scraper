@@ -28,6 +28,7 @@ module TeamPopulations
     self.color_dark = '#125740'      # Gotham Green (primary)
     self.color_accent = '#000000'    # Stealth Black
     self.color_alt1 = '#FFFFFF'      # Spotlight White
+    self.color_rule = 'dark_accent'
     self.save
     return self
   end
@@ -94,6 +95,7 @@ module TeamPopulations
     # Team colors from https://teamcolorcodes.com/denver-broncos-color-codes/
     self.color_dark = '#FB4F14'      # Broncos Orange (primary)
     self.color_accent = '#002244'    # Broncos Navy
+    self.color_rule = 'dark_accent'
     self.save
     return self
   end
@@ -143,6 +145,7 @@ module TeamPopulations
     # Team colors from https://teamcolorcodes.com/cincinnati-bengals-color-codes/
     self.color_dark = '#FB4F14'      # Orange (primary)
     self.color_accent = '#000000'    # Black
+    self.color_rule = 'dark_accent'
     self.save
     return self
   end
@@ -161,6 +164,7 @@ module TeamPopulations
     self.color_accent = '#000000'    # Black
     self.color_alt1 = '#9E7C0C'      # Metallic Gold
     self.color_alt2 = '#C60C30'      # Red
+    self.color_rule = 'dark_accent'
     self.save
     return self
   end
@@ -213,8 +217,9 @@ module TeamPopulations
     # Team colors from https://teamcolorcodes.com/jacksonville-jaguars-color-codes/
     self.color_dark = '#101820'      # Black (primary)
     self.color_accent = '#D7A22A'    # Gold
-    self.color_alt1 = '#9F792C'      # Dark Gold
-    self.color_alt2 = '#006778'      # Teal
+    self.color_alt1 = '#006778'      # Teal
+    self.color_alt2 = '#9F792C'      # Dark Gold
+    
     self.save
     return self
   end
@@ -435,9 +440,9 @@ module TeamPopulations
     # Team colors from https://teamcolorcodes.com/los-angeles-rams-team-colors/
     self.color_dark = '#003594'      # Royal Blue (primary)
     self.color_accent = '#FFA300'    # Sol (Gold)
-    self.color_alt1 = '#ff8200'    # Dark Gold
-    self.color_alt2 = '#ffd100'    # Yellow
-    self.color_alt3 = '#ffd100'    # White
+    self.color_alt1 = '#ffffff'    # White
+    self.color_alt2 = '#ff8200'    # Dark Gold
+    self.color_alt3 = '#ffd100'    # Yellow
     self.save
     return self
   end
@@ -489,6 +494,7 @@ module TeamPopulations
     self.color_dark = '#A71930'      # Red (primary)
     self.color_accent = '#000000'      # Black
     self.color_alt1 = '#A5ACAF'    # Silver
+    self.color_rule = 'dark_accent'
     self.save
     return self
   end
@@ -506,6 +512,7 @@ module TeamPopulations
     self.color_dark = '#0085CA'      # Carolina Blue (primary)
     self.color_accent = '#101820'    # Black
     self.color_alt1 = '#BFC0BF'      # Silver
+    self.color_rule = 'dark_accent'
     self.save
     return self
   end
@@ -525,6 +532,7 @@ module TeamPopulations
     self.color_alt1 = '#FF7900'      # Bay Orange
     self.color_alt2 = '#000000'      # Black
     self.color_alt3 = '#b1babf'      # Gray
+    self.color_rule = 'dark_accent'
     self.save
     return self
   end

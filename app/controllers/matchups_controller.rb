@@ -223,9 +223,9 @@ class MatchupsController < ApplicationController
     )
     # Hardcoded team colors for now
     @home_color_dark = "#1a2d24"
-    @home_color_accent = "#4BAF50"
+    @home_text = "#4BAF50"
     @away_color_dark = "#2d1a24"
-    @away_color_accent = "#FF7C47"
+    @away_text = "#FF7C47"
 
   end
   

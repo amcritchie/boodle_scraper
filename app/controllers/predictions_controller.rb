@@ -1,4 +1,8 @@
 class PredictionsController < ApplicationController
+
+
+
+
   def show
     @year = params[:year] || 2025
     @week = Week.find_by(season_year: @year, sequence: params[:week])
@@ -8,7 +12,7 @@ class PredictionsController < ApplicationController
       return
     end
     
-    @game = Game.find_by(slug: params[:game_slug])
+    @game = @week.games.find_by(slug: params[:game_slug])
     
     if @game.nil?
       redirect_to games_week1_path(@year), alert: "Game not found"
@@ -22,32 +26,19 @@ class PredictionsController < ApplicationController
     # Get teams
     @home_team = Team.find_by(slug: @game.home_slug)
     @away_team = Team.find_by(slug: @game.away_slug)
+
+    # Get venue
+    @venue = @game.venue
+
+    # Get gradient styling from Game model
+    @hero_gradient_style = @game.hero_gradient_style
+    @text_gradient_style = @game.text_gradient_style
+
+    # Get week display name from Week model
+    @week_display = @week.display_name
     
-    # Set week and season for the view
-    @week_number = @week.sequence
-    @season = @year
-    
-    # Get week display name
-    @week_display = case @week.sequence
-                    when 1..18
-                      "Week #{@week.sequence}"
-                    when 19
-                      "Wild Card Game"
-                    when 20
-                      "Divisional Round"
-                    when 21
-                      "Conference Championship"
-                    when 22
-                      "Super Bowl"
-                    else
-                      "Week #{@week.sequence}"
-                    end
-    
-    # Hardcoded team colors for now
-    @home_color_dark = "#1a2d24"
-    @home_color_accent = "#4BAF50"
-    @away_color_dark = "#2d1a24"
-    @away_color_accent = "#FF7C47"
+    @home_text = @home_team&.color_accent_text
+    @away_text = @away_team&.color_accent_text
     
     # Set page title for SEO
     @page_title = "#{@away_team&.alias} vs #{@home_team&.alias} Game Summary - #{@week_display} #{@year}"

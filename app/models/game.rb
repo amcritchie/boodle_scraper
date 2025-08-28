@@ -8,7 +8,9 @@ class Game < ApplicationRecord
   include SportRadarConcern
   
   # belongs_to :week, # ->where(season_year: game.season, sequence: game.week_slug), optional: true
-  # belongs_to :venue
+  belongs_to :home_team, class_name: 'Team', foreign_key: :home_slug, primary_key: :slug, optional: true
+  belongs_to :away_team, class_name: 'Team', foreign_key: :away_slug, primary_key: :slug, optional: true
+  belongs_to :venue, foreign_key: :venue_slug, primary_key: :slug, optional: true
   has_one :weather, dependent: :destroy
   has_one :broadcast, dependent: :destroy
   has_one :scoring, dependent: :destroy
@@ -246,13 +248,6 @@ class Game < ApplicationRecord
 
   def home_team_obj
     Team.find_by(active: true, slug: team_attrs['team_home'])
-  end
-
-  def home_team
-    Team.find_by(slug: home_slug)
-  end
-  def away_team
-    Team.find_by(slug: away_slug)
   end
 
   def self.kaggle_import
@@ -809,5 +804,69 @@ class Game < ApplicationRecord
     end
     # Save game
     self.save!
+  end
+
+  # Gradient styling methods
+  def hex_to_luminance(hex)
+    r = hex[1..2].to_i(16) / 255.0
+    g = hex[3..4].to_i(16) / 255.0
+    b = hex[5..6].to_i(16) / 255.0
+
+    # sRGB companding
+    [r, g, b].map! { |c| c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4 }
+
+    # W3C luminance formula
+    0.2126*r + 0.7152*g + 0.0722*b
+  end
+
+  def darker_color(hex1, hex2)
+    hex_to_luminance(hex1) < hex_to_luminance(hex2) ? hex1 : hex2
+  end
+
+  def closest_color(base_hex, options)
+    base_l = hex_to_luminance(base_hex)
+    options.min_by { |h| (hex_to_luminance(h) - base_l).abs }
+  end
+
+  def gradient_colors
+    {
+      color1: away_team&.color_accent || '#121E18',
+      color2: away_team&.color_dark || '#1a2d24',
+      color4: home_team&.color_dark || '#4BAF50',
+      color5: home_team&.color_accent || '#121E18'
+    }
+  end
+
+  def gradient_color3
+    colors = gradient_colors
+    middle_color_options = [
+      home_team&.color_alt1 || '#FFFFFF',
+      away_team&.color_alt1 || '#FFFFFF',
+      home_team&.color_accent || '#FFFFFF',
+      away_team&.color_accent || '#FFFFFF'
+    ]
+    
+    darker_color_value = darker_color(colors[:color2], colors[:color4])
+    closest_color(darker_color_value, middle_color_options)
+  end
+
+  def hero_gradient_style
+    colors = gradient_colors
+    color3 = gradient_color3
+    
+    "background: linear-gradient(135deg, 
+    #{colors[:color1]} 0%, 
+    #{colors[:color2]} 10%, 
+    #000000 50%,
+    #{colors[:color4]} 90%, 
+    #{colors[:color5]} 100%); 
+    border-color: #{colors[:color4]}/20;"
+  end
+
+  def text_gradient_style
+    away_accent = away_team&.color_accent_text
+    home_accent = home_team&.color_accent_text
+    
+    "background: linear-gradient(45deg, #{away_accent}, #{home_accent}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"
   end
 end

@@ -32,6 +32,17 @@ class Team < ApplicationRecord
     def mascot_name
       extract_mascot_from_name
     end
+
+    # If accent color is dark, pick a more readable color Broncos, Jets, Panthers, Falcons
+    def color_accent_text
+      if self.color_rule != 'dark_accent'
+        self.color_accent
+      elsif self.color_alt1
+        self.color_alt1
+      else
+        "#FFFFFF"
+      end
+    end
     
     # private
     

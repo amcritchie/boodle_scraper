@@ -5,13 +5,13 @@
 <div class="min-h-screen transition-colors duration-200" x-data="{ darkMode: $parent.darkMode }">
 
   <!-- Hero Section -->
-  <div class="bg-gradient-to-br from-[#121E18] via-[#1a2d24] to-[#4BAF50] dark:from-[#121E18] dark:via-[#1a2d24] dark:to-[#4BAF50] text-[#E8F0E6] border-b border-[#4BAF50]/20">
+    <div class="text-[#E8F0E6]" style="<%= @hero_gradient_style %>">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="text-center">
         <!-- Team Matchup Display with Team Colors -->
         <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8 mb-6">
           <!-- Away Team -->
-          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 w-full md:w-64 md:flex-shrink-0" style="border-color: <%= @away_color_accent %>/40;">
+          <div class="backdrop-blur-sm rounded-2xl p-6 border border-white/20 w-full md:w-64 md:flex-shrink-0" style="background-color: <%= @away_team&.color_dark || '#121E18' %>20; border-color: <%= @away_team&.color_alt1 || @away_color_accent %>/40;">
             <div class="text-center">
               <span class="text-4xl mb-2 block"><%= @away_team&.emoji %></span>
               <div class="mb-2">
@@ -25,10 +25,10 @@
           </div>
           
           <!-- VS -->
-          <div class="text-4xl font-bold text-[#4BAF50] md:mx-4">VS</div>
+          <div class="text-4xl font-bold md:mx-4" style="<%= @text_gradient_style %>">VS</div>
           
           <!-- Home Team -->
-          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 w-full md:w-64 md:flex-shrink-0" style="border-color: <%= @home_color_accent %>/40;">
+          <div class="backdrop-blur-sm rounded-2xl p-6 border border-white/20 w-full md:w-64 md:flex-shrink-0" style="background-color: <%= @home_team&.color_dark || '#121E18' %>20;border-color: <%= @home_team&.color_alt1 || @home_text %>/40;">
             <div class="text-center">
               <span class="text-4xl mb-2 block"><%= @home_team&.emoji %></span>
               <div class="mb-2">
@@ -37,7 +37,7 @@
                   <%= @home_team&.alias %>
                 </h2>
               </div>
-              <div class="font-semibold" style="color: <%= @home_color_accent %>;">HOME</div>
+              <div class="font-semibold" style="color: <%= @home_text %>;">HOME</div>
             </div>
           </div>
         </div>
@@ -47,6 +47,7 @@
             <div class="text-center mb-4">
               <p class="text-lg md:text-xl text-[#A5B1AA] mb-6">
                 <%= @game.game_time_display %>
+                
               </p>
             </div>
           <% end %>
@@ -54,10 +55,6 @@
         
         <!-- Game Info Row -->
         <div class="flex flex-col md:flex-row items-center justify-center space-y-2 md:space-y-0 md:space-x-8 mt-4">
-          <!-- Home Team Indicator -->
-          <div class="text-center">
-            <span class="text-sm text-[#A5B1AA]"><%= @home_team&.alias %> Home <%= @home_team&.emoji %> 🏠</span>
-          </div>
           
           <!-- Weather Conditions -->
           <div class="text-center">
@@ -66,7 +63,7 @@
           
           <!-- Weather Conditions -->
           <div class="text-center">
-            <span class="text-sm text-[#A5B1AA]">🇧🇷 Location</span>
+            <span class="text-sm text-[#A5B1AA]"><%= @venue.emoji %> <%= @venue.city %></span>
           </div>
         </div>
       </div>
@@ -100,7 +97,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center">
         <p class="text-sm">
-          Data updated for Week <%= @week_number %> of the <%= @season %> NFL season
+          Data updated for Week <%= @week.sequence %> of the <%= @year %> NFL season
         </p>
       </div>
     </div>

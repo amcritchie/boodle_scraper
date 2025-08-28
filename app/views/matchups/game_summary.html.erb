@@ -15,13 +15,13 @@
         <!-- Team Matchup Display with Team Colors -->
         <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
           <!-- Away Team -->
-          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20" style="border-color: <%= @away_color_accent %>/40;">
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20" style="border-color: <%= @away_text %>/40;">
             <div class="text-center">
               <span class="text-4xl mb-2 block"><%= @away_team&.emoji %></span>
               <h2 class="text-2xl font-bold text-[#E8F0E6] mb-2">
                 <%= @away_team&.location %> <%= @away_team&.alias %>
               </h2>
-              <div class="font-semibold" style="color: <%= @away_color_accent %>;">AWAY</div>
+              <div class="font-semibold" style="color: <%= @away_text %>;">AWAY</div>
             </div>
           </div>
           
@@ -29,13 +29,13 @@
           <div class="text-4xl font-bold text-[#4BAF50]">VS</div>
           
           <!-- Home Team -->
-          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20" style="border-color: <%= @home_color_accent %>/40;">
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20" style="border-color: <%= @home_text %>/40;">
             <div class="text-center">
               <span class="text-4xl mb-2 block"><%= @home_team&.emoji %></span>
               <h2 class="text-2xl font-bold text-[#E8F0E6] mb-2">
                 <%= @home_team&.location %> <%= @home_team&.alias %>
               </h2>
-              <div class="font-semibold" style="color: <%= @home_color_accent %>;">HOME</div>
+              <div class="font-semibold" style="color: <%= @home_text %>;">HOME</div>
             </div>
           </div>
         </div>
