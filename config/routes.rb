@@ -30,6 +30,7 @@ Rails.application.routes.draw do
   get 'games/:year/week1/betting', to: 'games#betting', as: 'games_betting'
   post 'games/:year/week1/betting', to: 'games#update_betting', as: 'update_betting'
   get 'games/:year/week1/:game_slug', to: 'games#show', as: 'game_show'
+  get 'games', to: 'games#all_games', as: 'all_games'
   
   # Offensive line rankings - SEO optimized
   get 'nfl-offensive-line-rankings', to: 'rankings#offensive_line', as: 'nfl_offensive_line_rankings'

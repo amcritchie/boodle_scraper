@@ -38,7 +38,7 @@
             </div>
 
             <!-- Predicted Score -->
-            <div class="text-6xl font-bold text-blue-300">
+            <div class="text-6xl font-bold" style="color: <%= game_data[:away_team]&.color_accent_text || '#4BAF50' %>;">
               <%= game_data[:away_matchup]&.predicted_score.football_round || 'N/A' %>
             </div>
           </div>
@@ -46,7 +46,7 @@
         
         <!-- VS and Total Score -->
         <div class="text-center md:mx-4">
-          <div class="text-4xl font-bold text-[#E8F0E6] mb-4">VS</div>
+          <div class="text-4xl font-bold mb-4" style="<%= game_data[:game]&.text_gradient_style || 'color: #E8F0E6;' %>">VS</div>
           <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-[#E8F0E6] border border-white/20">
             <div class="text-sm text-[#A5B1AA] mb-1">Total Points</div>
             <div class="text-3xl font-bold">
@@ -72,7 +72,7 @@
             </div>
 
             <!-- Predicted Score -->
-            <div class="text-6xl font-bold text-red-300">
+            <div class="text-6xl font-bold" style="color: <%= game_data[:home_team]&.color_accent_text || '#FF7C47' %>;">
               <%= game_data[:home_matchup]&.predicted_score.football_round || 'N/A' %>
             </div>
           </div>

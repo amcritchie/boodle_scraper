@@ -188,6 +188,14 @@ module SportRadarConcern
   end
 
   def reprocess_plays
+    self.home_passing_touchdowns = 0
+    self.away_passing_touchdowns = 0
+    self.home_rushing_touchdowns = 0
+    self.away_rushing_touchdowns = 0
+    self.home_field_goals = 0
+    self.away_field_goals = 0
+    self.events_array = []
+    self.save!
     # Get plays
     plays = self.plays.order(sport_radar_sequence: :asc)
     plays.each do |play|

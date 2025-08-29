@@ -97,5 +97,17 @@ class GamesController < ApplicationController
     redirect_to games_betting_path(@year), notice: "Betting data updated successfully!"
   end
 
+  def all_games
+    @selected_year = params[:year]&.to_i || Game.maximum(:season) || 2025
+    @available_years = Game.seasons
+    
+    @games = Game.includes(:home_team, :away_team, :venue)
+                  .where(season: @selected_year)
+                  .order(:kickoff_at)
+    
+    # Get all available seasons for the filter buttons
+    @seasons = Game.seasons
+  end
+
   private
 end 

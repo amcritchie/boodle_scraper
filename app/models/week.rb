@@ -205,40 +205,6 @@ class Week < ApplicationRecord
     self.save!
   end
 
-  def self.scoring_summary
-    csv = ['games,season,week,field_goals,fgpg,rushing_tds,rushing_tdpg,passing_tds,passing_tdpg,defensive_tds,defensive_tdpg,special_teams_tds,special_teams_tdpg']
-    all.each do |week|
-      # Get per game stats
-      field_goals_per_game              = (week.field_goals.to_f / week.games_count).round(2)
-      rushing_touchdowns_per_game       = (week.rushing_touchdowns.to_f / week.games_count).round(2)
-      passing_touchdowns_per_game       = (week.passing_touchdowns.to_f / week.games_count).round(2)
-      defensive_touchdowns_per_game     = (week.defensive_touchdowns.to_f / week.games_count).round(2)
-      special_teams_touchdowns_per_game = (week.special_teams_touchdowns.to_f / week.games_count).round(2)
-      # Push to CSV
-      csv.push("#{week.games_count.to_i},#{week.season_year.to_i},#{week.sequence.to_i},#{week.field_goals},#{field_goals_per_game},#{rushing_touchdowns_per_game},#{rushing_touchdowns_per_game},#{passing_touchdowns_per_game},#{passing_touchdowns_per_game},#{defensive_touchdowns_per_game},#{defensive_touchdowns_per_game},#{special_teams_touchdowns_per_game},#{special_teams_touchdowns_per_game}")
-    end
-      puts csv.join("\n")
-  end
-
-  def self.scoring_summary_puts
-    puts "----------------"
-    ap Week.last
-    puts "----------------"
-    all.each do |week|
-      puts "Week #{week.sequence} #{week.season_year}"
-      puts "Rushing Touchdowns:       #{week.rushing_touchdowns}"
-      puts "Passing Touchdowns:       #{week.passing_touchdowns}"
-      puts "Defensive Touchdowns:     #{week.defensive_touchdowns}"
-      puts "Special Teams Touchdowns: #{week.special_teams_touchdowns}"
-      puts "Field Goals:              #{week.field_goals}"
-      puts "Extra Points:             #{week.extra_points}"
-      puts "Games:                    #{week.games_count}"
-      puts "Passing TD Categories:    #{week.passing_tds_0}/#{week.passing_tds_1}/#{week.passing_tds_2}/#{week.passing_tds_3}/#{week.passing_tds_4}"
-      puts "Rushing TD Categories:    #{week.rushing_tds_0}/#{week.rushing_tds_1}/#{week.rushing_tds_2}/#{week.rushing_tds_3}/#{week.rushing_tds_4}"
-      puts "Field Goal Categories:    #{week.field_goals_0}/#{week.field_goals_1}/#{week.field_goals_2}/#{week.field_goals_3}/#{week.field_goals_4}/#{week.field_goals_5}"
-    end
-  end
-
   def scoring_categories_summary
     {
       passing_games: passing_tds_4 + passing_tds_3 + passing_tds_2 + passing_tds_1 + passing_tds_0,
@@ -267,5 +233,61 @@ class Week < ApplicationRecord
         fg_0: field_goals_0
       }
     }
+  end
+
+  # Types of scores
+  def self.scoring_summary
+    puts "================================================"
+    puts "Scoring Summary"
+    puts "================================================"
+    csv = ['games,season,week,field_goals,rushing_tds,passing_tds,zero_score_count,score_1fg,score_2fg,score_3fg,score_4fg,score_5fg,score_1rtd_0fg,score_1rtd_1fg,score_1rtd_2fg,score_1rtd_3fg,score_1rtd_4fg,score_1rtd_5fg,score_1rtd_1ptd_0fg,score_1rtd_1ptd_1fg,score_1rtd_1ptd_2fg,score_1rtd_1ptd_3fg,score_1rtd_1ptd_4fg,score_1rtd_1ptd_5fg,score_1ptd_0fg,score_1ptd_1fg,score_1ptd_2fg,score_1ptd_3fg,score_1ptd_4fg,score_1ptd_5fg,score_2ptd_0fg,score_2ptd_1fg,score_2ptd_2fg,score_2ptd_3fg,score_2ptd_4fg,score_2ptd_5fg,score_2rtd_0fg,score_2rtd_1fg,score_2rtd_2fg,score_2rtd_3fg,score_2rtd_4fg,score_2rtd_5fg']
+    all.each do |week|
+      puts "Week #{week.sequence} #{week.season_year}"
+      puts "Field Goals: #{week.field_goals}"
+      puts "Rushing Touchdowns: #{week.rushing_touchdowns}"
+      puts "Passing Touchdowns: #{week.passing_touchdowns}"
+      
+      # Get per game stats using the helper method
+      zero_score_count = (week.games.games_search(0,0,0).count.to_f / week.games_count).round(2)
+      score_1fg = (week.games.games_search(3,0,0).count.to_f / week.games_count).round(2)
+      score_2fg = (week.games.games_search(6,0,0).count.to_f / week.games_count).round(2)
+      score_3fg = (week.games.games_search(9,0,0).count.to_f / week.games_count).round(2)
+      score_4fg = (week.games.games_search(12,0,0).count.to_f / week.games_count).round(2)
+      score_5fg = (week.games.games_search(15,0,0).count.to_f / week.games_count).round(2)
+      score_1rtd_0fg = (week.games.games_search(0,6,0).count.to_f / week.games_count).round(2)
+      score_1rtd_1fg = (week.games.games_search(3,6,0).count.to_f / week.games_count).round(2)
+      score_1rtd_2fg = (week.games.games_search(6,6,0).count.to_f / week.games_count).round(2)
+      score_1rtd_3fg = (week.games.games_search(9,6,0).count.to_f / week.games_count).round(2)
+      score_1rtd_4fg = (week.games.games_search(12,6,0).count.to_f / week.games_count).round(2)
+      score_1rtd_5fg = (week.games.games_search(15,6,0).count.to_f / week.games_count).round(2)
+      score_1rtd_1ptd_0fg = (week.games.games_search(0,6,6).count.to_f / week.games_count).round(2)
+      score_1rtd_1ptd_1fg = (week.games.games_search(3,6,6).count.to_f / week.games_count).round(2)
+      score_1rtd_1ptd_2fg = (week.games.games_search(6,6,6).count.to_f / week.games_count).round(2)
+      score_1rtd_1ptd_3fg = (week.games.games_search(9,6,6).count.to_f / week.games_count).round(2)
+      score_1rtd_1ptd_4fg = (week.games.games_search(12,6,6).count.to_f / week.games_count).round(2)
+      score_1rtd_1ptd_5fg = (week.games.games_search(15,6,6).count.to_f / week.games_count).round(2)
+      score_1ptd_0fg = (week.games.games_search(0,0,6).count.to_f / week.games_count).round(2)
+      score_1ptd_1fg = (week.games.games_search(3,0,6).count.to_f / week.games_count).round(2)
+      score_1ptd_2fg = (week.games.games_search(6,0,6).count.to_f / week.games_count).round(2)
+      score_1ptd_3fg = (week.games.games_search(9,0,6).count.to_f / week.games_count).round(2)
+      score_1ptd_4fg = (week.games.games_search(12,0,6).count.to_f / week.games_count).round(2)
+      score_1ptd_5fg = (week.games.games_search(15,0,6).count.to_f / week.games_count).round(2)
+      score_2ptd_0fg = (week.games.games_search(0,0,12).count.to_f / week.games_count).round(2)
+      score_2ptd_1fg = (week.games.games_search(3,0,12).count.to_f / week.games_count).round(2)
+      score_2ptd_2fg = (week.games.games_search(6,0,12).count.to_f / week.games_count).round(2)
+      score_2ptd_3fg = (week.games.games_search(9,0,12).count.to_f / week.games_count).round(2)
+      score_2ptd_4fg = (week.games.games_search(12,0,12).count.to_f / week.games_count).round(2)
+      score_2ptd_5fg = (week.games.games_search(15,0,12).count.to_f / week.games_count).round(2)
+      score_2rtd_0fg = (week.games.games_search(0,12,0).count.to_f / week.games_count).round(2)
+      score_2rtd_1fg = (week.games.games_search(3,12,0).count.to_f / week.games_count).round(2)
+      score_2rtd_2fg = (week.games.games_search(6,12,0).count.to_f / week.games_count).round(2)
+      score_2rtd_3fg = (week.games.games_search(9,12,0).count.to_f / week.games_count).round(2)
+      score_2rtd_4fg = (week.games.games_search(12,12,0).count.to_f / week.games_count).round(2)
+      score_2rtd_5fg = (week.games.games_search(15,12,0).count.to_f / week.games_count).round(2)
+      
+      # Push to CSV
+      csv.push("#{week.games_count.to_i},#{week.season_year.to_i},#{week.sequence.to_i},#{week.field_goals},#{week.rushing_touchdowns},#{week.passing_touchdowns},#{zero_score_count},#{score_1fg},#{score_2fg},#{score_3fg},#{score_4fg},#{score_5fg},#{score_1rtd_0fg},#{score_1rtd_1fg},#{score_1rtd_2fg},#{score_1rtd_3fg},#{score_1rtd_4fg},#{score_1rtd_5fg},#{score_1rtd_1ptd_0fg},#{score_1rtd_1ptd_1fg},#{score_1rtd_1ptd_2fg},#{score_1rtd_1ptd_3fg},#{score_1rtd_1ptd_4fg},#{score_1rtd_1ptd_5fg},#{score_1ptd_0fg},#{score_1ptd_1fg},#{score_1ptd_2fg},#{score_1ptd_3fg},#{score_1ptd_4fg},#{score_1ptd_5fg},#{score_2ptd_0fg},#{score_2ptd_1fg},#{score_2ptd_2fg},#{score_2ptd_3fg},#{score_2ptd_4fg},#{score_2ptd_5fg},#{score_2rtd_0fg},#{score_2rtd_1fg},#{score_2rtd_2fg},#{score_2rtd_3fg},#{score_2rtd_4fg},#{score_2rtd_5fg}")
+    end
+      puts csv.join("\n")
   end
 end

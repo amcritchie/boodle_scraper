@@ -41,6 +41,7 @@ class Game < ApplicationRecord
   end
 
   def scoring_summary
+    
     {
       home_team: home_team&.name,
       away_team: away_team&.name,

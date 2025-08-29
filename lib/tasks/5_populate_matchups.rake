@@ -20,6 +20,86 @@ namespace :matchups do
   end
 
   desc "Populate matchups for Week 1, Season 2025"
+  task week_1_scores: :environment do
+
+    week = Season.s2025.weeks.first
+    # 
+    matchups_without_tds = week.matchups
+    matchups_without_score = week.matchups
+
+    # Calculate first wave of rushing touchdowns
+
+    # RUSH TD 1
+    rushing_td1 = week.matchups.order(rushing_attack_rank: :asc).limit(20)
+    # Update teams without score
+    matchups_without_tds = matchups_without_tds.where.not(id: rushing_td1.pluck(:id))
+    matchups_without_score = matchups_without_score.where.not(id: rushing_td1.pluck(:id))
+
+    # PASS TD 1
+    # Get scorers of a passing touchdown
+    no_rushing_td1 = week.matchups.order(rushing_attack_rank: :desc).limit(12)
+    garbage_passing_td1 = no_rushing_td1.order(passing_attack_rank: :asc).limit(10)
+    # Get remaining matchups ordered by passing_attack_rank (excluding those already in passing_td1)
+    passing_td1 = week.matchups.where.not(id: garbage_passing_td1.pluck(:id)).order(passing_attack_rank: :asc).limit(15)
+    # Combine both sets to get final 25 matchups
+    passing_td1 = garbage_passing_td1 + passing_td1
+
+    # FIELD GOAL 1 + 2
+    field_goal1 = week.matchups.order(passing_attack_rank: :desc).limit(26)
+    field_goal2 = week.matchups.order(rushing_attack_rank: :desc).limit(17)
+
+    # RUSH TD 2 + 3
+    rushing_td2 = week.matchups.order(rushing_attack_rank: :asc).limit(7)
+    rushing_td3 = week.matchups.order(rushing_attack_rank: :asc).limit(2)
+
+    # PASS TD 2 + 3 + 4
+    # Exclude teams that already scored rushing TDs in wave 2
+    teams_with_rushing_td2 = rushing_td2.map(&:team_slug)
+    matchups_without_rushing_td2 = week.matchups.where.not(team_slug: teams_with_rushing_td2)
+    
+    passing_td2 = matchups_without_rushing_td2.order(passing_attack_rank: :asc).limit(14)
+    passing_td3 = matchups_without_rushing_td2.order(passing_attack_rank: :asc).limit(5)
+    passing_td4 = matchups_without_rushing_td2.order(passing_attack_rank: :asc).limit(2)
+
+    # FIELD GOAL 3 + 4
+    field_goal3 = week.matchups.order(passing_attack_rank: :asc).limit(7)
+    field_goal4 = week.matchups.order(rushing_attack_rank: :asc).limit(2)
+
+    # Populate predicted scores for all matchups
+    puts "Populating predicted scores..."
+    
+    # Initialize all matchups with 0 points
+    week.matchups.each { |matchup| matchup.update(rushing_td_points: 0) }
+    week.matchups.each { |matchup| matchup.update(passing_td_points: 0) }
+    week.matchups.each { |matchup| matchup.update(field_goal_points: 0) }
+    
+    # Add rushing TD points (7 points each)
+    rushing_td1.each { |matchup| matchup.increment!(:rushing_td_points, 7) }
+    rushing_td2.each { |matchup| matchup.increment!(:rushing_td_points, 7) }
+    rushing_td3.each { |matchup| matchup.increment!(:rushing_td_points, 7) }
+
+    # passing_td_points.to_f + rushing_td_points.to_f + field_goal_points.to_f
+
+
+    # Add passing TD points (7 points each)
+    passing_td1.each { |matchup| matchup.increment!(:passing_td_points, 7) }
+    passing_td2.each { |matchup| matchup.increment!(:passing_td_points, 7) }
+    passing_td3.each { |matchup| matchup.increment!(:passing_td_points, 7) }
+    passing_td4.each { |matchup| matchup.increment!(:passing_td_points, 7) }
+    
+    # Add field goal points (3 points each)
+    field_goal1.each { |matchup| matchup.increment!(:field_goal_points, 3) }
+    field_goal2.each { |matchup| matchup.increment!(:field_goal_points, 3) }
+    field_goal3.each { |matchup| matchup.increment!(:field_goal_points, 3) }
+    field_goal4.each { |matchup| matchup.increment!(:field_goal_points, 3) }
+    
+    puts "Predicted scores populated successfully!"
+    puts "Total rushing TDs: #{rushing_td1.count + rushing_td2.count + rushing_td3.count}"
+    puts "Total passing TDs: #{passing_td1.count + passing_td2.count + passing_td3.count + passing_td4.count}"
+    puts "Total field goals: #{field_goal1.count + field_goal2.count + field_goal3.count + field_goal4.count}"
+  end
+
+  desc "Populate matchups for Week 1, Season 2025"
   task populate_2025_week_1: :environment do
     # First pass: Generate matchups and populate existing rankings
     Season.s2025.weeks.first.games.each do |game|

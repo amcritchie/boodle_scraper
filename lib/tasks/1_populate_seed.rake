@@ -34,6 +34,10 @@ namespace :seed do
 
     # rake matchups:populate_2025_week_1      | Matchups (Sports Radar) | Sports Radar | 2025 | Coming matchups
     Rake::Task['matchups:populate_2025_week_1'].invoke
+
+    # Get scores for NFL Week 1
+    # rake matchups:week_1_scores      | Matchups (Sports Radar) | Sports Radar | 2025 | Coming matchups
+    Rake::Task['matchups:week_1_scores'].invoke
  
 
     # Init 2024 - 2020 seasons
