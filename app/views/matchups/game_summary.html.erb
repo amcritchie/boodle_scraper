@@ -66,8 +66,7 @@
           <%= @away_team&.location %> <%= @away_team&.alias %> Offense
         </h2>
 
-        <%= render 'matchups/defensive_lineup', 
-        matchup: @home_matchup %>
+        <%= render 'matchups/defensive_lineup', matchup: @home_matchup %>
         
     
       </div>
@@ -76,10 +75,10 @@
       <div class="space-y-6">
         <h2 class="text-2xl font-bold text-[#121E18] dark:text-[#E8F0E6] mb-4">
           <%= @home_team&.location %> <%= @home_team&.alias %> Offense
+          dfewfe
         </h2>
         
-        <%= render 'matchups/offensive_lineup', 
-            matchup: @home_matchup %>
+        <%= render 'matchups/offensive_lineup', matchup: @home_matchup %>
       </div>
       
       <!-- BOTTOM LEFT - HOME DEFENSE vs AWAY OFFENSE -->
@@ -96,8 +95,7 @@
           <%= @away_team&.location %> <%= @away_team&.alias %> Defense
         </h2>
         
-        <%= render 'matchups/defensive_lineup', 
-            matchup: @away_matchup %>
+        <%= render 'matchups/defensive_lineup', matchup: @away_matchup %>
       </div>
     </div>
   </div>
