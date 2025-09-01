@@ -7,10 +7,34 @@
   <!-- Hero Section -->
     <div class="text-[#E8F0E6]" style="<%= @hero_gradient_style %>">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Adjacent Games Navigation -->
+      <% if @adjacent_games&.any? %>
+        <div class="mb-6">
+          <div class="flex items-center justify-center space-x-2">
+            <% @adjacent_games.each do |adjacent| %>
+              <%= link_to prediction_show_path(@year, @week.slug, adjacent[:game].slug), 
+                  class: "group flex items-center space-x-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 transition-all duration-200 border border-white/20 hover:border-white/30" do %>
+                <span class="text-sm text-white group-hover:text-blue-100 transition-colors">
+                  <%= adjacent[:game].away_team&.emoji %> @ <%= adjacent[:game].home_team&.emoji %>
+                </span>
+                <div class="text-xs text-white group-hover:text-blue-100 transition-colors">
+                  <div class="font-medium">
+                    <%= adjacent[:game].away_team&.alias %> @ <%= adjacent[:game].home_team&.alias %>
+                  </div>
+                  <div class="text-blue-100 opacity-90">
+                    Game <%= adjacent[:game_number] %>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      
       <div class="text-center">
         <!-- Team Matchup Display with Team Colors -->
         <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8 mb-6">
-          <!-- Away Team -->
+                    <!-- Away Team -->
           <div class="backdrop-blur-sm rounded-2xl p-6 border border-white/20 w-full md:w-64 md:flex-shrink-0" style="background-color: <%= @away_team&.color_dark || '#121E18' %>20; border-color: <%= @away_team&.color_alt1 || @away_color_accent %>/40;">
             <div class="text-center">
               <span class="text-4xl mb-2 block"><%= @away_team&.emoji %></span>
@@ -20,9 +44,25 @@
                   <%= @away_team&.alias %>
                 </h2>
               </div>
-              <div class="font-semibold" style="color: <%= @away_color_accent %>;">AWAY</div>
+              
+              <!-- Main Turf Monster Score -->
+              <div class="mb-4 flex justify-center">
+                <div class="text-5xl font-bold text-[#E8F0E6] flex items-end gap-2">
+                  <div class="pl-2.5"><%= @away_matchup&.predicted_score&.football_round || @away_matchup&.predicted_score&.to_i || '--' %></div>
+                  <img src="<%= asset_path('turf-monster-icon.png') %>" alt="Turf Monster" class="w-6 h-6">
+                </div>
+              </div>
+              
+              <!-- Bottom Info Line -->
+              <div class="text-xs text-[#A5B1AA]">
+                <span class="font-semibold" style="color: <%= @away_color_accent %>;">AWAY</span>
+                <span class="mx-2">•</span>
+                <span>Vegas: <%= @game&.away_implied_total&.football_round || '--' %></span>
+              </div>
             </div>
           </div>
+          
+
           
           <!-- VS -->
           <div class="text-4xl font-bold md:mx-4" style="<%= @text_gradient_style %>">VS</div>
@@ -37,7 +77,21 @@
                   <%= @home_team&.alias %>
                 </h2>
               </div>
-              <div class="font-semibold" style="color: <%= @home_text %>;">HOME</div>
+              
+              <!-- Main Turf Monster Score -->
+              <div class="mb-4 flex justify-center">
+                <div class="text-5xl font-bold text-[#E8F0E6] flex items-end gap-2">
+                  <div class="pl-2.5"><%= @home_matchup&.predicted_score&.football_round || @home_matchup&.predicted_score&.to_i || '--' %></div>
+                  <img src="<%= asset_path('turf-monster-icon.png') %>" alt="Turf Monster" class="w-6 h-6">
+                </div>
+              </div>
+              
+              <!-- Bottom Info Line -->
+              <div class="text-xs text-[#A5B1AA]">
+                <span class="font-semibold" style="color: <%= @home_text %>;">HOME</span>
+                <span class="mx-2">•</span>
+                <span>Vegas: <%= @game&.home_implied_total&.football_round || '--' %></span>
+              </div>
             </div>
           </div>
         </div>

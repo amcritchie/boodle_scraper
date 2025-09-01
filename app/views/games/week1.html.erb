@@ -76,6 +76,7 @@
                     <%= '--' %>
                   <% end %>
                 </div>
+                
                 <div class="relative">
                   <div class="text-md -top-8 left-2 font-bold text-blue-600 mb-4 absolute inset-0 flex items-left justify-left z-10">
                     <%= game_data[:game].away_implied_total&.score_emojis %>
@@ -145,6 +146,7 @@
                     <%= '--' %>
                   <% end %>
                 </div>
+                
                 <div class="relative">
                   <div class="text-md -top-8 left-2 font-bold text-red-600 mb-4 absolute inset-0 flex items-left justify-left z-10">
                     <%= game_data[:game].home_implied_total&.score_emojis %>
@@ -163,7 +165,7 @@
                         <div class="font-semibold text-green-700 dark:text-green-300">Rush</div>
                         <div class="font-mono"><%= game_data[:home_matchup].rushing_td_points || 0 %></div>
                       </div>
-                      <div class="bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded">
+                      <div class="bg-yellow-50 dark:text-yellow-900/20 p-2 rounded">
                         <div class="font-semibold text-yellow-700 dark:text-yellow-300">FG</div>
                         <div class="font-mono"><%= game_data[:home_matchup].field_goal_points || 0 %></div>
                     </div>

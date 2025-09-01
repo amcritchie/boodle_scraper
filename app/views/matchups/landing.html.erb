@@ -64,7 +64,7 @@
                 <% matchup = item[:matchup] %>
                 <% bg_color = item[:background_color] %>
                 <tr class="text-center border-b border-[#A5B1AA]/20 hover:bg-[#E8F0E6]/50 dark:hover:bg-[#121E18]/50 transition-colors duration-200 cursor-pointer"
-                    onclick="window.location.href='<%= matchup_summary_path(matchup.team.slug, matchup.team_defense.slug, matchup.week_slug, matchup.season) %>'">
+                    onclick="window.location.href='<%= matchups_summary_path(matchup.team.slug, matchup.team_defense.slug, matchup.week_slug, matchup.season) %>'">
                   <td class="py-1 px-1 font-semibold text-lg text-white text-center <%= bg_color %> rounded"><%= index + 1 %></td>
                   <td class="py-3 px-3">
                     <%= render 'matchups/team_display', team: matchup.team, is_home: matchup.home %>
@@ -164,7 +164,7 @@
                 <% matchup = item[:matchup] %>
                 <% bg_color = item[:background_color] %>
                 <tr class="text-center border-b border-[#A5B1AA]/20 hover:bg-[#E8F0E6]/50 dark:hover:bg-[#121E18]/50 transition-colors duration-200 cursor-pointer"
-                    onclick="window.location.href='<%= matchup_summary_path(matchup.team.slug, matchup.team_defense.slug, matchup.week_slug, matchup.season) %>'">
+                    onclick="window.location.href='<%= matchups_summary_path(matchup.team.slug, matchup.team_defense.slug, matchup.week_slug, matchup.season) %>'">
                   <td class="py-1 px-1 font-semibold text-lg text-white text-center <%= bg_color %> rounded"><%= index + 1 %></td>
                   <td class="py-3 px-3">
                     <%= render 'matchups/team_display', team: matchup.team, is_home: matchup.home %>

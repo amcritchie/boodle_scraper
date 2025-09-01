@@ -24,6 +24,9 @@ namespace :seed do
     Rake::Task['teams:roster2025'].invoke
     # rake teams:startersOveride2025          | Players (Left Handed QB) | Sports Radar | +1600 Players
     Rake::Task['teams:startersOveride2025'].invoke
+
+
+    
     # rake teams:startersCurrent              | TeamsSeasons (ESPN Depth Scraper) | Sports Radar | +1600 Players
     Rake::Task['teams:startersCurrent'].invoke
     # rake teams_weeks:populate_2025_week_1  | TeamsWeeks (Sports Radar) | 2025 | Rankings and Scores

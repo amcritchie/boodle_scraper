@@ -22,14 +22,18 @@
       </div>
       <div class="flex items-center space-x-4">
         <nav class="flex space-x-0">
-          <a href="https://magic.beehiiv.com/v1/6ac03aae-56af-4dc5-b741-1ec40831e0c6" target="_blank" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-lg hover:shadow-xl">
+          <a href="https://414hyu.share-na2.hsforms.com/2OI-xECHNSn-BhXAI8fuhwQ" target="_blank" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-lg hover:shadow-xl">
             Picks
           </a>  
+          <a href="<%= predictions_week_path(2025, 1) %>" class="theme-text-secondary hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
+          Games
+        </a>
           <a href="/nfl-offensive-line-rankings" class="theme-text-secondary hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
             Ranks
           </a>
-          <a href="<%= predictions_week_path(2025, 1) %>" class="theme-text-secondary hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            🤠🦅
+
+          <a href="<%= all_games_path %>" class="theme-text-secondary hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            🏈 Games
           </a>
           <% unless Rails.env.production? %>
           <a href="/tb/atl/1/2025" class="theme-text-secondary hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
