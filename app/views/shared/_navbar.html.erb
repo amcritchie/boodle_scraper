@@ -32,9 +32,7 @@
             Ranks
           </a>
 
-          <a href="<%= all_games_path %>" class="theme-text-secondary hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
-            🏈 Games
-          </a>
+   
           <% unless Rails.env.production? %>
           <a href="/tb/atl/1/2025" class="theme-text-secondary hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
             🏴‍☠️🐦‍🔥
@@ -67,6 +65,10 @@
                   Week 1
                 </a>
 
+                <a href="<%= all_games_path %>" class="theme-text-secondary hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                🏈 Games
+              </a>
+
                 <a href="/matchups" class="theme-text-secondary hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
                 Matchups
                 </a>
@@ -88,6 +90,7 @@
                 <a href="<%= nfl_offensive_line_rankings_path %>" class="block px-4 py-2 text-sm theme-text-secondary hover:theme-bg-tertiary">
                   O-Line Rankings
                 </a>
+
               </div>
             </div>
           <% end %>
