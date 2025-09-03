@@ -42,6 +42,19 @@
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
   }
+  
+  .copy-team-logo {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .copy-team-logo:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .copy-team-logo:active {
+    transform: scale(0.95);
+  }
 </style>
 
   <%= render 'shared/hero_section', 
@@ -109,7 +122,7 @@
             <p class="text-green-100 text-sm">
               <span id="grade-header">Overall Grades</span> • 
               Showing <%= @rankings&.count || @qb_players&.count %> • 
-              <span class="text-green-200">Drag to reorder</span>
+              <span class="text-green-200">Drag to reorder • Click team logo to copy</span>
             </p>
           </div>
         </div>
@@ -171,7 +184,12 @@
                     </span>
                   </td>
                   <td class="hidden md:table-cell px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
-                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-lg">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors copy-team-logo" 
+                          data-rank="<%= index + 1 %>"
+                          data-emoji="<%= ranking.player.team&.emoji || '🏈' %>"
+                          data-first-name="<%= ranking.player.first_name %>"
+                          data-last-name="<%= ranking.player.last_name %>"
+                          title="Click to copy: <%= index + 1 %> <%= ranking.player.team&.emoji || '🏈' %> <%= ranking.player.first_name %> <%= ranking.player.last_name %>">
                       <%= ranking.player.team&.emoji || '🏈' %>
                     </span>
                   </td>
@@ -243,7 +261,12 @@
                     </span>
                   </td>
                   <td class="hidden md:table-cell px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
-                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-lg">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors copy-team-logo" 
+                          data-rank="<%= index + 1 %>"
+                          data-emoji="<%= player.team&.emoji || '🏈' %>"
+                          data-first-name="<%= player.first_name %>"
+                          data-last-name="<%= player.last_name %>"
+                          title="Click to copy: <%= index + 1 %> <%= player.team&.emoji || '🏈' %> <%= player.first_name %> <%= player.last_name %>">
                       <%= player.team&.emoji || '🏈' %>
                     </span>
                   </td>

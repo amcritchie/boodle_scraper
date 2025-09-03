@@ -5,6 +5,7 @@ export default class extends Controller {
   
   connect() {
     this.setupDragAndDrop()
+    this.setupCopyToClipboard()
   }
   
   setupDragAndDrop() {
@@ -108,20 +109,33 @@ export default class extends Controller {
     const rows = this.element.querySelectorAll('.draggable-row')
     
     rows.forEach((row, index) => {
+      const newRank = index + 1
+      
       // Update desktop rank number
       const rankNumber = row.querySelector('.rank-number')
       if (rankNumber) {
-        rankNumber.textContent = index + 1
+        rankNumber.textContent = newRank
       }
       
       // Update mobile rank number
       const mobileRank = row.querySelector('.md\\:hidden .bg-\\[\\#4BAF50\\]')
       if (mobileRank) {
-        mobileRank.textContent = index + 1
+        mobileRank.textContent = newRank
       }
       
       // Update data attribute
-      row.setAttribute('data-original-rank', index + 1)
+      row.setAttribute('data-original-rank', newRank)
+      
+      // Update copy button data attributes
+      const copyButton = row.querySelector('.copy-team-logo')
+      if (copyButton) {
+        copyButton.setAttribute('data-rank', newRank)
+        // Update tooltip
+        const emoji = copyButton.getAttribute('data-emoji')
+        const firstName = copyButton.getAttribute('data-first-name')
+        const lastName = copyButton.getAttribute('data-last-name')
+        copyButton.setAttribute('title', `Click to copy: ${newRank} ${emoji} ${firstName} ${lastName}`)
+      }
     })
   }
   
@@ -132,5 +146,73 @@ export default class extends Controller {
       playerId: row.getAttribute('data-player-id'),
       rank: parseInt(row.getAttribute('data-original-rank'))
     }))
+  }
+  
+  setupCopyToClipboard() {
+    const copyButtons = this.element.querySelectorAll('.copy-team-logo')
+    
+    copyButtons.forEach(button => {
+      button.addEventListener('click', this.handleCopyToClipboard.bind(this))
+    })
+  }
+  
+  handleCopyToClipboard(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    const button = e.currentTarget
+    const rank = button.getAttribute('data-rank')
+    const emoji = button.getAttribute('data-emoji')
+    const firstName = button.getAttribute('data-first-name')
+    const lastName = button.getAttribute('data-last-name')
+    
+    const textToCopy = `${rank} ${emoji} ${firstName} ${lastName}`
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      // Visual feedback
+      const originalBg = button.style.backgroundColor
+      const originalText = button.textContent
+      
+      button.style.backgroundColor = '#10B981' // Green
+      button.textContent = '✓'
+      
+      setTimeout(() => {
+        button.style.backgroundColor = originalBg
+        button.textContent = originalText
+      }, 1000)
+      
+      // Show toast notification
+      this.showToast(`Copied: ${textToCopy}`)
+    }).catch(err => {
+      console.error('Failed to copy text: ', err)
+      this.showToast('Failed to copy to clipboard')
+    })
+  }
+  
+  showToast(message) {
+    // Create toast element
+    const toast = document.createElement('div')
+    toast.className = 'fixed top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-300'
+    toast.textContent = message
+    
+    document.body.appendChild(toast)
+    
+    // Animate in
+    setTimeout(() => {
+      toast.style.transform = 'translateX(0)'
+      toast.style.opacity = '1'
+    }, 100)
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+      toast.style.transform = 'translateX(100%)'
+      toast.style.opacity = '0'
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast)
+        }
+      }, 300)
+    }, 3000)
   }
 }
