@@ -17,11 +17,11 @@ class Ranking < ApplicationRecord
   # Get player's rank in a specific category
   def rank_for_category(category)
     case category.to_s
-    when 'offense'
+    when 'offense', 'overall'
       rank_1
-    when 'pass_block'
+    when 'pass_block', 'passing'
       rank_2
-    when 'run_block'
+    when 'run_block', 'rushing'
       rank_3
     else
       nil

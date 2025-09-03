@@ -1,0 +1,312 @@
+<!-- Page Container with Dark Mode Support -->
+<div class="min-h-screen transition-colors duration-200" x-data="{ darkMode: false }">
+
+<style>
+  .draggable-row {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .draggable-row:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .drag-handle {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .drag-handle:hover {
+    transform: scale(1.1);
+  }
+  
+  .draggable-row.dragging {
+    opacity: 0.5;
+    transform: rotate(2deg);
+  }
+  
+  .drop-zone {
+    border-top: 2px solid #3B82F6;
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+  
+  .dark .drop-zone {
+    background-color: rgba(59, 130, 246, 0.2);
+  }
+  
+  .rank-updated {
+    animation: rankUpdate 0.5s ease-in-out;
+  }
+  
+  @keyframes rankUpdate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+</style>
+
+  <%= render 'shared/hero_section', 
+             title: 'Quarterbacks',
+             subtitle: 'Week ' + @week.to_s + ' Rankings',
+             week: @week,
+             gradient_title: true %>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8"
+       data-controller="searchable-table drag-drop"
+       data-searchable-table-sort-url-value="<%= request.path %>">
+    
+    <!-- Search and Toggle Controls -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-8 p-6">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <!-- Search Bar -->
+        <div class="flex-1 max-w-md">
+          <div class="relative">
+            <input 
+              type="text" 
+              data-searchable-table-target="searchInput"
+              placeholder="Search players, teams..." 
+              class="w-full px-4 py-3 pl-12 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#4BAF50] focus:border-transparent text-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              value="<%= params[:search] || @filtered_team_name %>"
+            >
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-6 w-6 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+            <button 
+              type="button" 
+              data-searchable-table-target="clearButton"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              style="display: none;"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Toggle Buttons -->
+        <div class="flex space-x-2">
+          <button 
+            data-searchable-table-target="sortButton"
+            class="px-6 py-3 rounded-lg font-semibold transition-colors <%= @sort_by == 'overall' ? 'bg-[#4BAF50] text-white' : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500' %>"
+            data-sort="overall"
+          >
+            Overall
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Players List -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div class="bg-gradient-to-r from-[#4BAF50] to-[#45a049] px-6 py-4">
+        <div class="flex items-center space-x-3">
+          <span class="text-2xl">🏈</span>
+          <div>
+            <h2 class="text-xl font-bold text-white">Quarterback Rankings</h2>
+            <p class="text-green-100 text-sm">
+              <span id="grade-header">Overall Grades</span> • 
+              Showing <%= @rankings&.count || @qb_players&.count %> • 
+              <span class="text-green-200">Drag to reorder</span>
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <!-- Mobile: Single "Player" header -->
+              <th class="md:hidden px-1 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-10">📈</th>
+              <th class="md:hidden px-0 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" colspan="2">Player</th>
+              
+              <!-- Desktop: Separate headers -->
+              <th class="hidden md:table-cell px-1 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-8">⋮⋮</th>
+              <th class="hidden md:table-cell px-1 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">Rank</th>
+              <th class="hidden md:table-cell px-1 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">Team</th>
+              <th class="hidden md:table-cell px-2 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Player</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <span id="grade-header-col">Overall</span>
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Team</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" data-searchable-table-target="tableBody">
+            <% if @rankings&.any? %>
+              <% @rankings.each_with_index do |ranking, index| %>
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors draggable-row"
+                    data-search="<%= "#{ranking.player.first_name} #{ranking.player.last_name} #{ranking.player.team&.name || ranking.player.team_slug&.upcase} #{ranking.position}".downcase %>"
+                    draggable="true"
+                    data-player-id="<%= ranking.player.slug %>"
+                    data-original-rank="<%= index + 1 %>">
+                  <!-- Mobile: Show rank, team inline with player name -->
+                  <td class="md:hidden px-2 py-4 whitespace-nowrap" colspan="3">
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#4BAF50] text-white text-xs font-bold">
+                        <%= index + 1 %>
+                      </span>
+                      <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 text-sm">
+                        <%= ranking.player.team&.emoji || '🏈' %>
+                      </span>
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">
+                        <%= ranking.player.first_name %> <%= ranking.player.last_name %>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  <!-- Desktop: Separate columns -->
+                  <td class="hidden md:table-cell px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-400 dark:text-gray-500 w-8">
+                    <div class="drag-handle cursor-move hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"></path>
+                      </svg>
+                    </div>
+                  </td>
+                  <td class="hidden md:table-cell px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#4BAF50] text-white text-sm font-bold rank-number">
+                      <%= index + 1 %>
+                    </span>
+                  </td>
+                  <td class="hidden md:table-cell px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-lg">
+                      <%= ranking.player.team&.emoji || '🏈' %>
+                    </span>
+                  </td>
+                  <td class="hidden md:table-cell px-2 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">
+                        <%= ranking.player.first_name %> <%= ranking.player.last_name %>
+                      </div>
+                      <div class="text-sm text-gray-500 dark:text-gray-400">
+                        <%= ranking.player.jersey_number if ranking.player.respond_to?(:jersey_number) %>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    <div class="flex flex-col">
+                      <div class="flex items-center">
+                        <span class="font-semibold <%= if ranking.rank_1 <= 10; 'text-green-600 dark:text-green-400'; elsif ranking.rank_1 <= 20; 'text-yellow-600 dark:text-yellow-400'; else; 'text-red-600 dark:text-red-400'; end %>">
+                          <%= (100 - ranking.percentile_for_category('overall').to_f).round(1) %>%
+                        </span>
+                        <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                          (#<%= ranking.rank_1 %>)
+                        </span>
+                      </div>
+                      <div class="mt-1 w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
+                        <div class="bg-purple-500 h-1.5 rounded-full" style="width: <%= (100 - ranking.percentile_for_category('overall').to_f).round(1) %>%"></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#4BAF50]/20 text-[#4BAF50] border border-[#4BAF50]/30">
+                      <%= ranking.player.team&.name || ranking.player.team_slug&.upcase %>
+                    </span>
+                  </td>
+                </tr>
+              <% end %>
+            <% elsif @qb_players&.any? %>
+              <% @qb_players.each_with_index do |player, index| %>
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors draggable-row"
+                    data-search="<%= "#{player.first_name} #{player.last_name} #{player.team&.name || player.team_slug&.upcase} #{@starter_positions&.dig(player.slug)}".downcase %>"
+                    draggable="true"
+                    data-player-id="<%= player.slug %>"
+                    data-original-rank="<%= index + 1 %>">
+                  <!-- Mobile: Show rank, team inline with player name -->
+                  <td class="md:hidden px-2 py-4 whitespace-nowrap" colspan="3">
+                    <div class="flex items-center space-x-2">
+                      <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#4BAF50] text-white text-xs font-bold">
+                        <%= index + 1 %>
+                      </span>
+                      <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 text-sm">
+                        <%= player.team&.emoji || '🏈' %>
+                      </span>
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">
+                        <%= player.first_name %> <%= player.last_name %>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  <!-- Desktop: Separate columns -->
+                  <td class="hidden md:table-cell px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-400 dark:text-gray-500 w-8">
+                    <div class="drag-handle cursor-move hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"></path>
+                      </svg>
+                    </div>
+                  </td>
+                  <td class="hidden md:table-cell px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#4BAF50] text-white text-sm font-bold rank-number">
+                      <%= index + 1 %>
+                    </span>
+                  </td>
+                  <td class="hidden md:table-cell px-1 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-16">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-lg">
+                      <%= player.team&.emoji || '🏈' %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">
+                        <%= player.first_name %> <%= player.last_name %>
+                      </div>
+                      <div class="text-sm text-gray-500 dark:text-gray-400">
+                        <%= player.jersey_number if player.respond_to?(:jersey_number) %>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    <div class="flex flex-col">
+                      <div class="flex items-center">
+                        <span class="font-semibold <%= if player.percentile_overall&.to_f&.<= 10; 'text-green-600 dark:text-green-400'; elsif player.percentile_overall&.to_f&.<= 20; 'text-yellow-600 dark:text-yellow-400'; else; 'text-red-600 dark:text-red-400'; end %>">
+                          <%= (100 - (player.percentile_overall || 0).to_f).round(1) %>%
+                        </span>
+                        <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                          (#<%= player.overall_rank %>)
+                        </span>
+                      </div>
+                      <div class="mt-1 w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
+                        <div class="bg-purple-500 h-1.5 rounded-full" style="width: <%= (100 - (player.percentile_overall || 0).to_f).round(1) %>%"></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#4BAF50]/20 text-[#4BAF50] border border-[#4BAF50]/30">
+                      <%= player.team&.name || player.team_slug&.upcase %>
+                    </span>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- No Results Message -->
+    <% if (@rankings&.empty? || @rankings.nil?) && (@qb_players&.empty? || @qb_players.nil?) %>
+      <div class="text-center py-12">
+        <div class="text-gray-400 dark:text-gray-500 mb-4">
+          <svg class="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No quarterbacks found</h3>
+        <p class="text-gray-500 dark:text-gray-400">Try adjusting your search terms or check back later.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-[#121E18] dark:bg-[#0a1510] text-[#A5B1AA] py-12 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <p class="text-sm">
+          NFL Quarterback Rankings updated for Week <%= @week %> of the <%= @year %> season
+        </p>
+      </div>
+    </div>
+  </footer>
+</div>

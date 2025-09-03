@@ -37,6 +37,11 @@ Rails.application.routes.draw do
   get 'rankings/offensive-line', to: 'rankings#offensive_line', as: 'offensive_line_rankings'
   get 'oline-rankings', to: 'rankings#offensive_line', as: 'oline_rankings' # Keep for backward compatibility
   
+  # Quarterback rankings - SEO optimized
+  get 'nfl-quarterback-rankings', to: 'rankings#quarterback', as: 'nfl_quarterback_rankings'
+  get 'rankings/quarterback', to: 'rankings#quarterback', as: 'quarterback_rankings'
+  get 'qb-rankings', to: 'rankings#quarterback', as: 'qb_rankings' # Keep for backward compatibility
+  
   # Predictions routes for SEO optimization
   get 'predictions/:year/week/:week/:game_slug', to: 'predictions#show', as: 'prediction_show'
   get 'nfl-week-1-predictions', to: 'predictions#week', as: 'nfl_week1_predictions'
