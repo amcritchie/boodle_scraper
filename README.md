@@ -101,3 +101,36 @@ pg_restore -U alex -h localhost -d boodle_scraper_development /Volumes/Untitled/
    ```
 
 3. Add `.env` to your `.gitignore` file to keep your API keys secure
+
+# Docker
+
+Run the app with Docker (no Ruby, PostgreSQL, or other dependencies needed on the host).
+
+### Prerequisites
+
+- [Docker Engine](https://docs.docker.com/engine/install/) with the Compose plugin
+  - **macOS**: `brew install --cask docker` (then open Docker Desktop)
+  - **Linux (Ubuntu/Debian)**: `sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin`
+
+### Setup
+
+1. Create a `.env` file in the project root (see Environment Variables above)
+
+2. Build and start:
+   ```
+   docker compose up --build -d
+   ```
+
+3. The app will be available at `http://localhost:3000`
+
+The entrypoint automatically runs `db:prepare` on startup, which creates the database and runs migrations.
+
+### Common Commands
+
+```bash
+docker compose up -d          # Start in background
+docker compose down           # Stop services
+docker compose logs -f web    # Follow web logs
+docker compose run web bin/rails console   # Rails console
+docker compose run web bin/rails db:seed   # Seed data
+```
