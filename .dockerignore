@@ -1,0 +1,10 @@
+.git
+node_modules
+tmp
+log
+.env
+lib/pff/
+storage
+.ruby-lsp
+.bundle
+vendor/bundle
