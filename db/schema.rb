@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_23_045123) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_23_225827) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -32,6 +32,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_23_045123) do
     t.json "source_data_json"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "sport"
   end
 
   create_table "broadcasts", force: :cascade do |t|
@@ -522,6 +523,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_23_045123) do
     t.datetime "posted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "sport"
   end
 
   create_table "rankings", force: :cascade do |t|
@@ -571,6 +573,14 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_23_045123) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["year", "season_type"], name: "index_seasons_on_year_and_season_type", unique: true
+  end
+
+  create_table "settings", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_settings_on_key", unique: true
   end
 
   create_table "teams", force: :cascade do |t|
