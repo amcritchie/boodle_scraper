@@ -1,0 +1,84 @@
+<%= form_with(model: post, local: true, class: "space-y-6") do |f| %>
+  <% if post.errors.any? %>
+    <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded">
+      <h3 class="font-medium"><%= pluralize(post.errors.count, "error") %> prohibited this post from being saved:</h3>
+      <ul class="mt-2 list-disc list-inside text-sm">
+        <% post.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Title -->
+    <div class="md:col-span-2">
+      <%= f.label :title, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :title, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" %>
+    </div>
+
+    <!-- Stage -->
+    <div>
+      <%= f.label :stage, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.select :stage, options_for_select([["Draft", "draft"], ["Images", "images"], ["Approved", "approved"], ["Posted", "posted"]], post.stage), { include_blank: "Select stage..." }, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" %>
+    </div>
+
+    <!-- Image URL -->
+    <div>
+      <%= f.label :image_url, "Image URL", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.url_field :image_url, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" %>
+    </div>
+
+    <!-- Impressions -->
+    <div>
+      <%= f.label :impressions, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.number_field :impressions, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" %>
+    </div>
+
+    <!-- Likes -->
+    <div>
+      <%= f.label :likes, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.number_field :likes, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" %>
+    </div>
+
+    <!-- Content -->
+    <div class="md:col-span-2">
+      <%= f.label :content, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :content, rows: 6, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" %>
+    </div>
+
+    <!-- Image Proposals (JSON) -->
+    <div class="md:col-span-2">
+      <%= f.label :image_proposals, "Image Proposals (JSON)", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :image_proposals, value: post.image_proposals.present? ? JSON.pretty_generate(post.image_proposals) : "", rows: 4, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-amber-500 focus:border-amber-500" %>
+      <p class="mt-1 text-xs theme-text-secondary">Enter valid JSON for image proposals</p>
+    </div>
+
+    <!-- Timestamps -->
+    <div>
+      <%= f.label :images_found_at, "Images Found At", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.datetime_local_field :images_found_at, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" %>
+    </div>
+
+    <div>
+      <%= f.label :image_selected_at, "Image Selected At", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.datetime_local_field :image_selected_at, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" %>
+    </div>
+
+    <div>
+      <%= f.label :approved_at, "Approved At", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.datetime_local_field :approved_at, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" %>
+    </div>
+
+    <div>
+      <%= f.label :posted_at, "Posted At", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.datetime_local_field :posted_at, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500" %>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div class="flex items-center space-x-4 pt-4">
+    <%= f.submit class: "bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg text-sm font-semibold transition-colors shadow cursor-pointer" %>
+    <a href="<%= posts_path %>" class="theme-text-secondary hover:theme-text-primary text-sm font-medium">Cancel</a>
+  </div>
+<% end %>

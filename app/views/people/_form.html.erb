@@ -1,0 +1,62 @@
+<%= form_with(model: person, local: true, class: "space-y-6") do |f| %>
+  <% if person.errors.any? %>
+    <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded">
+      <h3 class="font-medium"><%= pluralize(person.errors.count, "error") %> prohibited this person from being saved:</h3>
+      <ul class="mt-2 list-disc list-inside text-sm">
+        <% person.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- First Name -->
+    <div>
+      <%= f.label :first_name, "First Name", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :first_name, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500" %>
+    </div>
+
+    <!-- Last Name -->
+    <div>
+      <%= f.label :last_name, "Last Name", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :last_name, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500" %>
+    </div>
+
+    <!-- Slug -->
+    <div>
+      <%= f.label :slug, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :slug, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500 focus:border-teal-500" %>
+    </div>
+
+    <!-- Player Slug -->
+    <div>
+      <%= f.label :player_slug, "Player Slug", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :player_slug, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500 focus:border-teal-500" %>
+    </div>
+
+    <!-- Birthday -->
+    <div>
+      <%= f.label :birthday, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.date_field :birthday, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500" %>
+    </div>
+
+    <!-- Twitter Account -->
+    <div>
+      <%= f.label :twitter_account, "Twitter Account", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :twitter_account, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500" %>
+    </div>
+
+    <!-- Twitter Hashtag -->
+    <div class="md:col-span-2">
+      <%= f.label :twitter_hashtag, "Twitter Hashtag", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :twitter_hashtag, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500" %>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div class="flex items-center space-x-4 pt-4">
+    <%= f.submit class: "bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg text-sm font-semibold transition-colors shadow cursor-pointer" %>
+    <a href="<%= people_path %>" class="theme-text-secondary hover:theme-text-primary text-sm font-medium">Cancel</a>
+  </div>
+<% end %>

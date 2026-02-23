@@ -1,3 +1,8 @@
+---
+description: 
+alwaysApply: true
+---
+
 # CLAUDE.md
 
 ## Project Overview
@@ -116,15 +121,16 @@ Self-describing docs also available at `GET /api/articles/docs`.
 | `id` | integer | Auto-generated primary key |
 | `title` | string | Article title |
 | `author` | string | Author name |
+| `sport` | string | Sport category (e.g. `"nfl"`, `"nba"`) |
 | `published_at` | date | Publication date (`YYYY-MM-DD`) |
 | `reviewed_at` | datetime | When feedback was last given (ISO 8601, auto-set by feedback endpoint) |
-| `person_slug` | string | Slug of the primary athlete |
-| `main_person_name` | string | Display name of the primary athlete |
+| `main_person_slug` | string | Slug of the primary person |
+| `main_person_name` | string | Display name of the primary person |
 | `names` | json | Array of name strings, e.g. `["Patrick Mahomes", "Travis Kelce"]` |
 | `disposition` | text | Article disposition/sentiment analysis |
 | `feedback` | text | Free-form feedback notes |
 | `article_good` | boolean | Whether the article is interesting/good |
-| `person_identified` | boolean | Whether the primary athlete was correctly identified |
+| `person_identified` | boolean | Whether the primary person was correctly identified |
 | `disposition_coherent` | boolean | Whether the disposition analysis is coherent |
 | `source` | string | Source identifier (e.g. `"news-bot"`, `"rss-feed"`) |
 | `source_url` | string | URL of the original article |
@@ -142,7 +148,7 @@ Query params:
 - `page` (integer, default: 1) — Page number
 - `per_page` (integer, default: 25, max: 100) — Results per page
 - `reviewed` (`"true"` / `"false"`) — Filter by reviewed status
-- `person_slug` (string) — Filter by person slug
+- `main_person_slug` (string) — Filter by person slug
 - `source` (string) — Filter by source
 
 Response:
@@ -171,8 +177,9 @@ Content-Type: application/json
   "article": {
     "title": "Mahomes shines in Week 1",
     "author": "News Bot",
+    "sport": "nfl",
     "published_at": "2025-09-07",
-    "person_slug": "patrick-mahomes",
+    "main_person_slug": "patrick-mahomes",
     "main_person_name": "Patrick Mahomes",
     "names": ["Patrick Mahomes", "Travis Kelce"],
     "disposition": "Positive outlook on QB performance",
@@ -211,3 +218,176 @@ Error (400): `{ "error": "Invalid field. Must be one of: article_good, person_id
 DELETE /api/articles/:id
 ```
 Response: `{ "message": "Article deleted" }`
+
+---
+
+## People API
+
+JSON API for managing people. CSRF is disabled for all API endpoints.
+
+### Person Schema
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | integer | Auto-generated primary key |
+| `first_name` | string | First name |
+| `last_name` | string | Last name |
+| `slug` | string | Unique slug identifier |
+| `celebrity_type` | string | Type of celebrity (e.g. `"athlete"`, `"coach"`) |
+| `player_slug` | string | Linked player slug (references Player model) |
+| `birthday` | date | Date of birth (`YYYY-MM-DD`) |
+| `twitter_account` | string | Twitter/X handle |
+| `twitter_hashtag` | string | Associated hashtag |
+| `last_image_used` | string | URL or identifier of last image used |
+| `created_at` | datetime | Record creation timestamp |
+| `updated_at` | datetime | Record last-updated timestamp |
+
+### Endpoints
+
+#### List People
+```
+GET /api/people
+```
+Query params:
+- `page` (integer, default: 1) — Page number
+- `per_page` (integer, default: 25, max: 100) — Results per page
+- `celebrity_type` (string) — Filter by celebrity type
+- `player_slug` (string) — Filter by player slug
+
+Response:
+```json
+{
+  "total_count": 10,
+  "page": 1,
+  "per_page": 25,
+  "people": [{ "id": 1, "first_name": "Patrick", "last_name": "Mahomes", ... }]
+}
+```
+
+#### Get Single Person
+```
+GET /api/people/:id
+```
+Response: `{ "person": { ... } }`
+Error (404): `{ "error": "Person not found" }`
+
+#### Create Person
+```
+POST /api/people
+Content-Type: application/json
+
+{
+  "person": {
+    "first_name": "Patrick",
+    "last_name": "Mahomes",
+    "slug": "patrick-mahomes",
+    "celebrity_type": "athlete",
+    "player_slug": "patrick-mahomes",
+    "birthday": "1995-09-17",
+    "twitter_account": "@PatrickMahomes",
+    "twitter_hashtag": "#Mahomes"
+  }
+}
+```
+Response (201): `{ "person": { ... } }`
+Error (422): `{ "errors": [...] }`
+
+#### Update Person
+```
+PATCH /api/people/:id
+Content-Type: application/json
+
+{ "person": { "twitter_account": "@NewHandle" } }
+```
+Send only the fields you want to change. Response: `{ "person": { ... } }`
+
+#### Delete Person
+```
+DELETE /api/people/:id
+```
+Response: `{ "message": "Person deleted" }`
+
+---
+
+## Posts API
+
+JSON API for managing posts. CSRF is disabled for all API endpoints.
+
+### Post Schema
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | integer | Auto-generated primary key |
+| `title` | string | Post title |
+| `stage` | string | Pipeline stage: `"draft"`, `"images"`, `"approved"`, `"posted"` |
+| `impressions` | integer | Number of impressions after posting |
+| `likes` | integer | Number of likes after posting |
+| `content` | text | Post body content |
+| `image_url` | string | Selected image URL |
+| `image_proposals` | json | Array/object of proposed images from image search |
+| `images_found_at` | datetime | When image proposals were generated |
+| `image_selected_at` | datetime | When an image was selected |
+| `approved_at` | datetime | When the post was approved |
+| `posted_at` | datetime | When the post was published |
+| `created_at` | datetime | Record creation timestamp |
+| `updated_at` | datetime | Record last-updated timestamp |
+
+### Endpoints
+
+#### List Posts
+```
+GET /api/posts
+```
+Query params:
+- `page` (integer, default: 1) — Page number
+- `per_page` (integer, default: 25, max: 100) — Results per page
+- `stage` (string) — Filter by stage (`draft`, `images`, `approved`, `posted`)
+
+Response:
+```json
+{
+  "total_count": 15,
+  "page": 1,
+  "per_page": 25,
+  "posts": [{ "id": 1, "title": "...", "stage": "draft", ... }]
+}
+```
+
+#### Get Single Post
+```
+GET /api/posts/:id
+```
+Response: `{ "post": { ... } }`
+Error (404): `{ "error": "Post not found" }`
+
+#### Create Post
+```
+POST /api/posts
+Content-Type: application/json
+
+{
+  "post": {
+    "title": "Week 1 Predictions Recap",
+    "stage": "draft",
+    "content": "Here are our top predictions for Week 1...",
+    "image_proposals": ["https://img1.example.com", "https://img2.example.com"]
+  }
+}
+```
+Response (201): `{ "post": { ... } }`
+Error (422): `{ "errors": [...] }`
+
+#### Update Post
+```
+PATCH /api/posts/:id
+Content-Type: application/json
+
+{ "post": { "stage": "approved", "approved_at": "2025-09-06T12:00:00Z" } }
+```
+Send only the fields you want to change. Response: `{ "post": { ... } }`
+
+#### Delete Post
+```
+DELETE /api/posts/:id
+```
+Response: `{ "message": "Post deleted" }`

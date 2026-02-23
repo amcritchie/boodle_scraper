@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_23_033402) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_23_045123) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -281,6 +281,18 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_23_033402) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "people", force: :cascade do |t|
+    t.string "first_name"
+    t.string "last_name"
+    t.string "slug"
+    t.string "player_slug"
+    t.date "birthday"
+    t.string "twitter_account"
+    t.string "twitter_hashtag"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "periods", force: :cascade do |t|
     t.string "period_type", null: false
     t.integer "number", null: false
@@ -494,6 +506,22 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_23_033402) do
     t.index ["result"], name: "index_plays_on_result"
     t.index ["season_slug"], name: "index_plays_on_season_slug"
     t.index ["week_slug"], name: "index_plays_on_week_slug"
+  end
+
+  create_table "posts", force: :cascade do |t|
+    t.string "title"
+    t.string "stage"
+    t.integer "impressions"
+    t.integer "likes"
+    t.text "content"
+    t.string "image_url"
+    t.json "image_proposals"
+    t.datetime "images_found_at"
+    t.datetime "image_selected_at"
+    t.datetime "approved_at"
+    t.datetime "posted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "rankings", force: :cascade do |t|

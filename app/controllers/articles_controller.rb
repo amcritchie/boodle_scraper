@@ -69,7 +69,7 @@ class ArticlesController < ApplicationController
             page: { type: "integer", required: false, default: 1, description: "Page number" },
             per_page: { type: "integer", required: false, default: 25, max: 100, description: "Results per page" },
             reviewed: { type: "boolean", required: false, description: "Filter by reviewed status (true = has reviewed_at, false = not reviewed)" },
-            person_slug: { type: "string", required: false, description: "Filter by person_slug" },
+            main_person_slug: { type: "string", required: false, description: "Filter by main_person_slug" },
             source: { type: "string", required: false, description: "Filter by source" }
           },
           response: "{ total_count, page, per_page, articles: [...] }"
@@ -93,7 +93,7 @@ class ArticlesController < ApplicationController
                 author: { type: "string" },
                 published_at: { type: "date", format: "YYYY-MM-DD" },
                 reviewed_at: { type: "datetime", format: "ISO 8601" },
-                person_slug: { type: "string" },
+                main_person_slug: { type: "string" },
                 main_person_name: { type: "string" },
                 names: { type: "json", description: "Array of name strings, e.g. [\"Name 1\", \"Name 2\"]" },
                 disposition: { type: "text" },
@@ -142,7 +142,7 @@ class ArticlesController < ApplicationController
     articles = Article.order(created_at: :desc)
     articles = articles.where.not(reviewed_at: nil) if params[:reviewed] == "true"
     articles = articles.where(reviewed_at: nil) if params[:reviewed] == "false"
-    articles = articles.where(person_slug: params[:person_slug]) if params[:person_slug].present?
+    articles = articles.where(main_person_slug: params[:main_person_slug]) if params[:main_person_slug].present?
     articles = articles.where(source: params[:source]) if params[:source].present?
 
     page = (params[:page] || 1).to_i
@@ -213,8 +213,8 @@ class ArticlesController < ApplicationController
 
   def article_params
     permitted = params.require(:article).permit(
-      :title, :author, :published_at, :reviewed_at,
-      :person_slug, :main_person_name, :disposition,
+      :title, :author, :sport, :published_at, :reviewed_at,
+      :main_person_slug, :main_person_name, :disposition,
       :article_good, :person_identified, :disposition_coherent,
       :feedback, :names, :source, :source_url, :source_data_json
     )
@@ -232,8 +232,8 @@ class ArticlesController < ApplicationController
 
   def api_article_params
     permitted = params.require(:article).permit(
-      :title, :author, :published_at, :reviewed_at,
-      :person_slug, :main_person_name, :disposition,
+      :title, :author, :sport, :published_at, :reviewed_at,
+      :main_person_slug, :main_person_name, :disposition,
       :article_good, :person_identified, :disposition_coherent,
       :feedback, :source, :source_url
     )
@@ -249,9 +249,10 @@ class ArticlesController < ApplicationController
       id: article.id,
       title: article.title,
       author: article.author,
+      sport: article.sport,
       published_at: article.published_at,
       reviewed_at: article.reviewed_at,
-      person_slug: article.person_slug,
+      main_person_slug: article.main_person_slug,
       main_person_name: article.main_person_name,
       names: article.names,
       disposition: article.disposition,

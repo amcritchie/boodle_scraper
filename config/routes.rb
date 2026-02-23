@@ -3,6 +3,8 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "home#index"
+  resources :people, except: [:show]
+  resources :posts, except: [:show]
   resources :articles, except: [:show] do
     member do
       patch :feedback
@@ -27,6 +29,20 @@ Rails.application.routes.draw do
   # get ':offense/:defense/:week/:season', to: 'matchups#matchup_summary', as: 'matchup_summary'
   get ':home/:away/:week/:season/game-summary', to: 'matchups#game_summary', as: 'game_summary'
   
+  # API endpoints for people
+  get    'api/people',      to: 'people#api_index',   as: 'api_people'
+  post   'api/people',      to: 'people#api_create',  as: 'api_people_create'
+  get    'api/people/:id',  to: 'people#api_show',    as: 'api_person_show'
+  patch  'api/people/:id',  to: 'people#api_update',  as: 'api_person_update'
+  delete 'api/people/:id',  to: 'people#api_destroy', as: 'api_person_destroy'
+
+  # API endpoints for posts
+  get    'api/posts',      to: 'posts#api_index',   as: 'api_posts'
+  post   'api/posts',      to: 'posts#api_create',  as: 'api_posts_create'
+  get    'api/posts/:id',  to: 'posts#api_show',    as: 'api_post_show'
+  patch  'api/posts/:id',  to: 'posts#api_update',  as: 'api_post_update'
+  delete 'api/posts/:id',  to: 'posts#api_destroy', as: 'api_post_destroy'
+
   # API endpoints for articles
   get  'api/articles',              to: 'articles#api_index',    as: 'api_articles'
   post 'api/articles',              to: 'articles#api_create',   as: 'api_articles_create'
