@@ -1,0 +1,29 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  author: MyString
+  published_at: 2026-02-22
+  reviewed_at: 2026-02-22 20:34:02
+  person_slug: MyString
+  main_person_name: MyString
+  names: 
+  disposition: MyText
+  article_good: false
+  person_identified: false
+  disposition_coherent: false
+  feedback: MyText
+
+two:
+  title: MyString
+  author: MyString
+  published_at: 2026-02-22
+  reviewed_at: 2026-02-22 20:34:02
+  person_slug: MyString
+  main_person_name: MyString
+  names: 
+  disposition: MyText
+  article_good: false
+  person_identified: false
+  disposition_coherent: false
+  feedback: MyText

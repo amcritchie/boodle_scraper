@@ -10,9 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_07_30_032152) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_23_033402) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "articles", force: :cascade do |t|
+    t.string "title"
+    t.string "author"
+    t.date "published_at"
+    t.datetime "reviewed_at"
+    t.string "person_slug"
+    t.string "main_person_name"
+    t.json "names"
+    t.text "disposition"
+    t.boolean "article_good"
+    t.boolean "person_identified"
+    t.boolean "disposition_coherent"
+    t.text "feedback"
+    t.string "source"
+    t.string "source_url"
+    t.json "source_data_json"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "broadcasts", force: :cascade do |t|
     t.bigint "game_id", null: false

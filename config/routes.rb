@@ -3,6 +3,11 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "home#index"
+  resources :articles, except: [:show] do
+    member do
+      patch :feedback
+    end
+  end
   get 'teams', to: 'teams#index', as: 'teams_index'
   get 'teams/:year/power-rankings', to: 'teams#power_rankings', as: 'teams_power_rankings'
   get 'teams/:year/all-rankings', to: 'teams#rankings', as: 'teams_rankings'
@@ -22,6 +27,15 @@ Rails.application.routes.draw do
   # get ':offense/:defense/:week/:season', to: 'matchups#matchup_summary', as: 'matchup_summary'
   get ':home/:away/:week/:season/game-summary', to: 'matchups#game_summary', as: 'game_summary'
   
+  # API endpoints for articles
+  get  'api/articles',              to: 'articles#api_index',    as: 'api_articles'
+  post 'api/articles',              to: 'articles#api_create',   as: 'api_articles_create'
+  get  'api/articles/docs',         to: 'articles#api_docs',     as: 'api_articles_docs'
+  get  'api/articles/:id',          to: 'articles#api_show',     as: 'api_article_show'
+  patch 'api/articles/:id',         to: 'articles#api_update',   as: 'api_article_update'
+  patch 'api/articles/:id/feedback', to: 'articles#api_feedback', as: 'api_article_feedback'
+  delete 'api/articles/:id',        to: 'articles#api_destroy',  as: 'api_article_destroy'
+
   # API endpoints for matchups
   post 'api/matchups/:season/week/:week/:away_slug/:home_slug', to: 'matchups#api_show', as: 'api_matchup_show'
   post 'api/matchups/:year/week/:week', to: 'matchups#week_collection', as: 'api_matchups_week'

@@ -1,0 +1,213 @@
+# CLAUDE.md
+
+## Project Overview
+
+Boodle Scraper is an NFL sports analytics web application that aggregates game data, player grades, betting lines, matchup predictions, and team rankings from multiple sources.
+
+## Tech Stack
+
+- **Ruby** 3.1.0
+- **Rails** 7.0.8
+- **PostgreSQL** (9.3+)
+- **Frontend**: Hotwire (Turbo + Stimulus), Import Maps, custom CSS with theme system
+- **Key gems**: httparty, nokogiri (scraping), kaminari (pagination), dotenv-rails
+
+## Getting Started
+
+```bash
+bundle install
+rails db:setup          # or pg_restore for existing dump
+rails server
+```
+
+Requires a `.env` file with `SPORTRADAR_API_KEY`, `POSTGRES_USERNAME`, `POSTGRES_PASSWORD` (see README.md for full list).
+
+## Project Structure
+
+```
+app/
+  models/           # 20 models (Game, Team, Player, Matchup, Season, etc.)
+  models/concerns/  # 8 concerns (PffConcern, PredictionConcern, ScoringConcern, etc.)
+  controllers/      # 7 controllers (Games, Teams, Players, Matchups, Rankings, Predictions, Home)
+  views/            # ERB templates per controller
+  javascript/       # Stimulus controllers
+lib/
+  tasks/            # 14 rake tasks — numbered 1-6 for sequential data pipeline
+  pff/              # PFF CSV data files (gitignored)
+  sportradar/       # SportRadar API integration
+config/
+  routes.rb         # RESTful + SEO-optimized routes
+  database.yml      # PostgreSQL config
+db/
+  schema.rb         # Full schema (~760 lines, 15 tables)
+  migrate/          # 21 migrations
+```
+
+## Key Models & Relationships
+
+- **Game** — NFL games with scores, odds, betting lines. Belongs to home_team/away_team/venue. Has weather, broadcast, plays.
+- **Team** — 32 NFL teams with branding (colors, emoji). Has many players, coaches, matchups.
+- **Player** — Athletes with PFF grades (offense, defense, pass, rush, coverage, etc.) and detailed stats.
+- **Matchup** — Game matchup analysis with full offensive/defensive roster and prediction scores.
+- **Season/Week** — Season structure with aggregate scoring stats per week.
+- **TeamsSeason/TeamsWeek** — Team roster snapshots and power rankings per season/week.
+- **Venue** — Stadium info (capacity, surface, roof, coordinates).
+- **Ranking** — Aggregated player rankings by position and grade type.
+
+## Data Pipeline (Rake Tasks)
+
+Run in numbered order for initial setup:
+
+1. `rake populate:seed` — Initial seed data
+2. `rake populate:teams` — 32 NFL teams
+3. `rake populate:players` — Player rosters (SportRadar API)
+4. `rake populate:seasons` — Seasons and weeks
+5. `rake populate:matchups` — Game matchups
+6. `rake populate:coaches` — Coaching staff
+
+Additional: `venue_populate`, `import_games`, `populate_teams_weeks`, `populate_contracts`, `populate_qb_rankings`, `populate_oline_rankings`
+
+## External Data Sources
+
+- **SportRadar API** — Game data, rosters, play-by-play (requires API key in .env)
+- **PFF** — Player grades via CSV files in lib/pff/ (gitignored)
+- **SportsOddsHistory** — Historical betting lines (HTML scraping)
+- **Kaggle** — Historical NFL game datasets
+
+## Common Commands
+
+```bash
+rails server                    # Start dev server
+rails console                   # Rails console
+rails db:migrate                # Run pending migrations
+rails test                      # Run test suite
+bundle exec rake -T             # List all rake tasks
+```
+
+## Testing
+
+Tests live in `test/`. Current test files cover Game, Team, and TeamsWeek models. Run with `rails test`.
+
+## Conventions
+
+- Models use slug-based lookups (e.g., `team_slug`, `game_slug`, `player_slug`) rather than foreign key IDs for most associations.
+- Player grades use `grades_` prefix for raw PFF values and `_grade` suffix for decimal-precision values.
+- Routes use SEO-friendly paths (e.g., `/nfl-offensive-line-rankings`, `/nfl-week-1-predictions`).
+- Week references in routes use `week1` format (dynamic, not literal "1").
+- Frontend uses Stimulus controllers for interactivity and CSS custom properties for theming.
+
+## Things to Know
+
+- The Game model is the largest (~880 lines) — scoring logic, scraping, and odds calculations.
+- `.env` and `lib/pff/` are gitignored — sensitive keys and data files.
+- Schema uses `jsonb` columns for game scores arrays and play event data.
+- Some spelling inconsistencies exist in the schema: `reciever` (should be receiver), `defence` (British spelling), `stangest_events` (should be strangest), `gaurd` (should be guard in some contexts).
+
+## Articles API
+
+JSON API for managing articles. CSRF is disabled for all API endpoints. All request/response bodies use JSON (`Content-Type: application/json`).
+
+Self-describing docs also available at `GET /api/articles/docs`.
+
+### Article Schema
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | integer | Auto-generated primary key |
+| `title` | string | Article title |
+| `author` | string | Author name |
+| `published_at` | date | Publication date (`YYYY-MM-DD`) |
+| `reviewed_at` | datetime | When feedback was last given (ISO 8601, auto-set by feedback endpoint) |
+| `person_slug` | string | Slug of the primary athlete |
+| `main_person_name` | string | Display name of the primary athlete |
+| `names` | json | Array of name strings, e.g. `["Patrick Mahomes", "Travis Kelce"]` |
+| `disposition` | text | Article disposition/sentiment analysis |
+| `feedback` | text | Free-form feedback notes |
+| `article_good` | boolean | Whether the article is interesting/good |
+| `person_identified` | boolean | Whether the primary athlete was correctly identified |
+| `disposition_coherent` | boolean | Whether the disposition analysis is coherent |
+| `source` | string | Source identifier (e.g. `"news-bot"`, `"rss-feed"`) |
+| `source_url` | string | URL of the original article |
+| `source_data_json` | json | Arbitrary JSON payload from the source |
+| `created_at` | datetime | Record creation timestamp |
+| `updated_at` | datetime | Record last-updated timestamp |
+
+### Endpoints
+
+#### List Articles
+```
+GET /api/articles
+```
+Query params:
+- `page` (integer, default: 1) — Page number
+- `per_page` (integer, default: 25, max: 100) — Results per page
+- `reviewed` (`"true"` / `"false"`) — Filter by reviewed status
+- `person_slug` (string) — Filter by person slug
+- `source` (string) — Filter by source
+
+Response:
+```json
+{
+  "total_count": 42,
+  "page": 1,
+  "per_page": 25,
+  "articles": [{ "id": 1, "title": "...", ... }]
+}
+```
+
+#### Get Single Article
+```
+GET /api/articles/:id
+```
+Response: `{ "article": { ... } }`
+Error (404): `{ "error": "Article not found" }`
+
+#### Create Article
+```
+POST /api/articles
+Content-Type: application/json
+
+{
+  "article": {
+    "title": "Mahomes shines in Week 1",
+    "author": "News Bot",
+    "published_at": "2025-09-07",
+    "person_slug": "patrick-mahomes",
+    "main_person_name": "Patrick Mahomes",
+    "names": ["Patrick Mahomes", "Travis Kelce"],
+    "disposition": "Positive outlook on QB performance",
+    "source": "news-bot",
+    "source_url": "https://example.com/article/123",
+    "source_data_json": { "raw_score": 0.95 }
+  }
+}
+```
+Response (201): `{ "article": { ... } }`
+Error (422): `{ "errors": ["Title can't be blank"] }`
+
+#### Update Article
+```
+PATCH /api/articles/:id
+Content-Type: application/json
+
+{ "article": { "title": "Updated title" } }
+```
+Send only the fields you want to change. Response: `{ "article": { ... } }`
+
+#### Quick Feedback Toggle
+```
+PATCH /api/articles/:id/feedback
+Content-Type: application/json
+
+{ "field": "article_good", "value": "true" }
+```
+Valid fields: `article_good`, `person_identified`, `disposition_coherent`.
+Automatically sets `reviewed_at` to the current time.
+Response: `{ "article": { ... } }`
+Error (400): `{ "error": "Invalid field. Must be one of: article_good, person_identified, disposition_coherent" }`
+
+#### Delete Article
+```
+DELETE /api/articles/:id
+```
+Response: `{ "message": "Article deleted" }`
