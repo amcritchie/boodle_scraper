@@ -35,6 +35,13 @@ class Team < ApplicationRecord
       extract_mascot_from_name
     end
 
+    # Populate branding from TeamPopulations (buffalo_bills_populate, new_york_jets_populate)
+    def populate_branding
+      send("#{slug_long}_populate")
+    rescue => e
+      puts e.inspect
+    end
+
     # If accent color is dark, pick a more readable color Broncos, Jets, Panthers, Falcons
     def color_accent_text
       if self.color_rule != 'dark_accent'
@@ -101,6 +108,21 @@ class Team < ApplicationRecord
     end
 
     def self.kaggle_import_teams
+      # Collect teams to skip
+      skip_teams = [
+        "Tennessee Oilers",
+        "St. Louis Rams",
+        "St. Louis Cardinals",
+        "Phoenix Cardinals",
+        "Houston Oilers",
+        "Boston Patriots",
+        "Washington Football Team",
+        "Washington Redskins",
+        "San Diego Chargers",
+        "Los Angeles Raiders",
+        "Oakland Raiders",
+        "Baltimore Colts"
+      ]
       # Parse CSV
       csv_text = File.read('lib/kaggle/nfl_teams.csv')
       csv = CSV.parse(csv_text, headers: true)
@@ -110,33 +132,25 @@ class Team < ApplicationRecord
           team_attrs = row.to_hash
           team_name = team_attrs['team_name']
           # Skip inactive teams
-          next if ["Tennessee Oilers","St. Louis Rams","St. Louis Cardinals","Phoenix Cardinals","Houston Oilers","Boston Patriots","Washington Football Team", "Washington Redskins", "San Diego Chargers", "Los Angeles Raiders", "Oakland Raiders", "Baltimore Colts"].include?(team_name)
+          next if skip_teams.include?(team_name)
           # Find or create Kaggle Team
           team = Team.kaggle_team(team_name)
           # Populate team general team data e.g., 🦬, buf
-          team.populate
-
+          team.populate_branding
           # Update team name and other data based on Kaggle
-          team.name = team_attrs['team_name']
+          team.name = team_name
           # team.alias = team_attrs['team_name_short'] # Washington
           team.conference = team_attrs['team_conference']
           team.division = team_attrs['team_division']
           team.slug_pfr = team_attrs['team_id_pfr']
           team.division_pre_2002 = team_attrs['team_division_pre2002']
           team.conference_pre_2002 = team_attrs['team_conference_pre2002']
-
-          # Denote team as active not active if they don't have a division or other criteria.
-          team.active = false if team.division.nil? || team.division.empty?
-          team.active = false if team.name == "Washington Football Team"
-          team.active = false if team.name == "Washington Redskins"
-          team.active = false if team.name == "San Diego Chargers"
-          team.active = false if team.name == "Los Angeles Raiders"
-          team.active = false if team.name == "Oakland Raiders"
-
+          # Denote team as active if they are not a skip team
+          team.active = false if skip_teams.include?(team_name)
           # Save team
           team.save
           # Output team saved
-          puts "🏈 #{team.conference.ljust(4)} | #{team.division.ljust(10)} | (#{team.slug.ljust(4)}) #{team.name.ljust(22)} Saved" if team.active
+          puts "#{(team.emoji + " " + team.slug).ljust(6)} | #{team.location.ljust(14)} #{team.alias.ljust(10)} | #{team.conference.ljust(4)} | #{team.division.ljust(10)} Saved" if team.active
       end
   end
 
@@ -531,16 +545,5 @@ class Team < ApplicationRecord
       find_player_by_name(oline_map[:lt]&.dig(:name)),
       find_player_by_name(oline_map[:rt]&.dig(:name))
     ].compact
-  end
-
-
-  def populate
-    method_name = "#{slug_long}_populate"
-    if TeamPopulations.instance_methods.include?(method_name.to_sym)
-      extend TeamPopulations
-      send(method_name)
-    else
-      raise "No populate method defined for slug: #{slug}"
-    end
   end
 end

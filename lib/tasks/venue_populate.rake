@@ -62,52 +62,30 @@ namespace :venue do
     Team.update_all(venue_slug: nil)
     puts "🔄 Reset all venues to not be true home and cleared team venue_slug fields"
     
-    # Mark the true home venues and populate team venue_slug fields
-    venues_marked = 0
-    teams_updated = 0
+    # Each through home venues 
     true_home_venues.each do |venue_slug, team_slugs|
-      venues = Venue.where(slug: venue_slug)
-      if venues.any?
-        # Mark venue as true home
-        venues.update_all(true_home: true)
-        venues_marked += venues.count
-        
-        # Update team venue_slug fields
-        team_slugs.each do |team_slug|
-          team = Team.find_by(slug: team_slug)
-          if team
-            team.update!(venue_slug: venue_slug)
-            teams_updated += 1
-            puts "✅ #{team_slug.upcase.ljust(4)} -> #{venue_slug} (#{venues.first.name})"
-          else
-            puts "⚠️  Warning: Team '#{team_slug}' not found in database"
-          end
+      # Find or Create Venue
+      venue = Venue.find_or_create_by(slug: venue_slug.venue_slugify)
+      # Update that venue is a true home.
+      venue.update(true_home: true)
+      # Update team's venue slug to identify home games
+      team_slugs.each do |team_slug|
+        if team = Team.find_by(slug: team_slug)
+          team.update!(venue_slug: venue_slug)
+          puts "✅ #{team_slug.upcase.ljust(4)} -> #{venue_slug} (#{venue.name})"
+        else
+          puts "⚠️  Warning: Team '#{team_slug}' not found in database"
         end
-      else
-        puts "⚠️  Warning: No venue found with slug '#{venue_slug}'"
       end
     end
-    
-    puts "\n📊 Summary:"
-    puts "   Total venues in database: #{Venue.count}"
-    puts "   Venues marked as true_home: #{Venue.where(true_home: true).count}"
-    puts "   Expected true home venues: #{true_home_venue_slugs.uniq.length}"
-    puts "   Teams updated with venue_slug: #{teams_updated}"
-    puts "   Expected team updates: #{true_home_venues.values.flatten.length}"
     
     # Display the venues marked as true home with their teams
     puts "\n🏟️  True Home Venues & Teams:"
     Venue.where(true_home: true).order(:name).each do |venue|
       teams_at_venue = Team.where(venue_slug: venue.slug).pluck(:slug).map(&:upcase)
+      teams_at_venue = Team.where(venue_slug: venue.slug).map{|team| "#{team.slug} #{team.emoji}".upcase}
       team_display = teams_at_venue.any? ? teams_at_venue.join(", ") : "No teams assigned"
-      puts "   #{venue.slug.ljust(35)} | #{venue.name.ljust(30)} | #{team_display}"
-    end
-    
-    # Check for any missing venues
-    missing_slugs = true_home_venue_slugs - Venue.where(true_home: true).pluck(:slug)
-    if missing_slugs.any?
-      puts "\n❌ Missing venue slugs (not found in database):"
-      missing_slugs.each { |slug| puts "   #{slug}" }
+      puts "   #{venue.slug.ljust(32)} | #{venue.name.ljust(32)} | #{team_display}"
     end
     
     puts "\n✅ Venue population completed!"

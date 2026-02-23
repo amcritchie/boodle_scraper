@@ -1,9 +1,14 @@
 class Season < ApplicationRecord
   has_many :weeks, -> { order(:sequence) }, foreign_key: :season_year, primary_key: :year
+  has_many :teams_seasons, -> { order(:team_slug) }, foreign_key: :season_year, primary_key: :year
 
   validates :year, presence: true, uniqueness: { scope: :season_type }
   validates :season_type, presence: true
   validates :name, presence: true
+
+  def week(sequence=1)
+    weeks.find_or_create_by(sequence: sequence)
+  end
 
   def self.s2025
     find_by(year: 2025, season_type: :nfl)

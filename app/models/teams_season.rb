@@ -39,8 +39,9 @@ class TeamsSeason < ApplicationRecord
     Coach.where(slug: all.pluck(:defensive_play_caller).flatten.compact)
   end
 
-
-
+  def teams_week(sequence)
+    teams_weeks.find_or_create_by(week_number: sequence)
+  end
 
   # Collection methods
   def bench_players
