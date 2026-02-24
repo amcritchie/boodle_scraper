@@ -8,7 +8,7 @@ class ArticlesController < ApplicationController
   # ─── HTML Actions ───────────────────────────────────────────────
 
   def index
-    @articles = Article.order(created_at: :desc)
+    @articles = Article.order(Arel.sql("reviewed_at ASC NULLS FIRST, created_at DESC"))
   end
 
   def new

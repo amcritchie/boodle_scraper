@@ -26,7 +26,7 @@ export default class extends Controller {
     
     if (this.hasTableBodyTarget) {
       console.log("Table body target:", this.tableBodyTarget)
-      const rows = this.tableBodyTarget.querySelectorAll('tr[data-search]')
+      const rows = this.tableBodyTarget.querySelectorAll('[data-search]')
       console.log(`Found ${rows.length} rows with data-search attributes`)
       
       rows.forEach((row, index) => {
