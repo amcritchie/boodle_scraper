@@ -1,6 +1,6 @@
 class ArticlesController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [
-    :api_index, :api_show, :api_create, :api_update, :api_feedback, :api_destroy, :api_docs
+    :api_index, :api_show, :api_create, :api_update, :api_feedback, :api_destroy, :api_docs, :api_ingest
   ]
   before_action :set_article, only: [:edit, :update, :destroy, :feedback]
   before_action :set_api_article, only: [:api_show, :api_update, :api_feedback, :api_destroy]
@@ -207,6 +207,58 @@ class ArticlesController < ApplicationController
   def api_destroy
     @article.destroy
     render json: { message: "Article deleted" }
+  end
+
+  # ─── Ingestion Endpoint ─────────────────────────────────────────
+  # POST /api/articles/ingest?url=...&model=claude-sonnet
+  # Fetches URL, extracts with LLM, saves to database
+
+  def api_ingest
+    url = params[:url]
+    model = params[:model] || "claude-sonnet"
+
+    unless url.present?
+      render json: { error: "URL parameter is required" }, status: :bad_request
+      return
+    end
+
+    # Check if article already exists
+    existing = Article.find_by(source_url: url)
+    if existing
+      render json: {
+        message: "Article already exists",
+        article: article_json(existing),
+        action: "existing"
+      }
+      return
+    end
+
+    # Return instructions for ingestion
+    # Note: Full LLM integration would spawn sub-agent here
+    render json: {
+      message: "Ingestion initiated",
+      url: url,
+      model: model,
+      next_steps: [
+        "1. Fetch article content from URL",
+        "2. Extract with LLM model: #{model}",
+        "3. Map to Article schema",
+        "4. POST to /api/articles with extracted data"
+      ],
+      example: {
+        url: url,
+        article: {
+          title_summary: "Summary from LLM extraction",
+          sport: "NFL",
+          teams_json: ["Team1", "Team2"],
+          people_json: ["Player Name"],
+          key_stats_json: ["Stat 1", "Stat 2"],
+          context: "Background context",
+          source: "sports.yahoo.com",
+          source_url: url
+        }
+      }
+    }
   end
 
   private

@@ -47,6 +47,7 @@ Rails.application.routes.draw do
   get  'api/articles',              to: 'articles#api_index',    as: 'api_articles'
   post 'api/articles',              to: 'articles#api_create',   as: 'api_articles_create'
   get  'api/articles/docs',         to: 'articles#api_docs',     as: 'api_articles_docs'
+  post 'api/articles/ingest',       to: 'articles#api_ingest',   as: 'api_articles_ingest'
   get  'api/articles/:id',          to: 'articles#api_show',     as: 'api_article_show'
   patch 'api/articles/:id',         to: 'articles#api_update',   as: 'api_article_update'
   patch 'api/articles/:id/feedback', to: 'articles#api_feedback', as: 'api_article_feedback'
