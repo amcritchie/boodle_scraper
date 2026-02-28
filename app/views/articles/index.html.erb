@@ -35,7 +35,7 @@
   <!-- Article Cards -->
   <div class="space-y-4" data-searchable-table-target="tableBody">
     <% @articles.each do |article| %>
-      <div class="theme-bg-primary shadow-lg rounded-xl border theme-border-primary p-5" data-search="<%= [article.id, article.title, article.author, article.main_person_name, article.person_slug, article.source, Array(article.names).join(' ')].compact.join(' ').downcase %>">
+      <div class="theme-bg-primary shadow-lg rounded-xl border theme-border-primary p-5" data-search="<%= [article.id, article.title, article.author, article.main_person_name, article.main_person_slug, article.main_team_name, article.source, article.sport].compact.join(' ').downcase %>">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
           <!-- Left Column: ID, Title, Author, Dates, Names -->
@@ -55,26 +55,21 @@
               </p>
             <% end %>
 
-            <% if article.names.present? %>
-              <p class="text-sm font-medium theme-text-secondary mt-3">Names</p>
-              <div class="flex flex-wrap gap-2 mt-1">
-                <% Array(article.names).each do |name| %>
-                  <span class="inline-block px-3 py-1 text-sm rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"><%= name %></span>
-                <% end %>
-              </div>
+            <% if article.sport.present? %>
+              <p class="text-sm theme-text-secondary mt-2">Sport: <span class="theme-text-primary"><%= article.sport.upcase %></span></p>
             <% end %>
           </div>
 
-          <!-- Middle Column: Athlete Info, Disposition -->
+          <!-- Middle Column: Team & Athlete Info, Context -->
           <div>
-            <p class="text-sm font-medium theme-text-secondary">Primary Athlete Name</p>
+            <p class="text-sm font-medium theme-text-secondary">Primary Team</p>
+            <p class="text-sm theme-text-primary mb-3"><%= article.main_team_name.presence || "—" %></p>
+
+            <p class="text-sm font-medium theme-text-secondary">Primary Athlete</p>
             <p class="text-sm theme-text-primary mb-3"><%= article.main_person_name.presence || "—" %></p>
 
-            <p class="text-sm font-medium theme-text-secondary">Primary Athlete Slug</p>
-            <p class="text-sm theme-text-primary mb-3"><%= article.person_slug.presence || "—" %></p>
-
-            <p class="text-sm font-medium theme-text-secondary">Article Disposition</p>
-            <p class="text-sm theme-text-primary"><%= article.disposition.presence || "—" %></p>
+            <p class="text-sm font-medium theme-text-secondary">Context</p>
+            <p class="text-sm theme-text-primary"><%= article.context.presence || "—" %></p>
           </div>
 
           <!-- Right Column: Edit Button -->

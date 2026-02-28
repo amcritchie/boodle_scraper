@@ -2,13 +2,19 @@
 
 one:
   title: MyString
+  title_summary: MyString
   author: MyString
+  sport: nfl
   published_at: 2026-02-22
   reviewed_at: 2026-02-22 20:34:02
-  person_slug: MyString
+  main_team_name: Kansas City Chiefs
+  main_team_slug: kc
   main_person_name: MyString
-  names: 
-  disposition: MyText
+  main_person_slug: MyString
+  context: MyText
+  source: news-bot
+  source_url: https://example.com
+  source_id: abc123
   article_good: false
   person_identified: false
   disposition_coherent: false
@@ -16,13 +22,19 @@ one:
 
 two:
   title: MyString
+  title_summary: MyString
   author: MyString
+  sport: nba
   published_at: 2026-02-22
   reviewed_at: 2026-02-22 20:34:02
-  person_slug: MyString
+  main_team_name: Boston Celtics
+  main_team_slug: bos
   main_person_name: MyString
-  names: 
-  disposition: MyText
+  main_person_slug: MyString
+  context: MyText
+  source: rss-feed
+  source_url: https://example.com
+  source_id: def456
   article_good: false
   person_identified: false
   disposition_coherent: false

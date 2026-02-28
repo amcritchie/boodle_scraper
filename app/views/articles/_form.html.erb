@@ -17,10 +17,22 @@
       <%= f.text_field :title, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
     </div>
 
+    <!-- Title Summary -->
+    <div class="md:col-span-2">
+      <%= f.label :title_summary, "Title Summary", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :title_summary, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
     <!-- Author -->
     <div>
       <%= f.label :author, class: "block text-sm font-medium theme-text-primary mb-1" %>
       <%= f.text_field :author, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <!-- Sport -->
+    <div>
+      <%= f.label :sport, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :sport, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
     </div>
 
     <!-- Published At -->
@@ -35,16 +47,28 @@
       <%= f.datetime_local_field :reviewed_at, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
     </div>
 
-    <!-- Person Slug -->
+    <!-- Main Team Name -->
     <div>
-      <%= f.label :person_slug, "Person Slug", class: "block text-sm font-medium theme-text-primary mb-1" %>
-      <%= f.text_field :person_slug, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+      <%= f.label :main_team_name, "Main Team Name", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :main_team_name, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <!-- Main Team Slug -->
+    <div>
+      <%= f.label :main_team_slug, "Main Team Slug", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :main_team_slug, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
     </div>
 
     <!-- Main Person Name -->
     <div>
       <%= f.label :main_person_name, "Main Person Name", class: "block text-sm font-medium theme-text-primary mb-1" %>
       <%= f.text_field :main_person_name, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <!-- Main Person Slug -->
+    <div>
+      <%= f.label :main_person_slug, "Main Person Slug", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :main_person_slug, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
     </div>
 
     <!-- Source -->
@@ -59,30 +83,22 @@
       <%= f.url_field :source_url, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
     </div>
 
-    <!-- Disposition -->
+    <!-- Source ID -->
+    <div>
+      <%= f.label :source_id, "Source ID", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :source_id, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <!-- Context -->
     <div class="md:col-span-2">
-      <%= f.label :disposition, class: "block text-sm font-medium theme-text-primary mb-1" %>
-      <%= f.text_area :disposition, rows: 4, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+      <%= f.label :context, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :context, rows: 4, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
     </div>
 
     <!-- Feedback -->
     <div class="md:col-span-2">
       <%= f.label :feedback, class: "block text-sm font-medium theme-text-primary mb-1" %>
       <%= f.text_area :feedback, rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
-    </div>
-
-    <!-- Names (JSON) -->
-    <div class="md:col-span-2">
-      <%= f.label :names, "Names (JSON)", class: "block text-sm font-medium theme-text-primary mb-1" %>
-      <%= f.text_area :names, value: article.names.present? ? JSON.pretty_generate(article.names) : "", rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
-      <p class="mt-1 text-xs theme-text-secondary">Enter valid JSON (e.g. ["Name 1", "Name 2"])</p>
-    </div>
-
-    <!-- Source Data JSON -->
-    <div class="md:col-span-2">
-      <%= f.label :source_data_json, "Source Data (JSON)", class: "block text-sm font-medium theme-text-primary mb-1" %>
-      <%= f.text_area :source_data_json, value: article.source_data_json.present? ? JSON.pretty_generate(article.source_data_json) : "", rows: 4, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
-      <p class="mt-1 text-xs theme-text-secondary">Enter valid JSON for source data</p>
     </div>
 
     <!-- Checkboxes -->

@@ -90,20 +90,29 @@ class ArticlesController < ApplicationController
               required: true,
               fields: {
                 title: { type: "string" },
+                title_summary: { type: "string" },
                 author: { type: "string" },
+                sport: { type: "string" },
                 published_at: { type: "date", format: "YYYY-MM-DD" },
                 reviewed_at: { type: "datetime", format: "ISO 8601" },
-                main_person_slug: { type: "string" },
+                teams_json: { type: "json", description: "Array of team objects" },
+                people_json: { type: "json", description: "Array of people objects" },
+                main_team_name: { type: "string" },
+                main_team_slug: { type: "string" },
                 main_person_name: { type: "string" },
-                names: { type: "json", description: "Array of name strings, e.g. [\"Name 1\", \"Name 2\"]" },
-                disposition: { type: "text" },
+                main_person_slug: { type: "string" },
+                scores_json: { type: "json", description: "Score data" },
+                records_json: { type: "json", description: "Record data" },
+                key_stats_json: { type: "json", description: "Key statistics" },
+                quotes_json: { type: "json", description: "Notable quotes" },
+                context: { type: "text" },
+                source: { type: "string" },
+                source_url: { type: "string" },
+                source_id: { type: "string" },
                 feedback: { type: "text" },
                 article_good: { type: "boolean" },
                 person_identified: { type: "boolean" },
-                disposition_coherent: { type: "boolean" },
-                source: { type: "string" },
-                source_url: { type: "string" },
-                source_data_json: { type: "json", description: "Arbitrary JSON payload from source" }
+                disposition_coherent: { type: "boolean" }
               }
             }
           },
@@ -212,34 +221,25 @@ class ArticlesController < ApplicationController
   end
 
   def article_params
-    permitted = params.require(:article).permit(
-      :title, :author, :sport, :published_at, :reviewed_at,
-      :main_person_slug, :main_person_name, :disposition,
-      :article_good, :person_identified, :disposition_coherent,
-      :feedback, :names, :source, :source_url, :source_data_json
+    params.require(:article).permit(
+      :title, :title_summary, :author, :sport, :published_at, :reviewed_at,
+      :main_team_name, :main_team_slug, :main_person_name, :main_person_slug,
+      :context, :source, :source_url, :source_id,
+      :article_good, :person_identified, :disposition_coherent, :feedback
     )
-
-    if permitted[:names].present? && permitted[:names].is_a?(String)
-      permitted[:names] = JSON.parse(permitted[:names])
-    end
-
-    if permitted[:source_data_json].present? && permitted[:source_data_json].is_a?(String)
-      permitted[:source_data_json] = JSON.parse(permitted[:source_data_json])
-    end
-
-    permitted
   end
 
   def api_article_params
     permitted = params.require(:article).permit(
-      :title, :author, :sport, :published_at, :reviewed_at,
-      :main_person_slug, :main_person_name, :disposition,
-      :article_good, :person_identified, :disposition_coherent,
-      :feedback, :source, :source_url
+      :title, :title_summary, :author, :sport, :published_at, :reviewed_at,
+      :main_team_name, :main_team_slug, :main_person_name, :main_person_slug,
+      :context, :source, :source_url, :source_id,
+      :article_good, :person_identified, :disposition_coherent, :feedback
     )
 
-    permitted[:names] = params[:article][:names] if params[:article][:names].present?
-    permitted[:source_data_json] = params[:article][:source_data_json] if params[:article][:source_data_json].present?
+    %i[teams_json people_json scores_json records_json key_stats_json quotes_json].each do |field|
+      permitted[field] = params[:article][field] if params[:article][field].present?
+    end
 
     permitted
   end
@@ -248,21 +248,29 @@ class ArticlesController < ApplicationController
     {
       id: article.id,
       title: article.title,
+      title_summary: article.title_summary,
       author: article.author,
       sport: article.sport,
       published_at: article.published_at,
       reviewed_at: article.reviewed_at,
-      main_person_slug: article.main_person_slug,
+      teams_json: article.teams_json,
+      people_json: article.people_json,
+      main_team_name: article.main_team_name,
+      main_team_slug: article.main_team_slug,
       main_person_name: article.main_person_name,
-      names: article.names,
-      disposition: article.disposition,
+      main_person_slug: article.main_person_slug,
+      scores_json: article.scores_json,
+      records_json: article.records_json,
+      key_stats_json: article.key_stats_json,
+      quotes_json: article.quotes_json,
+      context: article.context,
+      source: article.source,
+      source_url: article.source_url,
+      source_id: article.source_id,
       feedback: article.feedback,
       article_good: article.article_good,
       person_identified: article.person_identified,
       disposition_coherent: article.disposition_coherent,
-      source: article.source,
-      source_url: article.source_url,
-      source_data_json: article.source_data_json,
       created_at: article.created_at,
       updated_at: article.updated_at
     }
