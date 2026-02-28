@@ -7,33 +7,17 @@ class ArticleIngestionService
   MODELS = ["claude-sonnet", "minimax-m2.1", "grok-3"]
   DEFAULT_MODEL = "claude-sonnet"
 
-  # API configuration - requires environment variables
-  API_CONFIG = {
-    "claude-sonnet" => {
-      "base_url" => "https://api.anthropic.com/v1/messages",
-      "api_key" => ENV["ANTHROPIC_API_KEY"],
-      "model" => "claude-sonnet-4-20250514"
-    },
-    "minimax-m2.1" => {
-      "base_url" => "https://api.minimax.chat/v1/text/chatcompletion_v2",
-      "api_key" => ENV["MINIMAX_API_KEY"],
-      "model" => "MiniMax-Text-01"
-    },
-    "grok-3" => {
-      "base_url" => "https://api.x.ai/v1/chat/completions",
-      "api_key" => ENV["XAI_API_KEY"],
-      "model" => "grok-3"
-    }
-  }
-
   # Runs all 3 models sequentially - creates tasks for each
   def self.ingest(url:)
     MODELS.each do |model|
+      # Create task in idle state, worker picks it up
       task = Task.create!(
         task_type: "article_ingestion",
         status: "idle",
         input_json: { url: url, model: model }
       )
+      
+      # Process immediately (in production, a worker would pick this up)
       new(url: url, model: model, task_id: task.id).call
     end
   end
@@ -45,6 +29,7 @@ class ArticleIngestionService
       status: "idle",
       input_json: { url: url, model: model }
     )
+    
     new(url: url, model: model, task_id: task.id).call
   end
 
@@ -56,21 +41,30 @@ class ArticleIngestionService
   end
 
   def call
+    # Mark task as active
     @task = Task.find(@task_id)
     @task.update!(status: "active", started_at: Time.current)
 
     begin
+      # 1. Fetch article content
       article_content = fetch_article(@url)
+
+      # 2. Extract structured data using LLM (via subagent)
       @extracted_data = extract_with_llm(article_content)
+
+      # 3. Download og:image
       image_path = download_og_image(@url)
 
+      # 4. Map to Article schema
       article_attrs = map_to_article(@extracted_data, @url).merge(
         model: @model,
         image_options: image_path ? [image_path] : []
       )
 
+      # 5. Save new article
       article = Article.create!(article_attrs)
 
+      # Update task as completed
       @task.update!(
         status: "completed",
         output_json: { article_id: article.id, image_path: image_path },
@@ -79,6 +73,7 @@ class ArticleIngestionService
 
       article
     rescue => e
+      # Update task as failed
       @task.update!(
         status: "failed",
         error: e.message,
@@ -100,14 +95,10 @@ class ArticleIngestionService
   def extract_with_llm(content)
     prompt = build_extraction_prompt(content)
     
-    # Call actual LLM API
-    llm_response = call_llm_api(prompt)
+    # In production, this would call LLMService
+    # For now, return stub
+    # Thebed data subagent approach works but runs outside Rails
     
-    # Parse JSON response
-    parse_llm_response(llm_response)
-  rescue => e
-    Rails.logger.error "LLM extraction failed: #{e.message}. Using fallback."
-    # Fallback to stubbed extraction
     {
       "title_summary" => extract_summary(content),
       "sport" => extract_sport(content),
@@ -121,87 +112,11 @@ class ArticleIngestionService
     }
   end
 
-  def call_llm_api(prompt)
-    config = API_CONFIG[@model]
-    raise "Unknown model: #{@model}" unless config
-
-    uri = URI.parse(config["base_url"])
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-
-    case @model
-    when "claude-sonnet"
-      request = Net::HTTP::Post.new(uri.path)
-      request["x-api-key"] = config["api_key"]
-      request["anthropic-version"] = "2023-06-01"
-      request["Content-Type"] = "application/json"
-      request.body = {
-        model: config["model"],
-        max_tokens: 1024,
-        messages: [{ role: "user", content: prompt }]
-      }.to_json
-
-    when "minimax-m2.1"
-      request = Net::HTTP::Post.new(uri.path)
-      request["Authorization"] = "Bearer #{config["api_key"]}"
-      request["Content-Type"] = "application/json"
-      request.body = {
-        model: config["model"],
-        messages: [{ role: "user", content: prompt }]
-      }.to_json
-
-    when "grok-3"
-      request = Net::HTTP::Post.new(uri.path)
-      request["Authorization"] = "Bearer #{config["api_key"]}"
-      request["Content-Type"] = "application/json"
-      request.body = {
-        model: config["model"],
-        messages: [{ role: "user", content: prompt }]
-      }.to_json
-    end
-
-    response = http.request(request)
-    raise "LLM API error: #{response.code} - #{response.body}" unless response.code == "200"
-    
-    parse_model_response(response.body, @model)
-  end
-
-  def parse_model_response(body, model)
-    data = JSON.parse(body)
-    
-    case model
-    when "claude-sonnet"
-      data.dig("content", 0, "text")
-    when "minimax-m2.1"
-      data.dig("choices", 0, "message", "content")
-    when "grok-3"
-      data.dig("choices", 0, "message", "content")
-    end
-  end
-
-  def parse_llm_response(response_text)
-    # Extract JSON from response
-    json_match = response_text.match(/\{.*\}/m)
-    return {} unless json_match
-
-    JSON.parse(json_match[0])
-  rescue JSON::ParserError
-    {}
-  end
-
   def build_extraction_prompt(content)
     <<~PROMPT
-      You are extracting structured data from a sports article for storage in a database.
-      Return ONLY a valid JSON object with these EXACT fields (no other text):
-      {
-        "title_summary": "2-3 sentence summary of the article",
-        "sport": "NFL, NBA, MLB, Soccer, or other sport",
-        "teams_json": ["list of team names mentioned"],
-        "people_json": ["list of player/person names with relevant details"],
-        "key_stats_json": ["list of important statistics with numbers"],
-        "context": "1-2 sentence background/context about the article"
-      }
-
+      You are extracting structured data from a sports article.
+      Return ONLY valid JSON with these fields:
+      {"title_summary": "...", "sport": "...", "teams_json": [], "people_json": [], "key_stats_json": [], "context": "...", "angles_json": []}
       Article content (first 8000 chars):
       #{content[0..8000]}
     PROMPT
@@ -216,7 +131,7 @@ class ArticleIngestionService
       "NFL" => ["nfl", "football", "quarterback", "touchdown"],
       "NBA" => ["nba", "basketball", "points", "rebounds"],
       "MLB" => ["mlb", "baseball", "home run", "pitcher"],
-      "Soccer" => ["soccer", "goal", "match", "champions cup"]
+      "SOCCER" => ["soccer", "goal", "champions cup", "mls"]
     }
     content_lower = content.downcase
     sport_keywords.each { |sport, keywords| return sport if keywords.any? { |k| content_lower.include?(k) } }
@@ -253,9 +168,11 @@ class ArticleIngestionService
       og_image = html[/<meta property="og:image" content="([^"]*)"/, 1]
       return nil unless og_image
 
+      # Generate filename from URL
       filename = slugify(url) + "-og.jpg"
       filepath = Rails.root.join("uploads", filename)
 
+      # Download image
       File.open(filepath, "wb") do |file|
         URI.open(og_image) { |io| file.write(io.read) }
       end
