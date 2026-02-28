@@ -1,0 +1,92 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 shadow-lg mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-white">Task Board</h1>
+        <p class="text-indigo-100 text-sm mt-1">Agile board view</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="<%= tasks_path(format: :json) %>" target="_blank" class="bg-white/20 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-white/30">
+          JSON
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agile Board -->
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+    <% { 
+      "idle" => "bg-yellow-100 dark:bg-yellow-900",
+      "active" => "bg-blue-100 dark:bg-blue-900", 
+      "pending" => "bg-gray-100 dark:bg-gray-800",
+      "running" => "bg-cyan-100 dark:bg-cyan-900",
+      "completed" => "bg-green-100 dark:bg-green-900", 
+      "failed" => "bg-red-100 dark:bg-red-900" 
+    }.each do |status, bg_class| %>
+      <div class="rounded-xl p-4 <%= bg_class %>">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+          <span class="capitalize"><%= status %></span>
+          <span class="text-sm font-normal opacity-70">(<%= @tasks_by_status[status.to_sym].count %>)</span>
+        </h2>
+        
+        <div class="space-y-3 max-h-96 overflow-y-auto">
+          <% @tasks_by_status[status.to_sym].each do |task| %>
+            <div class="bg-white dark:bg-gray-900 rounded-lg p-4 shadow border border-gray-200 dark:border-gray-700">
+              <div class="flex justify-between items-start mb-2">
+                <span class="text-xs font-semibold px-2 py-0.5 rounded-full 
+                  <%= case task.task_type
+                  when 'article_ingestion' then 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                  when 'image_download' then 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+                  else 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+                  end %>">
+                  <%= task.task_type %>
+                </span>
+                <span class="text-xs text-gray-500">#<%= task.id %></span>
+              </div>
+              
+              <% if task.input_json.present? %>
+                <p class="text-sm font-medium mb-2 break-all">
+                  <%= task.input_json["url"] || task.input_json.to_s.truncate(50) %>
+                </p>
+              <% end %>
+              
+              <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                <% if task.input_json["model"] %>
+                  <span class="bg-gray-200 dark:bg-gray-700 px-1 rounded"><%= task.input_json["model"] %></span>
+                <% end %>
+                <% if task.execute_count.to_i > 0 %>
+                  <span class="bg-yellow-200 dark:bg-yellow-700 px-1 rounded" title="Attempt #{task.execute_count}">x<%= task.execute_count %></span>
+                <% end %>
+                <% if task.started_at %><span><%= task.duration ? "%.1fs" % task.duration : "running..." %></span><% end %>
+                <span><%= time_ago_in_words(task.created_at) %> ago</span>
+              </div>
+              
+              <% if task.error.present? %>
+                <p class="text-xs text-red-600 bg-red-50 dark:bg-red-900/20 rounded p-2 mb-2"><%= task.error.truncate(100) %></p>
+              <% end %>
+              
+              <div class="flex gap-2">
+                <% if task.idle? || task.failed? %>
+                  <% if task.can_retry? %>
+                    <%= button_to "Start", retry_task_path(task), method: :post, class: "text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700" %>
+                  <% else %>
+                    <span class="text-xs bg-gray-400 text-white px-2 py-1 rounded" title="Max retries exceeded">Maxed</span>
+                  <% end %>
+                <% end %>
+                <% if task.active? %>
+                  <span class="text-xs bg-blue-500 text-white px-2 py-1 rounded animate-pulse">Active</span>
+                <% end %>
+                <%= button_to "Delete", task_path(task), method: :delete, data: { confirm: "Delete?" }, class: "text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded hover:bg-gray-300" %>
+              </div>
+            </div>
+          <% end %>
+          
+          <% if @tasks_by_status[status.to_sym].empty? %>
+            <p class="text-sm text-gray-500 italic text-center py-4">No tasks</p>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

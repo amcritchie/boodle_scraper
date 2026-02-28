@@ -1,0 +1,62 @@
+class TasksController < ApplicationController
+  before_action :set_task, only: [:show, :update, :retry, :destroy]
+
+  def index
+    @tasks = Task.order(created_at: :desc).limit(100)
+    @tasks_by_status = {
+      idle: @tasks.where(status: "idle"),
+      active: @tasks.where(status: "active"),
+      pending: @tasks.where(status: "pending"),
+      running: @tasks.where(status: "running"),
+      completed: @tasks.where(status: "completed"),
+      failed: @tasks.where(status: "failed")
+    }
+  end
+
+  def show
+  end
+
+  def create
+    @task = Task.new(task_params)
+    if @task.save
+      render json: @task, status: :created
+    else
+      render json: @task.errors, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    if @task.update(task_params)
+      render json: @task
+    else
+      render json: @task.errors, status: :unprocessable_entity
+    end
+  end
+
+  def retry
+    # Reset to idle so it can be picked up again
+    @task.update!(
+      status: "idle",
+      error: nil,
+      started_at: nil,
+      completed_at: nil,
+      output_json: nil
+    )
+    render json: @task
+  end
+
+  def destroy
+    @task.destroy
+    head :no_content
+  end
+
+  private
+
+  def set_task
+    @task = Task.find(params[:id])
+  end
+
+  def task_params
+    params.require(:task).permit(:task_type, :status, :input_json, :output_json, :error, :error_summary, :execute_count, :started_at, :completed_at)
+  end
+end
