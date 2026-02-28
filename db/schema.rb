@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_23_225827) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_28_045931) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -41,6 +41,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_23_225827) do
     t.text "feedback"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "model"
+    t.string "process"
+    t.text "process_notes"
   end
 
   create_table "broadcasts", force: :cascade do |t|

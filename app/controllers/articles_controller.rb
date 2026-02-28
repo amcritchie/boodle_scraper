@@ -224,7 +224,7 @@ class ArticlesController < ApplicationController
     permitted = params.require(:article).permit(
       :title, :title_summary, :author, :sport, :published_at, :reviewed_at,
       :main_team_name, :main_team_slug, :main_person_name, :main_person_slug,
-      :context, :source, :source_url, :source_id,
+      :context, :source, :source_url, :source_id, :model, :process, :process_notes,
       :article_good, :person_identified, :disposition_coherent, :feedback,
       :teams_json, :people_json, :scores_json, :records_json, :key_stats_json, :quotes_json
     )
@@ -242,7 +242,7 @@ class ArticlesController < ApplicationController
     permitted = params.require(:article).permit(
       :title, :title_summary, :author, :sport, :published_at, :reviewed_at,
       :main_team_name, :main_team_slug, :main_person_name, :main_person_slug,
-      :context, :source, :source_url, :source_id,
+      :context, :source, :source_url, :source_id, :model, :process, :process_notes,
       :article_good, :person_identified, :disposition_coherent, :feedback
     )
 
@@ -277,6 +277,9 @@ class ArticlesController < ApplicationController
       source_url: article.source_url,
       source_id: article.source_id,
       feedback: article.feedback,
+      model: article.model,
+      process: article.process,
+      process_notes: article.process_notes,
       article_good: article.article_good,
       person_identified: article.person_identified,
       disposition_coherent: article.disposition_coherent,
