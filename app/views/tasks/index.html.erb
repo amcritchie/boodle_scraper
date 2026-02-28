@@ -55,6 +55,9 @@
                 <% if task.input_json["model"] %>
                   <span class="bg-gray-200 dark:bg-gray-700 px-1 rounded"><%= task.input_json["model"] %></span>
                 <% end %>
+                <% if task.execute_count.to_i > 0 %>
+                  <span class="bg-yellow-200 dark:bg-yellow-700 px-1 rounded" title="Attempt #{task.execute_count}">x<%= task.execute_count %></span>
+                <% end %>
                 <% if task.started_at %><span><%= task.duration ? "%.1fs" % task.duration : "running..." %></span><% end %>
                 <span><%= time_ago_in_words(task.created_at) %> ago</span>
               </div>
@@ -65,7 +68,11 @@
               
               <div class="flex gap-2">
                 <% if task.idle? || task.failed? %>
-                  <%= button_to "Start", retry_task_path(task), method: :post, class: "text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700" %>
+                  <% if task.can_retry? %>
+                    <%= button_to "Start", retry_task_path(task), method: :post, class: "text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700" %>
+                  <% else %>
+                    <span class="text-xs bg-gray-400 text-white px-2 py-1 rounded" title="Max retries exceeded">Maxed</span>
+                  <% end %>
                 <% end %>
                 <% if task.active? %>
                   <span class="text-xs bg-blue-500 text-white px-2 py-1 rounded animate-pulse">Active</span>

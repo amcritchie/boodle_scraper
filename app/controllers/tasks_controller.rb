@@ -57,6 +57,6 @@ class TasksController < ApplicationController
   end
 
   def task_params
-    params.require(:task).permit(:task_type, :status, :input_json, :output_json, :error, :started_at, :completed_at)
+    params.require(:task).permit(:task_type, :status, :input_json, :output_json, :error, :error_summary, :execute_count, :started_at, :completed_at)
   end
 end

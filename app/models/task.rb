@@ -1,12 +1,10 @@
 class Task < ApplicationRecord
   belongs_to :taskable, polymorphic: true, optional: true
 
-  # Using plain string column, not enum
-  # Valid statuses: idle, active, pending, running, completed, failed
+  MAX_RETRIES = 3
   
   validates :task_type, presence: true
 
-  # Tasks stuck running longer than this are considered hung
   STUCK_THRESHOLD_SECONDS = 120
 
   def duration
@@ -40,5 +38,18 @@ class Task < ApplicationRecord
 
   def running?
     status == "running"
+  end
+
+  def can_retry?
+    execute_count.to_i < MAX_RETRIES
+  end
+
+  def add_error(error_message)
+    errors = (error_summary || []).dup
+    errors << {
+      "message" => error_message,
+      "at" => Time.current.iso8601
+    }
+    update_column(:error_summary, errors)
   end
 end
