@@ -4,6 +4,8 @@ class TasksController < ApplicationController
   def index
     @tasks = Task.order(created_at: :desc).limit(100)
     @tasks_by_status = {
+      idle: @tasks.where(status: "idle"),
+      active: @tasks.where(status: "active"),
       pending: @tasks.where(status: "pending"),
       running: @tasks.where(status: "running"),
       completed: @tasks.where(status: "completed"),
@@ -32,7 +34,14 @@ class TasksController < ApplicationController
   end
 
   def retry
-    @task.update(status: "pending", error: nil)
+    # Reset to idle so it can be picked up again
+    @task.update!(
+      status: "idle",
+      error: nil,
+      started_at: nil,
+      completed_at: nil,
+      output_json: nil
+    )
     render json: @task
   end
 

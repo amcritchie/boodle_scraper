@@ -10,29 +10,40 @@ class ArticleIngestionService
   # Runs all 3 models sequentially - creates tasks for each
   def self.ingest(url:)
     MODELS.each do |model|
-      new(url: url, model: model).call
+      # Create task in idle state, worker picks it up
+      task = Task.create!(
+        task_type: "article_ingestion",
+        status: "idle",
+        input_json: { url: url, model: model }
+      )
+      
+      # Process immediately (in production, a worker would pick this up)
+      new(url: url, model: model, task_id: task.id).call
     end
   end
 
   # Runs single model - creates single task
   def self.ingest_single(url:, model: DEFAULT_MODEL)
-    new(url: url, model: model).call
+    task = Task.create!(
+      task_type: "article_ingestion",
+      status: "idle",
+      input_json: { url: url, model: model }
+    )
+    
+    new(url: url, model: model, task_id: task.id).call
   end
 
-  def initialize(url:, model: DEFAULT_MODEL)
+  def initialize(url:, model: DEFAULT_MODEL, task_id: nil)
     @url = url
     @model = model
+    @task_id = task_id
     @extracted_data = nil
-    @task = nil
   end
 
   def call
-    # Create task record
-    @task = Task.create!(
-      task_type: "article_ingestion",
-      status: "running",
-      input_json: { url: @url, model: @model }
-    )
+    # Mark task as active
+    @task = Task.find(@task_id)
+    @task.update!(status: "active", started_at: Time.current)
 
     begin
       # 1. Fetch article content

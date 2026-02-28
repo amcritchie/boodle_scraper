@@ -1,5 +1,14 @@
 # HEARTBEAT.md
 
-# Keep this file empty (or with only comments) to skip heartbeat API calls.
+# Heartbeat checks for stuck tasks every ~30 minutes
 
-# Add tasks below when you want the agent to check something periodically.
+## Task Monitoring
+- Check for "active" tasks stuck > 2 minutes → restart them
+- Check for "idle" tasks → attempt to process
+
+## How to use
+Tasks are created automatically by ArticleIngestionService.ingest(url:)
+- idle = waiting to be picked up
+- active = currently processing  
+- completed = finished successfully
+- failed = error occurred
