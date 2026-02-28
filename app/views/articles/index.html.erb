@@ -35,44 +35,65 @@
   <!-- Article Cards -->
   <div class="space-y-4" data-searchable-table-target="tableBody">
     <% @articles.each do |article| %>
-      <div class="theme-bg-primary shadow-lg rounded-xl border theme-border-primary p-5" data-search="<%= [article.id, article.title, article.author, article.main_person_name, article.main_person_slug, article.main_team_name, article.source, article.sport].compact.join(' ').downcase %>">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="theme-bg-primary shadow-lg rounded-xl border theme-border-primary p-5" data-search="<%= [article.id, article.title, article.title_summary, article.author, article.main_person_name, article.main_person_slug, article.main_team_name, article.main_team_slug, article.source, article.source_id, article.sport, article.context].compact.join(' ').downcase %>">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 
-          <!-- Left Column: ID, Title, Author, Dates, Names -->
+          <!-- Column 1: ID, Title, Author, Dates -->
           <div>
             <p class="text-xs font-mono theme-text-secondary mb-1">#<%= article.id %></p>
             <h2 class="text-lg font-bold theme-text-primary"><%= article.title %></h2>
+            <% if article.title_summary.present? %>
+              <p class="text-sm theme-text-secondary italic mt-1"><%= article.title_summary %></p>
+            <% end %>
             <p class="text-sm theme-text-secondary mt-1"><%= article.author %></p>
+            <% if article.sport.present? %>
+              <span class="inline-block mt-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200"><%= article.sport.upcase %></span>
+            <% end %>
             <p class="text-sm theme-text-secondary mt-2">Published: <span class="theme-text-primary"><%= article.published_at&.strftime("%b %d, %Y") || "—" %></span></p>
             <p class="text-sm theme-text-secondary">Reviewed: <span class="theme-text-primary"><%= article.reviewed_at&.strftime("%b %d, %Y %l:%M %p") || "—" %></span></p>
-            <% if article.source.present? || article.source_url.present? %>
-              <p class="text-sm theme-text-secondary mt-2">Source:
-                <% if article.source_url.present? %>
-                  <a href="<%= article.source_url %>" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline"><%= article.source.presence || article.source_url %></a>
-                <% else %>
-                  <span class="theme-text-primary"><%= article.source %></span>
-                <% end %>
-              </p>
-            <% end %>
-
-            <% if article.sport.present? %>
-              <p class="text-sm theme-text-secondary mt-2">Sport: <span class="theme-text-primary"><%= article.sport.upcase %></span></p>
-            <% end %>
           </div>
 
-          <!-- Middle Column: Team & Athlete Info, Context -->
+          <!-- Column 2: Team & Athlete Info -->
           <div>
             <p class="text-sm font-medium theme-text-secondary">Primary Team</p>
-            <p class="text-sm theme-text-primary mb-3"><%= article.main_team_name.presence || "—" %></p>
+            <p class="text-sm theme-text-primary"><%= article.main_team_name.presence || "—" %></p>
+            <p class="text-xs font-mono theme-text-secondary mb-3"><%= article.main_team_slug %></p>
 
             <p class="text-sm font-medium theme-text-secondary">Primary Athlete</p>
-            <p class="text-sm theme-text-primary mb-3"><%= article.main_person_name.presence || "—" %></p>
+            <p class="text-sm theme-text-primary"><%= article.main_person_name.presence || "—" %></p>
+            <p class="text-xs font-mono theme-text-secondary mb-3"><%= article.main_person_slug %></p>
 
-            <p class="text-sm font-medium theme-text-secondary">Context</p>
-            <p class="text-sm theme-text-primary"><%= article.context.presence || "—" %></p>
+            <p class="text-sm font-medium theme-text-secondary">Source</p>
+            <% if article.source_url.present? %>
+              <a href="<%= article.source_url %>" target="_blank" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"><%= article.source.presence || article.source_url %></a>
+            <% else %>
+              <p class="text-sm theme-text-primary"><%= article.source.presence || "—" %></p>
+            <% end %>
+            <% if article.source_id.present? %>
+              <p class="text-xs font-mono theme-text-secondary"><%= article.source_id %></p>
+            <% end %>
           </div>
 
-          <!-- Right Column: Edit Button -->
+          <!-- Column 3: Context & Data -->
+          <div>
+            <p class="text-sm font-medium theme-text-secondary">Context</p>
+            <p class="text-sm theme-text-primary mb-3"><%= truncate(article.context.presence || "—", length: 200) %></p>
+
+            <% if article.feedback.present? %>
+              <p class="text-sm font-medium theme-text-secondary">Feedback</p>
+              <p class="text-sm theme-text-primary mb-3"><%= truncate(article.feedback, length: 150) %></p>
+            <% end %>
+
+            <div class="flex flex-wrap gap-1 mt-2">
+              <% { teams: article.teams_json, people: article.people_json, scores: article.scores_json, records: article.records_json, stats: article.key_stats_json, quotes: article.quotes_json }.each do |label, data| %>
+                <% if data.present? %>
+                  <span class="inline-block px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"><%= label %></span>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Column 4: Actions -->
           <div class="flex flex-col items-end space-y-2">
             <a href="<%= edit_article_path(article) %>" class="inline-flex items-center px-4 py-2 border theme-border-primary rounded-lg text-sm font-medium theme-text-primary hover:theme-bg-tertiary transition-colors">
               Edit / Feedback

@@ -221,12 +221,21 @@ class ArticlesController < ApplicationController
   end
 
   def article_params
-    params.require(:article).permit(
+    permitted = params.require(:article).permit(
       :title, :title_summary, :author, :sport, :published_at, :reviewed_at,
       :main_team_name, :main_team_slug, :main_person_name, :main_person_slug,
       :context, :source, :source_url, :source_id,
-      :article_good, :person_identified, :disposition_coherent, :feedback
+      :article_good, :person_identified, :disposition_coherent, :feedback,
+      :teams_json, :people_json, :scores_json, :records_json, :key_stats_json, :quotes_json
     )
+
+    %i[teams_json people_json scores_json records_json key_stats_json quotes_json].each do |field|
+      if permitted[field].present? && permitted[field].is_a?(String)
+        permitted[field] = JSON.parse(permitted[field])
+      end
+    end
+
+    permitted
   end
 
   def api_article_params

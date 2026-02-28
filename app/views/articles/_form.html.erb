@@ -95,6 +95,44 @@
       <%= f.text_area :context, rows: 4, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
     </div>
 
+    <!-- Teams JSON -->
+    <div class="md:col-span-2">
+      <%= f.label :teams_json, "Teams (JSON)", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :teams_json, value: article.teams_json.present? ? JSON.pretty_generate(article.teams_json) : "", rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+      <p class="mt-1 text-xs theme-text-secondary">Enter valid JSON array of team objects</p>
+    </div>
+
+    <!-- People JSON -->
+    <div class="md:col-span-2">
+      <%= f.label :people_json, "People (JSON)", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :people_json, value: article.people_json.present? ? JSON.pretty_generate(article.people_json) : "", rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+      <p class="mt-1 text-xs theme-text-secondary">Enter valid JSON array of people objects</p>
+    </div>
+
+    <!-- Scores JSON -->
+    <div class="md:col-span-2">
+      <%= f.label :scores_json, "Scores (JSON)", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :scores_json, value: article.scores_json.present? ? JSON.pretty_generate(article.scores_json) : "", rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <!-- Records JSON -->
+    <div class="md:col-span-2">
+      <%= f.label :records_json, "Records (JSON)", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :records_json, value: article.records_json.present? ? JSON.pretty_generate(article.records_json) : "", rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <!-- Key Stats JSON -->
+    <div class="md:col-span-2">
+      <%= f.label :key_stats_json, "Key Stats (JSON)", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :key_stats_json, value: article.key_stats_json.present? ? JSON.pretty_generate(article.key_stats_json) : "", rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <!-- Quotes JSON -->
+    <div class="md:col-span-2">
+      <%= f.label :quotes_json, "Quotes (JSON)", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :quotes_json, value: article.quotes_json.present? ? JSON.pretty_generate(article.quotes_json) : "", rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
     <!-- Feedback -->
     <div class="md:col-span-2">
       <%= f.label :feedback, class: "block text-sm font-medium theme-text-primary mb-1" %>
