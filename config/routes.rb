@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   resources :articles, except: [:show] do
     member do
       patch :feedback
+      patch :select_image
     end
   end
   get 'teams', to: 'teams#index', as: 'teams_index'
@@ -50,6 +51,7 @@ Rails.application.routes.draw do
   get  'api/articles/:id',          to: 'articles#api_show',     as: 'api_article_show'
   patch 'api/articles/:id',         to: 'articles#api_update',   as: 'api_article_update'
   patch 'api/articles/:id/feedback', to: 'articles#api_feedback', as: 'api_article_feedback'
+  patch 'api/articles/:id/select_image', to: 'articles#api_select_image', as: 'api_article_select_image'
   delete 'api/articles/:id',        to: 'articles#api_destroy',  as: 'api_article_destroy'
 
   # API endpoints for matchups
