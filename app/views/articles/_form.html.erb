@@ -107,6 +107,19 @@
       <%= f.text_area :process_notes, rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
     </div>
 
+    <!-- Image Selected -->
+    <div class="md:col-span-2">
+      <%= f.label :image_selected, "Selected Image URL", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.url_field :image_selected, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <!-- Image Options JSON -->
+    <div class="md:col-span-2">
+      <%= f.label :image_options, "Image Options (JSON)", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :image_options, value: article.image_options.present? ? JSON.pretty_generate(article.image_options) : "", rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+      <p class="mt-1 text-xs theme-text-secondary">Enter valid JSON array of image URL strings</p>
+    </div>
+
     <!-- Context -->
     <div class="md:col-span-2">
       <%= f.label :context, class: "block text-sm font-medium theme-text-primary mb-1" %>

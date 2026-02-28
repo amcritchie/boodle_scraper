@@ -44,6 +44,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_28_045931) do
     t.string "model"
     t.string "process"
     t.text "process_notes"
+    t.json "image_options"
+    t.string "image_selected"
   end
 
   create_table "broadcasts", force: :cascade do |t|
