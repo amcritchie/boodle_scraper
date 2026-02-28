@@ -89,6 +89,24 @@
       <%= f.text_field :source_id, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
     </div>
 
+    <!-- Model -->
+    <div>
+      <%= f.label :model, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :model, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <!-- Process -->
+    <div>
+      <%= f.label :process, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :process, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <!-- Process Notes -->
+    <div class="md:col-span-2">
+      <%= f.label :process_notes, "Process Notes", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :process_notes, rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
     <!-- Context -->
     <div class="md:col-span-2">
       <%= f.label :context, class: "block text-sm font-medium theme-text-primary mb-1" %>

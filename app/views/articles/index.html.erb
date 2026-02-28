@@ -35,7 +35,7 @@
   <!-- Article Cards -->
   <div class="space-y-4" data-searchable-table-target="tableBody">
     <% @articles.each do |article| %>
-      <div class="theme-bg-primary shadow-lg rounded-xl border theme-border-primary p-5" data-search="<%= [article.id, article.title, article.title_summary, article.author, article.main_person_name, article.main_person_slug, article.main_team_name, article.main_team_slug, article.source, article.source_id, article.sport, article.context].compact.join(' ').downcase %>">
+      <div class="theme-bg-primary shadow-lg rounded-xl border theme-border-primary p-5" data-search="<%= [article.id, article.title, article.title_summary, article.author, article.main_person_name, article.main_person_slug, article.main_team_name, article.main_team_slug, article.source, article.source_id, article.sport, article.context, article.model, article.process].compact.join(' ').downcase %>">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 
           <!-- Column 1: ID, Title, Author, Dates -->
@@ -82,6 +82,21 @@
             <% if article.feedback.present? %>
               <p class="text-sm font-medium theme-text-secondary">Feedback</p>
               <p class="text-sm theme-text-primary mb-3"><%= article.feedback %></p>
+            <% end %>
+
+            <% if article.model.present? %>
+              <p class="text-sm font-medium theme-text-secondary">Model</p>
+              <p class="text-sm theme-text-primary mb-3"><%= article.model %></p>
+            <% end %>
+
+            <% if article.process.present? %>
+              <p class="text-sm font-medium theme-text-secondary">Process</p>
+              <p class="text-sm theme-text-primary mb-3"><%= article.process %></p>
+            <% end %>
+
+            <% if article.process_notes.present? %>
+              <p class="text-sm font-medium theme-text-secondary">Process Notes</p>
+              <p class="text-sm theme-text-primary mb-3"><%= article.process_notes %></p>
             <% end %>
 
             <p class="text-xs theme-text-secondary mt-2">Created: <%= article.created_at&.strftime("%b %d, %Y %l:%M %p") || "—" %></p>
