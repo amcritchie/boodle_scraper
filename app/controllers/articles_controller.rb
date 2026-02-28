@@ -49,7 +49,7 @@ class ArticlesController < ApplicationController
   end
 
   def select_image
-    @article.update(selected_image: params[:image_url])
+    @article.update(image_selected: params[:image_url])
     redirect_to articles_path
   end
 
@@ -110,9 +110,8 @@ class ArticlesController < ApplicationController
                 records_json: { type: "json", description: "Record data" },
                 key_stats_json: { type: "json", description: "Key statistics" },
                 quotes_json: { type: "json", description: "Notable quotes" },
-                image: { type: "string", description: "Primary image URL" },
-                images: { type: "json", description: "Array of image URL strings" },
-                selected_image: { type: "string", description: "Selected image URL from images array" },
+                image_options: { type: "json", description: "Array of image URL strings" },
+                image_selected: { type: "string", description: "Selected image URL from image_options array" },
                 context: { type: "text" },
                 source: { type: "string" },
                 source_url: { type: "string" },
@@ -219,7 +218,7 @@ class ArticlesController < ApplicationController
       return
     end
 
-    @article.update(selected_image: image_url)
+    @article.update(image_selected: image_url)
     render json: { article: article_json(@article) }
   end
 
@@ -244,12 +243,12 @@ class ArticlesController < ApplicationController
       :title, :title_summary, :author, :sport, :published_at, :reviewed_at,
       :main_team_name, :main_team_slug, :main_person_name, :main_person_slug,
       :context, :source, :source_url, :source_id, :model, :process, :process_notes,
-      :image, :selected_image,
+      :image_selected,
       :article_good, :person_identified, :disposition_coherent, :feedback,
       :teams_json, :people_json, :scores_json, :records_json, :key_stats_json, :quotes_json, :images
     )
 
-    %i[teams_json people_json scores_json records_json key_stats_json quotes_json images].each do |field|
+    %i[teams_json people_json scores_json records_json key_stats_json quotes_json image_options].each do |field|
       if permitted[field].is_a?(String)
         permitted[field] = permitted[field].blank? ? nil : JSON.parse(permitted[field])
       end
@@ -263,11 +262,11 @@ class ArticlesController < ApplicationController
       :title, :title_summary, :author, :sport, :published_at, :reviewed_at,
       :main_team_name, :main_team_slug, :main_person_name, :main_person_slug,
       :context, :source, :source_url, :source_id, :model, :process, :process_notes,
-      :image, :selected_image,
+      :image_selected,
       :article_good, :person_identified, :disposition_coherent, :feedback
     )
 
-    %i[teams_json people_json scores_json records_json key_stats_json quotes_json images].each do |field|
+    %i[teams_json people_json scores_json records_json key_stats_json quotes_json image_options].each do |field|
       permitted[field] = params[:article][field] if params[:article][field].present?
     end
 
@@ -301,9 +300,8 @@ class ArticlesController < ApplicationController
       model: article.model,
       process: article.process,
       process_notes: article.process_notes,
-      image: article.image,
-      images: article.images,
-      selected_image: article.selected_image,
+      image_options: article.image_options,
+      image_selected: article.image_selected,
       article_good: article.article_good,
       person_identified: article.person_identified,
       disposition_coherent: article.disposition_coherent,
