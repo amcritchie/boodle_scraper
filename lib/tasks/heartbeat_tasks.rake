@@ -32,7 +32,11 @@ namespace :tasks do
         
         begin
           task.update!(status: "active", started_at: Time.current)
+          
+          # Use the service - it handles task lifecycle
           ArticleIngestionService.new(url: url, model: model, task_id: task.id).call
+          
+          puts "Task ##{task.id} completed successfully"
         rescue => e
           task.update!(status: "failed", error: e.message, completed_at: Time.current)
           puts "Task ##{task.id} failed: #{e.message}"

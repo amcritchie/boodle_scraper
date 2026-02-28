@@ -10,14 +10,11 @@ class ArticleIngestionService
   # Runs all 3 models sequentially - creates tasks for each
   def self.ingest(url:)
     MODELS.each do |model|
-      # Create task in idle state, worker picks it up
       task = Task.create!(
         task_type: "article_ingestion",
         status: "idle",
         input_json: { url: url, model: model }
       )
-      
-      # Process immediately (in production, a worker would pick this up)
       new(url: url, model: model, task_id: task.id).call
     end
   end
@@ -29,7 +26,6 @@ class ArticleIngestionService
       status: "idle",
       input_json: { url: url, model: model }
     )
-    
     new(url: url, model: model, task_id: task.id).call
   end
 
@@ -41,7 +37,6 @@ class ArticleIngestionService
   end
 
   def call
-    # Mark task as active
     @task = Task.find(@task_id)
     @task.update!(status: "active", started_at: Time.current)
 
@@ -49,7 +44,7 @@ class ArticleIngestionService
       # 1. Fetch article content
       article_content = fetch_article(@url)
 
-      # 2. Extract structured data using LLM (via subagent)
+      # 2. Extract structured data using LLM via sub-agent
       @extracted_data = extract_with_llm(article_content)
 
       # 3. Download og:image
@@ -64,7 +59,6 @@ class ArticleIngestionService
       # 5. Save new article
       article = Article.create!(article_attrs)
 
-      # Update task as completed
       @task.update!(
         status: "completed",
         output_json: { article_id: article.id, image_path: image_path },
@@ -73,7 +67,6 @@ class ArticleIngestionService
 
       article
     rescue => e
-      # Update task as failed
       @task.update!(
         status: "failed",
         error: e.message,
@@ -95,10 +88,8 @@ class ArticleIngestionService
   def extract_with_llm(content)
     prompt = build_extraction_prompt(content)
     
-    # In production, this would call LLMService
-    # For now, return stub
-    # Thebed data subagent approach works but runs outside Rails
-    
+    # For now, use stubbed extraction - sub-agent pattern would be triggered elsewhere
+    # The Task is marked active, actual extraction could happen via background job
     {
       "title_summary" => extract_summary(content),
       "sport" => extract_sport(content),
@@ -114,27 +105,42 @@ class ArticleIngestionService
 
   def build_extraction_prompt(content)
     <<~PROMPT
-      You are extracting structured data from a sports article.
-      Return ONLY valid JSON with these fields:
-      {"title_summary": "...", "sport": "...", "teams_json": [], "people_json": [], "key_stats_json": [], "context": "...", "angles_json": []}
+      You are extracting structured data from a sports article for storage in a database.
+
+      Return ONLY a valid JSON object with these EXACT fields (no other text):
+      {
+        "title_summary": "2-3 sentence summary of the article",
+        "sport": "NFL, NBA, MLB, NCAAF, NCAAB, NHL, Soccer, or other sport",
+        "teams_json": ["list of team names mentioned"],
+        "people_json": ["list of player/person names with relevant details"],
+        "key_stats_json": ["list of important statistics with numbers"],
+        "context": "1-2 sentence background/context about the article",
+        "angles_json": ["list of storyline angles"]
+      }
+
       Article content (first 8000 chars):
       #{content[0..8000]}
     PROMPT
   end
 
   def extract_summary(content)
-    content[0..200].split("\n").first || "Summary"
+    content[0..200].split("\n").first || "Summary extracted from article"
   end
 
   def extract_sport(content)
     sport_keywords = {
-      "NFL" => ["nfl", "football", "quarterback", "touchdown"],
-      "NBA" => ["nba", "basketball", "points", "rebounds"],
-      "MLB" => ["mlb", "baseball", "home run", "pitcher"],
-      "SOCCER" => ["soccer", "goal", "champions cup", "mls"]
+      "NFL" => ["nfl", "football", "quarterback", "touchdown", "yard dash"],
+      "NBA" => ["nba", "basketball", "points", "rebounds", "assist"],
+      "MLB" => ["mlb", "baseball", "home run", "innings", "pitcher"],
+      "NCAAB" => ["college basketball", "ncaab", "big ten", "acc", "sec"],
+      "NCAAF" => ["college football", "ncaaf", "draft", "combine"],
+      "Soccer" => ["soccer", "champions cup", "goals", "goalscorer", "premier league"]
     }
+
     content_lower = content.downcase
-    sport_keywords.each { |sport, keywords| return sport if keywords.any? { |k| content_lower.include?(k) } }
+    sport_keywords.each do |sport, keywords|
+      return sport if keywords.any? { |k| content_lower.include?(k) }
+    end
     "Sports"
   end
 
@@ -147,7 +153,7 @@ class ArticleIngestionService
   end
 
   def extract_stats(content)
-    content.scan(/\d+(?:\.\d+)?%|\d+(?:\.\d+)? (?:yards|points|seconds)/).first(10)
+    content.scan(/\d+(?:\.\d+)?%|\d+(?:\.\d+)? (?:yards|points|seconds|feet|inches|goals|assists)/).first(10)
   end
 
   def extract_context(content)
@@ -168,11 +174,9 @@ class ArticleIngestionService
       og_image = html[/<meta property="og:image" content="([^"]*)"/, 1]
       return nil unless og_image
 
-      # Generate filename from URL
       filename = slugify(url) + "-og.jpg"
       filepath = Rails.root.join("uploads", filename)
 
-      # Download image
       File.open(filepath, "wb") do |file|
         URI.open(og_image) { |io| file.write(io.read) }
       end
