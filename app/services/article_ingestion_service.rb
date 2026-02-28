@@ -107,16 +107,21 @@ class ArticleIngestionService
     <<~PROMPT
       You are extracting structured data from a sports article for storage in a database.
 
-      Return ONLY a valid JSON object with these EXACT fields (no other text):
+      Return ONLY valid JSON with these EXACT fields (no other text):
       {
-        "title_summary": "2-3 sentence summary of the article",
-        "sport": "NFL, NBA, MLB, NCAAF, NCAAB, NHL, Soccer, or other sport",
-        "teams_json": ["list of team names mentioned"],
-        "people_json": ["list of player/person names with relevant details"],
-        "key_stats_json": ["list of important statistics with numbers"],
-        "context": "1-2 sentence background/context about the article",
-        "angles_json": ["list of storyline angles"]
+        "title_summary": "3-5 word identifier (consistent across all LLMs for same article)",
+        "sport": "NFL, NBA, MLB, etc.",
+        "teams_json": ["team names"],
+        "people_json": ["person names"],
+        "key_stats_json": ["statistics"],
+        "context": "1-2 sentence background",
+        "main_person_name": "primary athlete",
+        "main_team_name": "primary team"
       }
+
+      IMPORTANT: title_summary MUST be exactly 3-5 words:
+      - Good: "Jokic Dort confrontation", "Pistons beat Cavaliers"
+      - Bad: "Nikola Jokic had 36 points in an exciting game"
 
       Article content (first 8000 chars):
       #{content[0..8000]}
