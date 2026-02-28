@@ -74,23 +74,18 @@
             <% end %>
           </div>
 
-          <!-- Column 3: Context & Data -->
+          <!-- Column 3: Context & Feedback -->
           <div>
             <p class="text-sm font-medium theme-text-secondary">Context</p>
-            <p class="text-sm theme-text-primary mb-3"><%= truncate(article.context.presence || "—", length: 200) %></p>
+            <p class="text-sm theme-text-primary mb-3"><%= article.context.presence || "—" %></p>
 
             <% if article.feedback.present? %>
               <p class="text-sm font-medium theme-text-secondary">Feedback</p>
-              <p class="text-sm theme-text-primary mb-3"><%= truncate(article.feedback, length: 150) %></p>
+              <p class="text-sm theme-text-primary mb-3"><%= article.feedback %></p>
             <% end %>
 
-            <div class="flex flex-wrap gap-1 mt-2">
-              <% { teams: article.teams_json, people: article.people_json, scores: article.scores_json, records: article.records_json, stats: article.key_stats_json, quotes: article.quotes_json }.each do |label, data| %>
-                <% if data.present? %>
-                  <span class="inline-block px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"><%= label %></span>
-                <% end %>
-              <% end %>
-            </div>
+            <p class="text-xs theme-text-secondary mt-2">Created: <%= article.created_at&.strftime("%b %d, %Y %l:%M %p") || "—" %></p>
+            <p class="text-xs theme-text-secondary">Updated: <%= article.updated_at&.strftime("%b %d, %Y %l:%M %p") || "—" %></p>
           </div>
 
           <!-- Column 4: Actions -->
@@ -109,6 +104,20 @@
               </svg>
             </a>
           </div>
+        </div>
+
+        <!-- JSON Data Fields -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-4 pt-4 border-t theme-border-primary">
+          <% { "Teams" => article.teams_json, "People" => article.people_json, "Scores" => article.scores_json, "Records" => article.records_json, "Key Stats" => article.key_stats_json, "Quotes" => article.quotes_json }.each do |label, data| %>
+            <div>
+              <p class="text-xs font-semibold theme-text-secondary uppercase tracking-wide mb-1"><%= label %></p>
+              <% if data.present? %>
+                <pre class="text-xs theme-text-primary bg-gray-50 dark:bg-gray-800 rounded-lg p-3 overflow-x-auto max-h-40 overflow-y-auto border theme-border-primary"><%= JSON.pretty_generate(data) %></pre>
+              <% else %>
+                <pre class="text-xs theme-text-secondary italic bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border theme-border-primary">—</pre>
+              <% end %>
+            </div>
+          <% end %>
         </div>
 
         <!-- Feedback Row -->

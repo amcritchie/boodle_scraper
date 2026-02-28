@@ -230,8 +230,8 @@ class ArticlesController < ApplicationController
     )
 
     %i[teams_json people_json scores_json records_json key_stats_json quotes_json].each do |field|
-      if permitted[field].present? && permitted[field].is_a?(String)
-        permitted[field] = JSON.parse(permitted[field])
+      if permitted[field].is_a?(String)
+        permitted[field] = permitted[field].blank? ? nil : JSON.parse(permitted[field])
       end
     end
 
