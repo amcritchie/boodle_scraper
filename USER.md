@@ -2,15 +2,20 @@
 
 _Learn about the person you're helping. Update this as you go._
 
-- **Name:**
-- **What to call them:**
-- **Pronouns:** _(optional)_
-- **Timezone:**
-- **Notes:**
+- **Name:** Alex
+- **What to call them:** Alex
+- **Pronouns:** 
+- **Timezone:** America/Denver
+- **Notes:** 
+  - Telegram: 7045343674 (connected)
+  - Working on boodle_scraper Ruby on Rails app
+  - Prefers brevity in code and PRs
 
 ## Context
 
-_(What do they care about? What projects are they working on? What annoys them? What makes them laugh? Build this over time.)_
+- Building sports article ingestion pipeline
+- Likes working code over verbose documentation
+- Running app locally via Docker at localhost:3000
 
 ---
 

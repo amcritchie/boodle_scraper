@@ -7,14 +7,14 @@ class ArticleIngestionService
   MODELS = ["claude-sonnet", "minimax-m2.1", "grok-3"]
   DEFAULT_MODEL = "claude-sonnet"
 
-  # Runs all 3 models sequentially
+  # Runs all 3 models sequentially - creates tasks for each
   def self.ingest(url:)
     MODELS.each do |model|
       new(url: url, model: model).call
     end
   end
 
-  # Runs single model
+  # Runs single model - creates single task
   def self.ingest_single(url:, model: DEFAULT_MODEL)
     new(url: url, model: model).call
   end
@@ -23,30 +23,53 @@ class ArticleIngestionService
     @url = url
     @model = model
     @extracted_data = nil
+    @task = nil
   end
 
   def call
-    # 1. Fetch article content
-    article_content = fetch_article(@url)
-
-    # 2. Extract structured data using LLM
-    @extracted_data = extract_with_llm(article_content)
-
-    # 3. Download og:image
-    image_path = download_og_image(@url)
-
-    # 4. Map to Article schema
-    article_attrs = map_to_article(@extracted_data, @url).merge(
-      model: @model,
-      image_options: image_path ? [image_path] : []
+    # Create task record
+    @task = Task.create!(
+      task_type: "article_ingestion",
+      status: "running",
+      input_json: { url: @url, model: @model }
     )
 
-    # 5. Save new article
-    article = Article.create!(article_attrs)
-    article
-  rescue => e
-    Rails.logger.error "ArticleIngestionService error: #{e.message}"
-    raise e
+    begin
+      # 1. Fetch article content
+      article_content = fetch_article(@url)
+
+      # 2. Extract structured data using LLM
+      @extracted_data = extract_with_llm(article_content)
+
+      # 3. Download og:image
+      image_path = download_og_image(@url)
+
+      # 4. Map to Article schema
+      article_attrs = map_to_article(@extracted_data, @url).merge(
+        model: @model,
+        image_options: image_path ? [image_path] : []
+      )
+
+      # 5. Save new article
+      article = Article.create!(article_attrs)
+
+      # Update task as completed
+      @task.update!(
+        status: "completed",
+        output_json: { article_id: article.id, image_path: image_path },
+        completed_at: Time.current
+      )
+
+      article
+    rescue => e
+      # Update task as failed
+      @task.update!(
+        status: "failed",
+        error: e.message,
+        completed_at: Time.current
+      )
+      raise e
+    end
   end
 
   private

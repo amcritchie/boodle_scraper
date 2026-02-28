@@ -79,4 +79,10 @@ Rails.application.routes.draw do
   get 'predictions/:year/week/:week/:game_slug', to: 'predictions#show', as: 'prediction_show'
   get 'nfl-week-1-predictions', to: 'predictions#week', as: 'nfl_week1_predictions'
   get 'predictions/:year/week/:week', to: 'predictions#week', as: 'predictions_week'
+
+  resources :tasks do
+    member do
+      post :retry
+    end
+  end
 end
