@@ -1,22 +1,9 @@
 class Task < ApplicationRecord
   belongs_to :taskable, polymorphic: true, optional: true
 
-  # idle = waiting to be picked up by worker
-  # active = currently being processed
-  # pending = queued (legacy, can use idle)
-  # running = legacy, use active
-  # completed = finished successfully
-  # failed = finished with error
+  # Using plain string column, not enum
+  # Valid statuses: idle, active, pending, running, completed, failed
   
-  enum status: {
-    idle: "idle",
-    active: "active",
-    pending: "pending",
-    running: "running",
-    completed: "completed",
-    failed: "failed"
-  }, _prefix: true
-
   validates :task_type, presence: true
 
   # Tasks stuck running longer than this are considered hung
@@ -28,7 +15,7 @@ class Task < ApplicationRecord
   end
 
   def stuck?
-    active? && started_at && (Time.current - started_at > STUCK_THRESHOLD_SECONDS)
+    status == "active" && started_at && (Time.current - started_at > STUCK_THRESHOLD_SECONDS)
   end
 
   def idle?
@@ -37,5 +24,21 @@ class Task < ApplicationRecord
 
   def active?
     status == "active"
+  end
+
+  def failed?
+    status == "failed"
+  end
+
+  def completed?
+    status == "completed"
+  end
+
+  def pending?
+    status == "pending"
+  end
+
+  def running?
+    status == "running"
   end
 end
