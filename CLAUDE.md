@@ -14,7 +14,8 @@ Boodle Scraper is an NFL sports analytics web application that aggregates game d
 - **Ruby** 3.1.0
 - **Rails** 7.0.8
 - **PostgreSQL** (9.3+)
-- **Frontend**: Hotwire (Turbo + Stimulus), Import Maps, custom CSS with theme system
+- **Docker**: Multi-stage build with docker-compose (PostgreSQL 15 + Ruby 3.1.0-slim)
+- **Frontend**: Hotwire (Turbo + Stimulus), Import Maps, Tailwind CSS with theme system
 - **Key gems**: httparty, nokogiri (scraping), kaminari (pagination), dotenv-rails
 
 ## Getting Started
@@ -25,6 +26,17 @@ rails db:setup          # or pg_restore for existing dump
 rails server
 ```
 
+### Docker
+
+```bash
+docker compose up --build -d       # Build and start
+docker compose down                # Stop
+docker compose exec web bin/rails runner db/seed_articles.rb  # Seed articles
+docker compose exec web bin/rails console                     # Rails console
+```
+
+The Docker entrypoint runs `db:prepare` automatically (creates DB + runs migrations).
+
 Requires a `.env` file with `SPORTRADAR_API_KEY`, `POSTGRES_USERNAME`, `POSTGRES_PASSWORD` (see README.md for full list).
 
 ## Project Structure
@@ -33,7 +45,7 @@ Requires a `.env` file with `SPORTRADAR_API_KEY`, `POSTGRES_USERNAME`, `POSTGRES
 app/
   models/           # 20 models (Game, Team, Player, Matchup, Season, etc.)
   models/concerns/  # 8 concerns (PffConcern, PredictionConcern, ScoringConcern, etc.)
-  controllers/      # 7 controllers (Games, Teams, Players, Matchups, Rankings, Predictions, Home)
+  controllers/      # 10 controllers (Games, Teams, Players, Matchups, Rankings, Predictions, Home, Articles, People, Posts)
   views/            # ERB templates per controller
   javascript/       # Stimulus controllers
 lib/
@@ -44,8 +56,9 @@ config/
   routes.rb         # RESTful + SEO-optimized routes
   database.yml      # PostgreSQL config
 db/
-  schema.rb         # Full schema (~760 lines, 15 tables)
-  migrate/          # 21 migrations
+  schema.rb         # Full schema (~830 lines, 20 tables)
+  migrate/          # 25 migrations
+  seed_articles.rb  # Sample article data with images and JSON fields
 ```
 
 ## Key Models & Relationships
@@ -87,6 +100,8 @@ rails console                   # Rails console
 rails db:migrate                # Run pending migrations
 rails test                      # Run test suite
 bundle exec rake -T             # List all rake tasks
+docker compose up --build -d    # Build and start Docker
+docker compose down             # Stop Docker
 ```
 
 ## Testing
@@ -120,21 +135,34 @@ Self-describing docs also available at `GET /api/articles/docs`.
 |-------|------|-------------|
 | `id` | integer | Auto-generated primary key |
 | `title` | string | Article title |
+| `title_summary` | string | Short summary of the title |
 | `author` | string | Author name |
 | `sport` | string | Sport category (e.g. `"nfl"`, `"nba"`) |
 | `published_at` | date | Publication date (`YYYY-MM-DD`) |
 | `reviewed_at` | datetime | When feedback was last given (ISO 8601, auto-set by feedback endpoint) |
-| `main_person_slug` | string | Slug of the primary person |
+| `main_team_name` | string | Display name of the primary team |
+| `main_team_slug` | string | Slug of the primary team |
 | `main_person_name` | string | Display name of the primary person |
-| `names` | json | Array of name strings, e.g. `["Patrick Mahomes", "Travis Kelce"]` |
-| `disposition` | text | Article disposition/sentiment analysis |
+| `main_person_slug` | string | Slug of the primary person |
+| `teams_json` | json | Array of team objects (name, slug, role) |
+| `people_json` | json | Array of people objects (name, slug, position) |
+| `scores_json` | json | Score data (e.g. `{ "home": 34, "away": 20 }`) |
+| `records_json` | json | Record data (wins, losses) |
+| `key_stats_json` | json | Key statistics (label/value pairs) |
+| `quotes_json` | json | Notable quotes (speaker/text pairs) |
+| `context` | text | Article context and background |
 | `feedback` | text | Free-form feedback notes |
 | `article_good` | boolean | Whether the article is interesting/good |
 | `person_identified` | boolean | Whether the primary person was correctly identified |
 | `disposition_coherent` | boolean | Whether the disposition analysis is coherent |
 | `source` | string | Source identifier (e.g. `"news-bot"`, `"rss-feed"`) |
 | `source_url` | string | URL of the original article |
-| `source_data_json` | json | Arbitrary JSON payload from the source |
+| `source_id` | string | External source identifier |
+| `model` | string | LLM model used for processing |
+| `process` | string | Processing method (e.g. `"auto-summarize"`) |
+| `process_notes` | text | Notes about the processing pipeline |
+| `image_options` | json | Array of image URL strings |
+| `image_selected` | string | Selected image URL from image_options |
 | `created_at` | datetime | Record creation timestamp |
 | `updated_at` | datetime | Record last-updated timestamp |
 
@@ -176,16 +204,25 @@ Content-Type: application/json
 {
   "article": {
     "title": "Mahomes shines in Week 1",
+    "title_summary": "4 TDs as Chiefs cruise",
     "author": "News Bot",
     "sport": "nfl",
     "published_at": "2025-09-07",
     "main_person_slug": "patrick-mahomes",
     "main_person_name": "Patrick Mahomes",
-    "names": ["Patrick Mahomes", "Travis Kelce"],
-    "disposition": "Positive outlook on QB performance",
+    "main_team_name": "Kansas City Chiefs",
+    "main_team_slug": "kansas-city-chiefs",
+    "context": "Week 1 of the 2025 NFL season",
     "source": "news-bot",
     "source_url": "https://example.com/article/123",
-    "source_data_json": { "raw_score": 0.95 }
+    "source_id": "news-bot-001",
+    "model": "gpt-4o",
+    "process": "auto-summarize",
+    "teams_json": [{ "name": "Kansas City Chiefs", "slug": "kansas-city-chiefs", "role": "home" }],
+    "people_json": [{ "name": "Patrick Mahomes", "slug": "patrick-mahomes", "position": "QB" }],
+    "scores_json": { "home": 34, "away": 20 },
+    "key_stats_json": [{ "label": "Passing Yards", "value": "327" }],
+    "image_options": ["https://example.com/img1.jpg", "https://example.com/img2.jpg"]
   }
 }
 ```
@@ -213,6 +250,17 @@ Automatically sets `reviewed_at` to the current time.
 Response: `{ "article": { ... } }`
 Error (400): `{ "error": "Invalid field. Must be one of: article_good, person_identified, disposition_coherent" }`
 
+#### Select Image
+```
+PATCH /api/articles/:id/select_image
+Content-Type: application/json
+
+{ "image_url": "https://example.com/img1.jpg" }
+```
+Sets `image_selected` from the `image_options` array.
+Response: `{ "article": { ... } }`
+Error (400): `{ "error": "image_url is required" }`
+
 #### Delete Article
 ```
 DELETE /api/articles/:id
@@ -233,12 +281,10 @@ JSON API for managing people. CSRF is disabled for all API endpoints.
 | `first_name` | string | First name |
 | `last_name` | string | Last name |
 | `slug` | string | Unique slug identifier |
-| `celebrity_type` | string | Type of celebrity (e.g. `"athlete"`, `"coach"`) |
 | `player_slug` | string | Linked player slug (references Player model) |
 | `birthday` | date | Date of birth (`YYYY-MM-DD`) |
 | `twitter_account` | string | Twitter/X handle |
 | `twitter_hashtag` | string | Associated hashtag |
-| `last_image_used` | string | URL or identifier of last image used |
 | `created_at` | datetime | Record creation timestamp |
 | `updated_at` | datetime | Record last-updated timestamp |
 
@@ -251,7 +297,6 @@ GET /api/people
 Query params:
 - `page` (integer, default: 1) — Page number
 - `per_page` (integer, default: 25, max: 100) — Results per page
-- `celebrity_type` (string) — Filter by celebrity type
 - `player_slug` (string) — Filter by player slug
 
 Response:
@@ -281,7 +326,6 @@ Content-Type: application/json
     "first_name": "Patrick",
     "last_name": "Mahomes",
     "slug": "patrick-mahomes",
-    "celebrity_type": "athlete",
     "player_slug": "patrick-mahomes",
     "birthday": "1995-09-17",
     "twitter_account": "@PatrickMahomes",
@@ -319,6 +363,7 @@ JSON API for managing posts. CSRF is disabled for all API endpoints.
 |-------|------|-------------|
 | `id` | integer | Auto-generated primary key |
 | `title` | string | Post title |
+| `sport` | string | Sport category (e.g. `"nfl"`, `"nba"`) |
 | `stage` | string | Pipeline stage: `"draft"`, `"images"`, `"approved"`, `"posted"` |
 | `impressions` | integer | Number of impressions after posting |
 | `likes` | integer | Number of likes after posting |
