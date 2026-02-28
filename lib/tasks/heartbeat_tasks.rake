@@ -62,8 +62,12 @@ namespace :tasks do
               URI.open(og_image) { |io| file.write(io.read) }
             end
             
-            # Update article
-            article.update!(image_options: [filepath.to_s])
+            # Update article - save to both image_selected and image_options (array)
+            current_options = article.image_options || []
+            article.update!(
+              image_options: current_options + [filepath.to_s],
+              image_selected: filepath.to_s
+            )
             
             task.update!(
               status: "completed",
