@@ -16,9 +16,8 @@
 - **Database:** PostgreSQL in Docker
 
 ## Skills Created
-- `skills/code-review/` - Code review framework
-- `skills/sports-reader/` - Sports article analysis with multiple LLM support
-- `skills/sports-image-fetcher/` - Image fetching from multiple sources
+- `skills/article-extraction/` - Article data extraction with LLM prompts
+- `skills/sports-image-fetcher/` - Image fetching from og:image, Google, Wikimedia
 
 ## LLM Models Available
 - MiniMax M2.1, M2.5
@@ -27,64 +26,70 @@
 - Grok 3
 - Gemini 2.0 Flash
 
-## Article Ingestion Pipeline
+## Task System
 
-The boodle_scraper app now has a complete article ingestion system:
+The app now has a Task-based workflow for reliable processing:
+
+### Task States
+- **idle** → waiting to be picked up
+- **active** → currently processing
+- **completed** → finished successfully
+- **failed** → finished with error (max 3 retries)
+
+### Fields
+- `execute_count` - tracks retry attempts
+- `error_summary` - JSON array of errors from each attempt
+- `input_json` - params passed in
+- `output_json` - result data
+
+### Heartbeat
+- Runs every 3 minutes
+- Checks for stuck "active" tasks (>2 min) → resets to idle
+- Processes "idle" tasks
+- Skips tasks that exceeded MAX_RETRIES (3)
+
+### Usage
+```ruby
+ArticleIngestionService.ingest(url: "...")
+# Creates 3 tasks (one per model), processes sequentially
+```
+
+### UI
+- Task board: http://localhost:3000/tasks
+- Agile board view with columns: idle, active, pending, running, completed, failed
+
+## Article Ingestion Pipeline
 
 ### Workflow
 ```
-URL → web_fetch → LLM extracts (main_person_name, main_team_name, etc.)
-         ↓
-      Image search (multiple sources)
-         ↓
-      Save to Article model
+URL → Task created (idle) → Sub-agent picks up → LLM extraction → og:image download → Article saved → Task completed
 ```
 
 ### Article Fields
-- `title` - Actual headline
-- `title_summary` - 3-5 word identifier (consistent across LLMs)
-- `main_person_name` - Primary athlete/person
+- `title_summary` - **3-5 word identifier** (consistent across LLMs)
+- `main_person_name` - Primary athlete
 - `main_team_name` - Primary team
 - `teams_json` - All teams mentioned
 - `people_json` - All people mentioned
 - `key_stats_json` - Statistics
-- `context` - Background
 - `model` - LLM used (claude-sonnet, minimax-m2.1, grok-3)
-- `process` - Extraction process ("sports-reader")
-- `image_options` - Array of image paths (future)
-- `image_selected` - Primary image (future)
+- `image_options` - og:image path
 
-### Models Tested
-- Claude Sonnet - Concise, fast, lowest token usage
-- MiniMax M2.1 - More detailed, included specific names
-- Grok 3 - Verbose, fast but high token usage
+### title_summary Rules (IMPORTANT)
+- MUST be 3-5 words
+- MUST be consistent across all LLMs for the same article
+- Examples: "Jokic Dort confrontation", "Pistons beat Cavaliers"
 
-## Image Fetching Strategy
+## Image Fetching
 
-### Sources (in priority order)
+### Sources (priority order)
 1. **Article og:image** - Easiest, always matches the story
 2. **Google Images** - Best for action shots (via browser)
-3. **Wikimedia Commons** - Works for established players only
-4. **League sites** - NBA.com, NFL.com (URLs unpredictable)
-5. **Team sites** - Player galleries
+3. **Wikimedia Commons** - Free/legal, established players only
 
-### Notes
-- Wikimedia only works for established players (Jokic ✅, Aaron Glenn ✅)
-- Newer players (Duren) have no Wikimedia category
-- Google Images via browser works visually but getting direct URLs is tricky
-- Rate limits apply to Wikimedia
-
-## Today's Progress
-- Set up multi-LLM article ingestion
-- Created sports-reader skill for structured extraction
-- Created sports-image-fetcher skill for images
-- Tested with 6 articles across NFL/NBA
-- Article IDs 1-9 in database (plus seeded data)
-- Successfully created PRs to GitHub
-
-## API Keys to Remember
-- Brave Search: Configured (BSA_*)
+## API Keys
+- Brave Search: Configured
 - xAI (Grok): Configured
 - Anthropic (Claude): Configured
 - Google (Gemini): Configured
-- OpenAI: Invalid key needs fixing
+- OpenAI: Invalid key
