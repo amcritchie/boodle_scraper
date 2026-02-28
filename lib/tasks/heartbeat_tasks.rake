@@ -32,34 +32,57 @@ namespace :tasks do
       end
       
       puts "Processing task ##{task.id} (attempt #{task.execute_count + 1})..."
+      task.update!(status: "active", started_at: Time.current, execute_count: task.execute_count + 1)
       
-      case task.task_type
-      when "article_ingestion"
-        url = task.input_json["url"]
-        model = task.input_json["model"] || "claude-sonnet"
-        
-        begin
-          task.update!(
-            status: "active", 
-            started_at: Time.current,
-            execute_count: task.execute_count + 1
-          )
-          
-          # Use the service - it handles task lifecycle
+      begin
+        case task.task_type
+        when "article_ingestion"
+          url = task.input_json["url"]
+          model = task.input_json["model"] || "claude-sonnet"
           ArticleIngestionService.new(url: url, model: model, task_id: task.id).call
-          
           puts "Task ##{task.id} completed successfully"
-        rescue => e
-          task.add_error(e.message)
-          task.update!(
-            status: "failed", 
-            error: e.message, 
-            completed_at: Time.current
-          )
-          puts "Task ##{task.id} failed: #{e.message}"
+          
+        when "image_download"
+          article_id = task.input_json["article_id"]
+          url = task.input_json["url"]
+          
+          # Fetch URL and get og:image
+          html = Net::HTTP.get(URI(url))
+          og_image = html[/<meta property="og:image" content="([^"]*)"/, 1]
+          
+          if og_image
+            # Generate filename
+            article = Article.find(article_id)
+            slug = article.main_person_name&.gsub(/[^a-z0-9]/i, "-")&.downcase || "article"
+            filename = "#{slug}-#{article_id}.jpg"
+            filepath = Rails.root.join("uploads", filename)
+            
+            # Download
+            File.open(filepath, "wb") do |file|
+              URI.open(og_image) { |io| file.write(io.read) }
+            end
+            
+            # Update article
+            article.update!(image_options: [filepath.to_s])
+            
+            task.update!(
+              status: "completed",
+              output_json: { "saved_path" => filepath.to_s },
+              completed_at: Time.current
+            )
+            puts "Task ##{task.id} completed - downloaded #{filepath}"
+          else
+            task.update!(status: "failed", error: "No og:image found", completed_at: Time.current)
+          end
+          
+        else
+          puts "Unknown task type: #{task.task_type}"
+          task.update!(status: "failed", error: "Unknown task type", completed_at: Time.current)
         end
-      else
-        puts "Unknown task type: #{task.task_type}"
+      rescue => e
+        task.add_error(e.message)
+        task.update!(status: "failed", error: e.message, completed_at: Time.current)
+        puts "Task ##{task.id} failed: #{e.message}"
       end
     end
     
