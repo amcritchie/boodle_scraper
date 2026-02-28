@@ -2,11 +2,20 @@ class ArticleIngestionService
   require "net/http"
   require "json"
   require "digest"
+  require "open-uri"
 
-  # Model options: claude-sonnet, minimax-m2.1, grok-3, gemini-flash
+  MODELS = ["claude-sonnet", "minimax-m2.1", "grok-3"]
   DEFAULT_MODEL = "claude-sonnet"
 
-  def self.ingest(url:, model: DEFAULT_MODEL)
+  # Runs all 3 models sequentially
+  def self.ingest(url:)
+    MODELS.each do |model|
+      new(url: url, model: model).call
+    end
+  end
+
+  # Runs single model
+  def self.ingest_single(url:, model: DEFAULT_MODEL)
     new(url: url, model: model).call
   end
 
@@ -20,18 +29,17 @@ class ArticleIngestionService
     # 1. Fetch article content
     article_content = fetch_article(@url)
 
-    # 2. Extract structured data using LLM (via sub-agent)
+    # 2. Extract structured data using LLM
     @extracted_data = extract_with_llm(article_content)
 
-    # 3. Map to Article schema
-    article_attrs = map_to_article(@extracted_data, @url)
+    # 3. Download og:image
+    image_path = download_og_image(@url)
 
-    # 4. Check for existing article with same source_url
-    existing = Article.find_by(source_url: @url)
-    if existing
-      existing.update(article_attrs)
-      return existing
-    end
+    # 4. Map to Article schema
+    article_attrs = map_to_article(@extracted_data, @url).merge(
+      model: @model,
+      image_options: image_path ? [image_path] : []
+    )
 
     # 5. Save new article
     article = Article.create!(article_attrs)
@@ -51,12 +59,9 @@ class ArticleIngestionService
   end
 
   def extract_with_llm(content)
-    # Build extraction prompt matching Article schema
     prompt = build_extraction_prompt(content)
 
-    # Call LLM via API - returns JSON matching Article fields exactly
-    # This would integrate with the LLM API in production
-    # For now, returns structured hash that maps to Article
+    # Stubbed - returns simple patterns instead of calling LLM
     {
       "title_summary" => extract_summary(content),
       "sport" => extract_sport(content),
@@ -72,66 +77,39 @@ class ArticleIngestionService
 
   def build_extraction_prompt(content)
     <<~PROMPT
-      You are extracting structured data from a sports article for storage in a database.
-
-      Return ONLY a valid JSON object with these EXACT fields (no other text):
-      {
-        "title_summary": "2-3 sentence summary of the article",
-        "sport": "NFL, NBA, MLB, NCAAF, NCAAB, NHL, or other sport",
-        "teams_json": ["list of team names mentioned"],
-        "people_json": ["list of player/person names with relevant details"],
-        "key_stats_json": ["list of important statistics with numbers"],
-        "context": "1-2 sentence background/context about the article",
-        "angles_json": ["list of storyline angles"]
-      }
-
+      You are extracting structured data from a sports article.
+      Return ONLY valid JSON with these fields:
+      {"title_summary": "...", "sport": "...", "teams_json": [], "people_json": [], "key_stats_json": [], "context": "...", "angles_json": []}
       Article content (first 8000 chars):
       #{content[0..8000]}
     PROMPT
   end
 
   def extract_summary(content)
-    # Simple extraction - in production, this comes from LLM
-    content[0..200].split("\n").first || "Summary extracted from article"
+    content[0..200].split("\n").first || "Summary"
   end
 
   def extract_sport(content)
     sport_keywords = {
-      "NFL" => ["nfl", "football", "quarterback", "touchdown", "yard dash"],
-      "NBA" => ["nba", "basketball", "points", "rebounds", "assist"],
-      "MLB" => ["mlb", "baseball", "home run", "innings", "pitcher"],
-      "NCAAB" => ["college basketball", "ncaab", "big ten", "acc", "sec"],
-      "NCAAF" => ["college football", "ncaaf", "draft", "combine"]
+      "NFL" => ["nfl", "football", "quarterback", "touchdown"],
+      "NBA" => ["nba", "basketball", "points", "rebounds"],
+      "MLB" => ["mlb", "baseball", "home run", "pitcher"],
     }
-
     content_lower = content.downcase
-    sport_keywords.each do |sport, keywords|
-      return sport if keywords.any? { |k| content_lower.include?(k) }
-    end
+    sport_keywords.each { |sport, keywords| return sport if keywords.any? { |k| content_lower.include?(k) } }
     "Sports"
   end
 
   def extract_teams(content)
-    # Simple team extraction - in production, use NER or LLM
-    teams = []
-    # Common team patterns
-    team_patterns = [
-      /([A-Z][a-z]+(?: [A-Z][a-z]+)*) (?:vs\.?|beat|defeated|over)/,
-      /([A-Z][a-z]+(?: [A-Z][a-z]+)*) (?:won|loss|record)/
-    ]
-    teams.uniq
+    []
   end
 
   def extract_people(content)
-    people = []
-    # Extract names - simple pattern matching
     content.scan(/([A-Z][a-z]+ [A-Z][a-z]+)/).flatten[0..20]
   end
 
   def extract_stats(content)
-    stats = []
-    # Extract numbers with context
-    content.scan(/\d+(?:\.\d+)?%|\d+(?:\.\d+)? (?:yards|points|seconds|feet|inches)/).first(10)
+    content.scan(/\d+(?:\.\d+)?%|\d+(?:\.\d+)? (?:yards|points|seconds)/).first(10)
   end
 
   def extract_context(content)
@@ -144,6 +122,35 @@ class ArticleIngestionService
 
   def generate_source_id(url)
     Digest::SHA256.hexdigest(url)[0..16]
+  end
+
+  def download_og_image(url)
+    begin
+      html = fetch_article(url)
+      og_image = html[/<meta property="og:image" content="([^"]*)"/, 1]
+      return nil unless og_image
+
+      # Generate filename from URL
+      filename = slugify(url) + "-og.jpg"
+      filepath = Rails.root.join("uploads", filename)
+
+      # Download image
+      File.open(filepath, "wb") do |file|
+        URI.open(og_image) { |io| file.write(io.read) }
+      end
+
+      filepath.to_s
+    rescue => e
+      Rails.logger.error "Failed to download og:image: #{e.message}"
+      nil
+    end
+  end
+
+  def slugify(url)
+    url.gsub(/https?:\/\//, "")
+       .gsub(/[^a-z0-9]/, "-")
+       .gsub(/-+/, "-")
+       .chomp("-")[0..50]
   end
 
   def map_to_article(data, url)
