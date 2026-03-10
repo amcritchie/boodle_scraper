@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <circle cx="60" cy="60" r="60" fill="url(#mack-bg)"/>
+  <defs>
+    <linearGradient id="mack-bg" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+  </defs>
+  <!-- Pen body -->
+  <g transform="translate(60,60) rotate(-45)">
+    <rect x="-6" y="-30" width="12" height="44" rx="2" fill="white" opacity="0.9"/>
+    <polygon points="-6,14 6,14 0,26" fill="white" opacity="0.9"/>
+    <rect x="-6" y="-30" width="12" height="8" rx="2" fill="white" opacity="0.6"/>
+    <!-- Pen line detail -->
+    <line x1="0" y1="-20" x2="0" y2="10" stroke="#3B82F6" stroke-width="1.5" opacity="0.4"/>
+  </g>
+  <!-- Writing lines -->
+  <g opacity="0.5">
+    <line x1="68" y1="82" x2="92" y2="82" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    <line x1="72" y1="89" x2="88" y2="89" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    <line x1="76" y1="96" x2="92" y2="96" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>

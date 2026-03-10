@@ -1,0 +1,20 @@
+<div class="border-b theme-border-primary mb-6">
+  <nav class="flex space-x-1 -mb-px">
+    <% tabs = [
+      { label: "Dashboard", path: agents_dashboard_path },
+      { label: "Agents", path: agents_dashboard_list_path },
+      { label: "Tasks", path: agents_dashboard_tasks_path },
+      { label: "Activity", path: agents_dashboard_activity_path },
+      { label: "Skills", path: agents_dashboard_skills_path },
+      { label: "Usage", path: agents_dashboard_usage_path }
+    ] %>
+    <% tabs.each do |tab| %>
+      <% active = request.path == tab[:path] %>
+      <a href="<%= tab[:path] %>"
+         class="px-4 py-3 text-sm font-medium border-b-2 transition-colors
+                <%= active ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400' : 'border-transparent theme-text-secondary hover:theme-text-primary hover:border-gray-300' %>">
+        <%= tab[:label] %>
+      </a>
+    <% end %>
+  </nav>
+</div>

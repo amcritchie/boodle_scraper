@@ -1,0 +1,138 @@
+<%
+  stages = [
+    { key: "new",         label: "New",         color: "blue"   },
+    { key: "queued",      label: "Queued",       color: "yellow" },
+    { key: "in_progress", label: "In Progress",  color: "purple" },
+    { key: "done",        label: "Done",         color: "green"  },
+    { key: "failed",      label: "Failed",       color: "red"    }
+  ]
+  total_tasks = @tasks_by_stage.values.sum(&:length)
+%>
+
+<div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
+     data-controller="kanban-board agent-task-filter"
+     data-kanban-board-transition-url-value="/api/agents/tasks/:id/transition"
+     data-kanban-board-update-url-value="/api/agents/tasks/:id"
+     data-kanban-board-task-detail-url-value="/agents/tasks/:id">
+
+  <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-t-xl p-6 shadow-lg">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-white">Tasks</h1>
+        <p class="text-emerald-100 text-sm mt-1"><%= total_tasks %> tasks</p>
+      </div>
+      <a href="<%= agents_dashboard_tasks_new_path %>" class="bg-white text-emerald-600 hover:bg-emerald-50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow">
+        + New Task
+      </a>
+    </div>
+  </div>
+
+  <% if flash[:notice] %>
+    <div class="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-200 px-4 py-3" role="alert">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
+
+  <div class="theme-bg-primary shadow-lg rounded-b-xl border theme-border-primary">
+    <%= render "agents_dashboard/subnav" %>
+
+    <!-- Agent Filter -->
+    <div class="px-4 pb-4 flex flex-wrap gap-3">
+      <select data-agent-task-filter-target="agentFilter" data-action="change->agent-task-filter#filter" class="rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-1.5 text-sm">
+        <option value="">All Agents</option>
+        <option value="unassigned">Unassigned</option>
+        <% @agents.each do |agent| %>
+          <option value="<%= agent.slug %>" <%= "selected" if params[:agent] == agent.slug %>><%= agent.name %></option>
+        <% end %>
+      </select>
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="overflow-x-auto px-4 pb-6" data-kanban-board-target="board">
+      <div class="flex gap-4" style="min-width: max-content;">
+        <% stages.each do |stage| %>
+          <% tasks = @tasks_by_stage[stage[:key]] || [] %>
+          <div class="w-64 flex-shrink-0" data-kanban-board-target="column" data-stage="<%= stage[:key] %>">
+            <!-- Column Header -->
+            <div class="flex items-center justify-between mb-3 px-1">
+              <h3 class="text-sm font-semibold theme-text-primary"><%= stage[:label] %></h3>
+              <span class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-xs font-bold rounded-full
+                <% case stage[:color]
+                   when "blue" %>bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200<%
+                   when "yellow" %>bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200<%
+                   when "purple" %>bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200<%
+                   when "green" %>bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200<%
+                   when "red" %>bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200<%
+                   end %>"
+                data-kanban-board-target="columnCount" data-stage="<%= stage[:key] %>">
+                <%= tasks.length %>
+              </span>
+            </div>
+
+            <!-- Drop Zone -->
+            <div class="min-h-[200px] rounded-lg border-2 border-dashed theme-border-primary p-2 space-y-2 transition-colors"
+                 data-kanban-board-target="dropZone"
+                 data-stage="<%= stage[:key] %>"
+                 data-action="dragover->kanban-board#dragOver dragenter->kanban-board#dragEnter dragleave->kanban-board#dragLeave drop->kanban-board#drop">
+
+              <% tasks.each do |task| %>
+                <div class="rounded-lg border theme-border-primary theme-bg-primary p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-all"
+                     draggable="true"
+                     data-kanban-board-target="card"
+                     data-task-id="<%= task.id %>"
+                     data-stage="<%= task.stage %>"
+                     data-agent="<%= task.agent_slug || 'unassigned' %>"
+                     data-action="dragstart->kanban-board#dragStart dragend->kanban-board#dragEnd click->kanban-board#cardClick">
+
+                  <!-- Priority Badge + Title -->
+                  <div class="flex items-start gap-2 mb-2">
+                    <% if task.priority >= 2 %>
+                      <span class="inline-flex px-1.5 py-0.5 text-[10px] font-bold rounded bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 flex-shrink-0">URG</span>
+                    <% elsif task.priority == 1 %>
+                      <span class="inline-flex px-1.5 py-0.5 text-[10px] font-bold rounded bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200 flex-shrink-0">HIGH</span>
+                    <% end %>
+                    <p class="text-sm font-medium theme-text-primary leading-snug line-clamp-2"><%= task.title %></p>
+                  </div>
+
+                  <!-- Agent -->
+                  <div class="flex items-center gap-1.5 mb-1">
+                    <% if task.agent_slug && (agent = @agents_by_slug[task.agent_slug]) %>
+                      <% if agent.avatar_url.present? %>
+                        <img src="<%= agent.avatar_url %>" class="w-5 h-5 rounded-full" alt="<%= agent.name %>">
+                      <% else %>
+                        <div class="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center flex-shrink-0">
+                          <span class="text-emerald-700 dark:text-emerald-300 font-bold text-[9px]"><%= agent.name[0..1].upcase %></span>
+                        </div>
+                      <% end %>
+                      <span class="text-xs theme-text-secondary"><%= agent.name %></span>
+                    <% else %>
+                      <span class="text-xs theme-text-secondary">Unassigned</span>
+                    <% end %>
+                  </div>
+
+                  <!-- Date -->
+                  <p class="text-[11px] theme-text-secondary">
+                    <%= task.created_at.strftime("%b %d, %H:%M") %>
+                  </p>
+
+                  <% if task.stage == "failed" && task.error_message.present? %>
+                    <p class="mt-2 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 rounded p-1.5 line-clamp-2"><%= task.error_message %></p>
+                  <% end %>
+                </div>
+              <% end %>
+
+              <% if tasks.empty? %>
+                <div class="flex items-center justify-center h-24 text-xs theme-text-secondary">
+                  Drop tasks here
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div data-kanban-board-target="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+</div>

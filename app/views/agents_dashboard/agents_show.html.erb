@@ -1,0 +1,128 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-t-xl p-6 shadow-lg">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center space-x-4">
+        <% if @agent.avatar_url.present? %>
+          <img src="<%= @agent.avatar_url %>" class="w-14 h-14 rounded-full border-2 border-white" alt="<%= @agent.name %>">
+        <% else %>
+          <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center">
+            <span class="text-white font-bold text-xl"><%= @agent.name[0..1].upcase %></span>
+          </div>
+        <% end %>
+        <div>
+          <h1 class="text-2xl font-bold text-white"><%= @agent.name %></h1>
+          <p class="text-emerald-100 text-sm"><%= @agent.agent_type %> &middot; <%= @agent.status %></p>
+        </div>
+      </div>
+      <a href="<%= agents_dashboard_edit_path(@agent.slug) %>" class="bg-white text-emerald-600 hover:bg-emerald-50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow">
+        Edit
+      </a>
+    </div>
+  </div>
+
+  <div class="theme-bg-primary shadow-lg rounded-b-xl p-6 border border-t-0 theme-border-primary">
+    <%= render "agents_dashboard/subnav" %>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Main Info -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Description -->
+        <% if @agent.description.present? %>
+          <div>
+            <h3 class="text-sm font-medium theme-text-secondary uppercase mb-2">Description</h3>
+            <p class="text-sm theme-text-primary"><%= @agent.description %></p>
+          </div>
+        <% end %>
+
+        <!-- Config -->
+        <% if @agent.config.present? && @agent.config.any? %>
+          <div>
+            <h3 class="text-sm font-medium theme-text-secondary uppercase mb-2">Configuration</h3>
+            <pre class="text-xs theme-bg-tertiary rounded-lg p-3 overflow-x-auto theme-text-primary"><%= JSON.pretty_generate(@agent.config) %></pre>
+          </div>
+        <% end %>
+
+        <!-- Skills -->
+        <div>
+          <h3 class="text-sm font-medium theme-text-secondary uppercase mb-2">Skills (<%= @skills.count %>)</h3>
+          <div class="flex flex-wrap gap-2">
+            <% @skills.each do |skill| %>
+              <span class="inline-flex px-3 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"><%= skill.name %></span>
+            <% end %>
+            <% if @skills.empty? %>
+              <p class="text-sm theme-text-secondary">No skills assigned.</p>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Recent Tasks -->
+        <div>
+          <h3 class="text-sm font-medium theme-text-secondary uppercase mb-2">Recent Tasks</h3>
+          <div class="space-y-2">
+            <% @tasks.each do |task| %>
+              <div class="flex items-center justify-between theme-bg-tertiary rounded-lg p-3">
+                <div>
+                  <a href="<%= agents_dashboard_task_path(task) %>" class="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:underline"><%= task.title %></a>
+                  <p class="text-xs theme-text-secondary"><%= task.priority_label %> priority</p>
+                </div>
+                <% stage_class = case task.stage
+                   when "new" then "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                   when "queued" then "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                   when "in_progress" then "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                   when "done" then "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                   when "failed" then "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                   else "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                   end %>
+                <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full <%= stage_class %>"><%= task.stage %></span>
+              </div>
+            <% end %>
+            <% if @tasks.empty? %>
+              <p class="text-sm theme-text-secondary">No tasks yet.</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Usage Summary -->
+        <div>
+          <h3 class="text-sm font-medium theme-text-secondary uppercase mb-2">Usage (Last 7 Days)</h3>
+          <div class="space-y-2">
+            <% @usage_summary.each do |usage| %>
+              <div class="theme-bg-tertiary rounded-lg p-3">
+                <div class="flex justify-between text-xs">
+                  <span class="theme-text-secondary"><%= usage.period_date.strftime("%b %d") %></span>
+                  <span class="theme-text-primary font-medium">$<%= "%.4f" % usage.cost %></span>
+                </div>
+                <div class="flex justify-between text-xs mt-1">
+                  <span class="theme-text-secondary"><%= usage.api_calls %> calls</span>
+                  <span class="theme-text-secondary"><%= number_with_delimiter(usage.total_tokens) %> tokens</span>
+                </div>
+              </div>
+            <% end %>
+            <% if @usage_summary.empty? %>
+              <p class="text-sm theme-text-secondary">No usage data.</p>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div>
+          <h3 class="text-sm font-medium theme-text-secondary uppercase mb-2">Recent Activity</h3>
+          <div class="space-y-2">
+            <% @activities.each do |activity| %>
+              <div class="text-sm">
+                <p class="theme-text-primary"><%= activity.description %></p>
+                <p class="text-xs theme-text-secondary"><%= time_ago_in_words(activity.created_at) %> ago</p>
+              </div>
+            <% end %>
+            <% if @activities.empty? %>
+              <p class="text-sm theme-text-secondary">No recent activity.</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

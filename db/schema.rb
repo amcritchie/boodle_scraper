@@ -10,9 +10,98 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_28_045931) do
+ActiveRecord::Schema[7.0].define(version: 2026_03_10_000006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "agent_activities", force: :cascade do |t|
+    t.string "agent_slug", null: false
+    t.string "activity_type", null: false
+    t.text "description"
+    t.string "task_slug"
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["activity_type"], name: "index_agent_activities_on_activity_type"
+    t.index ["agent_slug"], name: "index_agent_activities_on_agent_slug"
+  end
+
+  create_table "agent_skill_assignments", force: :cascade do |t|
+    t.string "agent_slug", null: false
+    t.string "skill_slug", null: false
+    t.integer "proficiency", default: 100
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_slug", "skill_slug"], name: "idx_agent_skill_unique", unique: true
+    t.index ["agent_slug"], name: "index_agent_skill_assignments_on_agent_slug"
+    t.index ["skill_slug"], name: "index_agent_skill_assignments_on_skill_slug"
+  end
+
+  create_table "agent_skills", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.string "category"
+    t.text "description"
+    t.jsonb "config", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_agent_skills_on_slug", unique: true
+  end
+
+  create_table "agent_tasks", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "slug", null: false
+    t.text "description"
+    t.string "stage", default: "new"
+    t.integer "priority", default: 0
+    t.string "agent_slug"
+    t.jsonb "required_skills", default: []
+    t.jsonb "result", default: {}
+    t.jsonb "metadata", default: {}
+    t.datetime "queued_at"
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.datetime "failed_at"
+    t.string "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_slug"], name: "index_agent_tasks_on_agent_slug"
+    t.index ["slug"], name: "index_agent_tasks_on_slug", unique: true
+    t.index ["stage"], name: "index_agent_tasks_on_stage"
+  end
+
+  create_table "agent_usages", force: :cascade do |t|
+    t.string "agent_slug", null: false
+    t.date "period_date", null: false
+    t.string "period_type", default: "daily"
+    t.string "model"
+    t.integer "tokens_in", default: 0
+    t.integer "tokens_out", default: 0
+    t.integer "api_calls", default: 0
+    t.decimal "cost", precision: 10, scale: 4, default: "0.0"
+    t.integer "tasks_completed", default: 0
+    t.integer "tasks_failed", default: 0
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_slug", "period_date"], name: "index_agent_usages_on_agent_slug_and_period_date", unique: true
+    t.index ["agent_slug"], name: "index_agent_usages_on_agent_slug"
+  end
+
+  create_table "agents", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.string "status", default: "active"
+    t.text "description"
+    t.string "avatar_url"
+    t.string "agent_type"
+    t.jsonb "config", default: {}
+    t.jsonb "metadata", default: {}
+    t.datetime "last_active_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_agents_on_slug", unique: true
+  end
 
   create_table "articles", force: :cascade do |t|
     t.string "title"

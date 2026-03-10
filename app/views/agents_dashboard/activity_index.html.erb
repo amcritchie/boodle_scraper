@@ -1,0 +1,70 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-t-xl p-6 shadow-lg">
+    <h1 class="text-2xl font-bold text-white">Activity Feed</h1>
+    <p class="text-emerald-100 text-sm mt-1">Agent activity timeline</p>
+  </div>
+
+  <div class="theme-bg-primary shadow-lg rounded-b-xl p-6 border border-t-0 theme-border-primary">
+    <%= render "agents_dashboard/subnav" %>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-3 mb-6">
+      <form method="get" action="<%= agents_dashboard_activity_path %>" class="flex gap-3">
+        <select name="agent" class="rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-1.5 text-sm">
+          <option value="">All Agents</option>
+          <% @agents.each do |agent| %>
+            <option value="<%= agent.slug %>" <%= "selected" if params[:agent] == agent.slug %>><%= agent.name %></option>
+          <% end %>
+        </select>
+
+        <select name="type" class="rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-1.5 text-sm">
+          <option value="">All Types</option>
+          <% %w[task_started task_completed task_failed skill_used error status_change info].each do |type| %>
+            <option value="<%= type %>" <%= "selected" if params[:type] == type %>><%= type.titleize %></option>
+          <% end %>
+        </select>
+
+        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">Filter</button>
+      </form>
+    </div>
+
+    <!-- Timeline -->
+    <div class="space-y-4">
+      <% @activities.each do |activity| %>
+        <div class="flex items-start space-x-4 theme-bg-tertiary rounded-lg p-4">
+          <% dot_class = case activity.activity_type
+             when "task_completed" then "bg-green-500"
+             when "task_failed" then "bg-red-500"
+             when "task_started" then "bg-purple-500"
+             when "skill_used" then "bg-blue-500"
+             when "error" then "bg-red-500"
+             when "status_change" then "bg-yellow-500"
+             else "bg-gray-400"
+             end %>
+          <div class="w-3 h-3 rounded-full mt-1 flex-shrink-0 <%= dot_class %>"></div>
+          <div class="min-w-0 flex-1">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-sm font-medium theme-text-primary"><%= activity.description %></p>
+                <div class="flex items-center space-x-2 mt-1">
+                  <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400"><%= activity.agent_slug %></span>
+                  <span class="text-xs theme-text-secondary">&middot;</span>
+                  <span class="inline-flex px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"><%= activity.activity_type.titleize %></span>
+                  <% if activity.task_slug.present? %>
+                    <span class="text-xs theme-text-secondary">&middot;</span>
+                    <span class="text-xs theme-text-secondary"><%= activity.task_slug %></span>
+                  <% end %>
+                </div>
+              </div>
+              <span class="text-xs theme-text-secondary whitespace-nowrap ml-4"><%= time_ago_in_words(activity.created_at) %> ago</span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @activities.empty? %>
+        <p class="text-center theme-text-secondary text-sm py-8">No activity recorded yet.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

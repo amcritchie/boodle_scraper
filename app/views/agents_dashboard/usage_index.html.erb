@@ -1,0 +1,92 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-t-xl p-6 shadow-lg">
+    <h1 class="text-2xl font-bold text-white">Usage</h1>
+    <p class="text-emerald-100 text-sm mt-1">Agent usage and cost tracking</p>
+  </div>
+
+  <div class="theme-bg-primary shadow-lg rounded-b-xl p-6 border border-t-0 theme-border-primary">
+    <%= render "agents_dashboard/subnav" %>
+
+    <!-- Agent Filter -->
+    <div class="mb-6">
+      <form method="get" action="<%= agents_dashboard_usage_path %>" class="flex gap-3">
+        <select name="agent" class="rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-1.5 text-sm">
+          <option value="">All Agents</option>
+          <% @agents.each do |agent| %>
+            <option value="<%= agent.slug %>" <%= "selected" if params[:agent] == agent.slug %>><%= agent.name %></option>
+          <% end %>
+        </select>
+        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">Filter</button>
+      </form>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <% total_cost = @usages.sum(:cost) %>
+      <% total_calls = @usages.sum(:api_calls) %>
+      <% total_tokens_val = @usages.sum(:tokens_in) + @usages.sum(:tokens_out) %>
+      <% total_tasks_done = @usages.sum(:tasks_completed) %>
+
+      <div class="theme-bg-tertiary rounded-lg p-4">
+        <p class="text-xs font-medium theme-text-secondary uppercase">Total Cost</p>
+        <p class="text-2xl font-bold theme-text-primary mt-1">$<%= "%.2f" % total_cost %></p>
+      </div>
+      <div class="theme-bg-tertiary rounded-lg p-4">
+        <p class="text-xs font-medium theme-text-secondary uppercase">API Calls</p>
+        <p class="text-2xl font-bold theme-text-primary mt-1"><%= number_with_delimiter(total_calls) %></p>
+      </div>
+      <div class="theme-bg-tertiary rounded-lg p-4">
+        <p class="text-xs font-medium theme-text-secondary uppercase">Total Tokens</p>
+        <p class="text-2xl font-bold theme-text-primary mt-1"><%= number_with_delimiter(total_tokens_val) %></p>
+      </div>
+      <div class="theme-bg-tertiary rounded-lg p-4">
+        <p class="text-xs font-medium theme-text-secondary uppercase">Tasks Done</p>
+        <p class="text-2xl font-bold theme-text-primary mt-1"><%= total_tasks_done %></p>
+      </div>
+    </div>
+
+    <!-- Usage Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y theme-border-primary">
+        <thead class="theme-bg-tertiary">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium theme-text-secondary uppercase tracking-wider">Agent</th>
+            <th class="px-4 py-3 text-left text-xs font-medium theme-text-secondary uppercase tracking-wider">Date</th>
+            <th class="px-4 py-3 text-left text-xs font-medium theme-text-secondary uppercase tracking-wider">Model</th>
+            <th class="px-4 py-3 text-right text-xs font-medium theme-text-secondary uppercase tracking-wider">API Calls</th>
+            <th class="px-4 py-3 text-right text-xs font-medium theme-text-secondary uppercase tracking-wider">Tokens In</th>
+            <th class="px-4 py-3 text-right text-xs font-medium theme-text-secondary uppercase tracking-wider">Tokens Out</th>
+            <th class="px-4 py-3 text-right text-xs font-medium theme-text-secondary uppercase tracking-wider">Cost</th>
+            <th class="px-4 py-3 text-center text-xs font-medium theme-text-secondary uppercase tracking-wider">Tasks Done</th>
+            <th class="px-4 py-3 text-center text-xs font-medium theme-text-secondary uppercase tracking-wider">Success Rate</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y theme-border-primary">
+          <% @usages.each do |usage| %>
+            <tr class="hover:theme-bg-tertiary transition-colors">
+              <td class="px-4 py-3 text-sm font-medium theme-text-primary"><%= usage.agent_slug %></td>
+              <td class="px-4 py-3 text-sm theme-text-secondary"><%= usage.period_date.strftime("%b %d, %Y") %></td>
+              <td class="px-4 py-3 text-sm theme-text-secondary"><%= usage.model %></td>
+              <td class="px-4 py-3 text-sm theme-text-secondary text-right"><%= usage.api_calls %></td>
+              <td class="px-4 py-3 text-sm theme-text-secondary text-right"><%= number_with_delimiter(usage.tokens_in) %></td>
+              <td class="px-4 py-3 text-sm theme-text-secondary text-right"><%= number_with_delimiter(usage.tokens_out) %></td>
+              <td class="px-4 py-3 text-sm theme-text-primary text-right font-medium">$<%= "%.4f" % usage.cost %></td>
+              <td class="px-4 py-3 text-sm theme-text-secondary text-center"><%= usage.tasks_completed %></td>
+              <td class="px-4 py-3 text-sm text-center">
+                <% rate = usage.success_rate %>
+                <span class="<%= rate >= 80 ? 'text-green-600 dark:text-green-400' : rate >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400' %>"><%= rate %>%</span>
+              </td>
+            </tr>
+          <% end %>
+          <% if @usages.empty? %>
+            <tr>
+              <td colspan="9" class="px-4 py-8 text-center theme-text-secondary text-sm">
+                No usage data recorded yet.
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

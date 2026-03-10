@@ -1,0 +1,50 @@
+<%= form_with(model: task, url: task.new_record? ? agents_dashboard_tasks_create_path : agents_dashboard_task_update_path(task), method: task.new_record? ? :post : :patch, local: true, class: "space-y-6") do |f| %>
+  <% if task.errors.any? %>
+    <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded">
+      <h3 class="font-medium"><%= pluralize(task.errors.count, "error") %> prohibited this task from being saved:</h3>
+      <ul class="mt-2 list-disc list-inside text-sm">
+        <% task.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="md:col-span-2">
+      <%= f.label :title, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :title, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div>
+      <%= f.label :stage, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.select :stage, options_for_select([["New", "new"], ["Queued", "queued"], ["In Progress", "in_progress"], ["Done", "done"], ["Failed", "failed"]], task.stage), {}, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div>
+      <%= f.label :priority, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.select :priority, options_for_select([["Normal", 0], ["High", 1], ["Urgent", 2]], task.priority), {}, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div>
+      <%= f.label :agent_slug, "Agent", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.select :agent_slug, options_for_select(@agents.map { |a| [a.name, a.slug] }, task.agent_slug), { include_blank: "Unassigned (shared queue)" }, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div class="md:col-span-2">
+      <%= f.label :description, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :description, rows: 4, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div class="md:col-span-2">
+      <%= f.label :required_skills, "Required Skills (JSON array)", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :required_skills, value: task.required_skills.present? ? JSON.pretty_generate(task.required_skills) : "[]", rows: 2, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+      <p class="mt-1 text-xs theme-text-secondary">e.g. ["article-summarization", "web-scraping"]</p>
+    </div>
+  </div>
+
+  <div class="flex items-center space-x-4 pt-4">
+    <%= f.submit class: "bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg text-sm font-semibold transition-colors shadow cursor-pointer" %>
+    <a href="<%= agents_dashboard_tasks_path %>" class="theme-text-secondary hover:theme-text-primary text-sm font-medium">Cancel</a>
+  </div>
+<% end %>

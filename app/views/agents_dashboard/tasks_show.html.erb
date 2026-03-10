@@ -1,0 +1,127 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8" data-controller="task-stage-transition" data-task-stage-transition-task-id-value="<%= @task.id %>" data-task-stage-transition-current-stage-value="<%= @task.stage %>">
+  <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-t-xl p-6 shadow-lg">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-white"><%= @task.title %></h1>
+        <p class="text-emerald-100 text-sm mt-1"><%= @task.slug %></p>
+      </div>
+      <a href="<%= agents_dashboard_task_edit_path(@task) %>" class="bg-white text-emerald-600 hover:bg-emerald-50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow">
+        Edit
+      </a>
+    </div>
+  </div>
+
+  <div class="theme-bg-primary shadow-lg rounded-b-xl p-6 border border-t-0 theme-border-primary">
+    <%= render "agents_dashboard/subnav" %>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Main Content -->
+      <div class="md:col-span-2 space-y-6">
+        <% if @task.description.present? %>
+          <div>
+            <h3 class="text-sm font-medium theme-text-secondary uppercase mb-2">Description</h3>
+            <p class="text-sm theme-text-primary"><%= @task.description %></p>
+          </div>
+        <% end %>
+
+        <% if @task.result.present? && @task.result.any? %>
+          <div>
+            <h3 class="text-sm font-medium theme-text-secondary uppercase mb-2">Result</h3>
+            <pre class="text-xs theme-bg-tertiary rounded-lg p-3 overflow-x-auto theme-text-primary"><%= JSON.pretty_generate(@task.result) %></pre>
+          </div>
+        <% end %>
+
+        <% if @task.error_message.present? %>
+          <div>
+            <h3 class="text-sm font-medium theme-text-secondary uppercase mb-2">Error</h3>
+            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+              <p class="text-sm text-red-700 dark:text-red-300"><%= @task.error_message %></p>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Stage Transition Buttons -->
+        <div>
+          <h3 class="text-sm font-medium theme-text-secondary uppercase mb-2">Transitions</h3>
+          <div class="flex flex-wrap gap-2">
+            <% if @task.stage == "new" %>
+              <button data-action="click->task-stage-transition#transition" data-transition="queue" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Queue</button>
+            <% end %>
+            <% if %w[new queued].include?(@task.stage) %>
+              <button data-action="click->task-stage-transition#transition" data-transition="start" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Start</button>
+            <% end %>
+            <% if @task.stage == "in_progress" %>
+              <button data-action="click->task-stage-transition#transition" data-transition="complete" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Complete</button>
+              <button data-action="click->task-stage-transition#transition" data-transition="fail" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Fail</button>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-4">
+        <div class="theme-bg-tertiary rounded-lg p-4 space-y-3">
+          <div>
+            <p class="text-xs font-medium theme-text-secondary uppercase">Stage</p>
+            <% stage_class = case @task.stage
+               when "new" then "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+               when "queued" then "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+               when "in_progress" then "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+               when "done" then "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+               when "failed" then "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+               else "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+               end %>
+            <span data-task-stage-transition-target="stageLabel" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full mt-1 <%= stage_class %>"><%= @task.stage %></span>
+          </div>
+          <div>
+            <p class="text-xs font-medium theme-text-secondary uppercase">Priority</p>
+            <p class="text-sm theme-text-primary mt-1"><%= @task.priority_label %></p>
+          </div>
+          <div>
+            <p class="text-xs font-medium theme-text-secondary uppercase">Agent</p>
+            <p class="text-sm theme-text-primary mt-1"><%= @task.agent_slug || "Unassigned" %></p>
+          </div>
+          <div>
+            <p class="text-xs font-medium theme-text-secondary uppercase">Created</p>
+            <p class="text-sm theme-text-primary mt-1"><%= @task.created_at.strftime("%b %d, %Y %H:%M") %></p>
+          </div>
+          <% if @task.queued_at %>
+            <div>
+              <p class="text-xs font-medium theme-text-secondary uppercase">Queued</p>
+              <p class="text-sm theme-text-primary mt-1"><%= @task.queued_at.strftime("%b %d, %H:%M") %></p>
+            </div>
+          <% end %>
+          <% if @task.started_at %>
+            <div>
+              <p class="text-xs font-medium theme-text-secondary uppercase">Started</p>
+              <p class="text-sm theme-text-primary mt-1"><%= @task.started_at.strftime("%b %d, %H:%M") %></p>
+            </div>
+          <% end %>
+          <% if @task.completed_at %>
+            <div>
+              <p class="text-xs font-medium theme-text-secondary uppercase">Completed</p>
+              <p class="text-sm theme-text-primary mt-1"><%= @task.completed_at.strftime("%b %d, %H:%M") %></p>
+            </div>
+          <% end %>
+          <% if @task.failed_at %>
+            <div>
+              <p class="text-xs font-medium theme-text-secondary uppercase">Failed</p>
+              <p class="text-sm theme-text-primary mt-1"><%= @task.failed_at.strftime("%b %d, %H:%M") %></p>
+            </div>
+          <% end %>
+        </div>
+
+        <% if @task.required_skills.present? && @task.required_skills.any? %>
+          <div>
+            <p class="text-xs font-medium theme-text-secondary uppercase mb-2">Required Skills</p>
+            <div class="flex flex-wrap gap-1">
+              <% @task.required_skills.each do |skill_slug| %>
+                <span class="inline-flex px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"><%= skill_slug %></span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -43,11 +43,11 @@ Requires a `.env` file with `SPORTRADAR_API_KEY`, `POSTGRES_USERNAME`, `POSTGRES
 
 ```
 app/
-  models/           # 20 models (Game, Team, Player, Matchup, Season, etc.)
+  models/           # 26 models (Game, Team, Player, Matchup, Season, Agent, AgentTask, etc.)
   models/concerns/  # 8 concerns (PffConcern, PredictionConcern, ScoringConcern, etc.)
-  controllers/      # 10 controllers (Games, Teams, Players, Matchups, Rankings, Predictions, Home, Articles, People, Posts)
+  controllers/      # 11 controllers (Games, Teams, Players, Matchups, Rankings, Predictions, Home, Articles, People, Posts, AgentsDashboard)
   views/            # ERB templates per controller
-  javascript/       # Stimulus controllers
+  javascript/       # Stimulus controllers (theme, kanban-board, agent-task-filter, etc.)
 lib/
   tasks/            # 14 rake tasks — numbered 1-6 for sequential data pipeline
   pff/              # PFF CSV data files (gitignored)
@@ -56,9 +56,10 @@ config/
   routes.rb         # RESTful + SEO-optimized routes
   database.yml      # PostgreSQL config
 db/
-  schema.rb         # Full schema (~830 lines, 20 tables)
-  migrate/          # 25 migrations
+  schema.rb         # Full schema (~830 lines, 26 tables)
+  migrate/          # 31 migrations
   seed_articles.rb  # Sample article data with images and JSON fields
+  seed_agents.rb    # Agent, skill, task, activity, and usage seed data
 ```
 
 ## Key Models & Relationships
@@ -71,6 +72,12 @@ db/
 - **TeamsSeason/TeamsWeek** — Team roster snapshots and power rankings per season/week.
 - **Venue** — Stadium info (capacity, surface, roof, coordinates).
 - **Ranking** — Aggregated player rankings by position and grade type.
+- **Agent** — AI agents (Mack=content, Turf=analytics) with status, config, avatar, usage tracking. Slug-keyed.
+- **AgentTask** — Tasks assigned to agents with stage pipeline (new→queued→in_progress→done/failed), priority (0=normal,1=high,2=urgent), required_skills, result data.
+- **AgentSkill** — Capabilities like "article-summarization", "web-scraping". Categories: content, data, analytics.
+- **AgentSkillAssignment** — Join table linking agents to skills with proficiency score.
+- **AgentActivity** — Activity log per agent (status_change, task_started, task_completed, task_failed, skill_used, info).
+- **AgentUsage** — Daily token/cost tracking per agent (tokens_in, tokens_out, api_calls, cost, tasks_completed/failed).
 
 ## Data Pipeline (Rake Tasks)
 
@@ -122,6 +129,9 @@ Tests live in `test/`. Current test files cover Game, Team, and TeamsWeek models
 - `.env` and `lib/pff/` are gitignored — sensitive keys and data files.
 - Schema uses `jsonb` columns for game scores arrays and play event data.
 - Some spelling inconsistencies exist in the schema: `reciever` (should be receiver), `defence` (British spelling), `stangest_events` (should be strangest), `gaurd` (should be guard in some contexts).
+- Navbar has Games + Agents as top-level links; everything else (Picks, Articles, People, Posts, Rankings, etc.) lives in Admin dropdown. Active link highlighting uses `controller_name` checks with emerald color.
+- Agent avatar SVGs live in `app/assets/images/agent-mack.svg` and `agent-turf.svg`. Views use initials fallback when `avatar_url` is blank.
+- All agent-related associations use `slug` as the foreign key (not `id`). Models: Agent, AgentTask, AgentSkill, AgentSkillAssignment, AgentActivity, AgentUsage.
 
 ## Articles API
 
@@ -436,3 +446,122 @@ Send only the fields you want to change. Response: `{ "post": { ... } }`
 DELETE /api/posts/:id
 ```
 Response: `{ "message": "Post deleted" }`
+
+---
+
+## Agents Dashboard
+
+AI agent management system for content (Mack) and analytics (Turf) agents. Dev-only (hidden in production). All handled by `AgentsDashboardController` with both HTML views and JSON API endpoints.
+
+### Seed Data
+
+```bash
+rails runner db/seed_agents.rb   # Seeds agents, skills, tasks, activities, usage
+```
+
+### HTML Pages
+
+All pages share a subnav (`_subnav.html.erb`) linking between sections. The navbar highlights "Agents" when on any agents_dashboard page.
+
+| Route | Path | Description |
+|-------|------|-------------|
+| `agents_dashboard` | `/agents` | Dashboard overview with agent counts, task stage counts, recent activity |
+| `agents_dashboard_list` | `/agents/list` | Agents table with avatar, status, type, skills count, task count |
+| `agents_dashboard_show` | `/agents/:slug` | Agent detail: description, config, skills, recent tasks, usage, activity |
+| `agents_dashboard_new` | `/agents/new` | New agent form |
+| `agents_dashboard_edit` | `/agents/:slug/edit` | Edit agent form with avatar preview |
+| `agents_dashboard_tasks` | `/agents/tasks/all` | Kanban board (new/queued/in_progress/done/failed) with drag-and-drop |
+| `agents_dashboard_task` | `/agents/tasks/:id` | Task detail page |
+| `agents_dashboard_tasks_new` | `/agents/tasks/new` | New task form |
+| `agents_dashboard_task_edit` | `/agents/tasks/:id/edit` | Edit task form |
+| `agents_dashboard_activity` | `/agents/activity/feed` | Activity feed, filterable by agent and type |
+| `agents_dashboard_skills` | `/agents/skills/all` | Skills list with categories |
+| `agents_dashboard_usage` | `/agents/usage/overview` | Usage/cost overview, filterable by agent |
+
+### Stimulus Controllers
+
+- `kanban-board` — Drag-and-drop task cards between stage columns, calls `/api/agents/tasks/:id/transition`
+- `agent-task-filter` — Filter Kanban cards by agent
+- `agent-dashboard` — Dashboard interactivity
+- `task-stage-transition` — Stage transition buttons on task detail page
+
+### Agent Schema
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Agent display name |
+| `slug` | string | Unique identifier (primary lookup key) |
+| `status` | string | `"active"`, `"paused"`, `"inactive"` |
+| `description` | text | Agent description |
+| `avatar_url` | string | Avatar image URL (SVGs in `app/assets/images/agent-*.svg`) |
+| `agent_type` | string | `"content"` or `"analytics"` |
+| `config` | jsonb | Model config (model, temperature, max_tokens) |
+| `metadata` | jsonb | Version, deployment info |
+| `last_active_at` | datetime | Last activity timestamp |
+
+### AgentTask Schema
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `title` | string | Task title |
+| `slug` | string | Auto-generated unique slug |
+| `description` | text | Task details |
+| `stage` | string | `"new"`, `"queued"`, `"in_progress"`, `"done"`, `"failed"` |
+| `priority` | integer | `0`=Normal, `1`=High, `2`=Urgent |
+| `agent_slug` | string | Assigned agent (nullable = unassigned) |
+| `required_skills` | jsonb | Array of skill slugs |
+| `result` | jsonb | Completion result data |
+| `error_message` | string | Failure reason |
+| `queued_at` | datetime | When queued |
+| `started_at` | datetime | When started |
+| `completed_at` | datetime | When completed |
+| `failed_at` | datetime | When failed |
+
+### Agents API
+
+CSRF disabled. All JSON.
+
+#### List/Show/Create/Update/Delete Agents
+```
+GET    /api/agents                    # List (paginated: page, per_page)
+GET    /api/agents/:slug             # Show
+POST   /api/agents                    # Create { agent: { name, slug, status, ... } }
+PATCH  /api/agents/:slug             # Update
+DELETE /api/agents/:slug             # Delete
+```
+
+#### Tasks API
+```
+GET    /api/agents/tasks              # List (filters: stage, agent_slug, paginated)
+GET    /api/agents/tasks/:id          # Show
+POST   /api/agents/tasks              # Create { task: { title, description, stage, priority, agent_slug, ... } }
+PATCH  /api/agents/tasks/:id          # Update
+DELETE /api/agents/tasks/:id          # Delete
+PATCH  /api/agents/tasks/:id/assign   # Assign { agent_slug: "mack" }
+PATCH  /api/agents/tasks/:id/transition  # Transition { transition: "queue|start|complete|fail" }
+```
+
+#### Skills API
+```
+GET    /api/agents/skills             # List
+GET    /api/agents/skills/:slug       # Show
+POST   /api/agents/skills             # Create { skill: { name, slug, category, description } }
+DELETE /api/agents/skills/:slug       # Delete
+```
+
+#### Skill Assignments API
+```
+POST   /api/agents/skill_assignments       # Create { agent_slug, skill_slug, proficiency }
+DELETE /api/agents/skill_assignments/:id   # Delete
+```
+
+#### Activities API
+```
+GET    /api/agents/activities         # List (filters: agent_slug, activity_type, paginated)
+```
+
+#### Usages API
+```
+GET    /api/agents/usages             # List (filter: agent_slug, paginated)
+POST   /api/agents/usages             # Create/upsert by agent_slug + period_date
+```
