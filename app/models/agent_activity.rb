@@ -1,5 +1,5 @@
 class AgentActivity < ApplicationRecord
-  belongs_to :agent, foreign_key: :agent_slug, primary_key: :slug
+  belongs_to :agent, foreign_key: :agent_slug, primary_key: :slug, optional: true
   belongs_to :agent_task, foreign_key: :task_slug, primary_key: :slug, optional: true
 
   validates :agent_slug, presence: true

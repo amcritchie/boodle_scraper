@@ -25,6 +25,10 @@ class AgentTask < ApplicationRecord
     update!(agent_slug: agent_slug_val)
   end
 
+  def queue!
+    update!(stage: "queued", queued_at: Time.current)
+  end
+
   def start!
     update!(stage: "in_progress", started_at: Time.current)
   end

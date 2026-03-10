@@ -255,7 +255,7 @@ class AgentsDashboardController < ApplicationController
 
     case params[:transition]
     when "queue"
-      task.update!(stage: "queued", queued_at: Time.current)
+      task.queue!
     when "start"
       task.start!
     when "complete"
@@ -267,12 +267,17 @@ class AgentsDashboardController < ApplicationController
     end
 
     # Log activity
+    activity_type = case params[:transition]
+                    when "complete" then "task_completed"
+                    when "fail" then "task_failed"
+                    else "task_started"
+                    end
     AgentActivity.create!(
-      agent_slug: task.agent_slug || "system",
-      activity_type: "task_#{params[:transition] == 'complete' ? 'completed' : params[:transition] == 'fail' ? 'failed' : 'started'}",
+      agent_slug: task.agent_slug,
+      activity_type: activity_type,
       description: "Task '#{task.title}' transitioned to #{task.stage}",
       task_slug: task.slug
-    ) if task.agent_slug.present?
+    )
 
     render json: { task: task_json(task) }
   end
@@ -380,7 +385,7 @@ class AgentsDashboardController < ApplicationController
   # ─── HTML Params ────────────────────────────────────────────────
 
   def agent_html_params
-    permitted = params.require(:agent).permit(:name, :slug, :status, :description, :avatar_url, :agent_type)
+    permitted = params.require(:agent).permit(:name, :slug, :status, :description, :avatar_url, :agent_type, :title)
     if params[:agent][:config].present? && params[:agent][:config].is_a?(String)
       permitted[:config] = JSON.parse(params[:agent][:config]) rescue {}
     end
@@ -398,7 +403,7 @@ class AgentsDashboardController < ApplicationController
   # ─── API Params ─────────────────────────────────────────────────
 
   def api_agent_params
-    permitted = params.require(:agent).permit(:name, :slug, :status, :description, :avatar_url, :agent_type, :last_active_at)
+    permitted = params.require(:agent).permit(:name, :slug, :status, :description, :avatar_url, :agent_type, :title, :last_active_at)
     permitted[:config] = params[:agent][:config] if params[:agent][:config].present?
     permitted[:metadata] = params[:agent][:metadata] if params[:agent][:metadata].present?
     permitted
@@ -425,7 +430,7 @@ class AgentsDashboardController < ApplicationController
 
   def agent_json(agent)
     {
-      id: agent.id, name: agent.name, slug: agent.slug, status: agent.status,
+      id: agent.id, name: agent.name, slug: agent.slug, status: agent.status, title: agent.title,
       description: agent.description, avatar_url: agent.avatar_url, agent_type: agent.agent_type,
       config: agent.config, metadata: agent.metadata, last_active_at: agent.last_active_at,
       created_at: agent.created_at, updated_at: agent.updated_at
