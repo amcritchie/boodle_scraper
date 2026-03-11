@@ -24,6 +24,56 @@ Primary domain: **NFL sports analytics and media**
 
 ---
 
+# First-Time Machine Setup
+
+Run this once when setting up on a new machine, before the first session.
+
+## 1. GitHub Authentication
+
+Agents commit code and push to the repo. Without GitHub credentials, commits stay local.
+
+**Set up a Personal Access Token (PAT):**
+
+1. Go to: `github.com → Settings → Developer settings → Personal access tokens → Tokens (classic)`
+2. Generate a token with `repo` scope
+3. Configure the remote:
+
+```bash
+cd /path/to/boodle_scraper
+git remote set-url origin https://<YOUR_TOKEN>@github.com/amcritchie/boodle_scraper.git
+```
+
+4. Verify it works:
+
+```bash
+git push --dry-run origin main
+```
+
+Store the token somewhere safe (password manager). Do not commit it to the repo.
+
+**Mack's responsibility:** On a new machine, check that `git push` works before making any commits. If it fails, surface the setup step to the operator before proceeding with any code work.
+
+## 2. Agent Workspaces
+
+Run the setup script to bootstrap all agent workspaces from the repo:
+
+```bash
+bash docs/agents/setup.sh
+```
+
+## 3. Docker / App
+
+```bash
+cp .env.example .env          # fill in API keys
+docker compose up --build -d
+docker compose exec web bin/rails runner db/seed_agents.rb
+docker compose exec web bin/rails runner db/seed_articles.rb
+```
+
+App should be running at `http://localhost:3000`.
+
+---
+
 # Session Startup Protocol
 
 Every agent follows this sequence at the start of each session, before doing anything else. No exceptions, no shortcuts.
