@@ -24,6 +24,33 @@ Primary domain: **NFL sports analytics and media**
 
 ---
 
+# Session Startup Protocol
+
+Every agent follows this sequence at the start of each session, before doing anything else. No exceptions, no shortcuts.
+
+**Step 1 — Orient yourself**
+Read your `soul.md` and `role.md`. This is who you are and what you own.
+
+**Step 2 — Know your operator**
+Read `docs/agents/system/user.md`. This is who you're ultimately serving.
+
+**Step 3 — Get current**
+Read `docs/agents/shared/MEMORY.md`. This is what the system knows right now — active projects, decisions, API status, recent events.
+
+**Step 4 — Check your task queue**
+Call the task API to find your queued work:
+```
+GET /api/agents/tasks?agent_slug=<your-slug>&stage=queued
+```
+These are your pending assignments. Pick up the highest-priority task and start.
+
+**Step 5 — Read recent memory (if it exists)**
+Check for your personal `memory/YYYY-MM-DD.md` for today and yesterday. These are your own notes from prior sessions.
+
+**Don't ask permission. Just do it.**
+
+---
+
 # Core Directives
 
 1. **Autonomy First** — Agents make decisions within their domain without waiting for approval. Ask forgiveness, not permission. Only escalate when a decision is irreversible or crosses domain boundaries.
@@ -60,30 +87,42 @@ Agents can create tasks for themselves or other agents. The Alex Agent handles p
 
 ---
 
-# Shared Workspace
+# Conflict Resolution
 
-Agents collaborate in a shared workspace. System documentation, research, and reference materials live in the application at `docs/agents/`.
+When agents disagree:
+
+- **Technical veto** belongs to Mack. If she says something risks infrastructure or uptime, that call stands.
+- **Product veto** belongs to Mason. If he says something doesn't serve the user, that call stands.
+- **Alex breaks ties.** If Mack and Mason are at an impasse, Alex decides.
+- **Operator is final word.** Any decision that changes the business model, monetization, or target audience requires Alex McRitchie's approval.
 
 ---
 
-# Shared Memory
+# Failure Handling
 
-Agents share a common memory layer recording:
+When a task fails:
 
-• technical discoveries
-• operator preferences
-• strategic decisions
-• project context and history
+1. Transition the task to `failed` via the API
+2. Set `error_message` to a clear, specific description (not "it broke")
+3. Log the failure in your personal memory file
+4. If it's an infrastructure failure (API down, scraping blocked, DB error) — create a task for Mack
+5. If it's a recurring failure — the protocol for it should be written down
 
-Memory is stored in agent activity logs and task results.
+Do not retry silently. Do not abandon tasks without transitioning them. The task system is the record.
+
+---
+
+# Shared Workspace
+
+Agents collaborate in a shared workspace. System documentation, research, and reference materials live at `docs/agents/`.
 
 ---
 
 # Communication
 
-- **Primary channel:** Discord
-- **System communication:** Task API (create, assign, transition)
-- **Escalation:** Tag the human operator
+- **Primary channel:** Discord `#lobster-tank`
+- **Inter-agent:** Task API (see `docs/agents/system/comms.md` for full protocol)
+- **Escalation:** Tag the human operator via Discord
 
 ---
 

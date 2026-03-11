@@ -23,7 +23,9 @@ skills_data = [
   { name: "Product Strategy", slug: "product-strategy", category: "product", description: "Define product vision, roadmap, and feature priorities" },
   { name: "User Research", slug: "user-research", category: "product", description: "Gather and synthesize user feedback and usage patterns" },
   { name: "Feature Prioritization", slug: "feature-prioritization", category: "product", description: "Prioritize backlog items based on user value and business impact" },
-  { name: "Quality Assurance", slug: "quality-assurance", category: "product", description: "Review shipped features for UX quality and acceptance criteria" }
+  { name: "Quality Assurance", slug: "quality-assurance", category: "product", description: "Review shipped features for UX quality and acceptance criteria" },
+  { name: "LLM Monitoring", slug: "llm-monitoring", category: "data", description: "Monitor LLM API health, latency, rate limits, and connection state across all agents" },
+  { name: "Error Analysis", slug: "error-analysis", category: "analytics", description: "Parse and categorize system error logs, identify failure patterns, and develop remediation protocols" }
 ]
 
 skills_data.each do |data|
@@ -52,10 +54,10 @@ mack = Agent.create!(
   slug: "mack",
   title: "CTO",
   status: "active",
-  description: "Engineering agent focused on infrastructure, data pipelines, API integrations, and system reliability. Keeps the systems running and the data flowing.",
+  description: "CTO and LLM Connection Guardian. Keeps every agent online and every data pipeline flowing. Monitors LLM health, builds failure protocols, and holds the infrastructure together. Hot girl ops — the board stays green.",
   agent_type: "engineering",
   avatar_url: ActionController::Base.helpers.asset_path("agent-mack.png"),
-  config: { model: "gpt-4o", temperature: 0.7, max_tokens: 4096 },
+  config: { model: "claude-sonnet", temperature: 0.3, max_tokens: 4096 },
   metadata: { version: "1.2.0", deployment: "production" },
   last_active_at: 2.hours.ago
 )
@@ -91,8 +93,8 @@ puts "Created agent: Turf Monster"
 
 # ─── Skill Assignments ────────────────────────────────────────────
 
-# Mack (CTO): data/engineering skills
-%w[web-scraping api-integration data-analysis rss-monitoring].each do |slug|
+# Mack (CTO): data/engineering + LLM monitoring + error analysis
+%w[web-scraping api-integration data-analysis rss-monitoring llm-monitoring error-analysis].each do |slug|
   AgentSkillAssignment.create!(agent_slug: "mack", skill_slug: slug, proficiency: slug == "rss-monitoring" ? 75 : 95)
 end
 
