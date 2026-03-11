@@ -134,6 +134,7 @@ Rails.application.routes.draw do
   post   'api/agents/skill_assignments',  to: 'agents_dashboard#api_skill_assignments_create', as: 'api_agent_skill_assignments_create'
   delete 'api/agents/skill_assignments/:id', to: 'agents_dashboard#api_skill_assignments_destroy', as: 'api_agent_skill_assignment_destroy'
   get    'api/agents/activities',         to: 'agents_dashboard#api_activities_index',         as: 'api_agent_activities'
+  post   'api/agents/activities',         to: 'agents_dashboard#api_activities_create',        as: 'api_agent_activities_create'
   get    'api/agents/usages',             to: 'agents_dashboard#api_usages_index',             as: 'api_agent_usages'
   post   'api/agents/usages',            to: 'agents_dashboard#api_usages_create',            as: 'api_agent_usages_create'
   get    'api/agents',                    to: 'agents_dashboard#api_agents_index',             as: 'api_agents'

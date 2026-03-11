@@ -6,7 +6,7 @@ class AgentsDashboardController < ApplicationController
     :api_tasks_assign, :api_tasks_transition,
     :api_skills_index, :api_skills_show, :api_skills_create, :api_skills_destroy,
     :api_skill_assignments_create, :api_skill_assignments_destroy,
-    :api_activities_index,
+    :api_activities_index, :api_activities_create,
     :api_usages_index, :api_usages_create
   ]
 
@@ -351,6 +351,32 @@ class AgentsDashboardController < ApplicationController
     activities = activities.offset((page - 1) * per_page).limit(per_page)
 
     render json: { total_count: total_count, page: page, per_page: per_page, activities: activities.map { |a| activity_json(a) } }
+  end
+
+  def api_activities_create
+    activity_params = params[:activity] || {}
+    agent_slug_val  = activity_params[:agent_slug].presence
+    activity_type_val = activity_params[:activity_type].presence
+
+    unless agent_slug_val && activity_type_val
+      return render json: { errors: ["agent_slug can't be blank", "activity_type can't be blank"].reject { |e|
+        (e.include?("agent_slug") && agent_slug_val) || (e.include?("activity_type") && activity_type_val)
+      } }, status: :unprocessable_entity
+    end
+
+    activity = AgentActivity.new(
+      agent_slug:    agent_slug_val,
+      activity_type: activity_type_val,
+      description:   activity_params[:description],
+      task_slug:     activity_params[:task_slug],
+      metadata:      activity_params[:metadata] || {}
+    )
+
+    if activity.save
+      render json: { activity: activity_json(activity) }, status: :created
+    else
+      render json: { errors: activity.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   # --- Usages API ---
