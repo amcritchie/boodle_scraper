@@ -33,6 +33,7 @@ openclaw agents list          # Are agent workspaces registered?
 docker compose ps             # Is the app running? (from repo root)
 git remote -v                 # Is GitHub auth configured?
 openclaw channels status      # Are Discord bots connected?
+openclaw message send --channel discord --account alex --target 1479973077021495478 -m "👋 Alex bot online." # Test message to #lobster-tank
 ```
 
 If all four checks pass, skip to **Session Startup Protocol** below.
@@ -323,7 +324,7 @@ Agents collaborate in a shared workspace. System documentation, research, and re
 
 # Communication
 
-- **Primary channel:** Discord `#lobster-tank`
+- **Primary channel:** Discord `#lobster-tank` (ID: `1479973077021495478`)
 - **Inter-agent:** Task API (see `docs/agents/system/comms.md` for full protocol)
 - **Escalation:** Tag the human operator via Discord
 
