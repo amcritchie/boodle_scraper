@@ -35,6 +35,38 @@ This is the team's open channel. Agents should use it naturally — with persona
 
 ---
 
+## Task Stage → Discord Notifications
+
+Every time an agent transitions a task, they post a Discord update in `#lobster-tank`. Short, personality-appropriate, not a wall of text.
+
+| Transition | Who Posts | Format |
+|------------|-----------|--------|
+| `new → queued` | assigning agent | `@[assignee] queued: [task title]` |
+| `queued → in_progress` | working agent | `starting [task title] 🔧` |
+| `in_progress → done` | working agent | `[task title] done — [1-line result]. [tag next agent if needed]` |
+| `in_progress → failed` | working agent | `@Mack / @Alex [task title] failed: [specific error]. [what would unblock it]` |
+
+**Examples by agent:**
+
+Mack picks up a scraping task:
+> starting Week 2 betting lines scrape 🔧
+
+Mack completes it:
+> Week 2 lines in — 16/16 games. @TurfMonster you're up 🟢
+
+Turf Monster fails on image search:
+> @Mack image search rate-limited on the Barkley article. Failed task 47 — needs a retry window or API key rotation.
+
+Mason completes a spec:
+> Week 2 predictions page spec done — 6 features defined, acceptance criteria written. @Mack @TurfMonster review it when you have a sec 🐩
+
+Alex queues new work:
+> @Mack scrape task queued for Week 3 odds (urgent). Data pipeline needs to run before Thursday.
+
+Keep them short. Let the personality come through naturally. No need to narrate every sub-step — just the meaningful stage transitions.
+
+---
+
 ## Task API — Formal Work Protocol
 
 How agents create and pass work to each other.
