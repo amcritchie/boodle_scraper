@@ -1,41 +1,128 @@
 #!/bin/bash
-# setup_agents.sh
-# Bootstrap OpenClaw workspaces for McRitchie Studio agents.
-# Run this from the repo root after cloning on a new machine.
+# setup.sh — McRitchie Studio Agent Workspace Bootstrap
 #
-# Usage: bash docs/agents/setup.sh
+# Bootstraps OpenClaw workspaces for all 4 agents from the repo.
+# Run from the repo root after cloning on a new machine.
+#
+# Usage:
+#   bash docs/agents/setup.sh                  # workspace setup only (non-interactive)
+#   bash docs/agents/setup.sh --interactive    # prompt for all credentials + workspace setup
+#   bash docs/agents/setup.sh --workspaces     # workspace setup only (explicit)
 
 set -e
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 OPENCLAW_DIR="$HOME/.openclaw"
+OPENCLAW_JSON="$OPENCLAW_DIR/openclaw.json"
 AGENTS_DIR="$REPO_DIR/docs/agents/agents"
 SYSTEM_DIR="$REPO_DIR/docs/agents/system"
 
-echo "McRitchie Studio — Agent Workspace Setup"
-echo "Repo: $REPO_DIR"
-echo "OpenClaw: $OPENCLAW_DIR"
-echo ""
+# ── Parse args ─────────────────────────────────────────────────────
 
-# ── Helper ─────────────────────────────────────────────────────────
+INTERACTIVE=false
+for arg in "$@"; do
+  case "$arg" in
+    --interactive|-i) INTERACTIVE=true ;;
+    --workspaces)     INTERACTIVE=false ;;
+  esac
+done
+
+# Default to interactive when called with no args and stdin is a terminal
+if [ "$#" -eq 0 ] && [ -t 0 ]; then
+  INTERACTIVE=true
+fi
+
+# ── Helpers ────────────────────────────────────────────────────────
+
+print_header() {
+  echo ""
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "  McRitchie Studio — Agent Workspace Setup"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "  Repo:      $REPO_DIR"
+  echo "  OpenClaw:  $OPENCLAW_DIR"
+  echo ""
+}
+
+prompt_credential() {
+  local varname="$1"
+  local label="$2"
+  local hint="${3:-}"
+  local val=""
+  while [ -z "$val" ]; do
+    if [ -n "$hint" ]; then
+      printf "  %-28s (%s): " "$label" "$hint"
+    else
+      printf "  %-28s: " "$label"
+    fi
+    read -r -s val 2>/dev/null || read -r val
+    echo ""
+    if [ -z "$val" ]; then
+      echo "  ⚠️  Cannot be empty. Try again."
+    fi
+  done
+  eval "$varname=\"\$val\""
+}
+
+prompt_optional() {
+  local varname="$1"
+  local label="$2"
+  local hint="${3:-optional, press Enter to skip}"
+  printf "  %-28s (%s): " "$label" "$hint"
+  read -r val 2>/dev/null || read -r val
+  echo ""
+  eval "$varname=\"\$val\""
+}
+
+# Write a key into openclaw.json using Python (jq not guaranteed to be present)
+# Usage: set_openclaw_key 'channels.discord.accounts.mack.token' 'TOKEN_VALUE'
+set_openclaw_key() {
+  local key_path="$1"
+  local value="$2"
+
+  python3 - "$OPENCLAW_JSON" "$key_path" "$value" <<'PYEOF'
+import sys, json, os
+
+config_file = sys.argv[1]
+key_path    = sys.argv[2]
+value       = sys.argv[3]
+
+if os.path.exists(config_file):
+  with open(config_file) as f:
+    data = json.load(f)
+else:
+  data = {}
+
+# Walk/create the path
+parts = key_path.split('.')
+node = data
+for part in parts[:-1]:
+  if part not in node or not isinstance(node[part], dict):
+    node[part] = {}
+  node = node[part]
+node[parts[-1]] = value
+
+with open(config_file, 'w') as f:
+  json.dump(data, f, indent=2)
+  f.write('\n')
+PYEOF
+}
 
 setup_workspace() {
   local agent_id="$1"
   local agent_name="$2"
-  local agent_dir="${3:-$agent_id}"   # optional 3rd arg overrides source folder name
+  local agent_dir="${3:-$agent_id}"
   local workspace="$OPENCLAW_DIR/workspace-$agent_id"
 
-  echo "Setting up: $agent_name ($workspace)"
+  echo "  Setting up: $agent_name"
   mkdir -p "$workspace/memory"
 
-  # Core identity files from repo
-  cp "$AGENTS_DIR/$agent_dir/soul.md"  "$workspace/SOUL.md"
+  cp "$AGENTS_DIR/$agent_dir/soul.md" "$workspace/SOUL.md"
 
-  # AGENTS.md (startup protocol) — prefer workspace version if it exists
   if [ ! -f "$workspace/AGENTS.md" ]; then
     cp "$REPO_DIR/docs/agents/setup_templates/AGENTS-$agent_id.md" "$workspace/AGENTS.md" 2>/dev/null || \
     cat > "$workspace/AGENTS.md" <<AGENTSEOF
-# You are $agent_name — see soul.md for your full identity.
+# You are $agent_name — see SOUL.md for your full identity.
 
 Repo: $REPO_DIR
 Bootstrap: $REPO_DIR/docs/agents/system/bootstrap.md
@@ -44,10 +131,8 @@ Follow the session startup protocol in bootstrap.md. Do not ask permission. Just
 AGENTSEOF
   fi
 
-  # USER.md — same for all agents
   cp "$SYSTEM_DIR/user.md" "$workspace/USER.md"
 
-  # TOOLS.md — shared content
   cat > "$workspace/TOOLS.md" <<EOF
 # TOOLS.md
 
@@ -55,7 +140,7 @@ AGENTSEOF
 - URL: http://localhost:3000
 - Agents dashboard: http://localhost:3000/agents
 - API base: http://localhost:3000/api
-- Docker: \`docker compose\` from \`/home/alex/.openclaw/workspace/boodle_scraper/\`
+- Docker: \`docker compose\` from \`$REPO_DIR\`
 
 ## Discord
 - Guild: McRitchie Studio (1332466565203103744)
@@ -65,49 +150,227 @@ AGENTSEOF
 - File: \`$REPO_DIR/docs/agents/shared/MEMORY.md\`
 EOF
 
-  # Create stubs if they don't exist (never overwrite existing memory)
-  [ ! -f "$workspace/MEMORY.md" ] && echo "# MEMORY.md — $agent_name" > "$workspace/MEMORY.md"
-  [ ! -f "$workspace/HEARTBEAT.md" ] && echo "# HEARTBEAT.md" > "$workspace/HEARTBEAT.md"
-  [ ! -f "$workspace/IDENTITY.md" ] && echo "# IDENTITY.md — see SOUL.md" > "$workspace/IDENTITY.md"
+  [ ! -f "$workspace/MEMORY.md" ]    && echo "# MEMORY.md — $agent_name"   > "$workspace/MEMORY.md"
+  [ ! -f "$workspace/HEARTBEAT.md" ] && echo "# HEARTBEAT.md"              > "$workspace/HEARTBEAT.md"
+  [ ! -f "$workspace/IDENTITY.md" ]  && echo "# IDENTITY.md — see SOUL.md" > "$workspace/IDENTITY.md"
 
   echo "  ✓ $workspace"
 }
 
-# ── Set up each agent workspace ─────────────────────────────────────
+# ── Interactive credential collection ──────────────────────────────
+
+collect_credentials() {
+  echo "Credential Setup"
+  echo "────────────────────────────────────────────────────"
+  echo "Press Enter to skip optional credentials."
+  echo ""
+
+  echo "LLM Providers:"
+  prompt_credential ANTHROPIC_KEY "Anthropic API key" "sk-ant-..."
+  prompt_optional   OPENAI_KEY    "OpenAI API key (fallback)" "sk-..."
+  echo ""
+
+  echo "GitHub:"
+  prompt_credential GITHUB_PAT "GitHub Personal Access Token" "repo scope"
+  echo ""
+
+  echo "Discord Bot Tokens (one per agent):"
+  prompt_credential DISCORD_TOKEN_ALEX         "Alex bot token"
+  prompt_credential DISCORD_TOKEN_MASON        "Mason bot token"
+  prompt_credential DISCORD_TOKEN_MACK         "Mack bot token"
+  prompt_credential DISCORD_TOKEN_TURF_MONSTER "Turf Monster bot token"
+  echo ""
+
+  echo "App Credentials:"
+  prompt_credential SPORTRADAR_KEY  "Sportradar API key"
+  prompt_credential POSTGRES_PASS   "Postgres password" "choose any value"
+
+  echo ""
+  echo "Generating Rails SECRET_KEY_BASE..."
+  SECRET_KEY=$(openssl rand -hex 64)
+  echo "  ✓ Generated"
+}
+
+# ── Apply credentials ──────────────────────────────────────────────
+
+apply_credentials() {
+  echo ""
+  echo "Applying credentials..."
+  echo ""
+
+  # ── Anthropic key → openclaw.json ──
+  echo "  → Anthropic key → openclaw.json"
+  set_openclaw_key "auth.profiles.anthropic:default.provider"  "anthropic"
+  set_openclaw_key "auth.profiles.anthropic:default.mode"      "api_key"
+  set_openclaw_key "auth.profiles.anthropic:default.apiKey"    "$ANTHROPIC_KEY"
+
+  # ── OpenAI key → openclaw.json (if provided) ──
+  if [ -n "$OPENAI_KEY" ]; then
+    echo "  → OpenAI key → openclaw.json"
+    set_openclaw_key "auth.profiles.openai:default.provider"  "openai"
+    set_openclaw_key "auth.profiles.openai:default.mode"      "api_key"
+    set_openclaw_key "auth.profiles.openai:default.apiKey"    "$OPENAI_KEY"
+  fi
+
+  # ── Discord tokens → openclaw.json ──
+  echo "  → Discord tokens → openclaw.json"
+  set_openclaw_key "channels.discord.accounts.alex.token"          "$DISCORD_TOKEN_ALEX"
+  set_openclaw_key "channels.discord.accounts.mason.token"         "$DISCORD_TOKEN_MASON"
+  set_openclaw_key "channels.discord.accounts.mack.token"          "$DISCORD_TOKEN_MACK"
+  set_openclaw_key "channels.discord.accounts.turf-monster.token"  "$DISCORD_TOKEN_TURF_MONSTER"
+
+  # ── Discord groupPolicy + guild allowlist ──
+  set_openclaw_key "channels.discord.groupPolicy"                          "allowlist"
+  set_openclaw_key "channels.discord.guilds.1332466565203103744"           "{}"
+  # guilds entry must be an object, not a string — fix it
+  python3 - "$OPENCLAW_JSON" <<'PYEOF'
+import sys, json
+f = sys.argv[1]
+with open(f) as fh: data = json.load(fh)
+guilds = data.get('channels', {}).get('discord', {}).get('guilds', {})
+for gid in guilds:
+  if not isinstance(guilds[gid], dict):
+    guilds[gid] = {}
+with open(f, 'w') as fh:
+  json.dump(data, fh, indent=2)
+  fh.write('\n')
+PYEOF
+
+  # ── Agent-Discord bindings ──
+  echo "  → Agent bindings → openclaw.json"
+  python3 - "$OPENCLAW_JSON" <<'PYEOF'
+import sys, json
+f = sys.argv[1]
+with open(f) as fh: data = json.load(fh)
+new_bindings = [
+  {"agentId": "alex",         "match": {"channel": "discord", "accountId": "alex"}},
+  {"agentId": "mason",        "match": {"channel": "discord", "accountId": "mason"}},
+  {"agentId": "mack",         "match": {"channel": "discord", "accountId": "mack"}},
+  {"agentId": "turf-monster", "match": {"channel": "discord", "accountId": "turf-monster"}}
+]
+existing = data.get('bindings', [])
+# Remove old discord bindings, keep others
+kept = [b for b in existing if b.get('match', {}).get('channel') != 'discord']
+data['bindings'] = kept + new_bindings
+with open(f, 'w') as fh:
+  json.dump(data, fh, indent=2)
+  fh.write('\n')
+PYEOF
+
+  # ── GitHub remote ──
+  echo "  → GitHub PAT → git remote"
+  cd "$REPO_DIR"
+  git remote set-url origin "https://${GITHUB_PAT}@github.com/amcritchie/boodle_scraper.git"
+  echo "  ✓ git remote updated"
+
+  # ── .env ──
+  echo "  → Generating .env from .env.example"
+  if [ ! -f "$REPO_DIR/.env.example" ]; then
+    echo "  ⚠️  .env.example not found — skipping .env generation"
+  else
+    cp "$REPO_DIR/.env.example" "$REPO_DIR/.env"
+    # Use Python to do safe substitutions (avoids sed quoting nightmares)
+    python3 - "$REPO_DIR/.env" "$SPORTRADAR_KEY" "$POSTGRES_PASS" "$SECRET_KEY" <<'PYEOF'
+import sys
+env_file     = sys.argv[1]
+sportradar   = sys.argv[2]
+pg_pass      = sys.argv[3]
+secret_key   = sys.argv[4]
+
+with open(env_file) as f:
+  lines = f.readlines()
+
+replacements = {
+  'SPORTRADAR_API_KEY=': f'SPORTRADAR_API_KEY={sportradar}\n',
+  'POSTGRES_PASSWORD=':  f'POSTGRES_PASSWORD={pg_pass}\n',
+  'SECRET_KEY_BASE=':    f'SECRET_KEY_BASE={secret_key}\n',
+}
+
+out = []
+for line in lines:
+  replaced = False
+  for prefix, new_line in replacements.items():
+    if line.startswith(prefix):
+      out.append(new_line)
+      replaced = True
+      break
+  if not replaced:
+    out.append(line)
+
+with open(env_file, 'w') as f:
+  f.writelines(out)
+PYEOF
+    echo "  ✓ .env written"
+  fi
+
+  # ── Validate config ──
+  echo ""
+  echo "  Running openclaw doctor..."
+  openclaw doctor --fix 2>&1 | grep -E "^(✓|✗|⚠|ERROR|Fixed)" || true
+  echo ""
+}
+
+# ── Summary ────────────────────────────────────────────────────────
+
+print_summary() {
+  echo ""
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "  Setup Complete"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo ""
+  echo "  ✓ Agent workspaces created"
+
+  if [ "$INTERACTIVE" = true ]; then
+    echo "  ✓ LLM provider keys set in openclaw.json"
+    echo "  ✓ Discord bot tokens set in openclaw.json"
+    echo "  ✓ Agent-Discord bindings configured"
+    echo "  ✓ GitHub remote updated with PAT"
+    echo "  ✓ .env generated"
+    echo ""
+    echo "  Still manual:"
+    echo "  • Register agents: openclaw agents add alex / mason / mack / turf-monster"
+    echo "  • Pair Discord bots: DM each bot → openclaw pairing approve discord <CODE>"
+    echo "  • Restart gateway: openclaw gateway restart"
+    echo "  • Start app: docker compose up --build -d"
+    echo "  • Run seeds: docker compose exec web bin/rails runner db/seed_agents.rb"
+    echo "  •            docker compose exec web bin/rails runner db/seed_articles.rb"
+    echo "  •            docker compose exec web bin/rails runner db/seed_news.rb"
+    echo "  • Set up cron jobs (see bootstrap.md § Cron Jobs)"
+  else
+    echo ""
+    echo "  Next steps:"
+    echo "  • Run --interactive to configure credentials"
+    echo "  • Or set credentials manually (see docs/agents/system/credentials.md)"
+  fi
+  echo ""
+  echo "  Full guide: docs/agents/system/bootstrap.md"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+}
+
+# ── Main ───────────────────────────────────────────────────────────
+
+print_header
+
+if [ "$INTERACTIVE" = true ]; then
+  collect_credentials
+  apply_credentials
+fi
+
+# Always run workspace setup
+echo "Setting up agent workspaces..."
+echo ""
 
 setup_workspace "mason"         "Mason"
 setup_workspace "mack"          "Mack"
 setup_workspace "turf-monster"  "Turf Monster" "turf_monster"
 
-# Alex uses the default workspace — update soul in place
 echo ""
 echo "Updating Alex's workspace (default: $OPENCLAW_DIR/workspace)"
+mkdir -p "$OPENCLAW_DIR/workspace/memory"
 cp "$AGENTS_DIR/alex/soul.md" "$OPENCLAW_DIR/workspace/SOUL.md"
-echo "  ✓ SOUL.md updated"
+cp "$SYSTEM_DIR/user.md"      "$OPENCLAW_DIR/workspace/USER.md"
+[ ! -f "$OPENCLAW_DIR/workspace/MEMORY.md" ]    && echo "# MEMORY.md — Alex Agent"  > "$OPENCLAW_DIR/workspace/MEMORY.md"
+[ ! -f "$OPENCLAW_DIR/workspace/HEARTBEAT.md" ] && echo "# HEARTBEAT.md"            > "$OPENCLAW_DIR/workspace/HEARTBEAT.md"
+echo "  ✓ $OPENCLAW_DIR/workspace"
 
-echo ""
-echo "─────────────────────────────────────────────"
-echo "Workspaces ready. Next: register agents in OpenClaw."
-echo ""
-echo "Add each agent with the CLI wizard:"
-echo "  openclaw agents add alex"
-echo "  openclaw agents add mason"
-echo "  openclaw agents add turf-monster"
-echo ""
-echo "Then update ~/.openclaw/openclaw.json to point each agent"
-echo "at its workspace:"
-echo ""
-cat <<'EOF'
-  "agents": {
-    "list": [
-      { "id": "alex",          "workspace": "~/.openclaw/workspace"              },
-      { "id": "mason",         "workspace": "~/.openclaw/workspace-mason"        },
-      { "id": "mack",          "workspace": "~/.openclaw/workspace-mack"         },
-      { "id": "turf-monster",  "workspace": "~/.openclaw/workspace-turf-monster" }
-    ]
-  }
-EOF
-echo ""
-echo "For Discord: each agent needs its own Discord bot token."
-echo "See: docs/agents/system/comms.md"
-echo "─────────────────────────────────────────────"
+print_summary

@@ -1,5 +1,22 @@
 # README
 
+## Getting Started
+
+Fresh machine? Start here:
+
+```bash
+git clone https://github.com/amcritchie/boodle_scraper.git
+cd boodle_scraper
+bash docs/agents/setup.sh --interactive
+```
+
+The interactive setup script prompts for all credentials (Anthropic, OpenAI, Discord bots, GitHub PAT, Sportradar, Postgres) and wires everything up. Then follow the post-setup steps it prints.
+
+**Full guide:** [`docs/agents/system/bootstrap.md`](docs/agents/system/bootstrap.md)  
+**Credential reference:** [`docs/agents/system/credentials.md`](docs/agents/system/credentials.md)
+
+---
+
 ## Agent System
 
 This app is operated by the **McRitchie Studio agent system** — four autonomous AI agents running on OpenClaw.
