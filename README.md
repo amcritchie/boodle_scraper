@@ -1,5 +1,16 @@
 # README
 
+## Agent System
+
+This app is operated by the **McRitchie Studio agent system** — four autonomous AI agents running on OpenClaw.
+
+- Full documentation: [`docs/agents/`](docs/agents/)
+- Agent roster + workspaces: [`docs/agents/system/architecture.md`](docs/agents/system/architecture.md)
+- First-time setup: [`docs/agents/system/bootstrap.md`](docs/agents/system/bootstrap.md)
+- Workspace bootstrap script: [`docs/agents/setup.sh`](docs/agents/setup.sh)
+
+---
+
 This README would normally document whatever steps are necessary to get the
 application up and running.
 

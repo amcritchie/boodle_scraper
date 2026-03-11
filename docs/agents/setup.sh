@@ -33,8 +33,14 @@ setup_workspace() {
   # AGENTS.md (startup protocol) — prefer workspace version if it exists
   if [ ! -f "$workspace/AGENTS.md" ]; then
     cp "$REPO_DIR/docs/agents/setup_templates/AGENTS-$agent_id.md" "$workspace/AGENTS.md" 2>/dev/null || \
-    echo "# AGENTS.md — $agent_name
-Follow the session startup protocol in docs/agents/system/bootstrap.md." > "$workspace/AGENTS.md"
+    cat > "$workspace/AGENTS.md" <<AGENTSEOF
+# You are $agent_name — see soul.md for your full identity.
+
+Repo: $REPO_DIR
+Bootstrap: $REPO_DIR/docs/agents/system/bootstrap.md
+
+Follow the session startup protocol in bootstrap.md. Do not ask permission. Just do it.
+AGENTSEOF
   fi
 
   # USER.md — same for all agents
@@ -68,14 +74,14 @@ EOF
 
 # ── Set up each agent workspace ─────────────────────────────────────
 
-setup_workspace "alex"          "Alex Agent"
 setup_workspace "mason"         "Mason"
+setup_workspace "mack"          "Mack"
 setup_workspace "turf-monster"  "Turf Monster"
 
-# Mack uses the default workspace — update soul/role in place
+# Alex uses the default workspace — update soul in place
 echo ""
-echo "Updating Mack's workspace (default: $OPENCLAW_DIR/workspace)"
-cp "$AGENTS_DIR/mack/soul.md" "$OPENCLAW_DIR/workspace/SOUL.md"
+echo "Updating Alex's workspace (default: $OPENCLAW_DIR/workspace)"
+cp "$AGENTS_DIR/alex/soul.md" "$OPENCLAW_DIR/workspace/SOUL.md"
 echo "  ✓ SOUL.md updated"
 
 echo ""
@@ -93,8 +99,9 @@ echo ""
 cat <<'EOF'
   "agents": {
     "list": [
-      { "id": "alex",          "workspace": "~/.openclaw/workspace-alex" },
-      { "id": "mason",         "workspace": "~/.openclaw/workspace-mason" },
+      { "id": "alex",          "workspace": "~/.openclaw/workspace"              },
+      { "id": "mason",         "workspace": "~/.openclaw/workspace-mason"        },
+      { "id": "mack",          "workspace": "~/.openclaw/workspace-mack"         },
       { "id": "turf-monster",  "workspace": "~/.openclaw/workspace-turf-monster" }
     ]
   }

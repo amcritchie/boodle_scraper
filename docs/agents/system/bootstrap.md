@@ -24,6 +24,22 @@ Primary domain: **NFL sports analytics and media**
 
 ---
 
+# Verify Existing Setup (Reboots)
+
+Before running first-time setup, check if the machine is already configured:
+
+```bash
+openclaw agents list          # Are agent workspaces registered?
+docker compose ps             # Is the app running? (from repo root)
+git remote -v                 # Is GitHub auth configured?
+openclaw channels status      # Are Discord bots connected?
+```
+
+If all four checks pass, skip to **Session Startup Protocol** below.
+If anything is missing, run the relevant step from First-Time Machine Setup.
+
+---
+
 # First-Time Machine Setup
 
 Run this once when setting up on a new machine, before the first session.
