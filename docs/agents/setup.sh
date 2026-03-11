@@ -22,13 +22,14 @@ echo ""
 setup_workspace() {
   local agent_id="$1"
   local agent_name="$2"
+  local agent_dir="${3:-$agent_id}"   # optional 3rd arg overrides source folder name
   local workspace="$OPENCLAW_DIR/workspace-$agent_id"
 
   echo "Setting up: $agent_name ($workspace)"
   mkdir -p "$workspace/memory"
 
   # Core identity files from repo
-  cp "$AGENTS_DIR/$agent_id/soul.md"  "$workspace/SOUL.md"
+  cp "$AGENTS_DIR/$agent_dir/soul.md"  "$workspace/SOUL.md"
 
   # AGENTS.md (startup protocol) — prefer workspace version if it exists
   if [ ! -f "$workspace/AGENTS.md" ]; then
@@ -76,7 +77,7 @@ EOF
 
 setup_workspace "mason"         "Mason"
 setup_workspace "mack"          "Mack"
-setup_workspace "turf-monster"  "Turf Monster"
+setup_workspace "turf-monster"  "Turf Monster" "turf_monster"
 
 # Alex uses the default workspace — update soul in place
 echo ""
