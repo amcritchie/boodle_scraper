@@ -1,0 +1,84 @@
+<%= form_with(model: news, url: news.new_record? ? news_index_path : news_path(news), method: news.new_record? ? :post : :patch, local: true, class: "space-y-6") do |f| %>
+  <% if news.errors.any? %>
+    <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded">
+      <h3 class="font-medium"><%= pluralize(news.errors.count, "error") %> prohibited this news from being saved:</h3>
+      <ul class="mt-2 list-disc list-inside text-sm">
+        <% news.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="md:col-span-2">
+      <%= f.label :title, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :title, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div>
+      <%= f.label :title_short, "Short Title", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :title_short, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div>
+      <%= f.label :stage, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.select :stage, options_for_select([["New", "new"], ["Reviewed", "reviewed"], ["Content", "content"], ["Edited", "edited"], ["Posted", "posted"], ["Archived", "archived"]], news.stage), {}, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div class="md:col-span-2">
+      <%= f.label :url, "URL", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.url_field :url, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div>
+      <%= f.label :author, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :author, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div>
+      <%= f.label :published_at, "Published At", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.datetime_local_field :published_at, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div>
+      <%= f.label :primary_person, "Primary Person", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :primary_person, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div>
+      <%= f.label :primary_person_slug, "Person Slug", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :primary_person_slug, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div>
+      <%= f.label :primary_team, "Primary Team", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :primary_team, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div>
+      <%= f.label :primary_team_slug, "Team Slug", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :primary_team_slug, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div class="md:col-span-2">
+      <%= f.label :summary, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :summary, rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div class="md:col-span-2">
+      <%= f.label :opinion, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_area :opinion, rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div class="md:col-span-2">
+      <%= f.label :selected_image, "Selected Image URL", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :selected_image, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+  </div>
+
+  <div class="flex items-center space-x-4 pt-4">
+    <%= f.submit class: "bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg text-sm font-semibold transition-colors shadow cursor-pointer" %>
+    <a href="<%= news_index_path %>" class="theme-text-secondary hover:theme-text-primary text-sm font-medium">Cancel</a>
+  </div>
+<% end %>

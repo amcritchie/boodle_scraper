@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_03_10_223902) do
+ActiveRecord::Schema[7.0].define(version: 2026_03_11_195130) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -383,6 +383,27 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_10_223902) do
     t.json "coverage_factors"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "news", force: :cascade do |t|
+    t.string "stage", default: "new", null: false
+    t.string "url"
+    t.string "author"
+    t.datetime "published_at"
+    t.string "primary_person"
+    t.string "primary_person_slug"
+    t.string "primary_team"
+    t.string "primary_team_slug"
+    t.string "title"
+    t.string "title_short"
+    t.text "summary"
+    t.text "opinion"
+    t.jsonb "post_body"
+    t.jsonb "image_options"
+    t.string "selected_image"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["stage"], name: "index_news_on_stage"
   end
 
   create_table "people", force: :cascade do |t|

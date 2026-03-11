@@ -64,6 +64,25 @@ Rails.application.routes.draw do
   get 'games/:year/week1/:game_slug', to: 'games#show', as: 'game_show'
   get 'games', to: 'games#all_games', as: 'all_games'
   
+  # News (HTML)
+  resources :news, except: [] do
+    collection do
+      get :archived
+    end
+    member do
+      patch :select_image
+    end
+  end
+
+  # News (API)
+  get    'api/news',                  to: 'news#api_index',        as: 'api_news'
+  post   'api/news',                  to: 'news#api_create',       as: 'api_news_create'
+  get    'api/news/:id',              to: 'news#api_show',         as: 'api_news_show'
+  patch  'api/news/:id',              to: 'news#api_update',       as: 'api_news_update'
+  delete 'api/news/:id',              to: 'news#api_destroy',      as: 'api_news_destroy'
+  patch  'api/news/:id/transition',   to: 'news#api_transition',   as: 'api_news_transition'
+  patch  'api/news/:id/select_image', to: 'news#api_select_image', as: 'api_news_select_image'
+
   # Offensive line rankings - SEO optimized
   get 'nfl-offensive-line-rankings', to: 'rankings#offensive_line', as: 'nfl_offensive_line_rankings'
   get 'rankings/offensive-line', to: 'rankings#offensive_line', as: 'offensive_line_rankings'
