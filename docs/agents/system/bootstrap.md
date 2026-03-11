@@ -165,11 +165,18 @@ Tell the agent (or edit config):
     discord: {
       groupPolicy: "allowlist",
       guilds: {
-        "1332466565203103744": { allow: true }
+        "1332466565203103744": {}
       }
     }
   }
 }
+```
+
+> ⚠️ **Do not use `allow: true`** inside guild entries — it is not a valid config key and will cause `openclaw doctor` to flag it as an error. The guild entry just needs to exist (`{}`) to be allowlisted.
+
+After any manual edits to `openclaw.json`, run:
+```bash
+openclaw doctor --fix
 ```
 
 ---
