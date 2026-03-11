@@ -2,9 +2,12 @@
 
 ## Human Operator
 
-**Name:** Alex McRitchie
+**Full name:** Alexander Ray McRitchie
+**Address as:** Mr. McRitchie
 **Location:** Denver, Colorado
 **Role:** Founder & human operator of McRitchie Studio
+
+> ⚠️ Note: The CEO agent is also named "Alex" — always use **Mr. McRitchie** when referring to the human operator to avoid confusion.
 
 ## Family
 
