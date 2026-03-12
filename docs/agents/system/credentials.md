@@ -223,6 +223,38 @@ The Docker Postgres service uses `POSTGRES_HOST_AUTH_METHOD: trust` by default (
 
 ---
 
+## News Pipeline Credentials
+
+All four go in `~/.openclaw/workspace/.secrets` (create if missing, `chmod 600`):
+
+```bash
+X_BEARER_TOKEN=<X API v2 Bearer Token — read-only, for Schefter polling>
+DISCORD_BOT_TOKEN=<Turf Monster Discord bot token>
+ANTHROPIC_API_KEY=<Anthropic API key — for AI enrichment and opinion>
+
+# Turf Monster X Account — OAuth 1.0a (for posting tweets)
+TM_X_API_KEY=<Consumer Key>
+TM_X_API_SECRET=<Consumer Secret>
+TM_X_ACCESS_TOKEN=<Access Token — must be generated for TM's account>
+TM_X_ACCESS_SECRET=<Access Token Secret>
+TM_X_BEARER_TOKEN=<Bearer Token for TM's app>
+```
+
+### Getting X OAuth 1.0a credentials
+
+1. Go to [developer.x.com](https://developer.x.com) → Your Project → App
+2. **Keys and Tokens** tab
+3. **Consumer Keys** → API Key (`TM_X_API_KEY`) + API Key Secret (`TM_X_API_SECRET`)
+4. **Authentication Tokens** → Generate Access Token for the TM account → Access Token (`TM_X_ACCESS_TOKEN`) + Secret (`TM_X_ACCESS_SECRET`)
+5. App must have **Read and Write** permissions under App Settings → User authentication settings
+
+### Getting the X Bearer Token (for Schefter polling)
+
+1. Same **Keys and Tokens** page → Bearer Token → Copy
+2. This is the read-only `X_BEARER_TOKEN` used by `poll-schefter.js`
+
+---
+
 ## Summary Table
 
 | Credential | File | Key |
@@ -237,6 +269,13 @@ The Docker Postgres service uses `POSTGRES_HOST_AUTH_METHOD: trust` by default (
 | Sportradar API key | `.env` | `SPORTRADAR_API_KEY` |
 | Postgres password | `.env` | `POSTGRES_PASSWORD` |
 | Rails SECRET_KEY_BASE | `.env` | `SECRET_KEY_BASE` |
+| X Bearer Token (polling) | `workspace/.secrets` | `X_BEARER_TOKEN` |
+| X OAuth — TM API Key | `workspace/.secrets` | `TM_X_API_KEY` |
+| X OAuth — TM API Secret | `workspace/.secrets` | `TM_X_API_SECRET` |
+| X OAuth — TM Access Token | `workspace/.secrets` | `TM_X_ACCESS_TOKEN` |
+| X OAuth — TM Access Secret | `workspace/.secrets` | `TM_X_ACCESS_SECRET` |
+| Discord Bot Token (scripts) | `workspace/.secrets` | `DISCORD_BOT_TOKEN` |
+| Anthropic API key (scripts) | `workspace/.secrets` | `ANTHROPIC_API_KEY` |
 
 ---
 
