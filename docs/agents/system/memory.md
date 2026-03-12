@@ -67,7 +67,13 @@ The task system (`AgentTask`) tracks *work*. Memory tracks *context*.
 ```
 docs/agents/shared/MEMORY.md        ← Shared cross-agent memory (in repo)
 
-~/.openclaw/agents/[slug]/workspace/
+Agent workspaces (actual paths):
+  ~/.openclaw/workspace/            ← Alex (default agent)
+  ~/.openclaw/workspace-mason/      ← Mason
+  ~/.openclaw/workspace-mack/       ← Mack
+  ~/.openclaw/workspace-turf-monster/ ← Turf Monster
+
+Each workspace contains:
   MEMORY.md                         ← Long-term individual memory
   memory/
     YYYY-MM-DD.md                   ← Daily session logs
