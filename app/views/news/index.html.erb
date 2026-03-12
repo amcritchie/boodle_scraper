@@ -78,7 +78,11 @@
                      data-action="dragstart->news-kanban#dragStart dragend->news-kanban#dragEnd click->news-kanban#cardClick">
 
                   <% if show_image %>
-                    <img src="<%= img_src %>" alt="" class="w-full h-24 object-cover">
+                    <% if news.selected_image.present? %>
+                      <img src="<%= img_src %>" alt="" class="w-full h-24 object-cover">
+                    <% else %>
+                      <img src="<%= img_src %>" alt="" class="w-full object-cover" style="height:20px;">
+                    <% end %>
                   <% end %>
 
                   <div class="p-3">

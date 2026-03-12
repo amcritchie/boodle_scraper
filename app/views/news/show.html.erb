@@ -56,7 +56,7 @@
           <%# ── Stage 2: reviewed ────────────────────────────── %>
 
           <% if show_image %>
-            <img src="<%= img_src %>" alt="" class="rounded-lg w-full max-h-64 object-cover">
+            <img src="<%= img_src %>" alt="" class="rounded-lg w-full object-cover <%= @news.selected_image.present? ? 'max-h-64' : '' %>" style="<%= @news.selected_image.present? ? '' : 'height:20px;' %>">
           <% end %>
 
           <% if @news.summary.present? %>
@@ -70,7 +70,7 @@
           <%# ── Stages 3–5: content / edited / posted ─────────── %>
 
           <% if show_image %>
-            <img src="<%= img_src %>" alt="" class="rounded-lg w-full max-h-64 object-cover">
+            <img src="<%= img_src %>" alt="" class="rounded-lg w-full object-cover <%= @news.selected_image.present? ? 'max-h-64' : '' %>" style="<%= @news.selected_image.present? ? '' : 'height:20px;' %>">
           <% end %>
 
           <% if @news.opinion.present? %>
