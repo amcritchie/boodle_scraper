@@ -372,6 +372,87 @@ openclaw cron list
 
 ---
 
+# 11. News Pipeline
+
+The news pipeline ingests Adam Schefter tweets into the Rails `news` table, enriches them with AI, and posts to Discord.
+
+## Credentials
+
+Add these to `~/.openclaw/workspace/.secrets` (create file if needed, `chmod 600`):
+
+```bash
+X_BEARER_TOKEN=<X API v2 Bearer Token>
+DISCORD_BOT_TOKEN=<Turf Monster bot token>
+ANTHROPIC_API_KEY=<Anthropic API key>
+```
+
+Get `X_BEARER_TOKEN` from [developer.x.com](https://developer.x.com) — free tier is sufficient.  
+`DISCORD_BOT_TOKEN` is Turf Monster's token from `openclaw.json`.  
+`ANTHROPIC_API_KEY` is the same key used for agents.
+
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `workspace/scripts/poll-schefter.js` | Polls X API for new Schefter tweets → DB + Discord |
+| `workspace/scripts/enrich-news.js` | AI enrichment of raw news records → `reviewed` stage |
+| `workspace/scripts/schefter-state.json` | Tracks `since_id` — do not delete |
+| `workspace/news/pipeline.jsonl` | Local append-only tweet log |
+
+Images saved to: `boodle_scraper/public/images/news/`
+
+## Cron Jobs
+
+Set up via OpenClaw (jobs persist in `~/.openclaw/cron/jobs.json`):
+
+```bash
+# Poll Schefter tweets every 5 minutes
+openclaw cron add \
+  --agent alex \
+  --name "poll-schefter" \
+  --schedule "*/5 * * * *" \
+  --timezone "America/Denver" \
+  --target isolated \
+  --prompt "Run the Schefter tweet poller: \`cd ~/.openclaw/workspace && set -a && source .secrets && set +a && node scripts/poll-schefter.js\`. Log the output. No need to announce if it's a quiet run."
+
+# Enrich news records every 10 minutes (Turf Monster)
+openclaw cron add \
+  --agent alex \
+  --name "enrich-news (turf-monster)" \
+  --schedule "*/10 * * * *" \
+  --timezone "America/Denver" \
+  --target isolated \
+  --prompt "Run the news enrichment script: \`cd ~/.openclaw/workspace && set -a && source .secrets && set +a && node scripts/enrich-news.js\`. Log the output. No need to announce if there are no pending records."
+```
+
+## Test It
+
+```bash
+# Manual poll test
+cd ~/.openclaw/workspace && set -a && source .secrets && set +a && node scripts/poll-schefter.js
+
+# Manual enrich test
+cd ~/.openclaw/workspace && set -a && source .secrets && set +a && node scripts/enrich-news.js
+
+# Check pending records
+curl -s "http://localhost:3000/api/news?stage=new" | python3 -m json.tool | head -20
+
+# Check enriched records
+curl -s "http://localhost:3000/api/news?stage=reviewed" | python3 -m json.tool | head -20
+```
+
+## News Stage Flow
+
+```
+new → reviewed → content → edited → posted → archived
+```
+
+- `new` — raw tweet, just ingested
+- `reviewed` — AI-enriched (title_short, primary_person, primary_team, summary, image)
+- Subsequent stages are manual editorial workflow
+
+---
+
 # Verify Everything Works
 
 Run these checks after setup. All should succeed.
