@@ -67,8 +67,23 @@
     </div>
 
     <div class="md:col-span-2">
-      <%= f.label :opinion, class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.label :opinion, "🎙️ Opinion (Turf Monster's Take)", class: "block text-sm font-medium theme-text-primary mb-1" %>
       <%= f.text_area :opinion, rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div>
+      <%= f.label :feeling, "Feeling (1-2 words)", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :feeling, placeholder: "e.g. Hyped, Heartbroken, Skeptical", class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div>
+      <%= f.label :feeling_emoji, "Feeling Emoji", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :feeling_emoji, placeholder: "e.g. 🔥😤💀", class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
+    <div>
+      <%= f.label :what_happened, "What Happened (1-2 words)", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :what_happened, placeholder: "e.g. Signed, Traded, Released", class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
     </div>
 
     <div class="md:col-span-2">
