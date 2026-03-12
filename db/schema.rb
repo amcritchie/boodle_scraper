@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_03_11_195130) do
+ActiveRecord::Schema[7.0].define(version: 2026_03_11_220000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -407,6 +407,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_11_195130) do
     t.string "selected_image"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "feeling"
+    t.string "feeling_emoji"
+    t.string "what_happened"
     t.index ["stage"], name: "index_news_on_stage"
   end
 
