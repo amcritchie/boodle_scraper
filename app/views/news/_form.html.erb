@@ -94,6 +94,11 @@
     <div>
       <%= f.label :x_post_id, "X Post ID", class: "block text-sm font-medium theme-text-primary mb-1" %>
       <%= f.text_field :x_post_id, placeholder: "e.g. 1234567890123456789", class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-mono" %>
+    </div>
+
+    <div>
+      <%= f.label :x_post_url, "X Post URL", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.url_field :x_post_url, placeholder: "https://x.com/i/web/status/...", class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
       <% if news.x_tweet_url.present? %>
         <a href="<%= news.x_tweet_url %>" target="_blank" class="text-xs text-emerald-600 dark:text-emerald-400 hover:underline mt-1 inline-block">View on X →</a>
       <% end %>

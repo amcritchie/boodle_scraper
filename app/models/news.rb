@@ -31,11 +31,10 @@ class News < ApplicationRecord
   end
 
   def x_tweet_url
-    return nil if x_post_id.blank?
-    "https://x.com/i/web/status/#{x_post_id}"
+    x_post_url.presence || (x_post_id.present? ? "https://x.com/i/web/status/#{x_post_id}" : nil)
   end
 
   def posted_to_x?
-    x_post_id.present?
+    x_post_id.present? || x_post_url.present?
   end
 end

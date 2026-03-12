@@ -145,7 +145,7 @@ class NewsController < ApplicationController
     params.require(:news).permit(
       :title, :title_short, :url, :author, :published_at, :stage,
       :primary_person, :primary_person_slug, :primary_team, :primary_team_slug,
-      :summary, :opinion, :selected_image, :x_post_id
+      :summary, :opinion, :selected_image, :x_post_id, :x_post_url
     )
   end
 
@@ -153,7 +153,7 @@ class NewsController < ApplicationController
     permitted = params.require(:news).permit(
       :title, :title_short, :url, :author, :published_at, :stage,
       :primary_person, :primary_person_slug, :primary_team, :primary_team_slug,
-      :summary, :opinion, :selected_image, :x_post_id,
+      :summary, :opinion, :selected_image, :x_post_id, :x_post_url,
       :feeling, :feeling_emoji, :what_happened
     )
     permitted[:image_options] = params[:news][:image_options] if params[:news][:image_options].present?
@@ -171,7 +171,7 @@ class NewsController < ApplicationController
       summary: news.summary, opinion: news.opinion,
       post_body: news.post_body, image_options: news.image_options,
       selected_image: news.selected_image,
-      x_post_id: news.x_post_id, x_tweet_url: news.x_tweet_url,
+      x_post_id: news.x_post_id, x_post_url: news.x_post_url, x_tweet_url: news.x_tweet_url,
       created_at: news.created_at, updated_at: news.updated_at
     }
   end
