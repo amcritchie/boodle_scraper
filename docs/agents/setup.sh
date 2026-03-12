@@ -186,6 +186,17 @@ collect_credentials() {
   prompt_credential POSTGRES_PASS   "Postgres password" "choose any value"
 
   echo ""
+  echo "News Pipeline — X API (Schefter polling):"
+  prompt_credential X_BEARER_TOKEN  "X Bearer Token (read-only)" "developer.x.com"
+  echo ""
+
+  echo "News Pipeline — Turf Monster X Account (OAuth 1.0a for posting):"
+  prompt_credential TM_X_API_KEY       "TM X API Key (Consumer Key)"
+  prompt_credential TM_X_API_SECRET    "TM X API Secret (Consumer Secret)"
+  prompt_credential TM_X_ACCESS_TOKEN  "TM X Access Token"
+  prompt_credential TM_X_ACCESS_SECRET "TM X Access Token Secret"
+  echo ""
+
   echo "Generating Rails SECRET_KEY_BASE..."
   SECRET_KEY=$(openssl rand -hex 64)
   echo "  ✓ Generated"
@@ -303,6 +314,24 @@ PYEOF
     echo "  ✓ .env written"
   fi
 
+  # ── .secrets (news pipeline) ──
+  SECRETS_FILE="$OPENCLAW_DIR/workspace/.secrets"
+  echo "  → Writing news pipeline credentials → $SECRETS_FILE"
+  cat > "$SECRETS_FILE" <<SECRETSEOF
+# News pipeline credentials — DO NOT COMMIT
+X_BEARER_TOKEN=$X_BEARER_TOKEN
+DISCORD_BOT_TOKEN=$DISCORD_TOKEN_TURF_MONSTER
+ANTHROPIC_API_KEY=$ANTHROPIC_KEY
+
+# Turf Monster X OAuth 1.0a (for posting tweets)
+TM_X_API_KEY=$TM_X_API_KEY
+TM_X_API_SECRET=$TM_X_API_SECRET
+TM_X_ACCESS_TOKEN=$TM_X_ACCESS_TOKEN
+TM_X_ACCESS_SECRET=$TM_X_ACCESS_SECRET
+SECRETSEOF
+  chmod 600 "$SECRETS_FILE"
+  echo "  ✓ .secrets written (chmod 600)"
+
   # ── Validate config ──
   echo ""
   echo "  Running openclaw doctor..."
@@ -326,16 +355,18 @@ print_summary() {
     echo "  ✓ Agent-Discord bindings configured"
     echo "  ✓ GitHub remote updated with PAT"
     echo "  ✓ .env generated"
+    echo "  ✓ .secrets written (news pipeline X + Anthropic keys)"
     echo ""
     echo "  Still manual:"
     echo "  • Register agents: openclaw agents add alex / mason / mack / turf-monster"
     echo "  • Pair Discord bots: DM each bot → openclaw pairing approve discord <CODE>"
     echo "  • Restart gateway: openclaw gateway restart"
-    echo "  • Start app: docker compose up --build -d"
-    echo "  • Run seeds: docker compose exec web bin/rails runner db/seed_agents.rb"
-    echo "  •            docker compose exec web bin/rails runner db/seed_articles.rb"
-    echo "  •            docker compose exec web bin/rails runner db/seed_news.rb"
+    echo "  • Start app: docker compose up --build -d  (from repo root)"
+    echo "  • Run seeds: docker exec boodle_scraper-web-1 bin/rails runner db/seed_agents.rb"
+    echo "  •            docker exec boodle_scraper-web-1 bin/rails runner db/seed_articles.rb"
+    echo "  •            docker exec boodle_scraper-web-1 bin/rails runner db/seed_news.rb"
     echo "  • Set up cron jobs (see bootstrap.md § Cron Jobs)"
+    echo "  • Verify .secrets news pipeline credentials: ~/.openclaw/workspace/.secrets"
   else
     echo ""
     echo "  Next steps:"
