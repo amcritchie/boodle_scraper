@@ -30,10 +30,6 @@ class News < ApplicationRecord
     update!(stage: "archived")
   end
 
-  def x_tweet_url
-    x_post_url.presence || (x_post_id.present? ? "https://x.com/i/web/status/#{x_post_id}" : nil)
-  end
-
   def posted_to_x?
     x_post_id.present? || x_post_url.present?
   end

@@ -167,7 +167,7 @@
             <% if @news.posted_to_x? %>
               <div>
                 <p class="text-xs font-medium theme-text-secondary uppercase">X Post</p>
-                <a href="<%= @news.x_tweet_url %>" target="_blank" class="text-sm text-emerald-600 dark:text-emerald-400 hover:underline mt-1 inline-block font-mono break-all"><%= @news.x_post_id %></a>
+                <a href="<%= @news.x_post_url %>" target="_blank" class="text-sm text-emerald-600 dark:text-emerald-400 hover:underline mt-1 inline-block font-mono break-all"><%= @news.x_post_id %></a>
               </div>
             <% elsif @news.stage == "posted" %>
               <div>
