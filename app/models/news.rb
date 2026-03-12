@@ -1,6 +1,6 @@
 class News < ApplicationRecord
   validates :title, presence: true
-  validates :url, uniqueness: true, allow_blank: true
+  validates :url, uniqueness: true, allow_blank: true, on: :create
 
   scope :by_stage, ->(stage) { where(stage: stage) }
   scope :recent, -> { order(created_at: :desc) }
