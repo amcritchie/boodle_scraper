@@ -65,39 +65,80 @@
                  data-action="dragover->news-kanban#dragOver dragenter->news-kanban#dragEnter dragleave->news-kanban#dragLeave drop->news-kanban#drop">
 
               <% items.each do |news| %>
-                <div class="rounded-lg border theme-border-primary theme-bg-primary p-3 shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-all"
+                <%
+                  img_src     = news.selected_image.presence || '/images/news-placeholder.svg'
+                  show_image  = %w[reviewed content edited posted].include?(news.stage)
+                  show_opinion = %w[content edited posted].include?(news.stage)
+                %>
+                <div class="rounded-lg border theme-border-primary theme-bg-primary shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-all overflow-hidden"
                      draggable="true"
                      data-news-kanban-target="card"
                      data-news-id="<%= news.id %>"
                      data-stage="<%= news.stage %>"
                      data-action="dragstart->news-kanban#dragStart dragend->news-kanban#dragEnd click->news-kanban#cardClick">
 
-                  <!-- Title + Actions -->
-                  <div class="flex items-start gap-1">
-                    <p class="text-sm font-medium theme-text-primary leading-snug line-clamp-2 mb-2 flex-1"><%= news.title %></p>
-                    <div class="flex flex-shrink-0 gap-0.5">
-                      <button data-action="click->news-kanban#archiveCard" class="p-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Archive">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
-                      </button>
-                      <button data-action="click->news-kanban#deleteCard" class="p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors" title="Delete">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                      </button>
-                    </div>
-                  </div>
+                  <% if show_image %>
+                    <img src="<%= img_src %>" alt="" class="w-full h-24 object-cover">
+                  <% end %>
 
-                  <!-- Person / Team -->
-                  <div class="flex items-center gap-1.5 mb-1">
-                    <% if news.primary_person.present? %>
-                      <span class="text-xs theme-text-secondary"><%= news.primary_person %></span>
-                    <% elsif news.primary_team.present? %>
-                      <span class="text-xs theme-text-secondary"><%= news.primary_team %></span>
+                  <div class="p-3">
+                    <!-- Title + Actions -->
+                    <div class="flex items-start gap-1 mb-2">
+                      <p class="text-sm font-medium theme-text-primary leading-snug line-clamp-2 flex-1">
+                        <% if news.stage == 'new' %>
+                          <%= news.title %>
+                        <% else %>
+                          <%= news.title_short.presence || news.title %>
+                        <% end %>
+                      </p>
+                      <div class="flex flex-shrink-0 gap-0.5">
+                        <button data-action="click->news-kanban#archiveCard" class="p-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" title="Archive">
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+                        </button>
+                        <button data-action="click->news-kanban#deleteCard" class="p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors" title="Delete">
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <% if news.stage == 'new' %>
+                      <!-- Stage 1: new — url, author, published_at, created_at -->
+                      <% if news.url.present? %>
+                        <a href="<%= news.url %>" target="_blank" class="text-[11px] text-emerald-600 dark:text-emerald-400 truncate block mb-1 hover:underline" data-action="click->news-kanban#stopPropagation"><%= news.url.gsub(/https?:\/\/(www\.)?/, '') %></a>
+                      <% end %>
+                      <div class="flex justify-between items-center mt-1">
+                        <span class="text-[11px] theme-text-secondary"><%= news.author %></span>
+                        <span class="text-[11px] theme-text-secondary"><%= (news.published_at || news.created_at).strftime("%b %d, %H:%M") %></span>
+                      </div>
+                      <p class="text-[11px] theme-text-secondary mt-0.5">Created <%= news.created_at.strftime("%b %d, %H:%M") %></p>
+
+                    <% elsif news.stage == 'reviewed' %>
+                      <!-- Stage 2: reviewed — person, team, author, published_at, updated_at -->
+                      <div class="flex flex-wrap gap-1 mb-1.5">
+                        <% if news.primary_person.present? %>
+                          <span class="text-[11px] bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">👤 <%= news.primary_person %></span>
+                        <% end %>
+                        <% if news.primary_team.present? %>
+                          <span class="text-[11px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-1.5 py-0.5 rounded">🏈 <%= news.primary_team %></span>
+                        <% end %>
+                      </div>
+                      <div class="flex justify-between items-center mt-1">
+                        <span class="text-[11px] theme-text-secondary"><%= news.author %></span>
+                        <span class="text-[11px] theme-text-secondary"><%= news.published_at&.strftime("%b %d") %></span>
+                      </div>
+                      <p class="text-[11px] theme-text-secondary mt-0.5">Updated <%= news.updated_at.strftime("%b %d, %H:%M") %></p>
+
+                    <% elsif show_opinion %>
+                      <!-- Stages 3-5: content, edited, posted — opinion, published_at, updated_at -->
+                      <% if news.opinion.present? %>
+                        <p class="text-xs theme-text-secondary line-clamp-2 mb-1.5"><%= news.opinion %></p>
+                      <% end %>
+                      <div class="flex justify-between items-center mt-1">
+                        <span class="text-[11px] theme-text-secondary"><%= news.published_at&.strftime("%b %d") %></span>
+                        <span class="text-[11px] theme-text-secondary">Updated <%= news.updated_at.strftime("%b %d, %H:%M") %></span>
+                      </div>
                     <% end %>
                   </div>
-
-                  <!-- Date -->
-                  <p class="text-[11px] theme-text-secondary">
-                    <%= news.published_at&.strftime("%b %d, %H:%M") || news.created_at.strftime("%b %d, %H:%M") %>
-                  </p>
                 </div>
               <% end %>
 
