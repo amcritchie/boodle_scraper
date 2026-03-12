@@ -289,7 +289,7 @@ curl -s http://localhost:3000/up | head -5
 
 If the web container exits immediately, check logs:
 ```bash
-docker compose logs web
+docker logs boodle_scraper-web-1
 ```
 
 Common issue: `.env` is missing `SECRET_KEY_BASE`. Generate one with `openssl rand -hex 64` and add it.
@@ -302,13 +302,13 @@ Run these in order after the app is up:
 
 ```bash
 # Agents, skills, tasks, activities, usage records
-docker compose exec web bin/rails runner db/seed_agents.rb
+docker exec boodle_scraper-web-1 bin/rails runner db/seed_agents.rb
 
 # Articles
-docker compose exec web bin/rails runner db/seed_articles.rb
+docker exec boodle_scraper-web-1 bin/rails runner db/seed_articles.rb
 
 # News items
-docker compose exec web bin/rails runner db/seed_news.rb
+docker exec boodle_scraper-web-1 bin/rails runner db/seed_news.rb
 ```
 
 Expected output for `seed_agents.rb`:
@@ -345,27 +345,49 @@ See `docs/agents/system/activity-logging.md` for the full logging protocol.
 
 ## 10. Cron Jobs
 
-Mack has two hourly cron jobs that post ops reports to `#lobster-tank`. Set them up with:
+Cron jobs are managed through the OpenClaw cron tool (not CLI flags). Use the `cron` tool with `action=add`.
 
-```bash
-openclaw cron add \
-  --agent mack \
-  --name "Mack Hourly Ops Report" \
-  --schedule "0 * * * *" \
-  --timezone "America/Denver" \
-  --target isolated \
-  --prompt "Post an ops report to #lobster-tank covering: agent status, any task failures, LLM API health, and any issues needing attention. Keep it brief. Use your bot account."
+**Required delivery format for Discord:** always use `"to": "channel:<id>"` — NOT `"channel": "<id>"`. The latter causes a delivery error.
 
-openclaw cron add \
-  --agent mack \
-  --name "Mack Hourly LLM Ops Report" \
-  --schedule "0 * * * *" \
-  --timezone "America/Denver" \
-  --target isolated \
-  --prompt "Check LLM provider health across all agents. Report status to #lobster-tank. Flag any 429s, connection errors, or degraded providers."
+### Mack Ops Reports (hourly)
+
+Add via the cron tool with this delivery config:
+```json
+{ "mode": "announce", "to": "channel:1479973077021495478" }
 ```
 
-Verify they're scheduled:
+Prompt for `Mack Hourly LLM Ops Report`:
+> "You are Mack... Post your hourly LLM ops report to the team in #lobster-tank. Check Anthropic, OpenAI. Report health, incidents, latency concerns. Format for Discord. Sign off as Mack."
+
+Prompt for `Mack Hourly Ops Report`:
+> "You are Mack... Post your hourly ops report to #lobster-tank. Check key API services. Flag anything off. Keep it technical but scannable."
+
+### News Pipeline Cron Jobs
+
+These run scripts from `~/.openclaw/workspace/scripts/`. All use `sessionTarget: isolated`, `delivery: { mode: "none" }`.
+
+| Name | Agent | Schedule | Script |
+|------|-------|----------|--------|
+| `poll-schefter` | alex | `*/5 * * * *` | `poll-schefter.js` |
+| `turf-monster-enrich-news` | turf-monster | `*/10 * * * *` | `enrich-news.js` |
+| `opinion-news (turf-monster)` | alex | `0 * * * *` | `opinion-news.js` |
+| `post-to-x (turf-monster)` | alex | `0 * * * *` | `post-to-x.js` |
+
+Script runner prompt pattern:
+```
+Run the [script name]: `cd ~/.openclaw/workspace && set -a && source .secrets && set +a && node scripts/[script].js`. Log the output. No need to announce if there are no pending records.
+```
+
+### Alex Daily Brief (5am MDT)
+
+Schedule: `0 5 * * *`, tz `America/Denver`, agent `alex`, delivery to `#lobster-tank`.
+
+Brief covers:
+1. **Weather** — Denver forecast via `wttr.in`
+2. **Turf Monster's Top Hit** — most notable `posted` record from yesterday
+3. **Blockers & Ideas** — system health + Alex's candid thoughts
+
+Verify all jobs are scheduled:
 ```bash
 openclaw cron list
 ```
@@ -374,92 +396,74 @@ openclaw cron list
 
 # 11. News Pipeline
 
-The news pipeline ingests Adam Schefter tweets into the Rails `news` table, enriches them with AI, and posts to Discord.
+The news pipeline ingests Adam Schefter tweets → AI enrichment → Turf Monster opinion → posts to X and Discord.
 
 ## Credentials
 
 Add these to `~/.openclaw/workspace/.secrets` (create file if needed, `chmod 600`):
 
 ```bash
-X_BEARER_TOKEN=<X API v2 Bearer Token>
-DISCORD_BOT_TOKEN=<Turf Monster bot token>
+X_BEARER_TOKEN=<X API v2 Bearer Token — for Schefter polling>
+DISCORD_BOT_TOKEN=<Turf Monster Discord bot token>
 ANTHROPIC_API_KEY=<Anthropic API key>
+
+# Turf Monster X account — OAuth 1.0a (for posting tweets)
+TM_X_API_KEY=<Consumer Key>
+TM_X_API_SECRET=<Consumer Secret>
+TM_X_ACCESS_TOKEN=<Access Token>
+TM_X_ACCESS_SECRET=<Access Token Secret>
 ```
 
-Get `X_BEARER_TOKEN` from [developer.x.com](https://developer.x.com) — free tier is sufficient.  
-`DISCORD_BOT_TOKEN` is Turf Monster's token from `openclaw.json`.  
-`ANTHROPIC_API_KEY` is the same key used for agents.
+See `docs/agents/system/credentials.md` for where to get each one.
 
 ## Scripts
 
-| Script | Purpose |
-|--------|---------|
-| `workspace/scripts/poll-schefter.js` | Polls X API for new Schefter tweets → DB + Discord |
-| `workspace/scripts/enrich-news.js` | AI enrichment of raw news records → `reviewed` stage |
-| `workspace/scripts/schefter-state.json` | Tracks `since_id` — do not delete |
-| `workspace/news/pipeline.jsonl` | Local append-only tweet log |
+All scripts live in `~/.openclaw/workspace/scripts/`.
 
-Images saved to: `boodle_scraper/public/images/news/`
+| Script | Stage | What it does |
+|--------|-------|-------------|
+| `poll-schefter.js` | `new` | Polls X API → saves to DB → Discord announce |
+| `enrich-news.js` | `new` → `reviewed` | AI enrichment: title_short, person, team, summary, image |
+| `opinion-news.js` | `reviewed` → `content` | Turf Monster generates hot take: opinion, feeling, emoji |
+| `post-to-x.js` | `edited` → `posted` | Posts to TM's X account → saves `x_post_id` + `x_post_url` → Discord |
 
-## Cron Jobs
+**State file:** `scripts/schefter-state.json` — tracks `since_id` for X polling. **Do not delete.**  
+**Local log:** `news/pipeline.jsonl` — append-only tweet archive.  
+**Images:** saved to `boodle_scraper/public/images/news/<tweet_id>.jpg`
 
-Set up via OpenClaw (jobs persist in `~/.openclaw/cron/jobs.json`):
-
-```bash
-# Poll Schefter tweets every 5 minutes
-openclaw cron add \
-  --agent alex \
-  --name "poll-schefter" \
-  --schedule "*/5 * * * *" \
-  --timezone "America/Denver" \
-  --target isolated \
-  --prompt "Run the Schefter tweet poller: \`cd ~/.openclaw/workspace && set -a && source .secrets && set +a && node scripts/poll-schefter.js\`. Log the output. No need to announce if it's a quiet run."
-
-# Enrich news records every 10 minutes (Turf Monster)
-openclaw cron add \
-  --agent alex \
-  --name "enrich-news (turf-monster)" \
-  --schedule "*/10 * * * *" \
-  --timezone "America/Denver" \
-  --target isolated \
-  --prompt "Run the news enrichment script: \`cd ~/.openclaw/workspace && set -a && source .secrets && set +a && node scripts/enrich-news.js\`. Log the output. No need to announce if there are no pending records."
-```
-
-## Test It
-
-```bash
-# Manual poll test
-cd ~/.openclaw/workspace && set -a && source .secrets && set +a && node scripts/poll-schefter.js
-
-# Manual enrich test
-cd ~/.openclaw/workspace && set -a && source .secrets && set +a && node scripts/enrich-news.js
-
-# Check pending records
-curl -s "http://localhost:3000/api/news?stage=new" | python3 -m json.tool | head -20
-
-# Check enriched records
-curl -s "http://localhost:3000/api/news?stage=reviewed" | python3 -m json.tool | head -20
-```
-
-## News Stage Flow
+## Stage Flow
 
 ```
 new → reviewed → content → edited → posted → archived
+                               ↑
+                    human editorial gate
+                    (approve by moving content → edited)
 ```
 
-- `new` — raw tweet, just ingested
-- `reviewed` — AI-enriched (title_short, primary_person, primary_team, summary, image). Turf Monster posts a review summary to `#lobster-tank` on completion.
-- Subsequent stages are manual editorial workflow
+## Fields Populated Per Stage
 
-## Discord Review Summary Format
+| Stage | Fields |
+|-------|--------|
+| `new` | `url`, `author`, `published_at`, `title` (raw tweet) |
+| `reviewed` | + `title_short`, `primary_person`, `primary_team`, `summary`, `selected_image` |
+| `content` | + `opinion`, `feeling`, `feeling_emoji`, `what_happened` |
+| `posted` | + `x_post_id`, `x_post_url` |
 
-When a record is enriched, Turf Monster posts to `#lobster-tank`:
-```
-📋 News Reviewed
-**[title_short]**
-👤 [primary_person]  🏈 [primary_team]
-[summary]
-🔗 [tweet url]
+## Test It Manually
+
+```bash
+cd ~/.openclaw/workspace
+set -a && source .secrets && set +a
+
+node scripts/poll-schefter.js         # fetch new tweets
+node scripts/enrich-news.js           # enrich one new record
+node scripts/opinion-news.js          # generate opinion for one reviewed record
+node scripts/post-to-x.js            # post one edited record to X
+
+# Check the pipeline
+curl -s "http://localhost:3000/api/news?stage=new" | python3 -m json.tool | head -20
+curl -s "http://localhost:3000/api/news?stage=reviewed" | python3 -m json.tool | head -20
+curl -s "http://localhost:3000/api/news?stage=posted" | python3 -m json.tool | head -20
 ```
 
 ---
