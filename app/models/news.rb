@@ -1,8 +1,10 @@
 class News < ApplicationRecord
   validates :title, presence: true
+  validates :url, uniqueness: true, allow_blank: true
 
   scope :by_stage, ->(stage) { where(stage: stage) }
   scope :recent, -> { order(created_at: :desc) }
+  scope :by_rank, -> { order(Arel.sql("COALESCE(rank, 999999999) ASC, created_at DESC")) }
 
   STAGES = %w[new reviewed content edited posted].freeze
   BOARD_STAGES = %w[new reviewed content edited posted archived].freeze
