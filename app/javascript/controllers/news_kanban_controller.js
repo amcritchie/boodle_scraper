@@ -74,6 +74,7 @@ export default class extends Controller {
     if (newStage === oldStage) {
       // Same-column drop on empty zone = append to end
       this.clearDropIndicators()
+      dropZone.appendChild(this.draggedCard)
       const newsId = this.draggedCard.dataset.newsId
       fetch(`/api/news/${newsId}/rank`, {
         method: "PATCH",
@@ -158,14 +159,20 @@ export default class extends Controller {
 
   cardDrop(event) {
     event.preventDefault()
-    event.stopPropagation()
     this.wasDragging = true
 
     const targetCard = event.currentTarget
     if (!this.draggedCard) return
 
     const isSameColumn = targetCard.parentElement === this.draggedCard.parentElement
-    if (!isSameColumn) return
+
+    if (!isSameColumn) {
+      // Cross-column drop on a card — let the dropZone drop handler fire
+      return
+    }
+
+    // Same-column reorder — stop propagation so dropZone doesn't also fire
+    event.stopPropagation()
 
     const indicator = targetCard.parentElement.querySelector("[data-drop-indicator]")
     let beforeCard = null
