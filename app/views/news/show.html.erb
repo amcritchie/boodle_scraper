@@ -155,7 +155,7 @@
             </div>
 
           <% elsif show_opinion %>
-            <%# Stages 3-5 sidebar: published_at, updated_at %>
+            <%# Stages 3-5 sidebar: published_at, updated_at, x post %>
             <div>
               <p class="text-xs font-medium theme-text-secondary uppercase">Published</p>
               <p class="text-sm theme-text-primary mt-1"><%= @news.published_at&.strftime("%b %d, %Y %H:%M") || "—" %></p>
@@ -164,6 +164,17 @@
               <p class="text-xs font-medium theme-text-secondary uppercase">Updated</p>
               <p class="text-sm theme-text-primary mt-1"><%= @news.updated_at.strftime("%b %d, %Y %H:%M") %></p>
             </div>
+            <% if @news.posted_to_x? %>
+              <div>
+                <p class="text-xs font-medium theme-text-secondary uppercase">X Post</p>
+                <a href="<%= @news.x_tweet_url %>" target="_blank" class="text-sm text-emerald-600 dark:text-emerald-400 hover:underline mt-1 inline-block font-mono break-all"><%= @news.x_post_id %></a>
+              </div>
+            <% elsif @news.stage == "posted" %>
+              <div>
+                <p class="text-xs font-medium theme-text-secondary uppercase">X Post</p>
+                <p class="text-sm theme-text-secondary mt-1 italic">Not posted to X yet</p>
+              </div>
+            <% end %>
           <% end %>
 
         </div>

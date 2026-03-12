@@ -29,4 +29,13 @@ class News < ApplicationRecord
   def archive!
     update!(stage: "archived")
   end
+
+  def x_tweet_url
+    return nil if x_post_id.blank?
+    "https://x.com/i/web/status/#{x_post_id}"
+  end
+
+  def posted_to_x?
+    x_post_id.present?
+  end
 end
