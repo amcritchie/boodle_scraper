@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_03_11_230500) do
+ActiveRecord::Schema[7.0].define(version: 2026_03_12_230000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -412,6 +412,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_11_230500) do
     t.string "what_happened"
     t.string "x_post_id"
     t.string "x_post_url"
+    t.integer "rank"
+    t.index ["rank"], name: "index_news_on_rank"
     t.index ["stage"], name: "index_news_on_stage"
     t.index ["x_post_id"], name: "index_news_on_x_post_id", unique: true, where: "(x_post_id IS NOT NULL)"
   end

@@ -75,7 +75,8 @@
                      data-news-kanban-target="card"
                      data-news-id="<%= news.id %>"
                      data-stage="<%= news.stage %>"
-                     data-action="dragstart->news-kanban#dragStart dragend->news-kanban#dragEnd click->news-kanban#cardClick">
+                     data-rank="<%= news.rank %>"
+                     data-action="dragstart->news-kanban#dragStart dragend->news-kanban#dragEnd click->news-kanban#cardClick dragover->news-kanban#cardDragOver drop->news-kanban#cardDrop">
 
                   <% if show_image %>
                     <% if news.selected_image.present? %>
@@ -141,13 +142,18 @@
                         <% if news.feeling.present? %>
                           <span class="text-[11px] font-medium theme-text-secondary"><%= news.feeling %></span>
                         <% end %>
-                        <% if news.what_happened.present? %>
-                          <span class="text-[11px] bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded"><%= news.what_happened %></span>
-                        <% end %>
                       </div>
                       <% if news.opinion.present? %>
                         <p class="text-xs theme-text-secondary line-clamp-2 mb-1.5"><%= news.opinion %></p>
                       <% end %>
+                      <div class="flex items-center gap-1.5 mb-1">
+                        <% if news.what_happened.present? %>
+                          <span class="text-[11px] bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded"><%= news.what_happened %></span>
+                        <% end %>
+                        <% if news.rank.present? %>
+                          <span class="text-[11px] bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded font-mono">#<%= news.rank %></span>
+                        <% end %>
+                      </div>
                       <div class="flex justify-between items-center mt-1">
                         <span class="text-[11px] theme-text-secondary"><%= news.published_at&.strftime("%b %d") %></span>
                         <span class="text-[11px] theme-text-secondary">Updated <%= news.updated_at.strftime("%b %d, %H:%M") %></span>

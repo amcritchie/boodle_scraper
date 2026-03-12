@@ -71,7 +71,20 @@ export default class extends Controller {
     const newStage = dropZone.dataset.stage
     const oldStage = this.draggedCard.dataset.stage
 
-    if (newStage === oldStage) return
+    if (newStage === oldStage) {
+      // Same-column drop on empty zone = append to end
+      this.clearDropIndicators()
+      const newsId = this.draggedCard.dataset.newsId
+      fetch(`/api/news/${newsId}/rank`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      })
+      .then(r => r.json())
+      .then(data => { if (data.news) this.showToast("Moved to end", "success") })
+      .catch(() => this.showToast("Failed to reorder", "error"))
+      return
+    }
 
     // Remove "Drop items here" placeholder if present
     const placeholder = dropZone.querySelector(".flex.items-center.justify-center")
@@ -113,7 +126,91 @@ export default class extends Controller {
         zone.classList.add("theme-border-primary")
       }
     })
+    this.clearDropIndicators()
     this.draggedCard = null
+  }
+
+  // ─── Within-Column Rank Reorder ───────────────────────────────
+
+  cardDragOver(event) {
+    event.preventDefault()
+    event.dataTransfer.dropEffect = "move"
+
+    const targetCard = event.currentTarget
+    if (!this.draggedCard || targetCard === this.draggedCard) return
+    if (targetCard.parentElement !== this.draggedCard.parentElement) return
+
+    this.clearDropIndicators()
+
+    const rect = targetCard.getBoundingClientRect()
+    const midY = rect.top + rect.height / 2
+
+    const indicator = document.createElement("div")
+    indicator.className = "drop-indicator h-0.5 bg-emerald-400 rounded mx-1 pointer-events-none"
+    indicator.dataset.dropIndicator = "true"
+
+    if (event.clientY < midY) {
+      targetCard.parentElement.insertBefore(indicator, targetCard)
+    } else {
+      targetCard.parentElement.insertBefore(indicator, targetCard.nextSibling)
+    }
+  }
+
+  cardDrop(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    this.wasDragging = true
+
+    const targetCard = event.currentTarget
+    if (!this.draggedCard) return
+
+    const isSameColumn = targetCard.parentElement === this.draggedCard.parentElement
+    if (!isSameColumn) return
+
+    const indicator = targetCard.parentElement.querySelector("[data-drop-indicator]")
+    let beforeCard = null
+    let afterCard = null
+
+    if (indicator) {
+      const prev = indicator.previousElementSibling
+      const next = indicator.nextElementSibling
+      if (prev && prev.dataset.newsId) afterCard = prev
+      if (next && next.dataset.newsId && next !== this.draggedCard) beforeCard = next
+    }
+
+    this.clearDropIndicators()
+
+    if (beforeCard) {
+      targetCard.parentElement.insertBefore(this.draggedCard, beforeCard)
+    } else {
+      targetCard.parentElement.appendChild(this.draggedCard)
+    }
+
+    const newsId = this.draggedCard.dataset.newsId
+    const body = {}
+    if (afterCard) body.after_id = afterCard.dataset.newsId
+    if (beforeCard) body.before_id = beforeCard.dataset.newsId
+
+    fetch(`/api/news/${newsId}/rank`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.news) {
+        this.draggedCard.dataset.rank = data.news.rank
+        this.showToast("Order updated", "success")
+      }
+    })
+    .catch(() => {
+      this.showToast("Failed to update order", "error")
+      window.location.reload()
+    })
+  }
+
+  clearDropIndicators() {
+    document.querySelectorAll("[data-drop-indicator]").forEach(el => el.remove())
   }
 
   // ─── Card Click ───────────────────────────────────────────────

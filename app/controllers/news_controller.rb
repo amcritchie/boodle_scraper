@@ -1,13 +1,13 @@
 class NewsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [
     :api_index, :api_show, :api_create, :api_update, :api_destroy,
-    :api_transition, :api_select_image
+    :api_transition, :api_select_image, :api_rank
   ]
 
   # ─── HTML Actions ───────────────────────────────────────────────
 
   def index
-    news = News.recent
+    news = News.order(Arel.sql("COALESCE(rank, 999999999) ASC, created_at DESC"))
     @news_by_stage = News::BOARD_STAGES.index_with { |_| [] }
     news.each { |n| @news_by_stage[n.stage] << n if @news_by_stage.key?(n.stage) }
   end
@@ -65,7 +65,7 @@ class NewsController < ApplicationController
   # ─── API Actions ────────────────────────────────────────────────
 
   def api_index
-    news = News.recent
+    news = News.order(Arel.sql("COALESCE(rank, 999999999) ASC, created_at DESC"))
     news = news.by_stage(params[:stage]) if params[:stage].present?
 
     page = (params[:page] || 1).to_i
@@ -139,6 +139,37 @@ class NewsController < ApplicationController
     render json: { news: news_json(news) }
   end
 
+  def api_rank
+    news = News.find_by(id: params[:id])
+    return render json: { error: "News not found" }, status: :not_found unless news
+
+    new_rank = if params[:before_id].present? && params[:after_id].present?
+      before_item = News.find_by(id: params[:before_id])
+      after_item  = News.find_by(id: params[:after_id])
+      return render json: { error: "before/after items not found" }, status: :bad_request unless before_item && after_item
+      ((before_item.rank.to_i + after_item.rank.to_i) / 2.0).round
+    elsif params[:before_id].present?
+      before_item = News.find_by(id: params[:before_id])
+      return render json: { error: "before item not found" }, status: :bad_request unless before_item
+      next_item = News.where("rank > ?", before_item.rank).order(:rank).first
+      next_item ? ((before_item.rank + next_item.rank) / 2.0).round : before_item.rank + 100
+    elsif params[:after_id].present?
+      after_item = News.find_by(id: params[:after_id])
+      return render json: { error: "after item not found" }, status: :bad_request unless after_item
+      next_item = News.where("rank > ?", after_item.rank).order(:rank).first
+      next_item ? ((after_item.rank + next_item.rank) / 2.0).round : after_item.rank + 100
+    else
+      max_rank = News.maximum(:rank) || 0
+      ((max_rank / 100.0).ceil + 1) * 100
+    end
+
+    if news.update(rank: new_rank)
+      render json: { news: news_json(news) }
+    else
+      render json: { errors: news.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def news_html_params
@@ -154,7 +185,7 @@ class NewsController < ApplicationController
       :title, :title_short, :url, :author, :published_at, :stage,
       :primary_person, :primary_person_slug, :primary_team, :primary_team_slug,
       :summary, :opinion, :selected_image, :x_post_id, :x_post_url,
-      :feeling, :feeling_emoji, :what_happened
+      :feeling, :feeling_emoji, :what_happened, :rank
     )
     permitted[:image_options] = params[:news][:image_options] if params[:news][:image_options].present?
     permitted[:post_body] = params[:news][:post_body] if params[:news][:post_body].present?
@@ -172,6 +203,7 @@ class NewsController < ApplicationController
       post_body: news.post_body, image_options: news.image_options,
       selected_image: news.selected_image,
       x_post_id: news.x_post_id, x_post_url: news.x_post_url,
+      rank: news.rank,
       created_at: news.created_at, updated_at: news.updated_at
     }
   end

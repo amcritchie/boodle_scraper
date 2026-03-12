@@ -82,6 +82,7 @@ Rails.application.routes.draw do
   delete 'api/news/:id',              to: 'news#api_destroy',      as: 'api_news_destroy'
   patch  'api/news/:id/transition',   to: 'news#api_transition',   as: 'api_news_transition'
   patch  'api/news/:id/select_image', to: 'news#api_select_image', as: 'api_news_select_image'
+  patch  'api/news/:id/rank',         to: 'news#api_rank',         as: 'api_rank_news'
 
   # Offensive line rankings - SEO optimized
   get 'nfl-offensive-line-rankings', to: 'rankings#offensive_line', as: 'nfl_offensive_line_rankings'
