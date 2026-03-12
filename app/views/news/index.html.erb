@@ -133,7 +133,18 @@
                       <p class="text-[11px] theme-text-secondary mt-0.5">Updated <%= news.updated_at.strftime("%b %d, %H:%M") %></p>
 
                     <% elsif show_opinion %>
-                      <!-- Stages 3-5: content, edited, posted — opinion, published_at, updated_at -->
+                      <!-- Stages 3-5: content, edited, posted -->
+                      <div class="flex items-center gap-1.5 mb-1.5">
+                        <% if news.feeling_emoji.present? %>
+                          <span class="text-base leading-none"><%= news.feeling_emoji %></span>
+                        <% end %>
+                        <% if news.feeling.present? %>
+                          <span class="text-[11px] font-medium theme-text-secondary"><%= news.feeling %></span>
+                        <% end %>
+                        <% if news.what_happened.present? %>
+                          <span class="text-[11px] bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded"><%= news.what_happened %></span>
+                        <% end %>
+                      </div>
                       <% if news.opinion.present? %>
                         <p class="text-xs theme-text-secondary line-clamp-2 mb-1.5"><%= news.opinion %></p>
                       <% end %>

@@ -153,7 +153,8 @@ class NewsController < ApplicationController
     permitted = params.require(:news).permit(
       :title, :title_short, :url, :author, :published_at, :stage,
       :primary_person, :primary_person_slug, :primary_team, :primary_team_slug,
-      :summary, :opinion, :selected_image
+      :summary, :opinion, :selected_image,
+      :feeling, :feeling_emoji, :what_happened
     )
     permitted[:image_options] = params[:news][:image_options] if params[:news][:image_options].present?
     permitted[:post_body] = params[:news][:post_body] if params[:news][:post_body].present?

@@ -73,10 +73,24 @@
             <img src="<%= img_src %>" alt="" class="rounded-lg w-full object-cover <%= @news.selected_image.present? ? 'max-h-64' : '' %>" style="<%= @news.selected_image.present? ? '' : 'height:50px;' %>">
           <% end %>
 
+          <% if @news.feeling.present? || @news.feeling_emoji.present? || @news.what_happened.present? %>
+            <div class="flex items-center gap-2 flex-wrap">
+              <% if @news.feeling_emoji.present? %>
+                <span class="text-2xl leading-none"><%= @news.feeling_emoji %></span>
+              <% end %>
+              <% if @news.feeling.present? %>
+                <span class="text-sm font-semibold theme-text-primary"><%= @news.feeling %></span>
+              <% end %>
+              <% if @news.what_happened.present? %>
+                <span class="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-full font-medium"><%= @news.what_happened %></span>
+              <% end %>
+            </div>
+          <% end %>
+
           <% if @news.opinion.present? %>
             <div>
-              <h3 class="text-sm font-medium theme-text-secondary uppercase mb-2">Opinion</h3>
-              <p class="text-sm theme-text-primary"><%= @news.opinion %></p>
+              <h3 class="text-sm font-medium theme-text-secondary uppercase mb-2">🎙️ Turf Monster's Take</h3>
+              <p class="text-sm theme-text-primary italic"><%= @news.opinion %></p>
             </div>
           <% end %>
 
