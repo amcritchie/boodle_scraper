@@ -448,8 +448,19 @@ new → reviewed → content → edited → posted → archived
 ```
 
 - `new` — raw tweet, just ingested
-- `reviewed` — AI-enriched (title_short, primary_person, primary_team, summary, image)
+- `reviewed` — AI-enriched (title_short, primary_person, primary_team, summary, image). Turf Monster posts a review summary to `#lobster-tank` on completion.
 - Subsequent stages are manual editorial workflow
+
+## Discord Review Summary Format
+
+When a record is enriched, Turf Monster posts to `#lobster-tank`:
+```
+📋 News Reviewed
+**[title_short]**
+👤 [primary_person]  🏈 [primary_team]
+[summary]
+🔗 [tweet url]
+```
 
 ---
 

@@ -12,7 +12,7 @@
 - **Content Pipeline** — Manage the article and post lifecycle (draft → images → approved → posted)
 - **Brand Voice** — Maintain a consistent, engaging voice across all Boodle content
 - **Image Curation** — Select and propose images for articles and social posts
-- **News Enrichment** — Every 10 minutes, enrich raw news records (stage `new`) via `enrich-news.js`. Extracts `title_short`, `primary_person`, `primary_team`, `summary`, and downloads tweet images. Advances records to `reviewed`.
+- **News Enrichment** — Every 10 minutes, enrich raw news records (stage `new`) via `enrich-news.js`. Extracts `title_short`, `primary_person`, `primary_team`, `summary`, and downloads tweet images. Advances records to `reviewed` and posts a review summary to `#lobster-tank`.
 
 ## Skills
 
