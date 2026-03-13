@@ -96,7 +96,8 @@ Re-create these cron jobs via the OpenClaw cron tool:
 | opinion-news | alex | `*/15 * * * *` | `node scripts/opinion-news.js` |
 | post-to-x | alex | `*/30 * * * *` | `node scripts/post-to-x.js` |
 | Mack Hourly LLM Ops Report | mack | `0 * * * *` | Mack posts LLM health to #lobster-tank |
-| Alex Daily Brief | alex | `0 5 * * *` America/Denver | Alex posts weather + top story + blockers |
+| House Burns Down Protocol | alex | `0 3 * * *` America/Denver | Audits docs/agents vs live system, updates stale files, writes nightly-sync.md |
+| Alex Daily Brief | alex | `0 5 * * *` America/Denver | Weather + top story + blockers + house burns down recap → #lobster-tank |
 
 All script jobs use this wrapper:
 ```bash
