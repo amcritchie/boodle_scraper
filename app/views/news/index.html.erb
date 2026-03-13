@@ -10,6 +10,10 @@
   archived = @news_by_stage["archived"] || []
 %>
 
+<%= content_for :head do %>
+  <meta name="turbo-visit-control" content="reload">
+<% end %>
+
 <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
      data-controller="news-kanban"
      data-news-kanban-transition-url-value="/api/news/:id/transition"
