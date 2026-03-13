@@ -2,7 +2,7 @@
 
 Use this if the system needs to be rebuilt from scratch (new machine, disaster recovery, etc.).
 
-Last updated: 2026-03-12
+Last updated: 2026-03-13
 
 ---
 
@@ -91,9 +91,11 @@ Re-create these cron jobs via the OpenClaw cron tool:
 
 | Name | Agent | Schedule | Payload command |
 |------|-------|----------|---------|
-| poll-schefter | alex | `*/5 * * * *` | `node scripts/poll-schefter.js` |
-| turf-monster-enrich-news | turf-monster | `*/10 * * * *` | `node scripts/enrich-news.js` |
-| opinion-news | alex | `*/15 * * * *` | `node scripts/opinion-news.js` |
+| poll-schefter | alex | `*/3 * * * *` | `node scripts/poll-schefter.js` |
+| turf-monster-enrich-news | turf-monster | `*/5 * * * *` | `node scripts/enrich-news.js` |
+| edit-post | mason | `*/5 * * * *` | `node scripts/edit-post.js` |
+| mason-task-refinement | mason | `*/5 * * * *` | Mason refines `new` tasks, queues or @asks Alex |
+| opinion-news | alex | `*/7 * * * *` | `node scripts/opinion-news.js` |
 | post-to-x | alex | `*/30 * * * *` | `node scripts/post-to-x.js` |
 | Mack Hourly LLM Ops Report | mack | `0 * * * *` | Mack posts LLM health to #lobster-tank |
 | House Burns Down Protocol | alex | `0 3 * * *` America/Denver | Audits docs/agents vs live system, updates stale files, writes nightly-sync.md |
@@ -192,9 +194,12 @@ new → reviewed → content → edited → posted → archived
 ### Discord message templates
 | Script | Format |
 |--------|--------|
+Templates centralized in `scripts/lib/discord-templates.js` (refactored 2026-03-13).
+
 | poll-schefter | `🐊🏈 **Adam Schefter** · time\n🔗 [handle](url)` |
-| enrich-news | `🐊🤖 **title_short**\n- 👤 person  🏈 team\nsummary\n🔗 [author](url)` |
+| enrich-news | `🐊🤖 **title_short**\n- 👤 person\n- 🏈 team\nsummary\n🔗 [author](url)` |
 | opinion-news | `🐊🤔 **title_short**\n*feeling • what_happened*\nopinion\n🔗 [author](url)` |
+| edit-post | `feeling_emoji **title_short**\n- 👤 person\n- 🏈 team\n- #️⃣ hashtag\nopinion` |
 | post-to-x | `feeling_emoji **title_short**\nopinion\n🔗 [Turf Monster](x_post_url)` |
 
 ---

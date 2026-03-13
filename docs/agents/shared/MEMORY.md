@@ -1,7 +1,7 @@
 # McRitchie Studio — Shared Agent Memory
 
 This file is the system's collective brain. All agents can read and write it.
-Keep entries current. Remove outdated info. Last updated: 2026-03-12.
+Keep entries current. Remove outdated info. Last updated: 2026-03-13.
 
 ---
 
@@ -11,7 +11,7 @@ Keep entries current. Remove outdated info. Last updated: 2026-03-12.
 |-----------|--------|-------|
 | Rails app | 🟢 Running | Docker container `boodle_scraper-web-1`, port 3000 |
 | PostgreSQL | 🟢 Healthy | Docker container `boodle_scraper-db-1` |
-| Migrations | 🟢 Current | Latest: `add_rank_to_news` (2026-03-12) |
+| Migrations | 🟢 Current | Latest: `add_default_rank_to_news` (2026-03-13) |
 | Agents seeded | 🟢 Done | 4 agents, 14 skills, 13 assignments |
 | News pipeline | 🟢 Live | Polling → enriching → opinion → posting to X |
 | Daily Brief | 🟢 Scheduled | 5am MDT, Alex posts to #lobster-tank |
@@ -62,20 +62,21 @@ Full end-to-end NFL news pipeline sourcing from Adam Schefter's X account.
 
 ### Stage Flow
 ```
-new → reviewed → content → edited → posted → archived
-                               ↑
+new → reviewed → content → edited → queued → posted → archived
+                                        ↑
                     human editorial gate
-                    (move content → edited to approve for posting)
+                    (drag edited → queued in kanban to approve for X posting)
 ```
 
 ### Scripts (all in `~/.openclaw/workspace/scripts/`)
 
 | Script | Cron | What it does |
 |--------|------|-------------|
-| `poll-schefter.js` | Every 5 min | Polls X API → saves to DB → Discord announce |
-| `enrich-news.js` | Every 10 min | AI enrichment → `reviewed` + Discord summary |
-| `opinion-news.js` | Every 15 min | Turf Monster writes hot take → `content` |
-| `post-to-x.js` | Every 30 min | Posts `edited` record to TM's X → saves `x_post_id` + `x_post_url` → `posted` |
+| `poll-schefter.js` | Every 3 min | Polls X API → saves to DB → Discord announce |
+| `enrich-news.js` | Every 5 min | AI enrichment → `reviewed` + Discord summary |
+| `opinion-news.js` | Every 7 min | Turf Monster writes hot take → `content` |
+| `edit-post.js` | Every 5 min | Hashtag lookup + team match → `edited` |
+| `post-to-x.js` | Every 30 min | Posts `queued` record to TM's X → saves `x_post_id` + `x_post_url` → `posted` |
 
 ### Running scripts manually
 ```bash
@@ -103,6 +104,7 @@ node scripts/post-to-x.js
 | `opinion` | content | Turf Monster hot take |
 | `feeling` / `feeling_emoji` | content | Emotional tone |
 | `what_happened` | content | 1-2 word event label (Signed, Traded, etc.) |
+| `hashtag` | edited | Team hashtag e.g. `#BroncosCountry` (populated by `edit-post.js`) |
 | `rank` | any | Integer ordering (100, 200, 300...) — controls pipeline pickup order |
 | `x_post_id` | posted | X tweet ID saved after posting |
 | `x_post_url` | posted | Full X tweet URL saved after posting |
@@ -124,11 +126,14 @@ node scripts/post-to-x.js
 ### Discord message templates
 All scripts gate Discord behind a confirmed DB save — no ghost announcements.
 
+Templates centralized in `scripts/lib/discord-templates.js` (refactored 2026-03-13).
+
 | Script | Template |
 |--------|---------|
 | `poll-schefter.js` | `🐊🏈 **Adam Schefter** · 6:32 PM\n🔗 [AdamSchefter](url)` |
 | `enrich-news.js` | `🐊🤖 **title_short**\n- 👤 person\n- 🏈 team\nsummary\n🔗 [author](url)` |
 | `opinion-news.js` | `🐊🤔 **title_short**\n*feeling • what_happened*\nopinion\n🔗 [author](url)` |
+| `edit-post.js` | `feeling_emoji **title_short**\n- 👤 person\n- 🏈 team\n- #️⃣ hashtag\nopinion` |
 | `post-to-x.js` | `feeling_emoji **title_short**\nopinion\n🔗 [Turf Monster](x_post_url)` |
 
 Posts to `#lobster-tank` (`1479973077021495478`) via the Discord bots.
@@ -171,12 +176,15 @@ GET    /api/agents/tasks              # list tasks
 
 | Job | Agent | Schedule | Delivery | Status |
 |-----|-------|----------|----------|--------|
-| `poll-schefter` | alex | every 5 min | none | ✅ |
-| `turf-monster-enrich-news` | turf-monster | every 10 min | none | ✅ |
-| `opinion-news (turf-monster)` | alex | every 15 min | none | ✅ |
+| `poll-schefter` | alex | every 3 min | none | ✅ |
+| `turf-monster-enrich-news` | turf-monster | every 5 min | none | ✅ |
+| `edit-post (mason)` | mason | every 5 min | none | ✅ |
+| `mason-task-refinement` | mason | every 5 min | none | ✅ |
+| `opinion-news (turf-monster)` | alex | every 7 min | none | ✅ |
 | `post-to-x (turf-monster)` | alex | every 30 min | none | ✅ |
 | `Mack Hourly LLM Ops Report` | mack | every hour | `#lobster-tank` | ✅ |
 | `Mack Hourly Ops Report` | mack | every hour | `#lobster-tank` | ❌ broken delivery |
+| `House Burns Down Protocol` | alex | 3am MDT nightly | none | ✅ |
 | `Alex Daily Brief` | alex | 5am MDT | `#lobster-tank` | ✅ |
 
 **Discord delivery format** (correct):
@@ -223,6 +231,11 @@ GET    /api/agents/tasks              # list tasks
 - **2026-03-12** — Duplicate enrich cron removed (`review-news`). Single enrich job at 10 min.
 - **2026-03-12** — Pipeline cadence tightened: opinion every 15 min, post-to-x every 30 min.
 - **2026-03-12** — Task board established as source of truth. Discord = comms only.
+- **2026-03-13** — `hashtag` column added to News + Teams table seeded with 32 NFL teams + hashtags.
+- **2026-03-13** — `edit-post.js` added as Stage 4: hashtag lookup + team match → `edited`. Cron: every 5 min (mason).
+- **2026-03-13** — Discord templates refactored into shared `scripts/lib/discord-templates.js`.
+- **2026-03-13** — Pipeline cadence tightened: poll every 3 min, enrich every 5 min, opinion every 7 min.
+- **2026-03-13** — Mason + Turf Monster agent infrastructure established: heartbeats, task execution loops, mason-task-refinement cron.
 
 ---
 
