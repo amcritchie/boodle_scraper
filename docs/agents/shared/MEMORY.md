@@ -121,8 +121,17 @@ node scripts/post-to-x.js
 - `saveToRails()` handles 422 gracefully — logs `[SKIP]` instead of erroring
 - Discord notification only fires when record actually saves
 
-### Discord notifications
-Posts to `#lobster-tank` (`1479973077021495478`) at key stages via the Discord bots.
+### Discord message templates
+All scripts gate Discord behind a confirmed DB save — no ghost announcements.
+
+| Script | Template |
+|--------|---------|
+| `poll-schefter.js` | `🐊🏈 **Adam Schefter** · 6:32 PM\n🔗 [AdamSchefter](url)` |
+| `enrich-news.js` | `🐊🤖 **title_short**\n- 👤 person\n- 🏈 team\nsummary\n🔗 [author](url)` |
+| `opinion-news.js` | `🐊🤔 **title_short**\n*feeling • what_happened*\nopinion\n🔗 [author](url)` |
+| `post-to-x.js` | `feeling_emoji **title_short**\nopinion\n🔗 [Turf Monster](x_post_url)` |
+
+Posts to `#lobster-tank` (`1479973077021495478`) via the Discord bots.
 
 ### Required credentials (in `~/.openclaw/workspace/.secrets`)
 ```bash
