@@ -1,656 +1,181 @@
-# McRitchie Studio Agent Operating System
-## bootstrap.md — Definitive Setup Guide
+# Bootstrap Guide — McRitchie Studio
 
-You are part of the **McRitchie Studio Agent System** — a four-agent AI ecosystem running on OpenClaw, operating the Boodle sports analytics platform.
+Use this if the system needs to be rebuilt from scratch (new machine, disaster recovery, etc.).
 
-**Company:** McRitchie Studio  
-**Primary domain:** NFL sports analytics and media  
-**Agents:** Alex (CEO), Mason (CPO), Mack (CTO), Turf Monster (CMO)  
-**Repo:** `https://github.com/amcritchie/boodle_scraper`
+Last updated: 2026-03-12
 
 ---
 
-# Are You Already Set Up?
-
-If this machine has run before, check first:
+## Step 1 — Prerequisites
 
 ```bash
-openclaw agents list          # Are all 4 agents registered?
-docker compose ps             # Is the app running? (run from repo root)
-git remote -v                 # Does the GitHub remote show the right URL?
-openclaw channels status      # Are Discord bots connected?
-openclaw cron list            # Are Mack's cron jobs scheduled?
-```
-
-If everything checks out, skip to **Session Startup Protocol** below.  
-If anything is missing, find the relevant section and run only what's needed.
-
----
-
-# Credential Checklist — Gather These First
-
-Before running any setup steps, collect these. You'll need them all.
-
-| Credential | Where to get it | Goes into |
-|-----------|----------------|-----------|
-| Anthropic API key | [console.anthropic.com](https://console.anthropic.com) | OpenClaw config or env |
-| OpenAI API key | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | OpenClaw config or env |
-| GitHub PAT | github.com → Settings → Developer settings → PATs (classic) | git remote URL |
-| Discord bot token — Alex | [discord.com/developers/applications](https://discord.com/developers/applications) | `~/.openclaw/openclaw.json` |
-| Discord bot token — Mason | same | same |
-| Discord bot token — Mack | same | same |
-| Discord bot token — Turf Monster | same | same |
-| Sportradar API key | [developer.sportradar.com](https://developer.sportradar.com) | `.env` |
-| Postgres password | you choose | `.env` + Docker |
-| Rails SECRET_KEY_BASE | `rails secret` or `openssl rand -hex 64` | `.env` |
-
-The interactive setup script (`docs/agents/setup.sh --interactive`) will prompt for and place all of these for you. Or do it manually section by section below.
-
----
-
-# First-Time Machine Setup
-
-Run these in order. On a fresh machine, do all of them. On a partial setup, run only what's missing.
-
----
-
-## 1. Clone the Repo
-
-```bash
-git clone https://github.com/amcritchie/boodle_scraper.git
-cd boodle_scraper
+# Required on the host
+node >= 18
+docker + docker compose
+git
+npm (for openclaw)
 ```
 
 ---
 
-## 2. LLM Providers
-
-Agents need LLM access. Anthropic is primary. OpenAI is fallback. Set at least two.
-
-**Anthropic (primary)**
+## Step 2 — Clone the repo
 
 ```bash
-openclaw onboard --auth-choice token
-# follow prompts to enter your API key
-```
-
-Or set the key directly in `~/.openclaw/openclaw.json`:
-```json
-{
-  "auth": {
-    "profiles": {
-      "anthropic:default": {
-        "provider": "anthropic",
-        "mode": "api_key",
-        "apiKey": "sk-ant-..."
-      }
-    }
-  }
-}
-```
-
-Get key: [console.anthropic.com](https://console.anthropic.com)
-
-**OpenAI (fallback)**
-
-```bash
-export OPENAI_API_KEY=sk-...
-# or add to openclaw.json under auth.profiles
-```
-
-Get key: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-
-**Verify providers are visible:**
-```bash
-openclaw models list
+git clone https://github.com/amcritchie/boodle_scraper /home/alex/.openclaw/workspace/boodle_scraper
 ```
 
 ---
 
-## 3. Discord Bot Setup
-
-Each agent has its own Discord bot. Four bots, four tokens. All bots connect to the McRitchie Studio guild (`1332466565203103744`).
-
-### Create each bot (repeat 4 times)
-
-1. Go to [discord.com/developers/applications](https://discord.com/developers/applications) → **New Application**
-2. Name it after the agent: Alex, Mason, Mack, Turf Monster
-3. Click **Bot** in the sidebar
-4. Under **Privileged Gateway Intents**, enable:
-   - ✅ **Message Content Intent** (required — without this, bots can't read messages)
-   - ✅ **Server Members Intent** (recommended)
-5. Click **Reset Token** → copy and save the token somewhere safe
-
-### Invite each bot to McRitchie Studio
-
-1. **OAuth2** → **URL Generator**
-2. Scopes: `bot` + `applications.commands`
-3. Bot permissions: View Channels, Send Messages, Read Message History, Embed Links, Add Reactions
-4. Copy the URL → paste in browser → select **McRitchie Studio** → Authorize
-
-### Configure all four tokens in OpenClaw
-
-Edit `~/.openclaw/openclaw.json` — add or update the channels section:
-
-```json
-{
-  "channels": {
-    "discord": {
-      "accounts": {
-        "alex": { "token": "ALEX_BOT_TOKEN" },
-        "mason": { "token": "MASON_BOT_TOKEN" },
-        "mack": { "token": "MACK_BOT_TOKEN" },
-        "turf-monster": { "token": "TURF_MONSTER_BOT_TOKEN" }
-      },
-      "groupPolicy": "allowlist",
-      "guilds": {
-        "1332466565203103744": {}
-      }
-    }
-  }
-}
-```
-
-> ⚠️ **Do not add `allow: true`** inside guild entries — it's not a valid config key and `openclaw doctor` will flag it. Just `{}` is correct.
-
-After editing:
-```bash
-openclaw doctor --fix
-openclaw gateway restart
-```
-
-### Add agent-to-Discord-account bindings
-
-In `~/.openclaw/openclaw.json`, add under `bindings` (one per agent):
-
-```json
-{
-  "bindings": [
-    { "agentId": "alex",         "match": { "channel": "discord", "accountId": "alex" } },
-    { "agentId": "mason",        "match": { "channel": "discord", "accountId": "mason" } },
-    { "agentId": "mack",         "match": { "channel": "discord", "accountId": "mack" } },
-    { "agentId": "turf-monster", "match": { "channel": "discord", "accountId": "turf-monster" } }
-  ]
-}
-```
-
-### Pair each bot
-
-DM your bot in Discord. It will respond with a pairing code. Approve it:
+## Step 3 — Start the Rails app
 
 ```bash
-openclaw pairing list discord
-openclaw pairing approve discord <CODE>
-```
-
-Repeat for each of the four bots.
-
----
-
-## 4. GitHub Authentication
-
-Agents push code. Without this, commits stay local.
-
-1. Go to: `github.com → Settings → Developer settings → Personal access tokens → Tokens (classic)`
-2. Generate a new token — **repo** scope is sufficient
-3. Set the remote URL with the token embedded:
-
-```bash
-cd /path/to/boodle_scraper
-git remote set-url origin https://<YOUR_GITHUB_TOKEN>@github.com/amcritchie/boodle_scraper.git
-```
-
-4. Verify:
-```bash
-git push --dry-run origin main
-```
-
-Keep the token in a password manager. Do not commit it.
-
----
-
-## 5. Environment Variables
-
-```bash
-cp .env.example .env
-```
-
-Fill in `.env` with real values:
-
-```env
-RAILS_ENV=development
-SECRET_KEY_BASE=          # generate: openssl rand -hex 64
-POSTGRES_USERNAME=postgres
-POSTGRES_PASSWORD=        # set to whatever you want; Docker uses this
-SPORTRADAR_API_KEY=       # from developer.sportradar.com (trial key is fine)
-```
-
-Generate a secret key base:
-```bash
-openssl rand -hex 64
-```
-
----
-
-## 6. Agent Workspaces
-
-Run the setup script to bootstrap OpenClaw workspaces for all four agents:
-
-```bash
-bash docs/agents/setup.sh
-```
-
-Or use interactive mode to set credentials at the same time:
-
-```bash
-bash docs/agents/setup.sh --interactive
-```
-
-Interactive mode prompts for all credentials, writes Discord tokens to OpenClaw config, generates `.env`, and runs workspace setup in one pass.
-
-After setup, register each agent in OpenClaw:
-
-```bash
-openclaw agents add alex
-openclaw agents add mason
-openclaw agents add mack
-openclaw agents add turf-monster
-```
-
-Verify the workspace config in `~/.openclaw/openclaw.json`:
-
-```json
-{
-  "agents": {
-    "list": [
-      { "id": "alex",          "default": true, "workspace": "~/.openclaw/workspace" },
-      { "id": "mason",         "workspace": "~/.openclaw/workspace-mason" },
-      { "id": "mack",          "workspace": "~/.openclaw/workspace-mack" },
-      { "id": "turf-monster",  "workspace": "~/.openclaw/workspace-turf-monster" }
-    ]
-  }
-}
-```
-
----
-
-## 7. Docker / App
-
-```bash
+cd /home/alex/.openclaw/workspace/boodle_scraper
 docker compose up --build -d
+
+# Verify
+docker ps | grep boodle
+curl http://localhost:3000/api/news
 ```
 
-The entrypoint automatically runs `db:prepare` on first boot (creates DB + runs all migrations). Wait ~30 seconds, then verify:
-
+Run any pending migrations:
 ```bash
-docker compose ps
-curl -s http://localhost:3000/up | head -5
+docker exec boodle_scraper-web-1 bin/rails db:migrate
 ```
 
-If the web container exits immediately, check logs:
+Seed agents (if fresh DB):
 ```bash
-docker logs boodle_scraper-web-1
-```
-
-Common issue: `.env` is missing `SECRET_KEY_BASE`. Generate one with `openssl rand -hex 64` and add it.
-
----
-
-## 8. Database Seeds
-
-Run these in order after the app is up:
-
-```bash
-# Agents, skills, tasks, activities, usage records
-docker exec boodle_scraper-web-1 bin/rails runner db/seed_agents.rb
-
-# Articles
-docker exec boodle_scraper-web-1 bin/rails runner db/seed_articles.rb
-
-# News items
-docker exec boodle_scraper-web-1 bin/rails runner db/seed_news.rb
-```
-
-Expected output for `seed_agents.rb`:
-```
-Created 4 agents
-Created 14 skills
-Created 13 skill assignments
-Created 9 tasks
-Created 17 activities
-Created 8 usage records
+docker exec boodle_scraper-web-1 bin/rails runner "load 'db/seed_agents.rb'"
 ```
 
 ---
 
-## 9. Activity Logging
+## Step 4 — Restore credentials
 
-The activity logging endpoint is live as part of the app. No extra setup needed — it starts when Docker starts. Test it:
-
+Create `/home/alex/.openclaw/workspace/.secrets`:
 ```bash
-curl -s -X POST http://localhost:3000/api/agents/activities \
-  -H "Content-Type: application/json" \
-  -d '{
-    "activity": {
-      "agent_slug": "alex",
-      "activity_type": "task_completed",
-      "description": "Bootstrap complete — system online"
-    }
-  }'
+X_BEARER_TOKEN=...
+DISCORD_BOT_TOKEN=...         # Turf Monster's bot token
+ANTHROPIC_API_KEY=...
+TM_X_API_KEY=...
+TM_X_API_SECRET=...
+TM_X_ACCESS_TOKEN=...
+TM_X_ACCESS_SECRET=...
 ```
 
-See `docs/agents/system/activity-logging.md` for the full logging protocol.
+Restore `/home/alex/.openclaw/openclaw.json` with Discord bot tokens for:
+- `alex` — main CEO bot
+- `mason` — product bot
+- `mack` — infra bot
+- `turf-monster` — content/posting bot
+
+Discord Guild ID: `1332466565203103744`
+Primary channel: `#lobster-tank` (`1479973077021495478`)
 
 ---
 
-## 10. Cron Jobs
+## Step 5 — Restore OpenClaw cron jobs
 
-Cron jobs are managed through the OpenClaw cron tool (not CLI flags). Use the `cron` tool with `action=add`.
+Re-create these cron jobs via `openclaw cron add` or the cron tool:
 
-**Required delivery format for Discord:** always use `"to": "channel:<id>"` — NOT `"channel": "<id>"`. The latter causes a delivery error.
+| Name | Agent | Schedule | Payload |
+|------|-------|----------|---------|
+| poll-schefter | alex | `*/5 * * * *` | `node scripts/poll-schefter.js` |
+| turf-monster-enrich-news | turf-monster | `*/10 * * * *` | `node scripts/enrich-news.js` |
+| opinion-news | alex | `*/15 * * * *` | `node scripts/opinion-news.js` |
+| post-to-x | alex | `*/30 * * * *` | `node scripts/post-to-x.js` |
+| Mack Hourly LLM Ops Report | mack | `0 * * * *` | Mack posts LLM health to #lobster-tank |
+| Alex Daily Brief | alex | `0 5 * * *` America/Denver | Alex posts weather + top story + blockers |
 
-### Mack Ops Reports (hourly)
+All script jobs use this pattern:
+```
+cd /home/alex/.openclaw/workspace && set -a && source .secrets && set +a && node scripts/<script>.js
+```
 
-Add via the cron tool with this delivery config:
+Delivery for Discord-posting jobs:
 ```json
 { "mode": "announce", "to": "channel:1479973077021495478" }
 ```
+> ⚠️ Use `to`, NOT `channel`.
 
-Prompt for `Mack Hourly LLM Ops Report`:
-> "You are Mack... Post your hourly LLM ops report to the team in #lobster-tank. Check Anthropic, OpenAI. Report health, incidents, latency concerns. Format for Discord. Sign off as Mack."
+---
 
-Prompt for `Mack Hourly Ops Report`:
-> "You are Mack... Post your hourly ops report to #lobster-tank. Check key API services. Flag anything off. Keep it technical but scannable."
+## Step 6 — Verify pipeline
 
-### News Pipeline Cron Jobs
-
-These run scripts from `~/.openclaw/workspace/scripts/`. All use `sessionTarget: isolated`, `delivery: { mode: "none" }`.
-
-| Name | Agent | Schedule | Script |
-|------|-------|----------|--------|
-| `poll-schefter` | alex | `*/5 * * * *` | `poll-schefter.js` |
-| `turf-monster-enrich-news` | turf-monster | `*/10 * * * *` | `enrich-news.js` |
-| `opinion-news (turf-monster)` | alex | `0 * * * *` | `opinion-news.js` |
-| `post-to-x (turf-monster)` | alex | `0 * * * *` | `post-to-x.js` |
-
-Script runner prompt pattern:
-```
-Run the [script name]: `cd ~/.openclaw/workspace && set -a && source .secrets && set +a && node scripts/[script].js`. Log the output. No need to announce if there are no pending records.
-```
-
-### Alex Daily Brief (5am MDT)
-
-Schedule: `0 5 * * *`, tz `America/Denver`, agent `alex`, delivery to `#lobster-tank`.
-
-Brief covers:
-1. **Weather** — Denver forecast via `wttr.in`
-2. **Turf Monster's Top Hit** — most notable `posted` record from yesterday
-3. **Blockers & Ideas** — system health + Alex's candid thoughts
-
-Verify all jobs are scheduled:
 ```bash
-openclaw cron list
+# Check news records
+curl http://localhost:3000/api/news | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['total_count'], 'records')"
+
+# Check agents
+curl http://localhost:3000/api/agents | python3 -c "import sys,json; d=json.load(sys.stdin); [print(a['slug'], a['status']) for a in d['agents']]"
+
+# Manual poll test
+cd /home/alex/.openclaw/workspace && set -a && source .secrets && set +a && node scripts/poll-schefter.js
 ```
 
 ---
 
-# 11. News Pipeline
+## Agent Roster
 
-The news pipeline ingests Adam Schefter tweets → AI enrichment → Turf Monster opinion → posts to X and Discord.
+| Agent | Slug | Role | Discord Bot |
+|-------|------|------|-------------|
+| Alex Agent | alex | CEO — coordination, scoping, delegation | alex bot |
+| Mason | mason | CPO — product, custom apps, UI | mason bot |
+| Mack | mack | CTO — infrastructure, Docker, DB | mack bot |
+| Turf Monster | turf-monster | CMO — content, enrichment, X posting | turf-monster bot |
 
-## Credentials
-
-Add these to `~/.openclaw/workspace/.secrets` (create file if needed, `chmod 600`):
-
-```bash
-X_BEARER_TOKEN=<X API v2 Bearer Token — for Schefter polling>
-DISCORD_BOT_TOKEN=<Turf Monster Discord bot token>
-ANTHROPIC_API_KEY=<Anthropic API key>
-
-# Turf Monster X account — OAuth 1.0a (for posting tweets)
-TM_X_API_KEY=<Consumer Key>
-TM_X_API_SECRET=<Consumer Secret>
-TM_X_ACCESS_TOKEN=<Access Token>
-TM_X_ACCESS_SECRET=<Access Token Secret>
-```
-
-See `docs/agents/system/credentials.md` for where to get each one.
-
-## Scripts
-
-All scripts live in `~/.openclaw/workspace/scripts/`.
-
-| Script | Stage | What it does |
-|--------|-------|-------------|
-| `poll-schefter.js` | `new` | Polls X API → saves to DB → Discord announce |
-| `enrich-news.js` | `new` → `reviewed` | AI enrichment: title_short, person, team, summary, image |
-| `opinion-news.js` | `reviewed` → `content` | Turf Monster generates hot take: opinion, feeling, emoji |
-| `post-to-x.js` | `edited` → `posted` | Posts to TM's X account → saves `x_post_id` + `x_post_url` → Discord |
-
-**State file:** `scripts/schefter-state.json` — tracks `since_id` for X polling. **Do not delete.**  
-**Local log:** `news/pipeline.jsonl` — append-only tweet archive.  
-**Images:** saved to `boodle_scraper/public/images/news/<tweet_id>.jpg`
-
-## Stage Flow
-
-```
-new → reviewed → content → edited → posted → archived
-                               ↑
-                    human editorial gate
-                    (approve by moving content → edited)
-```
-
-## Fields Populated Per Stage
-
-| Stage | Fields |
-|-------|--------|
-| `new` | `url`, `author`, `published_at`, `title` (raw tweet) |
-| `reviewed` | + `title_short`, `primary_person`, `primary_team`, `summary`, `selected_image` |
-| `content` | + `opinion`, `feeling`, `feeling_emoji`, `what_happened` |
-| `posted` | + `x_post_id`, `x_post_url` |
-
-## Test It Manually
-
-```bash
-cd ~/.openclaw/workspace
-set -a && source .secrets && set +a
-
-node scripts/poll-schefter.js         # fetch new tweets
-node scripts/enrich-news.js           # enrich one new record
-node scripts/opinion-news.js          # generate opinion for one reviewed record
-node scripts/post-to-x.js            # post one edited record to X
-
-# Check the pipeline
-curl -s "http://localhost:3000/api/news?stage=new" | python3 -m json.tool | head -20
-curl -s "http://localhost:3000/api/news?stage=reviewed" | python3 -m json.tool | head -20
-curl -s "http://localhost:3000/api/news?stage=posted" | python3 -m json.tool | head -20
-```
+**Domain rules:**
+- Mason owns product (any custom app feature, backend + frontend)
+- Mack owns infrastructure (Docker, deployment, DB performance)
+- Turf Monster owns content (enrichment, opinion, tone, voice)
+- Alex breaks ties, escalates to operator for irreversible/budget decisions
 
 ---
 
-# Verify Everything Works
+## Task Board
 
-Run these checks after setup. All should succeed.
+URL: `http://localhost:3000/agents`
 
-### App is up
+All work is created as tasks in the board before delegating. Discord is for comms only.
+
 ```bash
-curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/up
-# → 200
-```
-
-### Agents endpoint
-```bash
-curl -s http://localhost:3000/api/agents | python3 -m json.tool | head -20
-# → JSON array with 4 agents
-```
-
-### Agent dashboard
-```bash
-curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/agents
-# → 200
-```
-
-### Task API
-```bash
-curl -s "http://localhost:3000/api/agents/tasks?agent_slug=mack&stage=queued" | python3 -m json.tool
-# → JSON (may be empty array if no queued tasks)
-```
-
-### Activity logging
-```bash
-curl -s -X POST http://localhost:3000/api/agents/activities \
+# Create a task
+curl -X POST http://localhost:3000/api/agents/tasks \
   -H "Content-Type: application/json" \
-  -d '{"activity":{"agent_slug":"alex","activity_type":"task_completed","description":"Verify check"}}' \
-  | python3 -m json.tool
-# → JSON with id, agent_slug, etc.
+  -d '{"task":{"title":"...","description":"...","stage":"new","priority":0,"agent_slug":"mason"}}'
+
+# Transition a task
+curl -X PATCH http://localhost:3000/api/agents/tasks/:id/transition \
+  -H "Content-Type: application/json" \
+  -d '{"transition":"start"}'
 ```
 
-### News endpoint
-```bash
-curl -s http://localhost:3000/api/agents/activities | python3 -m json.tool | head -5
-# → JSON with recent activities
-```
+---
 
-### OpenClaw agents registered
-```bash
-openclaw agents list
-# → 4 agents: alex, mason, mack, turf-monster
-```
+## News Rank System
 
-### Discord bots online
-```bash
-openclaw channels status
-# → All 4 accounts showing as connected
-```
+- All news records have a `rank` integer (100, 200, 300..., gap-based)
+- Pipeline scripts pick up records ordered by `rank ASC, created_at DESC`
+- Rank API: `PATCH /api/news/:id/rank` with optional `before_id` / `after_id`
+- Kanban drag-drop within columns updates rank in real time
 
-### Send a test message to #lobster-tank
-```bash
-openclaw message send \
-  --channel discord \
-  --account alex \
-  --target 1479973077021495478 \
-  -m "👋 Alex back online. System check passed."
-```
+---
 
-### GitHub push works
-```bash
-git push --dry-run origin main
-# → succeeds without auth error
-```
+## Common Commands
 
-### Cron jobs scheduled
 ```bash
+# Restart app
+docker compose restart web
+
+# View app logs
+docker logs -f boodle_scraper-web-1
+
+# Rails console
+docker exec -it boodle_scraper-web-1 bin/rails console
+
+# Seed ranks on existing records (after fresh migration)
+docker exec boodle_scraper-web-1 bin/rails runner \
+  "News.order(:created_at).each_with_index { |n, i| n.update_column(:rank, (i+1)*100) }"
+
+# Check cron jobs
 openclaw cron list
-# → 2 entries for Mack
 ```
-
----
-
-# Session Startup Protocol
-
-Every agent follows this at the start of each session. No exceptions.
-
-**Step 1 — Orient yourself**  
-Read your `SOUL.md` and `role.md`. This is who you are and what you own.
-
-**Step 2 — Know your operator**  
-Read `docs/agents/system/user.md`. Human operator is Alexander Ray McRitchie — address as Mr. McRitchie.
-
-**Step 3 — Get current**  
-Read `docs/agents/shared/MEMORY.md`. This is what the system knows right now — active projects, API status, recent decisions.
-
-**Step 4 — Check your task queue**  
-```
-GET /api/agents/tasks?agent_slug=<your-slug>&stage=queued
-```
-Pick up the highest-priority task and start.
-
-**Step 5 — Read your personal memory (if it exists)**  
-Check `memory/YYYY-MM-DD.md` for today and yesterday.
-
-**Don't ask permission. Just do it.**
-
----
-
-# Core Directives
-
-1. **Autonomy First** — Make decisions within your domain without waiting for approval. Escalate only when a decision is irreversible or crosses domain boundaries.
-
-2. **Operators Ship** — Bias toward action. A shipped imperfect thing beats a perfect plan.
-
-3. **Figure It Out** — When blocked, find another way. Escalate only after exhausting your own options.
-
-4. **Respect Agent Domains** — Each agent owns their domain. Collaborate through tasks, not takeovers.
-
-5. **Protect the Operator** — Minimize demands on Mr. McRitchie's time. Batch questions. Provide options, not open-ended asks.
-
-6. **Think in Systems** — Every task is part of a larger system. Consider upstream and downstream effects.
-
----
-
-# Task Pipeline
-
-```
-new → queued → in_progress → done | failed
-```
-
-- **new** — Created, not yet assigned
-- **queued** — Assigned, waiting to be picked up
-- **in_progress** — Agent is actively working
-- **done** — Completed with result data
-- **failed** — Failed with error message
-
-Priority: Normal (0), High (1), Urgent (2)
-
----
-
-# Conflict Resolution
-
-- **Technical veto** → Mack. If she says it risks uptime, it does.
-- **Product veto** → Mason. If he says it doesn't serve the user, it doesn't.
-- **Alex breaks ties.** Mack vs. Mason → Alex decides.
-- **Operator is final word.** Business model, monetization, audience — that's Mr. McRitchie's call.
-
----
-
-# Failure Handling
-
-When a task fails:
-
-1. Transition to `failed` via the API
-2. Set `error_message` to a specific description
-3. Log in your personal memory file
-4. Infrastructure failure → create a task for Mack
-5. Recurring failure → write down the protocol
-
-Do not retry silently. Do not abandon tasks without transitioning them.
-
----
-
-# Communication
-
-- **Primary channel:** Discord `#lobster-tank` (`1479973077021495478`)
-- **Inter-agent:** Task API — see `docs/agents/system/comms.md`
-- **Escalation to operator:** Tag Mr. McRitchie via Discord
-
----
-
-# Quality Standards
-
-- Code must be clean, tested, and production-ready
-- Content must be accurate, engaging, and on-brand
-- Data must be validated before use
-- All work must be traceable through the task system
-
----
-
-# Reference
-
-| Doc | What it covers |
-|-----|---------------|
-| `docs/agents/system/architecture.md` | Agent roster, domains, system diagram |
-| `docs/agents/system/comms.md` | Task API + Discord communication protocol |
-| `docs/agents/system/activity-logging.md` | Activity logging endpoint and vocabulary |
-| `docs/agents/system/credentials.md` | Every credential, where to get it, where it goes |
-| `docs/agents/system/user.md` | Human operator profile |
-| `docs/agents/shared/MEMORY.md` | Shared system memory — current state, decisions |

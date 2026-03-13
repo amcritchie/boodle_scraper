@@ -1,7 +1,7 @@
 # McRitchie Studio — Shared Agent Memory
 
 This file is the system's collective brain. All agents can read and write it.
-Keep entries current. Remove outdated info. Last updated: 2026-03-11.
+Keep entries current. Remove outdated info. Last updated: 2026-03-12.
 
 ---
 
@@ -11,7 +11,7 @@ Keep entries current. Remove outdated info. Last updated: 2026-03-11.
 |-----------|--------|-------|
 | Rails app | 🟢 Running | Docker container `boodle_scraper-web-1`, port 3000 |
 | PostgreSQL | 🟢 Healthy | Docker container `boodle_scraper-db-1` |
-| Migrations | 🟢 Current | Latest: `add_x_post_url_to_news` (2026-03-11) |
+| Migrations | 🟢 Current | Latest: `add_rank_to_news` (2026-03-12) |
 | Agents seeded | 🟢 Done | 4 agents, 14 skills, 13 assignments |
 | News pipeline | 🟢 Live | Polling → enriching → opinion → posting to X |
 | Daily Brief | 🟢 Scheduled | 5am MDT, Alex posts to #lobster-tank |
@@ -56,7 +56,7 @@ Keep entries current. Remove outdated info. Last updated: 2026-03-11.
 
 ---
 
-## News Pipeline — Active as of 2026-03-11
+## News Pipeline — Active as of 2026-03-12
 
 Full end-to-end NFL news pipeline sourcing from Adam Schefter's X account.
 
@@ -73,9 +73,9 @@ new → reviewed → content → edited → posted → archived
 | Script | Cron | What it does |
 |--------|------|-------------|
 | `poll-schefter.js` | Every 5 min | Polls X API → saves to DB → Discord announce |
-| `enrich-news.js` | Every 10–30 min | AI enrichment → `reviewed` + Discord summary |
-| `opinion-news.js` | Every hour | Turf Monster writes hot take → `content` + Discord |
-| `post-to-x.js` | Every hour | Posts `edited` record to TM's X → saves `x_post_id` + `x_post_url` → `posted` + Discord |
+| `enrich-news.js` | Every 10 min | AI enrichment → `reviewed` + Discord summary |
+| `opinion-news.js` | Every 15 min | Turf Monster writes hot take → `content` |
+| `post-to-x.js` | Every 30 min | Posts `edited` record to TM's X → saves `x_post_id` + `x_post_url` → `posted` |
 
 ### Running scripts manually
 ```bash
@@ -87,22 +87,42 @@ node scripts/opinion-news.js
 node scripts/post-to-x.js
 ```
 
-### News record fields populated per stage
+### News model key fields
 
-| Stage | Fields populated |
-|-------|-----------------|
-| `new` | `url`, `author`, `published_at`, `title` (raw tweet) |
-| `reviewed` | + `title_short`, `primary_person`, `primary_team`, `summary`, `selected_image` |
-| `content` | + `opinion`, `feeling`, `feeling_emoji`, `what_happened` |
-| `posted` | + `x_post_id` (X tweet ID), `x_post_url` (full X URL) |
+| Field | Stage populated | Description |
+|-------|-----------------|-------------|
+| `title` | new | Raw tweet text |
+| `url` | new | Original Schefter tweet URL (unique, enforced on create) |
+| `author` | new | Twitter handle |
+| `published_at` | new | Tweet timestamp |
+| `title_short` | reviewed | 3-5 word punchy headline (AI) |
+| `primary_person` | reviewed | Full name of main subject |
+| `primary_team` | reviewed | "City Team Name" format |
+| `summary` | reviewed | 2-3 sentence AI summary |
+| `selected_image` | reviewed | Path e.g. `/images/news/<tweet_id>.jpg` |
+| `opinion` | content | Turf Monster hot take |
+| `feeling` / `feeling_emoji` | content | Emotional tone |
+| `what_happened` | content | 1-2 word event label (Signed, Traded, etc.) |
+| `rank` | any | Integer ordering (100, 200, 300...) — controls pipeline pickup order |
+| `x_post_id` | posted | X tweet ID saved after posting |
+| `x_post_url` | posted | Full X tweet URL saved after posting |
 
-Images saved to: `boodle_scraper/public/images/news/<tweet_id>.jpg`
+### Rank system (added 2026-03-12)
+- Records are ordered by `rank ASC, created_at DESC`
+- Ranks use gap-based 100s spacing (100, 200, 300...) for easy insertion
+- Midpoint insert: drop between 200 and 300 → 250
+- Append to end: max rank + 100, rounded to nearest 100
+- API: `PATCH /api/news/:id/rank` with optional `before_id` / `after_id`
+- Drag-and-drop within kanban columns respects rank order
+
+### Dedup protection (added 2026-03-12)
+- `validates :url, uniqueness: true, on: :create` — blocks duplicate URLs on creation only
+- `poll-schefter.js` pre-checks `newsExists(url)` before saving
+- `saveToRails()` handles 422 gracefully — logs `[SKIP]` instead of erroring
+- Discord notification only fires when record actually saves
 
 ### Discord notifications
-Every stage transition posts to `#lobster-tank` (`1479973077021495478`):
-- **reviewed** — review card with title, person, team, summary
-- **content** — Turf Monster's full hot take
-- **posted** — tweet URL announcement
+Posts to `#lobster-tank` (`1479973077021495478`) at key stages via the Discord bots.
 
 ### Required credentials (in `~/.openclaw/workspace/.secrets`)
 ```bash
@@ -117,15 +137,35 @@ TM_X_ACCESS_SECRET     # TM account access secret
 
 ---
 
+## Task Board
+
+All work flows through the Boodle task board at `http://localhost:3000/agents`.
+
+**API:**
+```bash
+POST   /api/agents/tasks              # create task
+PATCH  /api/agents/tasks/:id/assign   # assign to agent slug
+PATCH  /api/agents/tasks/:id/transition  # body: { "transition": "queue|start|complete|fail" }
+GET    /api/agents/tasks              # list tasks
+```
+
+**Task stages:** `new → queued → in_progress → done / failed`
+
+**Protocol:**
+- Alex creates tasks in the board BEFORE delegating work
+- Discord #lobster-tank is for updates, blockers, group planning, and retros
+- Never use Discord as a substitute for a task
+
+---
+
 ## Cron Jobs
 
 | Job | Agent | Schedule | Delivery | Status |
 |-----|-------|----------|----------|--------|
 | `poll-schefter` | alex | every 5 min | none | ✅ |
 | `turf-monster-enrich-news` | turf-monster | every 10 min | none | ✅ |
-| `review-news (turf-monster)` | alex | every 30 min | none | ✅ |
-| `opinion-news (turf-monster)` | alex | every hour | none | ✅ |
-| `post-to-x (turf-monster)` | alex | every hour | none | ✅ |
+| `opinion-news (turf-monster)` | alex | every 15 min | none | ✅ |
+| `post-to-x (turf-monster)` | alex | every 30 min | none | ✅ |
 | `Mack Hourly LLM Ops Report` | mack | every hour | `#lobster-tank` | ✅ |
 | `Mack Hourly Ops Report` | mack | every hour | `#lobster-tank` | ❌ broken delivery |
 | `Alex Daily Brief` | alex | 5am MDT | `#lobster-tank` | ✅ |
@@ -138,6 +178,17 @@ TM_X_ACCESS_SECRET     # TM account access secret
 
 ---
 
+## News Kanban UI
+
+- Board: `http://localhost:3000/news`
+- Columns: New → Reviewed → Content → Edited → Posted
+- Drag card between columns = stage transition
+- Drag card within column = rank reorder (with drop indicator line)
+- Drop on empty column space = append to end of column (highest rank + 100)
+- Card layout (content/edited/posted): feeling row (emoji + feeling), then opinion, then metadata row (what_happened + rank badge)
+
+---
+
 ## API Integrations
 
 | Service | Key Location | Status | Notes |
@@ -145,7 +196,7 @@ TM_X_ACCESS_SECRET     # TM account access secret
 | X API v2 (polling) | `workspace/.secrets` | 🟢 Active | Bearer Token for Schefter |
 | X API OAuth 1.0a (posting) | `workspace/.secrets` | 🟢 Active | TM posting, 4 credentials |
 | Anthropic | `openclaw.json` + `.secrets` | 🟢 Active | Enrichment + opinion |
-| Discord | `openclaw.json` + `.secrets` | 🟢 Active | 4 bots connected |
+| Discord | `openclaw.json` | 🟢 Active | 4 bots: alex, mason, mack, turf-monster |
 | SportRadar | `.env` | ⚪ Not configured | Trial: 1000 req/day |
 
 ---
@@ -155,9 +206,14 @@ TM_X_ACCESS_SECRET     # TM account access secret
 - **2026-03-10** — Bootstrapped McRitchie Studio. 4-agent setup: Alex (CEO), Mack (CTO), Mason (CPO), Turf Monster (CMO).
 - **2026-03-11** — Full NFL news pipeline built. Schefter → enrich → TM opinion → X post. Human gate at `edited`.
 - **2026-03-11** — TM X account connected with OAuth 1.0a. Posts include opinion + tweet image.
-- **2026-03-11** — Alex SOUL updated: autonomous action by default. Run things, don't ask.
-- **2026-03-11** — `x_post_id` + `x_post_url` columns added to news table. `post-to-x.js` saves both on post.
+- **2026-03-11** — `x_post_id` + `x_post_url` columns added. `post-to-x.js` saves both on post.
 - **2026-03-11** — Alex Daily Brief scheduled: 5am MDT → weather + top story + blockers/ideas → `#lobster-tank`.
+- **2026-03-12** — `rank` column added to news. Gap-based 100s ordering. `PATCH /api/news/:id/rank` endpoint live.
+- **2026-03-12** — Within-column drag reorder added to kanban. Drop indicators on hover. Cross-column card drop fixed.
+- **2026-03-12** — URL uniqueness validation added to News model (`on: :create` only — prevents transition breakage).
+- **2026-03-12** — Duplicate enrich cron removed (`review-news`). Single enrich job at 10 min.
+- **2026-03-12** — Pipeline cadence tightened: opinion every 15 min, post-to-x every 30 min.
+- **2026-03-12** — Task board established as source of truth. Discord = comms only.
 
 ---
 
@@ -167,7 +223,7 @@ TM_X_ACCESS_SECRET     # TM account access secret
 - Status: 🟢 Live — all cron jobs running
 - Source: Adam Schefter (@AdamSchefter) tweets
 - Human gate: move records from `content` → `edited` to approve for X posting
-- Next: ESPN article ingestion (separate pipeline, planned)
+- Rank system: controls pipeline pickup order + kanban display order
 
 ### Boodle Dashboard
 - Status: 🟢 Running locally
@@ -179,12 +235,11 @@ TM_X_ACCESS_SECRET     # TM account access secret
 
 ## Known Issues / Watch List
 
-- `Mack Hourly Ops Report` cron broken — fix: change delivery to `"to": "channel:1479973077021495478"` (remove `channel` key)
-- `BATCH_SIZE` in `enrich-news.js` likely set to 1 (testing) — bump to 3 for full throughput
-- Two enrich cron jobs exist (`turf-monster-enrich-news` every 10min + `review-news` every 30min) — may be redundant, consider consolidating
+- `Mack Hourly Ops Report` cron broken — fix: change delivery to `"to": "channel:1479973077021495478"`
 - `primary_team_slug` and `primary_person_slug` fields not yet auto-populated
 - ESPN article pipeline not yet built
 - No production deployment configured
+- Pre-existing duplicate news URLs in DB (from before dedup fix) — may cause issues if records are re-ingested
 
 ---
 
