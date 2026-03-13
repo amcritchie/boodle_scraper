@@ -38,10 +38,10 @@
   <div class="theme-bg-primary shadow-lg rounded-b-xl border theme-border-primary">
     <!-- Kanban Board -->
     <div class="overflow-x-auto px-4 py-6" data-news-kanban-target="board">
-      <div class="flex gap-4">
+      <div class="flex gap-4 items-stretch">
         <% stages.each do |stage| %>
           <% items = @news_by_stage[stage[:key]] || [] %>
-          <div class="flex-1 min-w-[200px]" data-news-kanban-target="column" data-stage="<%= stage[:key] %>">
+          <div class="flex-1 min-w-[200px] flex flex-col" data-news-kanban-target="column" data-stage="<%= stage[:key] %>">
             <!-- Column Header -->
             <div class="flex items-center justify-between mb-3 px-1">
               <h3 class="text-sm font-semibold theme-text-primary"><%= stage[:label] %></h3>
@@ -59,7 +59,7 @@
             </div>
 
             <!-- Drop Zone -->
-            <div class="min-h-[200px] rounded-lg border-2 border-dashed theme-border-primary p-2 space-y-2 transition-colors"
+            <div class="flex-1 min-h-[200px] rounded-lg border-2 border-dashed theme-border-primary p-2 space-y-2 transition-colors"
                  data-news-kanban-target="dropZone"
                  data-stage="<%= stage[:key] %>"
                  data-action="dragover->news-kanban#dragOver dragenter->news-kanban#dragEnter dragleave->news-kanban#dragLeave drop->news-kanban#drop">
@@ -135,12 +135,12 @@
 
                     <% elsif show_opinion %>
                       <!-- Stages 3-5: content, edited, posted -->
-                      <div class="flex items-center gap-1.5 mb-1.5">
+                      <div class="flex items-center gap-1.5 mb-1.5 min-w-0 overflow-hidden">
                         <% if news.feeling_emoji.present? %>
                           <span class="text-base leading-none"><%= news.feeling_emoji %></span>
                         <% end %>
                         <% if news.feeling.present? %>
-                          <span class="text-[11px] font-medium theme-text-secondary"><%= news.feeling %></span>
+                          <span class="text-[11px] font-medium theme-text-secondary truncate min-w-0 max-w-[90px]"><%= news.feeling %></span>
                         <% end %>
                       </div>
                       <% if news.opinion.present? %>
