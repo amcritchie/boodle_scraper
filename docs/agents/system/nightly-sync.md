@@ -1,49 +1,45 @@
 # Nightly Sync Report
-Last run: 2026-03-13 03:00 AM MDT
+Last run: 2026-03-14 03:00 AM MDT (09:00 UTC)
 
 ## What was checked
 - `boodle_scraper/docs/agents/shared/MEMORY.md`
 - `boodle_scraper/docs/agents/system/bootstrap.md`
 - `boodle_scraper/docs/agents/system/architecture.md`
 - `workspace/MEMORY.md`
-- Live cron jobs (`openclaw cron list`)
-- Latest DB migrations (`db/migrate/`)
-- Discord templates (`scripts/lib/discord-templates.js`)
+- Live cron jobs (`openclaw cron list`) — 13 active jobs
+- Latest migration (`ls db/migrate/ | tail -5`)
 - App health (`GET /api/news`)
+- Recent git log (both repos)
 
 ## What was updated
 
-### `docs/agents/shared/MEMORY.md`
-- Migration status: `add_rank_to_news (2026-03-12)` → `add_default_rank_to_news (2026-03-13)` (3 migrations behind)
-- Stage flow: added missing `queued` stage between `edited` and `posted`
-- Scripts table: added `edit-post.js` (Stage 4, every 5 min, mason)
-- Cron schedules corrected: poll 5m→3m, enrich 10m→5m, opinion 15m→7m
-- Cron table: added `edit-post`, `mason-task-refinement`, `House Burns Down Protocol` rows
-- News model fields: added `hashtag` field (populated by `edit-post.js`)
-- Discord templates: added `edit-post.js` row; noted centralization in `discord-templates.js`
-- Strategic decisions: added 6 missing 2026-03-13 entries (hashtag, teams table, edit-post, discord-templates refactor, cadence tightening, agent infrastructure)
+### `boodle_scraper/docs/agents/shared/MEMORY.md`
+- **Migrations row**: updated from `add_default_rank_to_news` → `create_memes` (actual latest as of 2026-03-13)
+- **Pipeline description**: added x_reply pipeline (sibling records, parallel flow)
+- **Scripts table**: added `edit-reply-post.js` and `post-reply-to-x.js` (were undocumented)
+- **Cron table**: added `edit-reply-post (x_reply)`, `post-reply-to-x (x_reply)`, and `TM X Session Health Check` (3 missing jobs); fixed `edit-post` label to clarify x_post only; fixed Mack Hourly Ops Report from ❌ broken → ✅ (resolved last session)
+- **Discord templates**: added `edit-reply-post` and `post-reply-to-x` entries; noted 8-function lib
+- **Known Issues**: removed stale "Mack Hourly Ops Report broken" (resolved 2026-03-13); added x_reply 403 note
 
-### `docs/agents/system/bootstrap.md`
-- Cron table: corrected 3 stale schedules (*/5→*/3, */10→*/5, */15→*/7)
-- Cron table: added `edit-post` (mason, */5) and `mason-task-refinement` (mason, */5) rows
-- Discord templates: fixed `enrich-news` row (person + team were shown inline; corrected to separate lines matching actual code)
-- Added `edit-post` Discord template row
-- Noted template centralization in `discord-templates.js`
-- Updated `Last updated` date
-
-### `docs/agents/system/architecture.md`
-- No changes needed — high-level, no drift
+### `boodle_scraper/docs/agents/system/bootstrap.md`
+- **Cron restoration table**: added `edit-reply-post (x_reply)`, `post-reply-to-x (x_reply)`, `Mack Hourly Ops Report`, `TM X Session Health Check` (all missing)
+- **Pipeline section**: added x_reply parallel flow description
+- **Discord templates table**: added `edit-reply-post` and `post-reply-to-x` entries
+- **Known Gotchas**: replaced stale "Mack Hourly Ops Report broken" with x_reply 403 gotcha (current blocker)
 
 ### `workspace/MEMORY.md`
-- No changes needed — already current
+- **Cron schedule table**: added `TM X Session Health Check` (mack, 9am MDT daily)
+
+### `boodle_scraper/docs/agents/system/architecture.md`
+- No changes needed — high-level file, still accurate
 
 ## System health
 - Rails app: OK
-- Total news records: 74
-- Latest migration: `20260313072100_add_default_rank_to_news.rb`
-- Cron jobs active: 10 (including this one)
+- Total news records: 109
+- Latest migration: `20260313181345_create_memes.rb`
+- Cron jobs active: 13
 
 ## Anything worth flagging
-- `Mack Hourly Ops Report` cron still broken — delivery misconfigured. Mack owns the fix but it hasn't landed yet. Low urgency but worth noting in the Daily Brief.
-- Tasks #43–48 (hashtag form, newsExists fix, rank flip) still in `new` stage — Mason's refinement loop should be picking these up. If they're still unqueued by morning, worth a nudge.
-- `edit-post` cron is now running (mason, every 5 min) — docs were significantly behind on this. Pipeline is actually 6-stage now, not 5.
+- **x_reply 403 (HIGH)**: `post-reply-to-x.js` gets 403 when replying to Schefter's tweets — his account blocks third-party replies. Fix is known: change `originalTweetId` source to the x_post record's `x_post_id` (reply to TM's own tweet instead). TM replying to its own tweets works (HTTP 201 confirmed). Needs Mr. McRitchie sign-off on the behavior change before shipping.
+- **TM X Session Health Check** (mack, 9am MDT): New cron, no docs existed before tonight. Added to all tables but behavior/payload not fully documented — Mack should clarify what she's checking.
+- **Meme tags sparse**: 10 memes seeded but `team_slug` is null on all of them. Claude meme picker works but degrades without team context. Low-priority polish.
