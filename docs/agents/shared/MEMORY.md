@@ -1,7 +1,7 @@
 # McRitchie Studio — Shared Agent Memory
 
 This file is the system's collective brain. All agents can read and write it.
-Keep entries current. Remove outdated info. Last updated: 2026-03-13.
+Keep entries current. Remove outdated info. Last updated: 2026-03-14.
 
 ---
 
@@ -11,7 +11,7 @@ Keep entries current. Remove outdated info. Last updated: 2026-03-13.
 |-----------|--------|-------|
 | Rails app | 🟢 Running | Docker container `boodle_scraper-web-1`, port 3000 |
 | PostgreSQL | 🟢 Healthy | Docker container `boodle_scraper-db-1` |
-| Migrations | 🟢 Current | Latest: `add_default_rank_to_news` (2026-03-13) |
+| Migrations | 🟢 Current | Latest: `create_memes` (2026-03-13) |
 | Agents seeded | 🟢 Done | 4 agents, 14 skills, 13 assignments |
 | News pipeline | 🟢 Live | Polling → enriching → opinion → posting to X |
 | Daily Brief | 🟢 Scheduled | 5am MDT, Alex posts to #lobster-tank |
@@ -61,6 +61,9 @@ Keep entries current. Remove outdated info. Last updated: 2026-03-13.
 Full end-to-end NFL news pipeline sourcing from Adam Schefter's X account.
 
 ### Stage Flow
+Each Schefter tweet produces **two records**: an `x_post` (main tweet) and an `x_reply` (meme reply).
+
+**x_post pipeline:**
 ```
 new → reviewed → content → edited → queued → posted → archived
                                         ↑
@@ -68,15 +71,20 @@ new → reviewed → content → edited → queued → posted → archived
                     (drag edited → queued in kanban to approve for X posting)
 ```
 
+**x_reply pipeline (runs in parallel):**
+`opinion-news` creates sibling → `edit-reply-post` picks meme → human queues → `post-reply-to-x`
+
 ### Scripts (all in `~/.openclaw/workspace/scripts/`)
 
 | Script | Cron | What it does |
 |--------|------|-------------|
 | `poll-schefter.js` | Every 3 min | Polls X API → saves to DB → Discord announce |
 | `enrich-news.js` | Every 5 min | AI enrichment → `reviewed` + Discord summary |
-| `opinion-news.js` | Every 7 min | Turf Monster writes hot take → `content` |
-| `edit-post.js` | Every 5 min | Hashtag lookup + team match → `edited` |
-| `post-to-x.js` | Every 30 min | Posts `queued` record to TM's X → saves `x_post_id` + `x_post_url` → `posted` |
+| `opinion-news.js` | Every 7 min | TM hot take → x_post to `content` + creates x_reply sibling |
+| `edit-post.js` | Every 5 min | **x_post only** — hashtag lookup + team match → `edited` |
+| `edit-reply-post.js` | Every 5 min | **x_reply only** — Claude picks meme → `meme_id` saved → `edited` |
+| `post-to-x.js` | Every 30 min | **x_post only** — posts tweet, saves `x_post_id` + `x_post_url` → `posted` |
+| `post-reply-to-x.js` | Every 10 min | **x_reply only** — posts meme reply to TM's x_post ⚠️ see 403 note |
 
 ### Running scripts manually
 ```bash
@@ -128,13 +136,17 @@ All scripts gate Discord behind a confirmed DB save — no ghost announcements.
 
 Templates centralized in `scripts/lib/discord-templates.js` (refactored 2026-03-13).
 
+Templates centralized in `scripts/lib/discord-templates.js` (8 functions).
+
 | Script | Template |
 |--------|---------|
-| `poll-schefter.js` | `🐊🏈 **Adam Schefter** · 6:32 PM\n🔗 [AdamSchefter](url)` |
+| `poll-schefter.js` | `🐊🏈 **Adam Schefter** · timestamp\n🔗 [AdamSchefter](url)` |
 | `enrich-news.js` | `🐊🤖 **title_short**\n- 👤 person\n- 🏈 team\nsummary\n🔗 [author](url)` |
 | `opinion-news.js` | `🐊🤔 **title_short**\n*feeling • what_happened*\nopinion\n🔗 [author](url)` |
 | `edit-post.js` | `feeling_emoji **title_short**\n- 👤 person\n- 🏈 team\n- #️⃣ hashtag\nopinion` |
 | `post-to-x.js` | `feeling_emoji **title_short**\nopinion\n🔗 [Turf Monster](x_post_url)` |
+| `edit-reply-post.js` | `🐊💬 **title_short** [REPLY]\n- 👤 person\n- 🏈 team\n- 🖼️ meme filename` |
+| `post-reply-to-x.js` | `🐊💬 **title_short** [REPLY]\n🔗 replied to Schefter url` |
 
 Posts to `#lobster-tank` (`1479973077021495478`) via the Discord bots.
 
@@ -178,12 +190,15 @@ GET    /api/agents/tasks              # list tasks
 |-----|-------|----------|----------|--------|
 | `poll-schefter` | alex | every 3 min | none | ✅ |
 | `turf-monster-enrich-news` | turf-monster | every 5 min | none | ✅ |
-| `edit-post (mason)` | mason | every 5 min | none | ✅ |
+| `edit-post (x_post)` | mason | every 5 min | none | ✅ |
+| `edit-reply-post (x_reply)` | alex | every 5 min | none | ✅ |
 | `mason-task-refinement` | mason | every 5 min | none | ✅ |
 | `opinion-news (turf-monster)` | alex | every 7 min | none | ✅ |
-| `post-to-x (turf-monster)` | alex | every 30 min | none | ✅ |
+| `post-reply-to-x (x_reply)` | alex | every 10 min | none | ✅ |
+| `post-to-x (x_post)` | alex | every 30 min | none | ✅ |
 | `Mack Hourly LLM Ops Report` | mack | every hour | `#lobster-tank` | ✅ |
-| `Mack Hourly Ops Report` | mack | every hour | `#lobster-tank` | ❌ broken delivery |
+| `Mack Hourly Ops Report` | mack | every hour | `#lobster-tank` | ✅ |
+| `TM X Session Health Check` | mack | 9am MDT daily | none | ✅ |
 | `House Burns Down Protocol` | alex | 3am MDT nightly | none | ✅ |
 | `Alex Daily Brief` | alex | 5am MDT | `#lobster-tank` | ✅ |
 
@@ -257,8 +272,8 @@ GET    /api/agents/tasks              # list tasks
 
 ## Known Issues / Watch List
 
-- `Mack Hourly Ops Report` cron broken — fix: change delivery to `"to": "channel:1479973077021495478"`
 - `primary_team_slug` and `primary_person_slug` fields not yet auto-populated
+- **x_reply 403**: X API blocks TM replies to Schefter's tweets (his reply settings). Fix pending: reply to TM's own `x_post_id` instead. Confirmed TM can reply to its own tweets (HTTP 201).
 - ESPN article pipeline not yet built
 - No production deployment configured
 - Pre-existing duplicate news URLs in DB (from before dedup fix) — may cause issues if records are re-ingested

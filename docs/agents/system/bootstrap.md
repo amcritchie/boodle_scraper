@@ -2,7 +2,7 @@
 
 Use this if the system needs to be rebuilt from scratch (new machine, disaster recovery, etc.).
 
-Last updated: 2026-03-13
+Last updated: 2026-03-14
 
 ---
 
@@ -93,11 +93,15 @@ Re-create these cron jobs via the OpenClaw cron tool:
 |------|-------|----------|---------|
 | poll-schefter | alex | `*/3 * * * *` | `node scripts/poll-schefter.js` |
 | turf-monster-enrich-news | turf-monster | `*/5 * * * *` | `node scripts/enrich-news.js` |
-| edit-post | mason | `*/5 * * * *` | `node scripts/edit-post.js` |
+| edit-post (x_post) | mason | `*/5 * * * *` | `node scripts/edit-post.js` |
+| edit-reply-post (x_reply) | alex | `*/5 * * * *` | `node scripts/edit-reply-post.js` |
 | mason-task-refinement | mason | `*/5 * * * *` | Mason refines `new` tasks, queues or @asks Alex |
 | opinion-news | alex | `*/7 * * * *` | `node scripts/opinion-news.js` |
-| post-to-x | alex | `*/30 * * * *` | `node scripts/post-to-x.js` |
+| post-reply-to-x (x_reply) | alex | `*/10 * * * *` | `node scripts/post-reply-to-x.js` |
+| post-to-x (x_post) | alex | `*/30 * * * *` | `node scripts/post-to-x.js` |
 | Mack Hourly LLM Ops Report | mack | `0 * * * *` | Mack posts LLM health to #lobster-tank |
+| Mack Hourly Ops Report | mack | `0 * * * *` | Mack posts ops health to #lobster-tank |
+| TM X Session Health Check | mack | `0 9 * * *` America/Denver | Mack checks Turf Monster's X session health |
 | House Burns Down Protocol | alex | `0 3 * * *` America/Denver | Audits docs/agents vs live system, updates stale files, writes nightly-sync.md |
 | Alex Daily Brief | alex | `0 5 * * *` America/Denver | Weather + top story + blockers + house burns down recap → #lobster-tank |
 
@@ -172,12 +176,18 @@ curl -s -X PATCH http://localhost:3000/api/agents/tasks/:id/transition \
 ## News Pipeline Details
 
 ### Stage flow
+Each Schefter tweet produces **two records**: an `x_post` (main tweet) and an `x_reply` (meme reply).
+
+**x_post pipeline:**
 ```
-new → reviewed → content → edited → posted → archived
-                               ↑
+new → reviewed → content → edited → queued → posted → archived
+                                        ↑
                     human editorial gate
-                    (drag content → edited in the kanban to approve for X posting)
+                    (drag edited → queued in kanban to approve for X posting)
 ```
+
+**x_reply pipeline (runs in parallel):**
+`opinion-news` creates sibling → `edit-reply-post` picks meme → human queues → `post-reply-to-x`
 
 ### Rank system
 - All news records have a `rank` integer ordered in gaps of 100 (100, 200, 300...)
@@ -192,15 +202,17 @@ new → reviewed → content → edited → posted → archived
 - All scripts: Discord only fires after DB save is confirmed
 
 ### Discord message templates
+Templates centralized in `scripts/lib/discord-templates.js` (8 functions, refactored 2026-03-13).
+
 | Script | Format |
 |--------|--------|
-Templates centralized in `scripts/lib/discord-templates.js` (refactored 2026-03-13).
-
 | poll-schefter | `🐊🏈 **Adam Schefter** · time\n🔗 [handle](url)` |
 | enrich-news | `🐊🤖 **title_short**\n- 👤 person\n- 🏈 team\nsummary\n🔗 [author](url)` |
 | opinion-news | `🐊🤔 **title_short**\n*feeling • what_happened*\nopinion\n🔗 [author](url)` |
 | edit-post | `feeling_emoji **title_short**\n- 👤 person\n- 🏈 team\n- #️⃣ hashtag\nopinion` |
 | post-to-x | `feeling_emoji **title_short**\nopinion\n🔗 [Turf Monster](x_post_url)` |
+| edit-reply-post | `🐊💬 **title_short** [REPLY]\n- 👤 person\n- 🏈 team\n- 🖼️ meme filename` |
+| post-reply-to-x | `🐊💬 **title_short** [REPLY]\n🔗 replied to Schefter url` |
 
 ---
 
@@ -210,7 +222,7 @@ Templates centralized in `scripts/lib/discord-templates.js` (refactored 2026-03-
 - **Tailwind**: app uses CDN version — no build step needed but can cause layout reflow during drag-and-drop
 - **HubSpot script**: gated behind `content_for :hubspot` — don't load globally or it causes scroll jumps on the news kanban
 - **Turbo scroll**: news page has `turbo-visit-control: reload` to prevent Turbo from restoring stale scroll position
-- **Mack Hourly Ops Report**: broken cron — delivery uses `channel:` key instead of `to:` — fix before using
+- **x_reply 403**: X API blocks TM from replying directly to Schefter's tweets (his account restricts replies). Fix: change `originalTweetId` in `post-reply-to-x.js` to use the x_post record's `x_post_id` (reply to TM's own tweet instead). TM can reply to its own tweets (confirmed HTTP 201).
 
 ---
 
