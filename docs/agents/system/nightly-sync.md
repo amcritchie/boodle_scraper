@@ -1,45 +1,60 @@
 # Nightly Sync Report
-Last run: 2026-03-14 03:00 AM MDT (09:00 UTC)
+Last run: 2026-03-15 — 3:00 AM MDT (House Burns Down Protocol)
 
 ## What was checked
-- `boodle_scraper/docs/agents/shared/MEMORY.md`
-- `boodle_scraper/docs/agents/system/bootstrap.md`
-- `boodle_scraper/docs/agents/system/architecture.md`
-- `workspace/MEMORY.md`
-- Live cron jobs (`openclaw cron list`) — 13 active jobs
-- Latest migration (`ls db/migrate/ | tail -5`)
-- App health (`GET /api/news`)
-- Recent git log (both repos)
+- Live cron job list (13 active jobs)
+- Latest DB migrations (`ls boodle_scraper/db/migrate/ | tail -5`)
+- Recent git commits (boodle_scraper + workspace repos)
+- Rails app health (`GET /api/news`)
+- Docs vs live state for:
+  - `boodle_scraper/docs/agents/shared/MEMORY.md`
+  - `boodle_scraper/docs/agents/system/bootstrap.md`
+  - `boodle_scraper/docs/agents/system/architecture.md`
+  - `workspace/MEMORY.md`
 
 ## What was updated
 
-### `boodle_scraper/docs/agents/shared/MEMORY.md`
-- **Migrations row**: updated from `add_default_rank_to_news` → `create_memes` (actual latest as of 2026-03-13)
-- **Pipeline description**: added x_reply pipeline (sibling records, parallel flow)
-- **Scripts table**: added `edit-reply-post.js` and `post-reply-to-x.js` (were undocumented)
-- **Cron table**: added `edit-reply-post (x_reply)`, `post-reply-to-x (x_reply)`, and `TM X Session Health Check` (3 missing jobs); fixed `edit-post` label to clarify x_post only; fixed Mack Hourly Ops Report from ❌ broken → ✅ (resolved last session)
-- **Discord templates**: added `edit-reply-post` and `post-reply-to-x` entries; noted 8-function lib
-- **Known Issues**: removed stale "Mack Hourly Ops Report broken" (resolved 2026-03-13); added x_reply 403 note
+### `docs/agents/shared/MEMORY.md`
+- **Migrations:** updated latest from `create_memes` (2026-03-13) → `add_discord_message_id_to_news` (2026-03-14)
+- **News model fields:** added `discord_message_id` field (added by 2026-03-14 migration)
+- **Cron table:** full refresh — schedules updated to reflect live cron, removed the two Mack Hourly jobs (no longer active), added `emoji-approval` (new job, every 2 min, alex), marked error-state jobs
+- **Rank system:** corrected ordering direction from `ASC` → `DESC` (task #48 fixed this on 2026-03-12; docs had stale ASC note)
+- **Last updated:** bumped to 2026-03-15
 
-### `boodle_scraper/docs/agents/system/bootstrap.md`
-- **Cron restoration table**: added `edit-reply-post (x_reply)`, `post-reply-to-x (x_reply)`, `Mack Hourly Ops Report`, `TM X Session Health Check` (all missing)
-- **Pipeline section**: added x_reply parallel flow description
-- **Discord templates table**: added `edit-reply-post` and `post-reply-to-x` entries
-- **Known Gotchas**: replaced stale "Mack Hourly Ops Report broken" with x_reply 403 gotcha (current blocker)
+### `docs/agents/system/bootstrap.md`
+- **Cron table:** full refresh matching live state — updated schedules, removed Mack Hourly jobs, added `emoji-approval`
+- **Last updated:** bumped to 2026-03-15
 
 ### `workspace/MEMORY.md`
-- **Cron schedule table**: added `TM X Session Health Check` (mack, 9am MDT daily)
+- **Cron schedule table:** refreshed with live cadences, error states, new `emoji-approval` job, removed Mack Hourly jobs
+- **News schema:** added `discord_message_id` field entry
 
-### `boodle_scraper/docs/agents/system/architecture.md`
-- No changes needed — high-level file, still accurate
+### `docs/agents/system/architecture.md`
+- No changes needed — still accurate
 
 ## System health
-- Rails app: OK
-- Total news records: 109
-- Latest migration: `20260313181345_create_memes.rb`
-- Cron jobs active: 13
+- Rails app: ✅ OK
+- Total news records: 121
+- Cron jobs active: 12 (+ House Burns Down itself = 13 total)
 
 ## Anything worth flagging
-- **x_reply 403 (HIGH)**: `post-reply-to-x.js` gets 403 when replying to Schefter's tweets — his account blocks third-party replies. Fix is known: change `originalTweetId` source to the x_post record's `x_post_id` (reply to TM's own tweet instead). TM replying to its own tweets works (HTTP 201 confirmed). Needs Mr. McRitchie sign-off on the behavior change before shipping.
-- **TM X Session Health Check** (mack, 9am MDT): New cron, no docs existed before tonight. Added to all tables but behavior/payload not fully documented — Mack should clarify what she's checking.
-- **Meme tags sparse**: 10 memes seeded but `team_slug` is null on all of them. Claude meme picker works but degrades without team context. Low-priority polish.
+
+### 🔴 Multiple cron jobs in error state
+The following jobs have error status and need investigation before the morning pipeline:
+- `emoji-approval` (alex, every 2 min) — **new job**, no prior docs — purpose unclear, likely needs a script or prompt fix
+- `edit-post (x_post)` (mason, every 15 min) — Stage 4 of x_post pipeline; errors here stall hashtag enrichment
+- `mason-task-refinement` (mason, every 20 min) — Task board won't auto-refine while this is erroring
+- `turf-monster-enrich-news` (turf-monster, every 10 min) — Stage 2 of pipeline; **critical path** — new Schefter tweets will pile up in `new` without enrichment
+- `Alex Daily Brief` (alex, 5am MDT) — Yesterday's brief also errored (22h ago run was in error state)
+
+### 🟡 Mack Hourly LLM Ops Report + Mack Hourly Ops Report — removed from live cron
+Both hourly Mack report jobs are gone from the live cron list. Docs had them as active. Removed from all doc tables. No action needed unless Mr. McRitchie wants them restored.
+
+### 🟡 Cadence changes since last documented (2026-03-13)
+Poll-schefter slowed from every 3 min → every 10 min. Enrich/edit/opinion all slowed or changed. Docs were stale on schedules — now corrected.
+
+### 🟢 New migration: `add_discord_message_id_to_news` (2026-03-14)
+New `discord_message_id` field on News records. Docs updated accordingly.
+
+### 🟢 New cron: `emoji-approval` (every 2 min, alex agent)
+Not documented anywhere until this sync. Added to all cron tables. Currently in error state — worth investigating.
