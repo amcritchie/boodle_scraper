@@ -1,7 +1,7 @@
 # McRitchie Studio — Shared Agent Memory
 
 This file is the system's collective brain. All agents can read and write it.
-Keep entries current. Remove outdated info. Last updated: 2026-03-14.
+Keep entries current. Remove outdated info. Last updated: 2026-03-15.
 
 ---
 
@@ -11,7 +11,7 @@ Keep entries current. Remove outdated info. Last updated: 2026-03-14.
 |-----------|--------|-------|
 | Rails app | 🟢 Running | Docker container `boodle_scraper-web-1`, port 3000 |
 | PostgreSQL | 🟢 Healthy | Docker container `boodle_scraper-db-1` |
-| Migrations | 🟢 Current | Latest: `create_memes` (2026-03-13) |
+| Migrations | 🟢 Current | Latest: `add_discord_message_id_to_news` (2026-03-14) |
 | Agents seeded | 🟢 Done | 4 agents, 14 skills, 13 assignments |
 | News pipeline | 🟢 Live | Polling → enriching → opinion → posting to X |
 | Daily Brief | 🟢 Scheduled | 5am MDT, Alex posts to #lobster-tank |
@@ -116,9 +116,10 @@ node scripts/post-to-x.js
 | `rank` | any | Integer ordering (100, 200, 300...) — controls pipeline pickup order |
 | `x_post_id` | posted | X tweet ID saved after posting |
 | `x_post_url` | posted | Full X tweet URL saved after posting |
+| `discord_message_id` | any | Discord message ID for the news record's Discord post (added 2026-03-14) |
 
 ### Rank system (added 2026-03-12)
-- Records are ordered by `rank ASC, created_at DESC`
+- Records are ordered by `rank DESC, created_at DESC` — highest rank = highest priority
 - Ranks use gap-based 100s spacing (100, 200, 300...) for easy insertion
 - Midpoint insert: drop between 200 and 300 → 250
 - Append to end: max rank + 100, rounded to nearest 100
@@ -188,19 +189,18 @@ GET    /api/agents/tasks              # list tasks
 
 | Job | Agent | Schedule | Delivery | Status |
 |-----|-------|----------|----------|--------|
-| `poll-schefter` | alex | every 3 min | none | ✅ |
-| `turf-monster-enrich-news` | turf-monster | every 5 min | none | ✅ |
-| `edit-post (x_post)` | mason | every 5 min | none | ✅ |
-| `edit-reply-post (x_reply)` | alex | every 5 min | none | ✅ |
-| `mason-task-refinement` | mason | every 5 min | none | ✅ |
-| `opinion-news (turf-monster)` | alex | every 7 min | none | ✅ |
+| `poll-schefter` | alex | every 10 min | none | ✅ |
+| `turf-monster-enrich-news` | turf-monster | every 10 min | none | ⚠️ error |
+| `edit-post (x_post)` | mason | every 15 min | none | ⚠️ error |
+| `edit-reply-post (x_reply)` | alex | every 15 min | none | ✅ |
+| `emoji-approval` | alex | every 2 min | none | ⚠️ error |
+| `mason-task-refinement` | mason | every 20 min | none | ⚠️ error |
+| `opinion-news (turf-monster)` | alex | every 15 min | none | ✅ |
 | `post-reply-to-x (x_reply)` | alex | every 10 min | none | ✅ |
 | `post-to-x (x_post)` | alex | every 30 min | none | ✅ |
-| `Mack Hourly LLM Ops Report` | mack | every hour | `#lobster-tank` | ✅ |
-| `Mack Hourly Ops Report` | mack | every hour | `#lobster-tank` | ✅ |
 | `TM X Session Health Check` | mack | 9am MDT daily | none | ✅ |
 | `House Burns Down Protocol` | alex | 3am MDT nightly | none | ✅ |
-| `Alex Daily Brief` | alex | 5am MDT | `#lobster-tank` | ✅ |
+| `Alex Daily Brief` | alex | 5am MDT | `#lobster-tank` | ⚠️ error |
 
 **Discord delivery format** (correct):
 ```json

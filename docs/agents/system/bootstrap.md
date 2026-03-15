@@ -2,7 +2,7 @@
 
 Use this if the system needs to be rebuilt from scratch (new machine, disaster recovery, etc.).
 
-Last updated: 2026-03-14
+Last updated: 2026-03-15
 
 ---
 
@@ -91,16 +91,15 @@ Re-create these cron jobs via the OpenClaw cron tool:
 
 | Name | Agent | Schedule | Payload command |
 |------|-------|----------|---------|
-| poll-schefter | alex | `*/3 * * * *` | `node scripts/poll-schefter.js` |
-| turf-monster-enrich-news | turf-monster | `*/5 * * * *` | `node scripts/enrich-news.js` |
-| edit-post (x_post) | mason | `*/5 * * * *` | `node scripts/edit-post.js` |
-| edit-reply-post (x_reply) | alex | `*/5 * * * *` | `node scripts/edit-reply-post.js` |
-| mason-task-refinement | mason | `*/5 * * * *` | Mason refines `new` tasks, queues or @asks Alex |
-| opinion-news | alex | `*/7 * * * *` | `node scripts/opinion-news.js` |
+| poll-schefter | alex | `*/10 * * * *` | `node scripts/poll-schefter.js` |
+| turf-monster-enrich-news | turf-monster | `*/10 * * * *` | `node scripts/enrich-news.js` |
+| edit-post (x_post) | mason | `*/15 * * * *` | `node scripts/edit-post.js` |
+| edit-reply-post (x_reply) | alex | `*/15 * * * *` | `node scripts/edit-reply-post.js` |
+| emoji-approval | alex | `*/2 * * * *` | Approves emoji reactions on news records |
+| mason-task-refinement | mason | `*/20 * * * *` | Mason refines `new` tasks, queues or @asks Alex |
+| opinion-news | alex | `*/15 * * * *` | `node scripts/opinion-news.js` |
 | post-reply-to-x (x_reply) | alex | `*/10 * * * *` | `node scripts/post-reply-to-x.js` |
 | post-to-x (x_post) | alex | `*/30 * * * *` | `node scripts/post-to-x.js` |
-| Mack Hourly LLM Ops Report | mack | `0 * * * *` | Mack posts LLM health to #lobster-tank |
-| Mack Hourly Ops Report | mack | `0 * * * *` | Mack posts ops health to #lobster-tank |
 | TM X Session Health Check | mack | `0 9 * * *` America/Denver | Mack checks Turf Monster's X session health |
 | House Burns Down Protocol | alex | `0 3 * * *` America/Denver | Audits docs/agents vs live system, updates stale files, writes nightly-sync.md |
 | Alex Daily Brief | alex | `0 5 * * *` America/Denver | Weather + top story + blockers + house burns down recap → #lobster-tank |
