@@ -65,8 +65,6 @@ TM_X_API_KEY=...                    # Turf Monster X OAuth 1.0a
 TM_X_API_SECRET=...
 TM_X_ACCESS_TOKEN=...
 TM_X_ACCESS_SECRET=...
-KLING_API_KEY_ID=...                # Kling video generation (⚠️ expired 2026-03-15, needs rotation)
-KLING_API_KEY_SECRET=...
 ```
 
 ### openclaw.json Discord bot tokens
@@ -146,12 +144,29 @@ cd /home/alex/.openclaw/workspace && set -a && source .secrets && set +a && node
 
 | Name | Agent | Schedule | Notes |
 |------|-------|----------|-------|
-| emoji-approval | alex | `*/2 * * * *` | Watches 🔥/🍻 reactions in #lobster-tank |
-| mason-task-refinement | mason | `*/20 * * * *` | Mason dev loop: finish in_progress → pick up queued → refine new |
+| alex-dev-loop | alex | `0 * * * *` | Alex dev loop: review done → finish in_progress → pick up queued → start new |
+| mason-task-refinement | mason | `0 * * * *` | Mason dev loop: finish in_progress → pick up queued → refine new |
+| mack-dev-loop | mack | `0 * * * *` | Mack dev loop: finish in_progress → pick up queued |
 | sync-cron-usage | alex | `0 * * * *` | Syncs OpenClaw cron token usage to Rails (task #70) |
 | TM X Session Health Check | mack | `0 9 * * *` MDT | Checks `.x-session.json` age |
 | House Burns Down Protocol | alex | `0 3 * * *` MDT | Nightly doc audit + writes nightly-sync.md |
-| Alex Daily Brief | alex | `0 5 * * *` MDT | Weather + top story + blockers → #lobster-tank |
+| mack-daily-ops | mack | `0 4 * * *` MDT | Memory cleanup + LLM health + token spend → #lobster-tank |
+| alex-daily-brief | alex | `0 5 * * *` MDT | Weather + top story + blockers → #lobster-tank |
+| mason-dev-report | mason | `0 6 * * *` MDT | Tasks completed/blocked → #lobster-tank |
+| tm-gm-checkin | turf-monster | `0 7 * * *` MDT | Posts "Hi" to #lobster-tank |
+
+### Alex dev-loop cron payload
+```
+You are Alex, CEO & Senior Engineer of McRitchie Studio. Run your dev loop.
+Read your role at /home/alex/.openclaw/workspace/boodle_scraper/docs/agents/agents/alex/role.md
+
+1. Review Done (first pass) → archive clean / fix bad / notify #lobster-tank
+2. Finish In Progress (alex tasks)
+3. Pick up Queued (alex tasks) → start → execute → complete
+4. Start New (tasks alex can own) → move to in_progress and build
+5. Review Done (second pass) → catch anything that landed during loop
+6. Nothing? HEARTBEAT_OK
+```
 
 ### Mason task-refinement cron payload
 ```
@@ -186,6 +201,16 @@ Post to #lobster-tank. Sign off: — Alex 🦞
 - Agent: alex | Schedule: `0 5 * * *` America/Denver | timeoutSeconds: 300 | delivery: `{ "mode": "announce", "to": "channel:1479973077021495478" }`
 - ⚠️ timeoutSeconds must be 300+ — job does weather + API calls + Discord post
 
+### Mack dev-loop cron payload
+```
+You are Mack, CTO & Infrastructure Lead of McRitchie Studio. Run your dev loop.
+Read your role at /home/alex/.openclaw/workspace/boodle_scraper/docs/agents/agents/mack/role.md
+
+1. Finish In Progress (mack tasks)
+2. Pick up Queued (mack tasks) → start → execute → complete
+3. Nothing? HEARTBEAT_OK
+```
+
 ---
 
 ## Step 6 — Verify pipeline
@@ -217,7 +242,7 @@ openclaw cron list
 | Agent | Slug | Role | Model | Heartbeat |
 |-------|------|------|-------|-----------|
 | Alex | alex | CEO & Senior Engineer — primary dev, quality gate | claude-sonnet-4-6 | 30m |
-| Mason | mason | CPO & Senior Engineer — second line dev, task refinement | claude-sonnet-4-6 | 30m |
+| Mason | mason | CPO & Senior Engineer — second line dev, task refinement | claude-sonnet-4-6 | 60m |
 | Mack | mack | CTO — infra, Docker, monitoring, error protocols | gemini-3-flash-preview | 30m |
 | Turf Monster | turf-monster | CMO — content, enrichment, X voice | grok-3 | 30m |
 
@@ -240,7 +265,7 @@ openclaw cron list
 4. Start New I can own
 5. Review Done again (second pass)
 
-### Mason dev loop (cron every 20min + Code Push)
+### Mason dev loop (cron every 60min + Code Push)
 1. Finish In Progress → 2. Pick up Queued → 3. Refine New
 
 ### Mack dev loop (Code Push)
@@ -296,7 +321,7 @@ Full stage sequence: `new → reviewed → content → edited → queued → pos
 ### Human approval (emoji reactions)
 - 🔥 on a TM Discord message → moves news item from `edited` → `queued`
 - 🍻 on a TM Discord message → queues + immediately posts to X
-- Processed by emoji-approval cron (every 2min) + heartbeat backup
+- Processed via agent heartbeat
 
 ---
 
@@ -322,7 +347,6 @@ Rails endpoints:
 - **Mack model**: must be `google/gemini-3-flash-preview` — was misconfigured as `anthropic/claude-sonnet-4-6`
 - **Auth profiles**: each agent needs its own `auth-profiles.json` with provider keys — gateway does NOT share alex's auth with other agents automatically
 - **x_reply 403**: X API blocks TM from replying to Schefter's tweets. Fix: change `originalTweetId` in `post-reply-to-x.js` to use `x_post_id` (reply to TM's own tweet). TM can reply to its own tweets (HTTP 201 confirmed).
-- **emoji-approval delivery**: cron job needs `"to": "channel:1479973077021495478"` in delivery config — `channel: "last"` alone causes errors
 - **Alex Daily Brief timeout**: needs `timeoutSeconds: 300` minimum — job does a lot (weather + API + Discord post)
 
 ---
@@ -365,10 +389,10 @@ openclaw cron run <jobId>
 
 | # | Title | Agent | Notes |
 |---|-------|-------|-------|
-| 69 | usage-tracker.js + wire into scripts | mason | Phase 1 token logging |
-| 70 | sync-cron-usage.js | mack | Phase 2 token logging |
-| 71 | parse-session-usage.js | mack | Phase 3 token logging |
-| 72 | archived stage for AgentTask | mason | Needed for Alex quality gate loop |
+| ~~69~~ | ~~usage-tracker.js + wire into scripts~~ | ~~mason~~ | ✅ Done |
+| ~~70~~ | ~~sync-cron-usage.js~~ | ~~mack~~ | ✅ Done |
+| ~~71~~ | ~~parse-session-usage.js~~ | ~~mack~~ | ✅ Done |
+| ~~72~~ | ~~archived stage for AgentTask~~ | ~~mason~~ | ✅ Done |
 | 73 | Code Push button + /api/agents/push | mason | Triggers all dev loops |
 | 64-68 | Video pipeline (Content model, refine, generate, render) | mason/mack | Kling integration |
 | — | x_reply 403 fix | mack | Reply to TM's own x_post_id instead of Schefter |

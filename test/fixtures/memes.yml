@@ -1,0 +1,12 @@
+happy_meme:
+  path: "/images/memes/happy.jpg"
+  feeling: happy
+  feeling_array: ["happy", "excited"]
+  rank: 1
+
+sad_meme:
+  path: "/images/memes/sad.jpg"
+  feeling: sad
+  feeling_array: ["sad", "disappointed"]
+  team_slug: denver-broncos
+  rank: 2

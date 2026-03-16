@@ -167,6 +167,7 @@ collect_credentials() {
 
   echo "LLM Providers:"
   prompt_credential ANTHROPIC_KEY "Anthropic API key" "sk-ant-..."
+  prompt_credential GOOGLE_KEY    "Google AI API key" "AIza..."
   prompt_optional   OPENAI_KEY    "OpenAI API key (fallback)" "sk-..."
   echo ""
 
@@ -197,6 +198,21 @@ collect_credentials() {
   prompt_credential TM_X_ACCESS_SECRET "TM X Access Token Secret"
   echo ""
 
+  echo ""
+  echo "Cron Job Intervals:"
+  echo "  Enter cron intervals for each pipeline job."
+  echo "  Format: cron expression (e.g. */10 * * * * for every 10 min, 0 * * * * for hourly)"
+  echo ""
+  prompt_credential CRON_POLL_SCHEFTER       "poll-schefter interval"        "default: */10 * * * *"
+  prompt_credential CRON_ENRICH_NEWS         "enrich-news interval"          "default: */10 * * * *"
+  prompt_credential CRON_OPINION_NEWS        "opinion-news interval"         "default: */15 * * * *"
+  prompt_credential CRON_EDIT_POST           "edit-post interval"            "default: */15 * * * *"
+  prompt_credential CRON_EDIT_REPLY_POST     "edit-reply-post interval"      "default: */15 * * * *"
+  prompt_credential CRON_POST_TO_X           "post-to-x interval"            "default: */30 * * * *"
+  prompt_credential CRON_POST_REPLY_TO_X     "post-reply-to-x interval"      "default: */10 * * * *"
+  prompt_credential CRON_MASON_REFINEMENT    "mason-task-refinement interval" "default: 0 * * * *"
+  echo ""
+
   echo "Generating Rails SECRET_KEY_BASE..."
   SECRET_KEY=$(openssl rand -hex 64)
   echo "  ✓ Generated"
@@ -215,6 +231,12 @@ apply_credentials() {
   set_openclaw_key "auth.profiles.anthropic:default.mode"      "api_key"
   set_openclaw_key "auth.profiles.anthropic:default.apiKey"    "$ANTHROPIC_KEY"
 
+  # ── Google key → openclaw.json ──
+  echo "  → Google key → openclaw.json"
+  set_openclaw_key "auth.profiles.google:default.provider"  "google"
+  set_openclaw_key "auth.profiles.google:default.mode"      "api_key"
+  set_openclaw_key "auth.profiles.google:default.apiKey"    "$GOOGLE_KEY"
+
   # ── OpenAI key → openclaw.json (if provided) ──
   if [ -n "$OPENAI_KEY" ]; then
     echo "  → OpenAI key → openclaw.json"
@@ -222,6 +244,24 @@ apply_credentials() {
     set_openclaw_key "auth.profiles.openai:default.mode"      "api_key"
     set_openclaw_key "auth.profiles.openai:default.apiKey"    "$OPENAI_KEY"
   fi
+
+  # ── Per-agent auth-profiles.json ──
+  echo "  → Per-agent auth-profiles.json"
+  for agent_slug in alex mason mack turf-monster; do
+    local agent_auth_dir="$OPENCLAW_DIR/agents/$agent_slug/agent"
+    mkdir -p "$agent_auth_dir"
+    cat > "$agent_auth_dir/auth-profiles.json" <<AUTHEOF
+{
+  "version": 1,
+  "profiles": {
+    "anthropic:default": { "type": "api_key", "provider": "anthropic", "key": "$ANTHROPIC_KEY" },
+    "google:default":    { "type": "api_key", "provider": "google",    "key": "$GOOGLE_KEY" }$([ -n "$OPENAI_KEY" ] && echo ",
+    \"openai:default\":    { \"type\": \"api_key\", \"provider\": \"openai\",    \"key\": \"$OPENAI_KEY\" }" || echo "")
+  }
+}
+AUTHEOF
+    echo "  ✓ $agent_auth_dir/auth-profiles.json"
+  done
 
   # ── Discord tokens → openclaw.json ──
   echo "  → Discord tokens → openclaw.json"
@@ -356,6 +396,17 @@ print_summary() {
     echo "  ✓ GitHub remote updated with PAT"
     echo "  ✓ .env generated"
     echo "  ✓ .secrets written (news pipeline X + Anthropic keys)"
+    echo "  ✓ Per-agent auth-profiles.json (Anthropic + Google$([ -n "$OPENAI_KEY" ] && echo " + OpenAI"))"
+    echo ""
+    echo "  Cron intervals collected:"
+    echo "    poll-schefter:        $CRON_POLL_SCHEFTER"
+    echo "    enrich-news:          $CRON_ENRICH_NEWS"
+    echo "    opinion-news:         $CRON_OPINION_NEWS"
+    echo "    edit-post:            $CRON_EDIT_POST"
+    echo "    edit-reply-post:      $CRON_EDIT_REPLY_POST"
+    echo "    post-to-x:            $CRON_POST_TO_X"
+    echo "    post-reply-to-x:      $CRON_POST_REPLY_TO_X"
+    echo "    mason-refinement:     $CRON_MASON_REFINEMENT"
     echo ""
     echo "  Still manual:"
     echo "  • Register agents: openclaw agents add alex / mason / mack / turf-monster"
@@ -365,7 +416,7 @@ print_summary() {
     echo "  • Run seeds: docker exec boodle_scraper-web-1 bin/rails runner db/seed_agents.rb"
     echo "  •            docker exec boodle_scraper-web-1 bin/rails runner db/seed_articles.rb"
     echo "  •            docker exec boodle_scraper-web-1 bin/rails runner db/seed_news.rb"
-    echo "  • Set up cron jobs (see bootstrap.md § Cron Jobs)"
+    echo "  • Set up cron jobs using intervals above (see bootstrap.md § Cron Jobs)"
     echo "  • Verify .secrets news pipeline credentials: ~/.openclaw/workspace/.secrets"
   else
     echo ""

@@ -57,7 +57,7 @@
 
 ## Dev Loops
 
-### Alex Dev Loop (Code Push button or manual)
+### Alex Dev Loop (cron every 60min + Code Push)
 ```
 1. Review Done      → archive clean / fix bad / notify #lobster-tank
 2. Finish In Progress
@@ -66,14 +66,14 @@
 5. Review Done again
 ```
 
-### Mason Dev Loop (cron every 20min + Code Push)
+### Mason Dev Loop (cron every 60min + Code Push)
 ```
 1. Finish In Progress (mason)
 2. Pick up Queued (mason)
 3. Refine New → enrich + queue, or @Alex in #lobster-tank
 ```
 
-### Mack Dev Loop (Code Push)
+### Mack Dev Loop (cron every 60min + Code Push)
 ```
 1. Finish In Progress (mack)
 2. Pick up Queued (mack)
@@ -122,7 +122,7 @@ edit-post.js (x_post)                  edit-reply-post.js (x_reply)
 hashtag lookup → edited                meme picker → edited
        │                                          │
        ▼                                          ▼
-[human approves via 🔥/🍻 reaction]    [human approves same way]
+[human approves in kanban/Discord]      [human approves same way]
        │                                          │
        ▼                                          ▼
 post-to-x.js                           post-reply-to-x.js
@@ -135,7 +135,7 @@ posts tweet → posted                   posts meme reply → posted
 ### Human approval
 - 🔥 reaction on TM's Discord message → `edited` → `queued`
 - 🍻 reaction → `edited` → `queued` → immediately post to X
-- Processed by `emoji-approval` cron (every 2min)
+- Processed via agent heartbeat
 
 ---
 
@@ -150,12 +150,16 @@ posts tweet → posted                   posts meme reply → posted
 | edit-reply-post (x_reply) | alex | 15min | Meme picker |
 | post-to-x (x_post) | alex | 30min | Post to X |
 | post-reply-to-x (x_reply) | alex | 10min | Post meme reply |
-| emoji-approval | alex | 2min | Process 🔥/🍻 reactions |
-| mason-task-refinement | mason | 20min | Mason dev loop |
+| alex-dev-loop | alex | 60min | Alex dev loop |
+| mason-task-refinement | mason | 60min | Mason dev loop |
+| mack-dev-loop | mack | 60min | Mack dev loop |
 | sync-cron-usage | alex | hourly | Sync cron token usage to Rails |
 | TM X Session Health Check | mack | 9am MDT | Check X session age |
 | House Burns Down Protocol | alex | 3am MDT | Nightly doc audit |
+| Mack Daily Ops | mack | 4am MDT | Memory cleanup + LLM health + token spend → #lobster-tank |
 | Alex Daily Brief | alex | 5am MDT | Morning summary → #lobster-tank |
+| Mason Dev Report | mason | 6am MDT | Tasks completed/blocked → #lobster-tank |
+| TM GM Check-in | turf-monster | 7am MDT | Posts "Hi" to #lobster-tank |
 
 ---
 
@@ -214,10 +218,10 @@ All LLM calls logged to Rails via `scripts/lib/usage-tracker.js`.
 
 | # | Title | Agent | Priority |
 |---|-------|-------|---------|
-| 69 | usage-tracker.js + wire into scripts | mason | High |
-| 70 | sync-cron-usage.js | mack | Med |
-| 71 | parse-session-usage.js | mack | Med |
-| 72 | archived stage for AgentTask | mason | High |
+| ~~69~~ | ~~usage-tracker.js + wire into scripts~~ | ~~mason~~ | ✅ Done |
+| ~~70~~ | ~~sync-cron-usage.js~~ | ~~mack~~ | ✅ Done |
+| ~~71~~ | ~~parse-session-usage.js~~ | ~~mack~~ | ✅ Done |
+| ~~72~~ | ~~archived stage for AgentTask~~ | ~~mason~~ | ✅ Done |
 | 73 | Code Push button + /api/agents/push | mason | High |
 | 64–68 | Turf Monster video pipeline | mason/mack | Med |
 | — | x_reply 403 fix (reply to own tweet) | mack | High |

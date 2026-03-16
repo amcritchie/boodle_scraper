@@ -172,16 +172,21 @@ class Matchup < ApplicationRecord
   def set_rushing_offense_score
     qb_rushing          = 0.8 * qb_player.rushing_grade rescue 60
     rb_rushing          = 1.2 * rb1_player.rushing_grade rescue 60
-    oline_blocking      = 1.0 * (oline.sum { |line| line.run_block_grade rescue 60 } / oline.count).to_i
-    receivers_blocking  = 0.8 * (receivers.sum { |receiver| receiver.run_block_grade } / receivers.count).to_i
+    oline_count = oline.count
+    oline_blocking      = oline_count.zero? ? 0 : 1.0 * (oline.sum { |line| line.run_block_grade rescue 60 } / oline_count).to_i
+    receivers_count = receivers.count
+    receivers_blocking  = receivers_count.zero? ? 0 : 0.8 * (receivers.sum { |receiver| receiver.run_block_grade } / receivers_count).to_i
 
     # Rushing Tandem RB + QB
-    rush_score = rushing_tandem.sum { |p| p.rushing_grade rescue 50 } / rushing_tandem.size
+    tandem_size = rushing_tandem.size
+    rush_score = tandem_size.zero? ? 0 : rushing_tandem.sum { |p| p.rushing_grade rescue 50 } / tandem_size
     # blocking grade
     update(rush_score: rush_score)
     # oline grades
-    interior_grade = interior_oline.sum { |p| p.run_block_grade rescue 60 } / interior_oline.size
-    exterior_grade = exterior_oline.sum { |p| p.run_block_grade rescue 60 } / exterior_oline.size
+    interior_size = interior_oline.size
+    exterior_size = exterior_oline.size
+    interior_grade = interior_size.zero? ? 0 : interior_oline.sum { |p| p.run_block_grade rescue 60 } / interior_size
+    exterior_grade = exterior_size.zero? ? 0 : exterior_oline.sum { |p| p.run_block_grade rescue 60 } / exterior_size
     # blocking grade
     update(interior_rush_block_score: interior_grade)
     update(exterior_rush_block_score: exterior_grade)
@@ -193,24 +198,30 @@ class Matchup < ApplicationRecord
   end
 
   def set_rushing_defense_score
-    dline_rushing_defense       = 1.5 * (dline.sum { |line| line.grades_rush_defense } / dline.count).to_i
-    linebackers_rushing_defense = 1.0 * (linebackers.sum { |line| line.grades_rush_defense } / linebackers.count).to_i
-    secondary_rushing_defense   = 0.8 * (secondary.sum { |line| line.grades_rush_defense } / secondary.count).to_i
+    dline_count = dline.count
+    linebackers_count = linebackers.count
+    secondary_count = secondary.count
+    dline_rushing_defense       = dline_count.zero? ? 0 : 1.5 * (dline.sum { |line| line.grades_rush_defense } / dline_count).to_i
+    linebackers_rushing_defense = linebackers_count.zero? ? 0 : 1.0 * (linebackers.sum { |line| line.grades_rush_defense } / linebackers_count).to_i
+    secondary_rushing_defense   = secondary_count.zero? ? 0 : 0.8 * (secondary.sum { |line| line.grades_rush_defense } / secondary_count).to_i
 
 
     # Dline grades
-    interior_grade = defensive_ends
+    de_size = defensive_ends.size
+    er_size = edge_rushers.size
+    interior_grade = de_size.zero? ? 0 : defensive_ends
     .sort_by { |player| -player.grades_rush_defense }
-    .sum { |p| p.grades_rush_defense rescue 60 } / defensive_ends.size
-    exterior_grade = edge_rushers
+    .sum { |p| p.grades_rush_defense rescue 60 } / de_size
+    exterior_grade = er_size.zero? ? 0 : edge_rushers
     .sort_by { |player| -player.grades_rush_defense }
-    .sum { |p| p.grades_rush_defense rescue 60 } / edge_rushers.size
-    linebacker_grade = linebackers
+    .sum { |p| p.grades_rush_defense rescue 60 } / er_size
+    linebacker_grade = linebackers_count.zero? ? 0 : linebackers
     .sort_by { |player| -player.grades_rush_defense }
-    .sum { |p| p.grades_rush_defense rescue 60 } / edge_rushers.size
-    safeties_grade = safeties
+    .sum { |p| p.grades_rush_defense rescue 60 } / linebackers_count
+    safeties_size = safeties.size
+    safeties_grade = safeties_size.zero? ? 0 : safeties
     .sort_by { |player| -player.grades_rush_defense }
-    .sum { |p| p.grades_rush_defense rescue 60 } / edge_rushers.size
+    .sum { |p| p.grades_rush_defense rescue 60 } / safeties_size
     # blocking grade
     update(interior_rush_defense_score: interior_grade)
     update(exterior_rush_defense_score: exterior_grade)
@@ -227,7 +238,7 @@ class Matchup < ApplicationRecord
   def set_passing_offense_score
     qb_passing          = 4.0 * qb_player.passing_grade rescue 60
     # Most Impactful Rushing Players
-    update(reciever_factors: top_three_receivers.map { |player| "#{player.receiving_grade.to_i} #{player.last_name}" })
+    update(receiver_factors: top_three_receivers.map { |player| "#{player.receiving_grade.to_i} #{player.last_name}" })
     oline_holes = oline.sort_by { |player| -player.pass_block_grade rescue 60 }.last(2)
     # Most Impactful Coverage Players
     update(pass_block_factors: oline_holes.map { |player| "#{player.pass_block_grade.to_i} #{player.last_name}" unless player.nil? })
@@ -240,13 +251,16 @@ class Matchup < ApplicationRecord
     rec3_receiving      = 0.70 * receiver3.receiving_grade
     # Set scores
     update(passer_score: qb_passing)
-    update(reciever_score: rec1_receiving + rec2_receiving + rec3_receiving)
+    update(receiver_score: rec1_receiving + rec2_receiving + rec3_receiving)
     # RB + OLINE
     rb_passing          = 0.5 * rb1_player.offense_grade rescue 60
-    oline_passing       = 2.0 * (oline.sum { |line| line.pass_block_grade rescue 60 } / oline.count).to_i
+    oline_count = oline.count
+    oline_passing       = oline_count.zero? ? 0 : 2.0 * (oline.sum { |line| line.pass_block_grade rescue 60 } / oline_count).to_i
     # oline grades
-    interior_grade = interior_oline.sum { |p| p.pass_block_grade rescue 60 } / interior_oline.size
-    exterior_grade = exterior_oline.sum { |p| p.pass_block_grade rescue 60 } / exterior_oline.size
+    interior_size = interior_oline.size
+    exterior_size = exterior_oline.size
+    interior_grade = interior_size.zero? ? 0 : interior_oline.sum { |p| p.pass_block_grade rescue 60 } / interior_size
+    exterior_grade = exterior_size.zero? ? 0 : exterior_oline.sum { |p| p.pass_block_grade rescue 60 } / exterior_size
     # blocking grade
     update(interior_pass_block_score: interior_grade)
     update(exterior_pass_block_score: exterior_grade)
@@ -266,26 +280,38 @@ class Matchup < ApplicationRecord
     update(coverage_factors: nickle_package.map { |player| "#{player.grades_coverage.to_i} #{player.last_name}" })
     
     # Calculate sack score
-    rusher1 = 3.0 * (pass_rush.first.grades_pass_rush rescue 60)
-    rusher2 = 2.0 * (pass_rush.second.grades_pass_rush rescue 60)
-    rusher3 = 1.2 * (pass_rush.third.grades_pass_rush rescue 60)
-    rusher4 = 0.8 * (pass_rush.fourth.grades_pass_rush rescue 60)
+    rushers = pass_rush
+    rusher1 = 3.0 * (rushers[0]&.grades_pass_rush || 60)
+    rusher2 = 2.0 * (rushers[1]&.grades_pass_rush || 60)
+    rusher3 = 1.2 * (rushers[2]&.grades_pass_rush || 60)
+    rusher4 = 0.8 * (rushers[3]&.grades_pass_rush || 60)
     update(sack_score: rusher1 + rusher2 + rusher3 + rusher4)
     # dline grades
-    interior_grade = defensive_ends.sum { |p| p.grades_pass_rush rescue 60 } / defensive_ends.size
-    exterior_grade = edge_rushers.sum { |p| p.grades_pass_rush rescue 60 } / edge_rushers.size
+    de_size = defensive_ends.size
+    er_size = edge_rushers.size
+    interior_grade = de_size.zero? ? 0 : defensive_ends.sum { |p| p.grades_pass_rush rescue 60 } / de_size
+    exterior_grade = er_size.zero? ? 0 : edge_rushers.sum { |p| p.grades_pass_rush rescue 60 } / er_size
     # blocking grade
     update(interior_rush_score: interior_grade)
     update(exterior_rush_score: exterior_grade)
     # Calculate coverage score
-    weakest_db_score = nickle_package.last.grades_coverage
-    average_db_score = (nickle_package.sum {|db| db.grades_coverage}) / nickle_package.count
-    coverage_score = 1.5 * (average_db_score - (0.5 * (average_db_score - weakest_db_score)))
+    nickle = nickle_package
+    nickle_count = nickle.count
+    if nickle_count.zero?
+      coverage_score = 0
+    else
+      weakest_db_score = nickle.last.grades_coverage
+      average_db_score = (nickle.sum {|db| db.grades_coverage}) / nickle_count
+      coverage_score = 1.5 * (average_db_score - (0.5 * (average_db_score - weakest_db_score)))
+    end
     update(coverage_score: coverage_score)
-    # oline grades
-    lb_grade = linebackers.sum { |p| p.grades_coverage rescue 60 } / linebackers.size
-    ss_grade = safeties.sum { |p| p.grades_coverage rescue 60 } / safeties.size
-    cb_grade = cornerbacks.sum { |p| p.grades_coverage rescue 60 } / cornerbacks.size
+    # defensive position grades
+    lb_size = linebackers.size
+    ss_size = safeties.size
+    cb_size = cornerbacks.size
+    lb_grade = lb_size.zero? ? 0 : linebackers.sum { |p| p.grades_coverage rescue 60 } / lb_size
+    ss_grade = ss_size.zero? ? 0 : safeties.sum { |p| p.grades_coverage rescue 60 } / ss_size
+    cb_grade = cb_size.zero? ? 0 : cornerbacks.sum { |p| p.grades_coverage rescue 60 } / cb_size
     # blocking grade
     update(linebacker_coverage_score: lb_grade)
     update(safety_coverage_score: ss_grade)
@@ -341,8 +367,8 @@ class Matchup < ApplicationRecord
     calculate_tier(:passer_score)
   end
 
-  def reciever_tier
-    calculate_tier(:reciever_score)
+  def receiver_tier
+    calculate_tier(:receiver_score)
   end
 
   def pass_block_tier

@@ -1,0 +1,39 @@
+new_task:
+  title: Implement feature X
+  slug: implement-feature-x-abcd1234
+  stage: new
+  priority: 0
+  agent_slug: alex
+
+queued_task:
+  title: Fix bug Y
+  slug: fix-bug-y-efgh5678
+  stage: queued
+  priority: 1
+  agent_slug: mason
+  queued_at: <%= 1.hour.ago.to_fs(:db) %>
+
+in_progress_task:
+  title: Build widget Z
+  slug: build-widget-z-ijkl9012
+  stage: in_progress
+  priority: 2
+  agent_slug: alex
+  started_at: <%= 30.minutes.ago.to_fs(:db) %>
+
+done_task:
+  title: Deploy service A
+  slug: deploy-service-a-mnop3456
+  stage: done
+  priority: 0
+  agent_slug: mack
+  completed_at: <%= 10.minutes.ago.to_fs(:db) %>
+
+failed_task:
+  title: Migrate database B
+  slug: migrate-database-b-qrst7890
+  stage: failed
+  priority: 1
+  agent_slug: mason
+  failed_at: <%= 5.minutes.ago.to_fs(:db) %>
+  error_message: Connection timeout

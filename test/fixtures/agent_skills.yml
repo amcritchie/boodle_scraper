@@ -1,0 +1,14 @@
+web_scraping:
+  name: Web Scraping
+  slug: web-scraping
+  category: data
+
+api_integration:
+  name: API Integration
+  slug: api-integration
+  category: data
+
+article_summarization:
+  name: Article Summarization
+  slug: article-summarization
+  category: content

@@ -10,9 +10,11 @@ export default class extends Controller {
 
   // Transition map: fromStage -> toStage -> transition name (for /transition endpoint)
   static TRANSITIONS = {
-    new:          { queued: "queue", in_progress: "start" },
-    queued:       { in_progress: "start" },
-    in_progress:  { done: "complete", failed: "fail" }
+    new:          { queued: "queue", in_progress: "start", archived: "archive" },
+    queued:       { in_progress: "start", archived: "archive" },
+    in_progress:  { done: "complete", failed: "fail", archived: "archive" },
+    done:         { archived: "archive" },
+    failed:       { archived: "archive" }
   }
 
   connect() {
@@ -231,6 +233,36 @@ export default class extends Controller {
       toast.classList.add("translate-x-full")
       setTimeout(() => toast.remove(), 300)
     }, 3000)
+  }
+
+  // ─── Archive Task ────────────────────────────────────────────
+
+  async archiveTask(event) {
+    event.stopPropagation()
+    const card = event.currentTarget.closest('[data-kanban-board-target="card"]')
+    const taskId = card?.dataset.taskId
+    if (!taskId) return
+
+    const url = this.transitionUrlValue.replace(":id", taskId)
+    try {
+      const response = await fetch(url, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transition: "archive" })
+      })
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error || "Archive failed")
+      }
+
+      const dropZone = card.closest('[data-kanban-board-target="dropZone"]')
+      card.remove()
+      if (dropZone) this.addPlaceholderIfEmpty(dropZone)
+      this.updateColumnCounts()
+      this.showToast("Task archived", "success")
+    } catch (err) {
+      this.showToast(`Failed to archive: ${err.message}`, "error")
+    }
   }
 
   // ─── Delete Task ─────────────────────────────────────────────

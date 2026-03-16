@@ -11,7 +11,7 @@
     'rush_defense' => { name: 'Run Def 🛑', color: 'text-red-600', dark_color: 'text-red-400', value: player.rush_defense_grade_x },
     'coverage' => { name: 'Cover 🔒', color: 'text-green-600', dark_color: 'text-green-400', value: player.coverage_grade_x },
     'grades_offense' => { name: 'Offense', color: 'text-blue-600', dark_color: 'text-blue-400', value: player.grades_offense || 60 },
-    'grades_defence' => { name: 'Defense', color: 'text-indigo-600', dark_color: 'text-indigo-400', value: player.grades_defence || 60 }
+    'grades_defense' => { name: 'Defense', color: 'text-indigo-600', dark_color: 'text-indigo-400', value: player.grades_defense || 60 }
   }
   
   # Helper method for ordinal suffixes
@@ -34,7 +34,7 @@
   end 
   
   # Determine if they played last season
-  snaps_last_season = [player.snaps_on_offense, player.snaps_on_defence].compact.max.to_i
+  snaps_last_season = [player.snaps_on_offense, player.snaps_on_defense].compact.max.to_i
   played_last_season = (snaps_last_season > 500)
   
   # Determine card background based on highlight

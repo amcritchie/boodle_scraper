@@ -23,7 +23,7 @@ class Game < ApplicationRecord
     self.away_scores = []
     self.home_scores = []
     self.events_array = []
-    self.stangest_events = []
+    self.strangest_events = []
     self.save!
   end
 

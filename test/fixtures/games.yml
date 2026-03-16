@@ -1,31 +1,25 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
-  source: MyString
-  season: 1
-  week: MyString
-  away_team: MyString
-  home_team: MyString
-  away_total: 1
-  home_total: 1
-  date: 2024-03-17
-  over_under: 1.5
-  over_under_odds: 1.5
-  away_spread: 1.5
-  home_spread: 1.5
-  odds: 1.5
+  slug: chiefs-broncos-week1-2025
+  source: sportradar
+  season: 2025
+  week_slug: week1
+  home_slug: kansas-city-chiefs
+  away_slug: denver-broncos
+  home_total: 27
+  away_total: 20
+  date: 2025-09-07
+  over_under: 47.5
+  home_spread: -3.5
 
 two:
-  source: MyString
-  season: 1
-  week: MyString
-  away_team: MyString
-  home_team: MyString
-  away_total: 1
-  home_total: 1
-  date: 2024-03-17
-  over_under: 1.5
-  over_under_odds: 1.5
-  away_spread: 1.5
-  home_spread: 1.5
-  odds: 1.5
+  slug: broncos-chiefs-week2-2025
+  source: sportradar
+  season: 2025
+  week_slug: week2
+  home_slug: denver-broncos
+  away_slug: kansas-city-chiefs
+  home_total: 14
+  away_total: 31
+  date: 2025-09-14
+  over_under: 44.5
+  home_spread: 6.5

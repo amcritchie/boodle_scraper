@@ -1,0 +1,9 @@
+mack_scraping:
+  agent_slug: mack
+  skill_slug: web-scraping
+  proficiency: 95
+
+mack_api:
+  agent_slug: mack
+  skill_slug: api-integration
+  proficiency: 90

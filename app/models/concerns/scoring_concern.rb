@@ -113,13 +113,14 @@ module ScoringConcern
   # EDGE, DT, LB
   def pass_rush_score
     pass_rush_score = 0
+    players = pass_rush_players
     # Return pass rush score
-    pass_rush_score += 1.0 * pass_rush_players.first.pass_rush_grade_x
-    pass_rush_score += 0.7 * pass_rush_players.second.pass_rush_grade_x
-    pass_rush_score += 0.4 * pass_rush_players.third.pass_rush_grade_x
-    pass_rush_score += 0.4 * pass_rush_players.fourth.pass_rush_grade_x
-    pass_rush_score += 0.4 * pass_rush_players.fifth.pass_rush_grade_x
-    # Return receiver score
+    pass_rush_score += 1.0 * (players[0]&.pass_rush_grade_x || 60)
+    pass_rush_score += 0.7 * (players[1]&.pass_rush_grade_x || 60)
+    pass_rush_score += 0.4 * (players[2]&.pass_rush_grade_x || 60)
+    pass_rush_score += 0.4 * (players[3]&.pass_rush_grade_x || 60)
+    pass_rush_score += 0.4 * (players[4]&.pass_rush_grade_x || 60)
+    # Return pass rush score
     pass_rush_score.to_f
   end
   # CB, S

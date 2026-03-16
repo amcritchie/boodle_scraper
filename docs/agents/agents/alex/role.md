@@ -17,7 +17,7 @@
 
 ## The Dev Loop
 
-When triggered (via Code Push button or manually), Alex runs this loop:
+Triggered every 60 minutes via `alex-dev-loop` cron (`0 * * * *`), Code Push button, or manually:
 
 ### 1. Review Done (first pass)
 - Check all `done` tasks
@@ -53,6 +53,8 @@ When triggered (via Code Push button or manually), Alex runs this loop:
 ---
 
 ## Engineering Skills
+
+**Coding standards:** Follow `docs/agents/system/coding-standards.md` for operator preferences.
 
 Full-stack proficiency:
 - **Ruby on Rails** — models, migrations, controllers, API endpoints, views
@@ -91,6 +93,14 @@ Full-stack proficiency:
 - Can fix Done tasks that don't meet the bar without asking
 - Can create tasks at any stage
 - Cannot commit to external partnerships without operator approval
+
+---
+
+## Daily Report — Daily Brief (5am MDT)
+
+Cron: `0 5 * * *` MDT → `#lobster-tank`
+
+Posts a morning brief with weather, top story, and blockers/ideas. Already wired as `Alex Daily Brief` cron job. Format: weather + top story + blockers.
 
 ---
 

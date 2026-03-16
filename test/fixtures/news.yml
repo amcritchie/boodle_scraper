@@ -1,0 +1,37 @@
+schefter_tweet:
+  title: "Mahomes signs extension with Chiefs"
+  title_short: "Mahomes Extension"
+  stage: new
+  url: "https://x.com/AdamSchefter/status/123456"
+  author: AdamSchefter
+  content_type: x_post
+  rank: 100
+
+reviewed_news:
+  title: "Bills trade for star receiver"
+  title_short: "Bills Trade"
+  stage: reviewed
+  url: "https://x.com/AdamSchefter/status/789012"
+  author: AdamSchefter
+  primary_person: Ja'Marr Chase
+  primary_team: Buffalo Bills
+  content_type: x_post
+  rank: 200
+
+posted_news:
+  title: "Broncos sign free agent QB"
+  title_short: "Broncos QB"
+  stage: posted
+  url: "https://x.com/AdamSchefter/status/345678"
+  author: AdamSchefter
+  content_type: x_post
+  x_post_id: "999888777"
+  x_post_url: "https://x.com/TurfMonster/status/999888777"
+  rank: 300
+
+reply_news:
+  title: "Mahomes signs extension with Chiefs"
+  stage: content
+  url: "https://x.com/AdamSchefter/status/999999"
+  content_type: x_reply
+  rank: 100

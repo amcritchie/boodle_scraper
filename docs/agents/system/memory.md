@@ -44,12 +44,13 @@ This file is the system's collective brain — the team's whiteboard. Any agent 
 
 ## Memory Maintenance
 
+**Mack owns memory cleanup.** Daily at 4am MDT, Mack trims all agent `MEMORY.md` and `AGENTS.md` files, plus `docs/agents/shared/MEMORY.md`. Removes stale entries, compresses patterns, keeps files lean (~200 lines max for MEMORY.md).
+
 During each session, every agent should:
 
 1. Read `docs/agents/shared/MEMORY.md` on startup (Step 3 of the startup protocol)
 2. Write to personal `memory/YYYY-MM-DD.md` throughout the session
 3. Before ending: update shared memory if anything cross-agent-relevant was learned
-4. Periodically (weekly): distill daily logs into `MEMORY.md` (personal long-term)
 
 ## Memory vs. Task System
 

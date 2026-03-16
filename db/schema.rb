@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
+ActiveRecord::Schema[7.0].define(version: 2024_01_01_000019) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -63,9 +63,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.datetime "completed_at"
     t.datetime "failed_at"
     t.string "error_message"
+    t.datetime "archived_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.datetime "archived_at"
     t.index ["agent_slug"], name: "index_agent_tasks_on_agent_slug"
     t.index ["slug"], name: "index_agent_tasks_on_slug", unique: true
     t.index ["stage"], name: "index_agent_tasks_on_stage"
@@ -96,51 +96,50 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.text "description"
     t.string "avatar_url"
     t.string "agent_type"
+    t.string "title"
     t.jsonb "config", default: {}
     t.jsonb "metadata", default: {}
     t.datetime "last_active_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "title"
     t.index ["slug"], name: "index_agents_on_slug", unique: true
   end
 
   create_table "articles", force: :cascade do |t|
     t.string "title"
+    t.string "title_summary"
     t.string "author"
+    t.string "sport"
     t.date "published_at"
     t.datetime "reviewed_at"
-    t.string "person_slug"
-    t.string "main_person_name"
-    t.json "names"
-    t.text "disposition"
-    t.boolean "article_good"
-    t.boolean "person_identified"
-    t.boolean "disposition_coherent"
-    t.text "feedback"
-    t.string "source"
-    t.string "source_url"
-    t.json "source_data_json"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "sport"
-    t.string "model"
-    t.string "process"
-    t.text "process_notes"
-    t.json "image_options"
-    t.string "image_selected"
-    t.string "title_summary"
     t.json "teams_json"
     t.json "people_json"
     t.string "main_team_name"
     t.string "main_team_slug"
+    t.string "main_person_name"
     t.string "main_person_slug"
     t.json "scores_json"
     t.json "records_json"
     t.json "key_stats_json"
     t.json "quotes_json"
     t.text "context"
+    t.string "source"
+    t.string "source_url"
     t.string "source_id"
+    t.boolean "article_good"
+    t.boolean "person_identified"
+    t.boolean "disposition_coherent"
+    t.text "feedback"
+    t.string "model"
+    t.string "process"
+    t.text "process_notes"
+    t.json "image_options"
+    t.string "image_selected"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["main_person_slug"], name: "index_articles_on_main_person_slug"
+    t.index ["main_team_slug"], name: "index_articles_on_main_team_slug"
+    t.index ["source"], name: "index_articles_on_source"
   end
 
   create_table "broadcasts", force: :cascade do |t|
@@ -275,9 +274,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.integer "home_q1"
     t.string "source"
     t.jsonb "events_array"
-    t.jsonb "stangest_events"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.jsonb "strangest_events"
     t.integer "home_passing_touchdowns", default: 0
     t.integer "home_rushing_touchdowns", default: 0
     t.integer "home_field_goals", default: 0
@@ -290,6 +287,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.string "favorite"
     t.float "favorite_spread"
     t.float "team_total"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["away_slug"], name: "index_games_on_away_slug"
     t.index ["created_at"], name: "index_games_on_created_at"
     t.index ["home_slug"], name: "index_games_on_home_slug"
@@ -376,7 +375,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.integer "passing_td_points"
     t.integer "rushing_td_points"
     t.integer "field_goal_points"
-    t.json "reciever_factors"
+    t.json "receiver_factors"
     t.integer "pass_block_score"
     t.json "pass_block_factors"
     t.integer "rush_score"
@@ -388,7 +387,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.integer "safety_rush_defense_score"
     t.integer "corner_rush_defense_score"
     t.integer "passer_score"
-    t.integer "reciever_score"
+    t.integer "receiver_score"
     t.integer "interior_pass_block_score"
     t.integer "exterior_pass_block_score"
     t.integer "interior_rush_score"
@@ -402,6 +401,10 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.json "coverage_factors"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["game_slug"], name: "index_matchups_on_game_slug"
+    t.index ["season", "week_slug"], name: "index_matchups_on_season_and_week_slug"
+    t.index ["team_defense_slug"], name: "index_matchups_on_team_defense_slug"
+    t.index ["team_slug"], name: "index_matchups_on_team_slug"
   end
 
   create_table "memes", force: :cascade do |t|
@@ -414,6 +417,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.integer "rank"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["feeling"], name: "index_memes_on_feeling"
+    t.index ["team_slug"], name: "index_memes_on_team_slug"
   end
 
   create_table "news", force: :cascade do |t|
@@ -432,8 +437,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.jsonb "post_body"
     t.jsonb "image_options"
     t.string "selected_image"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.string "feeling"
     t.string "feeling_emoji"
     t.string "what_happened"
@@ -445,6 +448,11 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.integer "meme_id"
     t.string "discord_message_id"
     t.string "video_path"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["content_type"], name: "index_news_on_content_type"
+    t.index ["primary_person_slug"], name: "index_news_on_primary_person_slug"
+    t.index ["primary_team_slug"], name: "index_news_on_primary_team_slug"
     t.index ["rank"], name: "index_news_on_rank"
     t.index ["stage"], name: "index_news_on_stage"
     t.index ["x_post_id"], name: "index_news_on_x_post_id", unique: true, where: "(x_post_id IS NOT NULL)"
@@ -460,6 +468,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.string "twitter_hashtag"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_people_on_slug"
   end
 
   create_table "periods", force: :cascade do |t|
@@ -503,7 +512,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.float "grades_run_block"
     t.float "grades_hands_fumble"
     t.float "grades_offense_penalty"
-    t.float "grades_defence"
+    t.float "grades_defense"
     t.float "grades_rush_defense"
     t.float "grades_pass_rush"
     t.float "grades_coverage"
@@ -523,14 +532,14 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.integer "snaps_on_offense"
     t.integer "snaps_passing"
     t.integer "snaps_rushing"
-    t.integer "snaps_recieving"
+    t.integer "snaps_receiving"
     t.integer "snaps_run_block"
     t.integer "snaps_pass_block"
-    t.decimal "defence_grade", precision: 5, scale: 2
+    t.decimal "defense_grade", precision: 5, scale: 2
     t.decimal "rush_defense_grade", precision: 5, scale: 2
     t.decimal "pass_rush_grade", precision: 5, scale: 2
     t.decimal "coverage_grade", precision: 5, scale: 2
-    t.integer "snaps_on_defence"
+    t.integer "snaps_on_defense"
     t.integer "snaps_rush_defense"
     t.integer "snaps_pass_rush"
     t.integer "snaps_coverage"
@@ -679,6 +688,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
 
   create_table "posts", force: :cascade do |t|
     t.string "title"
+    t.string "sport"
     t.string "stage"
     t.integer "impressions"
     t.integer "likes"
@@ -691,7 +701,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.datetime "posted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "sport"
+    t.index ["stage"], name: "index_posts_on_stage"
   end
 
   create_table "rankings", force: :cascade do |t|
@@ -727,6 +737,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.string "description", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["game_id"], name: "index_scores_on_game_id"
+    t.index ["player_id"], name: "index_scores_on_player_id"
   end
 
   create_table "seasons", force: :cascade do |t|
@@ -774,9 +786,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.string "color_alt2"
     t.string "color_alt3"
     t.string "color_rule"
+    t.string "hashtag"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "hashtag"
     t.index ["active"], name: "index_teams_on_active"
     t.index ["alias"], name: "index_teams_on_alias"
     t.index ["created_at"], name: "index_teams_on_created_at"
@@ -827,6 +839,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.string "defensive_play_caller"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["team_slug", "season_year"], name: "index_teams_seasons_on_team_slug_and_season_year"
   end
 
   create_table "teams_weeks", force: :cascade do |t|
@@ -907,6 +920,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.float "run_heavy_score"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["team_slug", "season_year", "week_number"], name: "index_teams_weeks_on_team_slug_and_season_year_and_week_number"
   end
 
   create_table "venues", force: :cascade do |t|
@@ -961,8 +975,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.integer "interceptions", default: 0
     t.integer "fumbles", default: 0
     t.integer "sacks", default: 0
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.integer "passing_tds_4", default: 0
     t.integer "passing_tds_3", default: 0
     t.integer "passing_tds_2", default: 0
@@ -979,6 +991,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
     t.integer "field_goals_2", default: 0
     t.integer "field_goals_1", default: 0
     t.integer "field_goals_0", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["season_year"], name: "index_weeks_on_season_year"
     t.index ["sequence"], name: "index_weeks_on_sequence"
     t.index ["sportsradar_id"], name: "index_weeks_on_sportsradar_id"

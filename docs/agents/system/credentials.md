@@ -38,6 +38,31 @@ openclaw onboard --auth-choice token
 
 ---
 
+### Google AI API Key (Mack primary)
+
+| | |
+|---|---|
+| **Get it** | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) → Create API Key |
+| **Looks like** | `AIza...` |
+| **Goes into** | `~/.openclaw/openclaw.json` under `auth.profiles.google:default.apiKey` |
+| **Verify** | `openclaw models list` → should show gemini models |
+
+```json
+{
+  "auth": {
+    "profiles": {
+      "google:default": {
+        "provider": "google",
+        "mode": "api_key",
+        "apiKey": "AIza..."
+      }
+    }
+  }
+}
+```
+
+---
+
 ### OpenAI API Key (fallback)
 
 | | |
@@ -260,6 +285,7 @@ TM_X_BEARER_TOKEN=<Bearer Token for TM's app>
 | Credential | File | Key |
 |-----------|------|-----|
 | Anthropic API key | `~/.openclaw/openclaw.json` | `auth.profiles.anthropic:default.apiKey` |
+| Google AI API key | `~/.openclaw/openclaw.json` | `auth.profiles.google:default.apiKey` |
 | OpenAI API key | `~/.openclaw/openclaw.json` | `auth.profiles.openai:default.apiKey` |
 | GitHub PAT | git remote URL | embedded in URL |
 | Discord — Alex | `~/.openclaw/openclaw.json` | `channels.discord.accounts.alex.token` |

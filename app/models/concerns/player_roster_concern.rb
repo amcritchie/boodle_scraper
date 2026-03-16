@@ -214,7 +214,7 @@ module PlayerRosterConcern
   end
 
   def guards
-    offense_starters.where(position: [:gaurd]).limit(2)
+    offense_starters.where(position: [:guard]).limit(2)
   end
 
   def tackles
@@ -222,7 +222,7 @@ module PlayerRosterConcern
   end
 
   def interior_oline
-    offense_starters.where(position: [:gaurd, :center]).limit(3)
+    offense_starters.where(position: [:guard, :center]).limit(3)
   end
 
   def exterior_oline

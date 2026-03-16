@@ -245,7 +245,7 @@ class ArticlesController < ApplicationController
       :context, :source, :source_url, :source_id, :model, :process, :process_notes,
       :image_selected,
       :article_good, :person_identified, :disposition_coherent, :feedback,
-      :teams_json, :people_json, :scores_json, :records_json, :key_stats_json, :quotes_json, :images
+      :teams_json, :people_json, :scores_json, :records_json, :key_stats_json, :quotes_json, :image_options
     )
 
     %i[teams_json people_json scores_json records_json key_stats_json quotes_json image_options].each do |field|

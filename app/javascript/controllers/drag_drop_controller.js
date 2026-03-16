@@ -4,30 +4,75 @@ export default class extends Controller {
   static targets = ["tableBody"]
   
   connect() {
+    // Store bound handler references for cleanup
+    this.boundHandleDragStart = this.handleDragStart.bind(this)
+    this.boundHandleDragOver = this.handleDragOver.bind(this)
+    this.boundHandleDrop = this.handleDrop.bind(this)
+    this.boundHandleDragEnd = this.handleDragEnd.bind(this)
+    this.boundHandleDragEnter = this.handleDragEnter.bind(this)
+    this.boundHandleDragLeave = this.handleDragLeave.bind(this)
+    this.boundHandleCopyToClipboard = this.handleCopyToClipboard.bind(this)
+
+    // Track mouse hover handlers per row (unique per drag-handle)
+    this.boundMouseHandlers = new Map()
+
     this.setupDragAndDrop()
     this.setupCopyToClipboard()
   }
-  
+
+  disconnect() {
+    // Remove drag event listeners from all draggable rows
+    const rows = this.element.querySelectorAll('.draggable-row')
+    rows.forEach(row => {
+      row.removeEventListener('dragstart', this.boundHandleDragStart)
+      row.removeEventListener('dragover', this.boundHandleDragOver)
+      row.removeEventListener('drop', this.boundHandleDrop)
+      row.removeEventListener('dragend', this.boundHandleDragEnd)
+      row.removeEventListener('dragenter', this.boundHandleDragEnter)
+      row.removeEventListener('dragleave', this.boundHandleDragLeave)
+    })
+
+    // Remove mouse hover handlers
+    if (this.boundMouseHandlers) {
+      this.boundMouseHandlers.forEach(({ mouseenter, mouseleave }, row) => {
+        row.removeEventListener('mouseenter', mouseenter)
+        row.removeEventListener('mouseleave', mouseleave)
+      })
+      this.boundMouseHandlers.clear()
+    }
+
+    // Remove copy-to-clipboard listeners
+    const copyButtons = this.element.querySelectorAll('.copy-team-logo')
+    copyButtons.forEach(button => {
+      button.removeEventListener('click', this.boundHandleCopyToClipboard)
+    })
+
+    this.draggedRow = null
+  }
+
   setupDragAndDrop() {
     const rows = this.element.querySelectorAll('.draggable-row')
-    
+
     rows.forEach(row => {
-      row.addEventListener('dragstart', this.handleDragStart.bind(this))
-      row.addEventListener('dragover', this.handleDragOver.bind(this))
-      row.addEventListener('drop', this.handleDrop.bind(this))
-      row.addEventListener('dragend', this.handleDragEnd.bind(this))
-      row.addEventListener('dragenter', this.handleDragEnter.bind(this))
-      row.addEventListener('dragleave', this.handleDragLeave.bind(this))
-      
+      row.addEventListener('dragstart', this.boundHandleDragStart)
+      row.addEventListener('dragover', this.boundHandleDragOver)
+      row.addEventListener('drop', this.boundHandleDrop)
+      row.addEventListener('dragend', this.boundHandleDragEnd)
+      row.addEventListener('dragenter', this.boundHandleDragEnter)
+      row.addEventListener('dragleave', this.boundHandleDragLeave)
+
       // Make drag handle more prominent on hover
       const dragHandle = row.querySelector('.drag-handle')
       if (dragHandle) {
-        row.addEventListener('mouseenter', () => {
+        const mouseenterHandler = () => {
           dragHandle.classList.add('text-gray-600', 'dark:text-gray-300')
-        })
-        row.addEventListener('mouseleave', () => {
+        }
+        const mouseleaveHandler = () => {
           dragHandle.classList.remove('text-gray-600', 'dark:text-gray-300')
-        })
+        }
+        row.addEventListener('mouseenter', mouseenterHandler)
+        row.addEventListener('mouseleave', mouseleaveHandler)
+        this.boundMouseHandlers.set(row, { mouseenter: mouseenterHandler, mouseleave: mouseleaveHandler })
       }
     })
   }
@@ -150,9 +195,9 @@ export default class extends Controller {
   
   setupCopyToClipboard() {
     const copyButtons = this.element.querySelectorAll('.copy-team-logo')
-    
+
     copyButtons.forEach(button => {
-      button.addEventListener('click', this.handleCopyToClipboard.bind(this))
+      button.addEventListener('click', this.boundHandleCopyToClipboard)
     })
   }
   

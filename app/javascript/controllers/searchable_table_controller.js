@@ -10,13 +10,47 @@ export default class extends Controller {
     console.log("SearchableTable controller connected")
     console.log("Controller element:", this.element)
     console.log("Available targets:", this.targets)
-    
+
+    // Store bound handler references for cleanup
+    this.boundHandleSearchInput = (e) => this.performSearch(e.target.value)
+    this.boundHandleClearClick = () => this.clearSearch()
+    this.boundSortHandlers = new Map()
+
     // Add a small delay to ensure DOM is fully rendered
-    setTimeout(() => {
+    this.initTimeout = setTimeout(() => {
       this.initializeCache()
       this.setupEventListeners()
       this.initializeState()
     }, 100)
+  }
+
+  disconnect() {
+    // Clear the init timeout if it hasn't fired yet
+    if (this.initTimeout) {
+      clearTimeout(this.initTimeout)
+      this.initTimeout = null
+    }
+
+    // Remove search input listener
+    if (this.hasSearchInputTarget) {
+      this.searchInputTarget.removeEventListener('input', this.boundHandleSearchInput)
+    }
+
+    // Remove clear button listener
+    if (this.hasClearButtonTarget) {
+      this.clearButtonTarget.removeEventListener('click', this.boundHandleClearClick)
+    }
+
+    // Remove sort button listeners
+    if (this.boundSortHandlers) {
+      this.boundSortHandlers.forEach((handler, button) => {
+        button.removeEventListener('click', handler)
+      })
+      this.boundSortHandlers.clear()
+    }
+
+    // Release cached data
+    this.playerData = []
   }
 
   initializeCache() {
@@ -52,26 +86,24 @@ export default class extends Controller {
   setupEventListeners() {
     // Search functionality
     if (this.hasSearchInputTarget) {
-      this.searchInputTarget.addEventListener('input', (e) => {
-        this.performSearch(e.target.value)
-      })
+      this.searchInputTarget.addEventListener('input', this.boundHandleSearchInput)
     }
 
     // Clear search functionality
     if (this.hasClearButtonTarget) {
-      this.clearButtonTarget.addEventListener('click', () => {
-        this.clearSearch()
-      })
+      this.clearButtonTarget.addEventListener('click', this.boundHandleClearClick)
     }
 
     // Sort button functionality
     this.sortButtonTargets.forEach(button => {
-      button.addEventListener('click', (e) => {
+      const handler = (e) => {
         const sortType = e.target.dataset.sort
         if (sortType && this.hasSortUrlValue) {
           this.updateSort(sortType)
         }
-      })
+      }
+      this.boundSortHandlers.set(button, handler)
+      button.addEventListener('click', handler)
     })
   }
 

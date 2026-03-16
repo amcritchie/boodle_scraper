@@ -1,27 +1,12 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+draft_post:
+  title: Week 1 Predictions
+  stage: draft
+  content: Top predictions for Week 1
+  sport: nfl
 
-one:
-  title: MyString
-  stage: MyString
-  impressions: 1
-  likes: 1
-  content: MyText
-  image_url: MyString
-  image_proposals: 
-  images_found_at: 2026-02-22 21:51:23
-  image_selected_at: 2026-02-22 21:51:23
-  approved_at: 2026-02-22 21:51:23
-  posted_at: 2026-02-22 21:51:23
-
-two:
-  title: MyString
-  stage: MyString
-  impressions: 1
-  likes: 1
-  content: MyText
-  image_url: MyString
-  image_proposals: 
-  images_found_at: 2026-02-22 21:51:23
-  image_selected_at: 2026-02-22 21:51:23
-  approved_at: 2026-02-22 21:51:23
-  posted_at: 2026-02-22 21:51:23
+posted_post:
+  title: Mahomes Highlights
+  stage: posted
+  content: Mahomes throws for 4 TDs
+  sport: nfl
+  posted_at: 2025-09-08 12:00:00

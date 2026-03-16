@@ -123,42 +123,42 @@ module TeamGrades
 
   def starting_defensive_ends
     # Team Defensive Ends
-    defensive_ends = players.defensive_ends.defence_grade
+    defensive_ends = players.defensive_ends.defense_grade
     # Return highest defense grade Defensive Ends
     defensive_ends.limit(2)
   end
 
   def starting_edge_rushers
     # Team Edge Rushers
-    edge_rushers = players.edge_rushers.defence_grade
+    edge_rushers = players.edge_rushers.defense_grade
     # Return highest defense grade Edge Rushers
     edge_rushers.limit(2)
   end
 
   def starting_linebackers
     # Team Linebackers
-    linebackers = players.linebackers.defence_grade
+    linebackers = players.linebackers.defense_grade
     # Return highest defense grade Linebackers
     linebackers.limit(2)
   end
 
   def starting_safeties
     # Team Safeties
-    safeties = players.safeties.defence_grade
+    safeties = players.safeties.defense_grade
     # Return highest defense grade Safeties
     safeties.limit(2)
   end
 
   def starting_cornerbacks
     # Team Cornerbacks
-    cornerbacks = players.cornerbacks.defence_grade
+    cornerbacks = players.cornerbacks.defense_grade
     # Return highest defense grade Cornerbacks
     cornerbacks.limit(3)
   end
 
   def starting_flex_dline
     # Team Flex Defense
-    flex = players.flex_dline.defence_grade.where.not(id: (starting_defensive_ends.map(&:id) + starting_edge_rushers.map(&:id) + starting_linebackers.map(&:id) + starting_safeties.map(&:id) + starting_cornerbacks.map(&:id)))
+    flex = players.flex_dline.defense_grade.where.not(id: (starting_defensive_ends.map(&:id) + starting_edge_rushers.map(&:id) + starting_linebackers.map(&:id) + starting_safeties.map(&:id) + starting_cornerbacks.map(&:id)))
     # Return highest defense grade Flex Defense
     flex.first
   end

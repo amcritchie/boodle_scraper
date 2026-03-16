@@ -73,7 +73,7 @@ class AgentsDashboardController < ApplicationController
     @agents = Agent.all.order(:name)
     @agents_by_slug = @agents.index_by(&:slug)
 
-    @tasks_by_stage = %w[new queued in_progress done failed].index_with { |_| [] }
+    @tasks_by_stage = %w[new queued in_progress done failed archived].index_with { |_| [] }
     tasks.each { |t| @tasks_by_stage[t.stage] << t if @tasks_by_stage.key?(t.stage) }
   end
 

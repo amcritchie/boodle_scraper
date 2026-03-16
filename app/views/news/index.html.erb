@@ -61,11 +61,11 @@
 
   <div class="theme-bg-primary shadow-lg rounded-b-xl border theme-border-primary">
     <!-- Kanban Board -->
-    <div class="overflow-x-auto px-4 py-6" data-news-kanban-target="board">
-      <div class="flex gap-4 items-stretch">
+    <div class="px-4 py-6" data-news-kanban-target="board">
+      <div class="grid grid-cols-6 gap-3 items-stretch">
         <% stages.each do |stage| %>
           <% items = @news_by_stage[stage[:key]] || [] %>
-          <div class="flex-1 min-w-[200px] flex flex-col" data-news-kanban-target="column" data-stage="<%= stage[:key] %>">
+          <div class="min-w-0 flex flex-col" data-news-kanban-target="column" data-stage="<%= stage[:key] %>">
             <!-- Column Header -->
             <div class="flex items-center justify-between mb-3 px-1">
               <h3 class="text-sm font-semibold theme-text-primary"><%= stage[:label] %></h3>

@@ -294,7 +294,7 @@ module PffConcern
         player.player_game_count                = attrs["player_game_count"]
         player.declined_penalties               = attrs["declined_penalties"].to_i
         player.franchise_id                     = attrs["franchise_id"]
-        player.grades_defence                    = attrs["grades_defense"].to_f
+        player.grades_defense                    = attrs["grades_defense"].to_f
         player.grades_rush_defense               = attrs["grades_run_defense"].to_f
         player.grades_pass_rush                  = attrs["grades_pass_rush_defense"].to_f
         player.grades_coverage                   = attrs["grades_coverage_defense"].to_f
@@ -303,7 +303,7 @@ module PffConcern
         player.interceptions                    = attrs["interceptions"].to_i
         player.fumbles                          = attrs["fumbles"].to_i
         player.penalties                        = attrs["penalties"].to_i
-        player.snaps_on_defence                 = attrs["snap_counts_defense"].to_i
+        player.snaps_on_defense                 = attrs["snap_counts_defense"].to_i
         player.snaps_rush_defense               = attrs["snap_counts_run_defense"].to_i
         player.snaps_pass_rush                  = attrs["snap_counts_pass_rush"].to_i
         player.snaps_coverage                   = attrs["snap_counts_coverage"].to_i
@@ -312,7 +312,7 @@ module PffConcern
         player.save!
         player.prepend_sync("PFF defense import - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
         # Puts details
-        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_defence.to_s.rjust(6)} /#{player.grades_coverage.to_s.rjust(6)} 🏈 | #{player.team.description.ljust(30)}"
+        puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.grades_defense.to_s.rjust(6)} /#{player.grades_coverage.to_s.rjust(6)} 🏈 | #{player.team.description.ljust(30)}"
       end
     end
   end
@@ -348,15 +348,15 @@ module PffConcern
       player.snaps_on_offense = pff_row['Snaps']
       player.snaps_passing    = pff_row['Passes']
       player.snaps_rushing    = pff_row['Rushes']
-      player.snaps_recieving  = pff_row['Receptions']
+      player.snaps_receiving  = pff_row['Receptions']
       player.snaps_run_block  = pff_row['RunBlocks']
       player.snaps_pass_block = pff_row['PassBlocks']
       # Defense
-      player.grades_defence      = pff_row['Overall']
+      player.grades_defense      = pff_row['Overall']
       player.grades_rush_defense = pff_row['RushDefense']
       player.grades_pass_rush    = pff_row['PassRush']
       player.grades_coverage     = pff_row['Coverage']
-      player.snaps_on_defence   = pff_row['Snaps']
+      player.snaps_on_defense   = pff_row['Snaps']
       player.snaps_rush_defense = pff_row['RunSnaps']
       player.snaps_pass_rush    = pff_row['PassRushSnaps']
       player.snaps_coverage     = pff_row['CoverageSnaps']
@@ -418,7 +418,7 @@ module PffConcern
       player.prepend_sync("PFF player import - #{Time.current.strftime('%Y-%m-%d %H:%M:%S')}")
 
   # Puts description
-  puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.offense_grade.to_s.rjust(6)} /#{player.grades_defence.to_s.rjust(6)} | #{player.team.description.ljust(30)}"
+  puts "#{player.position.rjust(15)} | #{player.player.rjust(25)} (#{player.jersey.to_s.rjust(2)}) | Grade: #{player.offense_grade.to_s.rjust(6)} /#{player.grades_defense.to_s.rjust(6)} | #{player.team.description.ljust(30)}"
 
   unless player.errors.empty?
     puts "Errors ---------"

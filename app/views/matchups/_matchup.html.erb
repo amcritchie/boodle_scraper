@@ -101,7 +101,7 @@
           <%= render 'matchups/tooltip', players: matchup.tackles.by_grades_pass_block, tier_method: :pass_block_tier, grade_method: :pass_block_grade %>
         </div>
         <span class="w-2 px-2 py-2"></span>
-        <div class="group <%= matchup.tier_class_offense(matchup.reciever_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
+        <div class="group <%= matchup.tier_class_offense(matchup.receiver_tier) %> w-20 px-4 py-2 border rounded-full transition-transform cursor-pointer hover:scale-110">
           <span>WRs</span>
           <%= render 'matchups/tooltip', players: matchup.top_three_receivers.by_grades_pass_route, tier_method: :receiving_tier, grade_method: :receiving_grade %>
         </div>

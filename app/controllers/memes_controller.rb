@@ -59,7 +59,7 @@ class MemesController < ApplicationController
     total_count = memes.count
     memes = memes.offset((page - 1) * per_page).limit(per_page)
 
-    render json: { memes: memes.map { |m| meme_json(m) }, total_count: total_count }
+    render json: { total_count: total_count, page: page, per_page: per_page, memes: memes.map { |m| meme_json(m) } }
   end
 
   def api_show

@@ -284,7 +284,7 @@
                       grades: ['pass_block', 'run_block', 'grades_offense'],
                       highlight: false,
                       size: 'small',
-                      expected_position: 'gaurd' %>
+                      expected_position: 'guard' %>
                 <% end %>
                 <% if @teams_season&.center_player %>
                   <%= render 'teams/player_card', 
@@ -300,7 +300,7 @@
                       grades: ['pass_block', 'run_block', 'grades_offense'],
                       highlight: false,
                       size: 'small',
-                      expected_position: 'gaurd' %>
+                      expected_position: 'guard' %>
                 <% end %>
                 <% if @teams_season&.right_tackle_player %>
                   <%= render 'teams/player_card', 
@@ -341,7 +341,7 @@
               <% if @teams_season&.edge1_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.edge1_player,
-                    grades: ['pass_rush', 'rush_defense', 'grades_defence'],
+                    grades: ['pass_rush', 'rush_defense', 'grades_defense'],
                     highlight: false,
                     size: 'large',
                     expected_position: 'defensive-end' %>
@@ -349,7 +349,7 @@
               <% if @teams_season&.edge2_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.edge2_player,
-                    grades: ['pass_rush', 'rush_defense', 'grades_defence'],
+                    grades: ['pass_rush', 'rush_defense', 'grades_defense'],
                     highlight: false,
                     size: 'large',
                     expected_position: 'defensive-end' %>
@@ -362,7 +362,7 @@
               <% if @teams_season&.dl1_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.dl1_player,
-                    grades: ['rush_defense', 'pass_rush', 'grades_defence'],
+                    grades: ['rush_defense', 'pass_rush', 'grades_defense'],
                     highlight: false,
                     size: 'large',
                     expected_position: 'defensive-end' %>
@@ -370,7 +370,7 @@
               <% if @teams_season&.dl2_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.dl2_player,
-                    grades: ['rush_defense', 'pass_rush', 'grades_defence'],
+                    grades: ['rush_defense', 'pass_rush', 'grades_defense'],
                     highlight: false,
                     size: 'large',
                     expected_position: 'defensive-end' %>
@@ -378,7 +378,7 @@
               <% if @teams_season&.dl3_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.dl3_player,
-                    grades: ['rush_defense', 'pass_rush', 'grades_defence'],
+                    grades: ['rush_defense', 'pass_rush', 'grades_defense'],
                     highlight: false,
                     size: 'large',
                     expected_position: 'defensive-end' %>
@@ -391,7 +391,7 @@
               <% if @teams_season&.lb1_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.lb1_player,
-                    grades: ['rush_defense', 'coverage', 'grades_defence'],
+                    grades: ['rush_defense', 'coverage', 'grades_defense'],
                     highlight: false,
                     size: 'large',
                     expected_position: 'linebacker' %>
@@ -399,7 +399,7 @@
               <% if @teams_season&.lb2_player %>
                 <%= render 'teams/player_card', 
                     player: @teams_season.lb2_player,
-                    grades: ['rush_defense', 'coverage', 'grades_defence'],
+                    grades: ['rush_defense', 'coverage', 'grades_defense'],
                     highlight: false,
                     size: 'large',
                     expected_position: 'linebacker' %>
@@ -413,7 +413,7 @@
                 <% if @teams_season&.cb1_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.cb1_player,
-                      grades: ['coverage', 'rush_defense', 'grades_defence'],
+                      grades: ['coverage', 'rush_defense', 'grades_defense'],
                       highlight: false,
                       size: 'small',
                       expected_position: 'cornerback' %>
@@ -421,7 +421,7 @@
                 <% if @teams_season&.cb2_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.cb2_player,
-                      grades: ['coverage', 'rush_defense', 'grades_defence'],
+                      grades: ['coverage', 'rush_defense', 'grades_defense'],
                       highlight: false,
                       size: 'small',
                       expected_position: 'cornerback' %>
@@ -429,7 +429,7 @@
                 <% if @teams_season&.cb3_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.cb3_player,
-                      grades: ['coverage', 'rush_defense', 'grades_defence'],
+                      grades: ['coverage', 'rush_defense', 'grades_defense'],
                       highlight: false,
                       size: 'small',
                       expected_position: 'cornerback' %>
@@ -437,7 +437,7 @@
                 <% if @teams_season&.safety1_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.safety1_player,
-                      grades: ['coverage', 'rush_defense', 'grades_defence'],
+                      grades: ['coverage', 'rush_defense', 'grades_defense'],
                       highlight: false,
                       size: 'small',
                       expected_position: 'safety' %>
@@ -445,7 +445,7 @@
                 <% if @teams_season&.safety2_player %>
                   <%= render 'teams/player_card', 
                       player: @teams_season.safety2_player,
-                      grades: ['coverage', 'rush_defense', 'grades_defence'],
+                      grades: ['coverage', 'rush_defense', 'grades_defense'],
                       highlight: false,
                       size: 'small',
                       expected_position: 'safety' %>
@@ -595,7 +595,7 @@
                 <option value="wide-receiver">Wide Receiver</option>
                 <option value="tight-end">Tight End</option>
                 <option value="center">Center</option>
-                <option value="gaurd">Guard</option>
+                <option value="guard">Guard</option>
                 <option value="tackle">Tackle</option>
                 <option value="edge-rusher">Edge Rusher</option>
                 <option value="defensive-end">Defensive End</option>
@@ -672,7 +672,7 @@
                         <div class="text-green-600">Rush: <%= player.rush_grade_x %></div>
                       <% when 'wide-receiver', 'tight-end' %>
                         <div class="text-purple-600">Route: <%= player.receiving_grade_x %></div>
-                      <% when 'center', 'gaurd', 'tackle' %>
+                      <% when 'center', 'guard', 'tackle' %>
                         <div class="text-blue-600">Pass: <%= player.pass_block_grade_x %></div>
                         <div class="text-green-600">Run: <%= player.run_block_grade_x %></div>
                       <% when 'edge-rusher' %>

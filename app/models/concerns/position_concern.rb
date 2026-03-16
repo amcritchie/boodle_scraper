@@ -19,9 +19,9 @@ module PositionConcern
         when "C"
           "center"
         when "LG"
-          "left-gaurd"
+          "left-guard"
         when "RG"
-          "right-gaurd"
+          "right-guard"
         when "DI"
           "defensive-end"
         when "Edge"
@@ -53,10 +53,10 @@ module PositionConcern
         "tackle"
       when "center"
         "center"
-      when "left-gaurd"
-        "gaurd"
-      when "right-gaurd"
-        "gaurd"
+      when "left-guard"
+        "guard"
+      when "right-guard"
+        "guard"
       when "defensive-end"
         "defensive-end"
       when "edge-rusher"
@@ -86,40 +86,7 @@ module PositionConcern
         :skill
       when "center"
         :oline
-      when "gaurd"
-        :oline
-      when "tackle"
-        :oline
-      when "defensive-end"
-        :dline
-      when "edge-rusher"
-        :dline
-      when "linebacker"
-        :linebacker
-      when "safety"
-        :secondary
-      when "cornerback"
-        :secondary
-      else
-        :special_teams
-      end
-    end
-
-    def position_classs(position)
-      case position
-      when "quarterback"
-        :quarterback
-      when 'running-back'
-        :skill
-      when 'wide-receiver'
-        :skill
-      when 'tight-end'
-        :skill
-      when 'full-back'
-        :skill
-      when "center"
-        :oline
-      when "gaurd"
+      when "guard"
         :oline
       when "tackle"
         :oline
@@ -155,11 +122,11 @@ module PositionConcern
       when "C"
         "center"
       when "OG"
-        "gaurd"
+        "guard"
       when "G"
-        "gaurd"
+        "guard"
       when "OL"
-        "gaurd"
+        "guard"
       when "T"
         "tackle"
       when "OT"
@@ -216,9 +183,9 @@ module PositionConcern
       when "C"
         "center"
       when "G"
-        "gaurd"
+        "guard"
       when "OL"
-        "gaurd"
+        "guard"
       when "T"
         "tackle"
       when "DL"

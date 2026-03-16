@@ -1,0 +1,28 @@
+alex:
+  name: Alex Agent
+  slug: alex
+  status: active
+  agent_type: engineering
+  description: CEO & Senior Engineer
+  title: CEO
+
+mack:
+  name: Mack
+  slug: mack
+  status: active
+  agent_type: engineering
+  description: CTO — Infrastructure
+
+mason:
+  name: Mason
+  slug: mason
+  status: active
+  agent_type: engineering
+  description: CPO & Senior Engineer
+
+turf_monster:
+  name: Turf Monster
+  slug: turf-monster
+  status: paused
+  agent_type: content
+  description: CMO — Content

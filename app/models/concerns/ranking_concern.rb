@@ -31,7 +31,7 @@ module RankingConcern
     end
 
     def rushing_rankings
-      all.map do |team|
+      includes(:team).map do |team|
         {
           score: team.rushing_score,
           team: team.team,
@@ -66,7 +66,7 @@ module RankingConcern
     end
 
     def run_defense_rankings
-      all.map do |team|
+      includes(:team).map do |team|
         {
           score: team.run_defense_score,
           team: team.team,
@@ -77,7 +77,7 @@ module RankingConcern
     end
 
     def pass_rush_rankings
-      all.map do |team|
+      includes(:team).map do |team|
         {
           score: team.pass_rush_score,
           team: team.team,
@@ -88,7 +88,7 @@ module RankingConcern
     end
 
     def coverage_rankings
-      all.map do |team|
+      includes(:team).map do |team|
         {
           score: team.coverage_score,
           team: team.team,
@@ -136,75 +136,88 @@ module RankingConcern
 
   # QB
   def qb_passing_rank
+    return @_qb_passing_rank if defined?(@_qb_passing_rank)
     ranked_teams = self.class.qb_rankings
     team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
-    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
+    @_qb_passing_rank = team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
   end
   # RB
   def rushing_rank
+    return @_rushing_rank if defined?(@_rushing_rank)
     ranked_teams = self.class.rushing_rankings
     team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
-    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
+    @_rushing_rank = team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
   end
   # WR, TE
   def receiver_core_rank
+    return @_receiver_core_rank if defined?(@_receiver_core_rank)
     ranked_teams = self.class.receiver_core_rankings
     team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
-    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
+    @_receiver_core_rank = team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
   end
   # O-Line
   def oline_pass_block_rank
+    return @_oline_pass_block_rank if defined?(@_oline_pass_block_rank)
     ranked_teams = self.class.oline_pass_block_rankings
     team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
-    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
+    @_oline_pass_block_rank = team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
   end
   def oline_run_block_rank
+    return @_oline_run_block_rank if defined?(@_oline_run_block_rank)
     ranked_teams = self.class.oline_run_block_rankings
     team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
-    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
+    @_oline_run_block_rank = team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
   end
   # EDGE, DT, LB
   def pass_rush_rank
+    return @_pass_rush_rank if defined?(@_pass_rush_rank)
     ranked_teams = self.class.pass_rush_rankings
     team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
-    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
+    @_pass_rush_rank = team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
   end
   # CB, S
   def coverage_rank
+    return @_coverage_rank if defined?(@_coverage_rank)
     ranked_teams = self.class.coverage_rankings
     team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
-    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
+    @_coverage_rank = team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
   end
   def run_defense_rank
+    return @_run_defense_rank if defined?(@_run_defense_rank)
     ranked_teams = self.class.run_defense_rankings
     team_ranking = ranked_teams.find { |ranking| ranking[:team] == self.team }
-    team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
+    @_run_defense_rank = team_ranking ? ranked_teams.index(team_ranking) + 1 : nil
   end
   # Offensive Play Caller
   def offensive_play_caller_rank
+    return @_offensive_play_caller_rank if defined?(@_offensive_play_caller_rank)
     ranked_teams = self.class.ranked_by_offensive_play_caller_rank
     team_ranking = ranked_teams.index(self)
-    team_ranking ? team_ranking + 1 : nil
+    @_offensive_play_caller_rank = team_ranking ? team_ranking + 1 : nil
   end
   def field_goal_caller_rank
+    return @_field_goal_caller_rank if defined?(@_field_goal_caller_rank)
     ranked_teams = self.class.ranked_by_field_goal_rank
     team_ranking = ranked_teams.index(self)
-    team_ranking ? team_ranking + 1 : nil
+    @_field_goal_caller_rank = team_ranking ? team_ranking + 1 : nil
   end
   def pace_of_play_rank
+    return @_pace_of_play_rank if defined?(@_pace_of_play_rank)
     ranked_teams = self.class.ranked_by_pace_of_play
     team_ranking = ranked_teams.index(self)
-    team_ranking ? team_ranking + 1 : nil
+    @_pace_of_play_rank = team_ranking ? team_ranking + 1 : nil
   end
   def run_heavy_rank
+    return @_run_heavy_rank if defined?(@_run_heavy_rank)
     ranked_teams = self.class.ranked_by_run_heavy
     team_ranking = ranked_teams.index(self)
-    team_ranking ? team_ranking + 1 : nil
+    @_run_heavy_rank = team_ranking ? team_ranking + 1 : nil
   end
   # Defensive Play Caller
   def defensive_play_caller_rank
+    return @_defensive_play_caller_rank if defined?(@_defensive_play_caller_rank)
     ranked_teams = self.class.ranked_by_defensive_play_caller
     team_ranking = ranked_teams.index(self)
-    team_ranking ? team_ranking + 1 : nil
+    @_defensive_play_caller_rank = team_ranking ? team_ranking + 1 : nil
   end
 end 

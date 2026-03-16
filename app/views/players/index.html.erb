@@ -53,7 +53,7 @@
                     ['Wide Receiver', 'wide-receiver'],
                     ['Tight End', 'tight-end'],
                     ['Center', 'center'],
-                    ['Guard', 'gaurd'],
+                    ['Guard', 'guard'],
                     ['Tackle', 'tackle'],
                     ['Edge Rusher', 'edge-rusher'],
                     ['Defensive End', 'defensive-end'],
@@ -165,7 +165,7 @@
                       <div class="text-green-600">Rush: <%= player.rush_grade_x %></div>
                     <% when 'wide-receiver', 'tight-end' %>
                       <div class="text-purple-600">Route: <%= player.receiving_grade_x %></div>
-                    <% when 'center', 'gaurd', 'tackle' %>
+                    <% when 'center', 'guard', 'tackle' %>
                       <div class="text-blue-600">Pass: <%= player.pass_block_grade_x %></div>
                       <div class="text-green-600">Run: <%= player.run_block_grade_x %></div>
                     <% when 'edge-rusher' %>

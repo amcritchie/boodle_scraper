@@ -37,8 +37,8 @@ class Player < ApplicationRecord
   def grades_offense_x
     grades_offense || 60
   end
-  def grades_defence_x
-    grades_defence || 60
+  def grades_defense_x
+    grades_defense || 60
   end
   def passing_grade_x
     grades_pass || grades_offense || 60
@@ -171,8 +171,8 @@ class Player < ApplicationRecord
   def self.by_grades_offense
     all.order(Arel.sql('COALESCE(grades_offense, 60) DESC'))
   end
-  def self.by_grades_defence
-    all.order(Arel.sql('COALESCE(grades_defence, 60) DESC'))
+  def self.by_grades_defense
+    all.order(Arel.sql('COALESCE(grades_defense, 60) DESC'))
   end
   # Pass Play - Offense
   def self.by_grades_passing
@@ -223,13 +223,13 @@ class Player < ApplicationRecord
     all.where(position: ['running-back', 'wide-receiver', 'tight-end'])
   end
   def self.oline
-    all.where(position: ['center', 'gaurd', 'tackle'])
+    all.where(position: ['center', 'guard', 'tackle'])
   end
   def self.center
     all.where(position: ['center'])
   end
   def self.guards
-    all.where(position: ['gaurd'])
+    all.where(position: ['guard'])
   end
   def self.tackles
     all.where(position: ['tackle'])
@@ -282,7 +282,7 @@ class Player < ApplicationRecord
       "TE"
     when "center"
       "C"
-    when "gaurd"
+    when "guard"
       "G"
     when "tackle"
       "T"
@@ -489,12 +489,12 @@ class Player < ApplicationRecord
     all.with_offense_grade.order(grades_offense: :desc)
   end
 
-  def self.with_defence_grade
-    all.where.not(grades_defence: nil)
+  def self.with_defense_grade
+    all.where.not(grades_defense: nil)
   end
 
-  def self.defence_grade
-    all.with_defence_grade.order(grades_defence: :desc)
+  def self.defense_grade
+    all.with_defense_grade.order(grades_defense: :desc)
   end
 
   def self.quarterback
@@ -521,12 +521,12 @@ class Player < ApplicationRecord
   end
 
   def rush_block_tier
-    peers = Player.where(position: [:gaurd, :center, :tackle]).order(run_block_grade: :desc).limit(160)
-    peer_tiering(peers) 
+    peers = Player.where(position: [:guard, :center, :tackle]).order(run_block_grade: :desc).limit(160)
+    peer_tiering(peers)
   end
 
   def pass_block_tier
-    peers = Player.where(position: [:gaurd, :center, :tackle]).order(pass_block_grade: :desc).limit(160)
+    peers = Player.where(position: [:guard, :center, :tackle]).order(pass_block_grade: :desc).limit(160)
     peer_tiering(peers) 
   end
 
@@ -546,7 +546,7 @@ class Player < ApplicationRecord
   end
 
   # def description
-  #   puts "#{position.rjust(15)} | #{player.rjust(25)} (#{jersey.to_s.rjust(2)}) | Grade: #{offense_grade.to_s.rjust(6)} /#{grades_defence.to_s.rjust(6)} | #{team.description.ljust(30)}"
+  #   puts "#{position.rjust(15)} | #{player.rjust(25)} (#{jersey.to_s.rjust(2)}) | Grade: #{offense_grade.to_s.rjust(6)} /#{grades_defense.to_s.rjust(6)} | #{team.description.ljust(30)}"
   # end
 
   def self.print_top_5_qbs

@@ -113,7 +113,7 @@ docker compose down             # Stop Docker
 
 ## Testing
 
-Tests live in `test/`. Current test files cover Game, Team, and TeamsWeek models. Run with `rails test`.
+75 tests across models and API integration. Run with `rails test`. See `docs/agents/system/coding-standards.md` for full test file listing and fixture details.
 
 ## Conventions
 

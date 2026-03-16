@@ -1,31 +1,13 @@
 module SportRadarConcern
   extend ActiveSupport::Concern
 
-  # Class variables for play processing
-  @@play                   = nil
-  @@result_slug_max_length = 30
-  @@result_slug_max_short  = @@result_slug_max_length + 56
-  @@sport_radar_event      = {}
-  @@detail1                = {}
-  @@detail2                = {}
-  @@detaillast             = {}
-  @@down                   = "〰️"
-  @@period                 = "❓"
-  @@turnover               = false
-  @@scoring_play           = false
-  @@play_type              = 'unknown'
-  @@event_type             = 'unknown'
-  @@sequence               = 999
-  @@no_play                = false
-  @@touchdown              = false
-  @@safety                 = false
-  @@extra_point            = false
-  @@start_team             = nil
-  @@end_team               = nil
+  # Constants for formatting
+  RESULT_SLUG_MAX_LENGTH = 30
+  RESULT_SLUG_MAX_SHORT  = RESULT_SLUG_MAX_LENGTH + 56
 
   # Class methods
   class_methods do
-    
+
     def sportsradar_import(game_uuid="abc-123-def-456")
       superbowl_json = "lib/sportradar/2024-game-superbowl-play-by-play.json"
       json_data = JSON.parse(File.read(Rails.root.join(superbowl_json)))
@@ -70,6 +52,29 @@ module SportRadarConcern
   end
 
   # Instance methods
+
+  # Initialize play-processing instance variables to safe defaults
+  def initialize_play_state
+    @sr_play                = nil
+    @sr_sport_radar_event   = {}
+    @sr_detail1             = {}
+    @sr_detail2             = {}
+    @sr_detaillast          = {}
+    @sr_down                = "〰️"
+    @sr_period              = "❓"
+    @sr_turnover            = false
+    @sr_scoring_play        = false
+    @sr_play_type           = 'unknown'
+    @sr_event_type          = 'unknown'
+    @sr_sequence            = 999
+    @sr_no_play             = false
+    @sr_touchdown           = false
+    @sr_safety              = false
+    @sr_extra_point         = false
+    @sr_start_team          = nil
+    @sr_end_team            = nil
+  end
+
   def sport_radar_play_by_play_seed
     if self.plays.count > 150
         puts "Reprocessing cached plays"
@@ -81,11 +86,13 @@ module SportRadarConcern
   end
 
   def sport_radar_play_by_play
+      initialize_play_state
+
       # Get play by play from SportRadar
       response = self.fetch_sport_radar_pbp rescue 'tcp-crash'
 
       if response == 'tcp-crash'
-        ap self 
+        ap self
         puts "TCP Crash - Retrying"
         sleep(10)
         response = self.fetch_sport_radar_pbp rescue 'tcp-crash'
@@ -128,7 +135,7 @@ module SportRadarConcern
             scoring_drive = drive['scoring_drive']    # true
             start_clock   = drive['start_clock']      # 3:37
             end_clock     = drive['end_clock']        # 14:47
-            
+
             # Is drive a play or set of events
             if drive['type'] == "event"
               self.process_event_sport_radar(drive)
@@ -176,7 +183,7 @@ module SportRadarConcern
           ap period_json
           puts "--------------------------------"
           sleep(5)
-        end  
+        end
       else
         puts "margot - Response Error"
         puts "Response: #{response.code}"
@@ -188,6 +195,8 @@ module SportRadarConcern
   end
 
   def reprocess_plays
+    initialize_play_state
+
     self.home_passing_touchdowns = 0
     self.away_passing_touchdowns = 0
     self.home_rushing_touchdowns = 0
@@ -200,8 +209,8 @@ module SportRadarConcern
     plays = self.plays.order(sport_radar_sequence: :asc)
     plays.each do |play|
         # Update period if it changed
-        if play.period != @@period
-            @@period = play.period
+        if play.period != @sr_period
+            @sr_period = play.period
         end
         # Process play
         process_event_sport_radar(play.sport_radar_event)
@@ -209,29 +218,32 @@ module SportRadarConcern
   end
 
   def process_event_sport_radar(event_json)
+    # Ensure play state is initialized
+    initialize_play_state if @sr_period.nil? && @sr_down.nil?
+
     # Set event type
     result              = "weird-event"
-    @@sport_radar_event = event_json
-    @@event_type        = event_json['event_type'] || event_json['type']
-    @@sequence          = event_json['sequence']
-    
-    # Find or create play
-    @@play = self.plays.find_or_create_by(
-      season_slug: self.season, 
-      week_slug: self.week_slug, 
-      sportsradar_id: event_json['id'], 
-      sport_radar_sequence: @@sequence.to_i, 
-      event_type: @@event_type  
-    )
-    @@play.sport_radar_event = event_json
-    @@play.save!
-    
-    # Skip on non-play events
-    if ['period_end','tv_timeout','timeout','two_minute_warning','game_over','setup','comment'].include?(@@event_type)
-      result = @@event_type
-      puts "#{@@event_type} | ".rjust(@@result_slug_max_short).bold
+    @sr_sport_radar_event = event_json
+    @sr_event_type        = event_json['event_type'] || event_json['type']
+    @sr_sequence          = event_json['sequence']
 
-      if @event_type == 'game_over'
+    # Find or create play
+    @sr_play = self.plays.find_or_create_by(
+      season_slug: self.season,
+      week_slug: self.week_slug,
+      sportsradar_id: event_json['id'],
+      sport_radar_sequence: @sr_sequence.to_i,
+      event_type: @sr_event_type
+    )
+    @sr_play.sport_radar_event = event_json
+    @sr_play.save!
+
+    # Skip on non-play events
+    if ['period_end','tv_timeout','timeout','two_minute_warning','game_over','setup','comment'].include?(@sr_event_type)
+      result = @sr_event_type
+      puts "#{@sr_event_type} | ".rjust(RESULT_SLUG_MAX_SHORT).bold
+
+      if @sr_event_type == 'game_over'
         puts "Game Over"
         puts "Home Total: #{self.home_score}"
         puts "Away Total: #{self.away_score}"
@@ -239,124 +251,124 @@ module SportRadarConcern
       end
       return result
     end
-    
-    if @@sport_radar_event['deleted'] == true
-      puts "Deleted Event | ".rjust(@@result_slug_max_short)
+
+    if @sr_sport_radar_event['deleted'] == true
+      puts "Deleted Event | ".rjust(RESULT_SLUG_MAX_SHORT)
       return result
     end
 
     # Set Variables
-    @@play_type     = @@sport_radar_event['play_type']       # pass    
-    @@details       = @@sport_radar_event["details"]    || []
-    @@detail1       = @@details.first                   || {}
-    @@detail2       = @@details.second                  || {}
-    @@detaillast    = @@details.last                    || {}
-    @@turnover      = false
-    @@no_play       = (@@detaillast["category"] == "no_play")
-    @@scoring_play  = @@sport_radar_event['scoring_play']
-    @@touchdown     = @@details.find { |detail| detail["result"] == "touchdown" }
-    @@safety        = @@details.find { |detail| detail["category"] == "safety" }
-    @@field_goal    = @@details.find { |detail| detail["category"] == "field_goal" && detail["result"] == "good" }
-    @@extra_point   = @@details.find { |detail| detail["category"] == "extra_point_attempt" && detail["result"] == "good" }
-    @@score         = @@touchdown || @@safety || @@field_goal || @@extra_point
+    @sr_play_type     = @sr_sport_radar_event['play_type']       # pass
+    @sr_details       = @sr_sport_radar_event["details"]    || []
+    @sr_detail1       = @sr_details.first                   || {}
+    @sr_detail2       = @sr_details.second                  || {}
+    @sr_detaillast    = @sr_details.last                    || {}
+    @sr_turnover      = false
+    @sr_no_play       = (@sr_detaillast["category"] == "no_play")
+    @sr_scoring_play  = @sr_sport_radar_event['scoring_play']
+    @sr_touchdown     = @sr_details.find { |detail| detail["result"] == "touchdown" }
+    @sr_safety        = @sr_details.find { |detail| detail["category"] == "safety" }
+    @sr_field_goal    = @sr_details.find { |detail| detail["category"] == "field_goal" && detail["result"] == "good" }
+    @sr_extra_point   = @sr_details.find { |detail| detail["category"] == "extra_point_attempt" && detail["result"] == "good" }
+    @sr_score         = @sr_touchdown || @sr_safety || @sr_field_goal || @sr_extra_point
 
-    if @@no_play
-      puts "no-play | ".rjust(@@result_slug_max_short).bold
+    if @sr_no_play
+      puts "no-play | ".rjust(RESULT_SLUG_MAX_SHORT).bold
       return result
     end
 
     # Set turnover
-    start_situation = @@sport_radar_event['start_situation']
-    end_situation   = @@sport_radar_event['end_situation']
-    @@start_team    = Team.find_by(sportsradar_id: start_situation['possession']['id']) rescue nil
-    @@end_team      = Team.find_by(sportsradar_id: end_situation['possession']['id']) rescue nil
-    @@turnover      = (@@start_team.slug != @@end_team.slug)
-    
+    start_situation = @sr_sport_radar_event['start_situation']
+    end_situation   = @sr_sport_radar_event['end_situation']
+    @sr_start_team    = Team.find_by(sportsradar_id: start_situation['possession']['id']) rescue nil
+    @sr_end_team      = Team.find_by(sportsradar_id: end_situation['possession']['id']) rescue nil
+    @sr_turnover      = (@sr_start_team.slug != @sr_end_team.slug)
+
     # Set down emoji
-    @@down = "〰️"
-    @@down = "☝️ " if (1 == start_situation['down']) rescue "❓"
-    @@down = "✌️ " if (2 == start_situation['down']) rescue "❓"
-    @@down = "🤟" if (3 == start_situation['down']) rescue "❓"
-    @@down = "✊" if (4 == start_situation['down']) rescue "❓"
-    if @@down == "❓"
+    @sr_down = "〰️"
+    @sr_down = "☝️ " if (1 == start_situation['down']) rescue "❓"
+    @sr_down = "✌️ " if (2 == start_situation['down']) rescue "❓"
+    @sr_down = "🤟" if (3 == start_situation['down']) rescue "❓"
+    @sr_down = "✊" if (4 == start_situation['down']) rescue "❓"
+    if @sr_down == "❓"
       puts "mason - weird-down"
-      ap @@sport_radar_event
+      ap @sr_sport_radar_event
     end
 
     # Fetch data
-    clock           = @@sport_radar_event['clock']           # 2:55
-    description     = @@sport_radar_event['description']     # L.Jackson pass deep right complete. Catch made by I.Likely for 49 yards. TOUCHDOWN.
-    score           = @@sport_radar_event['score']
-    statistics      = @@sport_radar_event['statistics']      # 5+ player events
+    clock           = @sr_sport_radar_event['clock']           # 2:55
+    description     = @sr_sport_radar_event['description']     # L.Jackson pass deep right complete. Catch made by I.Likely for 49 yards. TOUCHDOWN.
+    score           = @sr_sport_radar_event['score']
+    statistics      = @sr_sport_radar_event['statistics']      # 5+ player events
     start_clock     = start_situation['clock'] rescue 'start'
     end_clock       = end_situation['clock'] rescue 'end'
     # Scoring Data
     points          = score['points'] rescue nil # 7
     home_points     = score['home_points'] rescue nil # 20
     away_points     = score['away_points'] rescue nil # 16
-    details         = @@sport_radar_event['details']
+    details         = @sr_sport_radar_event['details']
 
     # Set teams for print
-    offense_team = @@start_team
+    offense_team = @sr_start_team
     if offense_team == the_home_team
       defence_team = the_away_team
     else
       defence_team = the_home_team
     end
 
-    @@play.play_type                  = @@play_type
-    @@play.down                       = @@down
-    @@play.period                     = @@period
-    @@play.turnover                   = @@turnover
-    @@play.possession_start_team_slug = @@start_team.slug
-    @@play.possession_end_team_slug   = @@end_team.slug
-    @@play.clock_start_time           = start_clock
-    @@play.clock_end_time             = end_clock
-    @@play.save!
+    @sr_play.play_type                  = @sr_play_type
+    @sr_play.down                       = @sr_down
+    @sr_play.period                     = @sr_period
+    @sr_play.turnover                   = @sr_turnover
+    @sr_play.possession_start_team_slug = @sr_start_team.slug
+    @sr_play.possession_end_team_slug   = @sr_end_team.slug
+    @sr_play.clock_start_time           = start_clock
+    @sr_play.clock_end_time             = end_clock
+    @sr_play.save!
 
-    result = process_punt        if @@play_type == "punt"
-    result = process_kickoff     if @@play_type == "kickoff"
-    result = process_field_goal  if @@play_type == "field_goal"
-    result = process_rush        if @@play_type == "rush"
-    result = process_pass        if @@play_type == "pass"
-    result = process_extra_point if @@play_type == "extra_point"
-    result = process_conversion  if @@play_type == "conversion"
+    result = process_punt        if @sr_play_type == "punt"
+    result = process_kickoff     if @sr_play_type == "kickoff"
+    result = process_field_goal  if @sr_play_type == "field_goal"
+    result = process_rush        if @sr_play_type == "rush"
+    result = process_pass        if @sr_play_type == "pass"
+    result = process_extra_point if @sr_play_type == "extra_point"
+    result = process_conversion  if @sr_play_type == "conversion"
 
     if result == "result_slug"
       puts "🎉 Weird Play"
-      ap @@sport_radar_event
+      ap @sr_sport_radar_event
       sleep(5)
     end
-   
+
     # Penalty
-    if @@play_type == "penalty"
-      result = "penalty".rjust(@@result_slug_max_length)
+    if @sr_play_type == "penalty"
+      result = "penalty".rjust(RESULT_SLUG_MAX_LENGTH)
       # What to do about penalties?
     end
-    
+
     # Strange scoring play
     if (points.to_i > 0) && (result == "rush" || result == "pass")
       puts "margot - Strange scoring play"
-      self.stangest_events << @@sport_radar_event
+      self.strangest_events << @sr_sport_radar_event
       self.save!
       ap event_json
       sleep(5)
     end
 
-    @@play.score                      = @@score
-    @@play.possession_start_team_slug = @@start_team.slug if @@start_team.present?
-    @@play.possession_end_team_slug   = @@end_team.slug if @@end_team.present?
-    @@play.category                   = @@sport_radar_event["category"]
-    @@play.description                = @@sport_radar_event["description"]
-    @@play.result                     = result
-    @@play.save!
+    @sr_play.score                      = @sr_score
+    @sr_play.possession_start_team_slug = @sr_start_team.slug if @sr_start_team.present?
+    @sr_play.possession_end_team_slug   = @sr_end_team.slug if @sr_end_team.present?
+    @sr_play.category                   = @sr_sport_radar_event["category"]
+    @sr_play.description                = @sr_sport_radar_event["description"]
+    @sr_play.result                     = result
+    @sr_play.save!
 
     # Save results to events array
     self.events_array << result
     self.save!
 
     # Format play result
-    result_puts = result.rjust(@@result_slug_max_length)
+    result_puts = result.rjust(RESULT_SLUG_MAX_LENGTH)
     # Reload
     week.reload
 
@@ -407,8 +419,8 @@ module SportRadarConcern
     result_puts = result_puts.on_yellow       if result == "penalty"
 
     # Result of events
-    
-    puts  "#{@@period}  | #{clock.to_s.rjust(5)} > #{end_clock.to_s.rjust(5)}| #{offense_team.emoji} > #{defence_team.emoji} | #{@@down} | #{@@play_type.rjust(11)} | #{result_puts} #{running_count.to_s.rjust(3)} | Play.find(#{@@play.id}) #{description.truncate(130).rjust(130)}"
+
+    puts  "#{@sr_period}  | #{clock.to_s.rjust(5)} > #{end_clock.to_s.rjust(5)}| #{offense_team.emoji} > #{defence_team.emoji} | #{@sr_down} | #{@sr_play_type.rjust(11)} | #{result_puts} #{running_count.to_s.rjust(3)} | Play.find(#{@sr_play.id}) #{description.truncate(130).rjust(130)}"
   rescue => e
     puts "margot - Event Error"
     puts "Error: #{e}"
@@ -416,22 +428,22 @@ module SportRadarConcern
     puts "--------------------------------"
     puts "Event"
     puts "--------------------------------"
-    ap @@sport_radar_event
+    ap @sr_sport_radar_event
     puts "--------------------------------"
     sleep(5)
   end
 
   def log_strange_event(result_slug)
     puts "mason - strange event - #{result_slug}"
-    ap @@sport_radar_event
+    ap @sr_sport_radar_event
     # Save special teams touchdown if not another event
-    self.stangest_events << @@sport_radar_event
-    self.save! 
+    self.strangest_events << @sr_sport_radar_event
+    self.save!
   end
 
   def process_conversion
-    if @@scoring_play
-        if @@turnover
+    if @sr_scoring_play
+        if @sr_turnover
             result_slug = "defensive-conversion"
             self.increment!(:alt_points)
             log_strange_event(result_slug)
@@ -440,24 +452,24 @@ module SportRadarConcern
             self.increment!(:alt_points)
             week.increment!(:two_point_conversions)
         end
-    else  
+    else
       result_slug = "failed-two-point-conversion"
     end
     return result_slug
   end
 
   def process_extra_point
-    if @@scoring_play
-        if @@extra_point
+    if @sr_scoring_play
+        if @sr_extra_point
             result_slug = "extra-point"
-            if self.home_team.slug == @@end_team.slug
+            if self.home_team.slug == @sr_end_team.slug
               self.increment!(:home_extra_points)
             else
               self.increment!(:away_extra_points)
-            end       
-              
+            end
+
             week.increment!(:extra_points)
-        elsif @@turnover
+        elsif @sr_turnover
             result_slug = "defensive-conversion"
             self.increment!(:alt_points)
             log_strange_event(result_slug)
@@ -473,30 +485,30 @@ module SportRadarConcern
   end
 
   def process_field_goal
-    if @@scoring_play
-      if @@field_goal
+    if @sr_scoring_play
+      if @sr_field_goal
           result_slug = "field-goal"
 
-          if self.home_team.slug == @@end_team.slug
+          if self.home_team.slug == @sr_end_team.slug
             self.increment!(:home_field_goals, 3)
           else
             self.increment!(:away_field_goals, 3)
           end
 
           week.increment!(:field_goals)
-      elsif @@touchdown
-          if @@turnover
+      elsif @sr_touchdown
+          if @sr_turnover
               result_slug = "defensive-touchdown"
               self.increment!(:alt_points, 6)
               week.increment!(:defensive_touchdowns)
-          elsif @@safety
+          elsif @sr_safety
               week.increment!(:safeties)
               self.increment!(:alt_points, 2)
               result_slug = "safety"
           else
               result_slug = "passing-touchdown"
 
-              if self.home_team.slug == @@end_team.slug
+              if self.home_team.slug == @sr_end_team.slug
                 self.increment!(:home_passing_touchdowns, 6)
               else
                 self.increment!(:away_passing_touchdowns, 6)
@@ -514,19 +526,19 @@ module SportRadarConcern
   end
 
   def process_pass
-    if @@scoring_play
-      if @@turnover
+    if @sr_scoring_play
+      if @sr_turnover
         result_slug = "defensive-touchdown"
         self.increment!(:alt_points, 6)
         week.increment!(:defensive_touchdowns)
-      elsif @@safety
+      elsif @sr_safety
         week.increment!(:safeties)
         self.increment!(:alt_points, 2)
         result_slug = "safety"
       else
         result_slug = "passing-touchdown"
 
-        if self.home_team.slug == @@end_team.slug
+        if self.home_team.slug == @sr_end_team.slug
           self.increment!(:home_passing_touchdowns, 6)
         else
           self.increment!(:away_passing_touchdowns, 6)
@@ -541,19 +553,19 @@ module SportRadarConcern
   end
 
   def process_rush
-    if @@scoring_play
-      if @@turnover
+    if @sr_scoring_play
+      if @sr_turnover
         result_slug = "defensive-touchdown"
         self.increment!(:alt_points, 6)
         week.increment!(:defensive_touchdowns)
-      elsif @@safety
+      elsif @sr_safety
         week.increment!(:safeties)
         self.increment!(:alt_points, 2)
         result_slug = "safety"
       else
         result_slug = "rushing-touchdown"
 
-        if self.home_team.slug == @@end_team.slug
+        if self.home_team.slug == @sr_end_team.slug
           self.increment!(:home_rushing_touchdowns, 6)
         else
           self.increment!(:away_rushing_touchdowns, 6)
@@ -568,9 +580,9 @@ module SportRadarConcern
   end
 
   def process_punt
-    if @@scoring_play
-      if @@touchdown
-          if @@turnover
+    if @sr_scoring_play
+      if @sr_touchdown
+          if @sr_turnover
               week.increment!(:special_teams_touchdowns)
               self.increment!(:alt_points, 6)
               result_slug = "punt-return-touchdown"
@@ -579,7 +591,7 @@ module SportRadarConcern
               self.increment!(:alt_points, 6)
               result_slug = "punt-recovery-touchdown"
           end
-      elsif @@safety
+      elsif @sr_safety
           week.increment!(:safeties)
           self.increment!(:alt_points, 2)
           result_slug = "safety"
@@ -593,8 +605,8 @@ module SportRadarConcern
   end
 
   def process_kickoff
-    if @@touchdown
-        if @@turnover
+    if @sr_touchdown
+        if @sr_turnover
             week.increment!(:special_teams_touchdowns)
             self.increment!(:alt_points, 6)
             result_slug = "kickoff-touchdown"
@@ -603,7 +615,7 @@ module SportRadarConcern
             self.increment!(:alt_points, 6)
             result_slug = "kicking-team-touchdown"
         end
-    elsif @@safety
+    elsif @sr_safety
         week.increment!(:safeties)
         self.increment!(:alt_points, 2)
         result_slug = "safety"
@@ -614,25 +626,25 @@ module SportRadarConcern
 
   def initialize_period(period_json)
     period_type     = period_json['period_type']
-    period_number   = period_json['number']      
+    period_number   = period_json['number']
     period_sequence = period_json['sequence']
     period_id       = period_json['id']
-    
+
     # Period Data
-    @@period = case period_number
-    when 1 
+    @sr_period = case period_number
+    when 1
       "1️⃣"
-    when 2 
+    when 2
       "2️⃣"
-    when 3 
+    when 3
       "3️⃣"
-    when 4 
+    when 4
       "4️⃣"
-    else 
+    else
       "❓"
     end
 
-    puts "#{@@period}  | New Period | #{period_type}-#{period_number}-#{period_sequence} | #{period_id}"
+    puts "#{@sr_period}  | New Period | #{period_type}-#{period_number}-#{period_sequence} | #{period_id}"
     puts "--------------------------------"
     # return period_emoji
   end
@@ -646,11 +658,11 @@ module SportRadarConcern
     url_string    = "#{base_url}/#{access_level}/v7/#{language_code}/games/#{game_id}/pbp.#{format}"
 
     api_key = ENV['SPORTRADAR_API_KEY']
-    
+
     if api_key.blank?
       raise "SPORTRADAR_API_KEY environment variable is required"
     end
-    
+
     # Fetch data from SportRadar API
     response = HTTParty.get(url_string,
         headers: {
@@ -660,4 +672,4 @@ module SportRadarConcern
       )
     return response
   end
-end 
+end

@@ -17,16 +17,16 @@ Last run: 2026-03-15 — 3:00 AM MDT (House Burns Down Protocol)
 ### `docs/agents/shared/MEMORY.md`
 - **Migrations:** updated latest from `create_memes` (2026-03-13) → `add_discord_message_id_to_news` (2026-03-14)
 - **News model fields:** added `discord_message_id` field (added by 2026-03-14 migration)
-- **Cron table:** full refresh — schedules updated to reflect live cron, removed the two Mack Hourly jobs (no longer active), added `emoji-approval` (new job, every 2 min, alex), marked error-state jobs
+- **Cron table:** full refresh — schedules updated to reflect live cron, removed the two Mack Hourly jobs (no longer active), marked error-state jobs
 - **Rank system:** corrected ordering direction from `ASC` → `DESC` (task #48 fixed this on 2026-03-12; docs had stale ASC note)
 - **Last updated:** bumped to 2026-03-15
 
 ### `docs/agents/system/bootstrap.md`
-- **Cron table:** full refresh matching live state — updated schedules, removed Mack Hourly jobs, added `emoji-approval`
+- **Cron table:** full refresh matching live state — updated schedules, removed Mack Hourly jobs
 - **Last updated:** bumped to 2026-03-15
 
 ### `workspace/MEMORY.md`
-- **Cron schedule table:** refreshed with live cadences, error states, new `emoji-approval` job, removed Mack Hourly jobs
+- **Cron schedule table:** refreshed with live cadences, error states, removed Mack Hourly jobs
 - **News schema:** added `discord_message_id` field entry
 
 ### `docs/agents/system/architecture.md`
@@ -41,9 +41,8 @@ Last run: 2026-03-15 — 3:00 AM MDT (House Burns Down Protocol)
 
 ### 🔴 Multiple cron jobs in error state
 The following jobs have error status and need investigation before the morning pipeline:
-- `emoji-approval` (alex, every 2 min) — **new job**, no prior docs — purpose unclear, likely needs a script or prompt fix
 - `edit-post (x_post)` (mason, every 15 min) — Stage 4 of x_post pipeline; errors here stall hashtag enrichment
-- `mason-task-refinement` (mason, every 20 min) — Task board won't auto-refine while this is erroring
+- `mason-task-refinement` (mason, every 60 min) — Task board won't auto-refine while this is erroring
 - `turf-monster-enrich-news` (turf-monster, every 10 min) — Stage 2 of pipeline; **critical path** — new Schefter tweets will pile up in `new` without enrichment
 - `Alex Daily Brief` (alex, 5am MDT) — Yesterday's brief also errored (22h ago run was in error state)
 
@@ -56,5 +55,5 @@ Poll-schefter slowed from every 3 min → every 10 min. Enrich/edit/opinion all 
 ### 🟢 New migration: `add_discord_message_id_to_news` (2026-03-14)
 New `discord_message_id` field on News records. Docs updated accordingly.
 
-### 🟢 New cron: `emoji-approval` (every 2 min, alex agent)
-Not documented anywhere until this sync. Added to all cron tables. Currently in error state — worth investigating.
+### 🟢 emoji-approval cron removed
+Job removed — emoji reactions now processed via agent heartbeat.

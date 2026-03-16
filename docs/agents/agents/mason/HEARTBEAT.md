@@ -1,6 +1,6 @@
 # HEARTBEAT.md — Mason Task Refinement Loop
 
-Runs every 5 minutes via `mason-task-refinement` cron.
+Runs every hour via `mason-task-refinement` cron.
 
 ---
 

@@ -1,13 +1,11 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+mahomes:
+  first_name: Patrick
+  last_name: Mahomes
+  slug: patrick-mahomes
+  player_slug: patrick-mahomes
 
-one:
-  first_name: MyString
-  last_name: MyString
-  slug: MyString
-  player_slug: MyString
-
-two:
-  first_name: MyString
-  last_name: MyString
-  slug: MyString
-  player_slug: MyString
+kelce:
+  first_name: Travis
+  last_name: Kelce
+  slug: travis-kelce
+  player_slug: travis-kelce

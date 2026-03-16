@@ -14,7 +14,7 @@ Keep entries current. Remove outdated info. Last updated: 2026-03-15.
 | Migrations | 🟢 Current | Latest: `add_discord_message_id_to_news` (2026-03-14) |
 | Agents seeded | 🟢 Done | 4 agents, 14 skills, 13 assignments |
 | News pipeline | 🟢 Live | Polling → enriching → opinion → posting to X |
-| Daily Brief | 🟢 Scheduled | 5am MDT, Alex posts to #lobster-tank |
+| Daily Reports | 🟢 Scheduled | Mack 4am, Alex 5am, Mason 6am, TM 7am MDT → #lobster-tank |
 
 ---
 
@@ -22,10 +22,10 @@ Keep entries current. Remove outdated info. Last updated: 2026-03-15.
 
 | Agent | Slug | Role | Model | Status |
 |-------|------|------|-------|--------|
-| Alex Agent | alex | CEO | claude-sonnet | Active |
-| Mack | mack | CTO | claude-sonnet | Active |
-| Mason | mason | CPO | claude-sonnet | Active |
-| Turf Monster | turf-monster | CMO | claude-sonnet | Active |
+| Alex Agent | alex | CEO | claude-sonnet-4-6 | Active |
+| Mack | mack | CTO | gemini-3-flash-preview | Active |
+| Mason | mason | CPO | claude-sonnet-4-6 | Active |
+| Turf Monster | turf-monster | CMO | grok-3 | Active |
 
 ---
 
@@ -78,11 +78,11 @@ new → reviewed → content → edited → queued → posted → archived
 
 | Script | Cron | What it does |
 |--------|------|-------------|
-| `poll-schefter.js` | Every 3 min | Polls X API → saves to DB → Discord announce |
-| `enrich-news.js` | Every 5 min | AI enrichment → `reviewed` + Discord summary |
-| `opinion-news.js` | Every 7 min | TM hot take → x_post to `content` + creates x_reply sibling |
-| `edit-post.js` | Every 5 min | **x_post only** — hashtag lookup + team match → `edited` |
-| `edit-reply-post.js` | Every 5 min | **x_reply only** — Claude picks meme → `meme_id` saved → `edited` |
+| `poll-schefter.js` | Every 10 min | Polls X API → saves to DB → Discord announce |
+| `enrich-news.js` | Every 10 min | AI enrichment → `reviewed` + Discord summary |
+| `opinion-news.js` | Every 15 min | TM hot take → x_post to `content` + creates x_reply sibling |
+| `edit-post.js` | Every 15 min | **x_post only** — hashtag lookup + team match → `edited` |
+| `edit-reply-post.js` | Every 15 min | **x_reply only** — Claude picks meme → `meme_id` saved → `edited` |
 | `post-to-x.js` | Every 30 min | **x_post only** — posts tweet, saves `x_post_id` + `x_post_url` → `posted` |
 | `post-reply-to-x.js` | Every 10 min | **x_reply only** — posts meme reply to TM's x_post ⚠️ see 403 note |
 
@@ -176,7 +176,7 @@ PATCH  /api/agents/tasks/:id/transition  # body: { "transition": "queue|start|co
 GET    /api/agents/tasks              # list tasks
 ```
 
-**Task stages:** `new → queued → in_progress → done / failed`
+**Task stages:** `new → queued → in_progress → done / failed → archived`
 
 **Protocol:**
 - Alex creates tasks in the board BEFORE delegating work
@@ -193,14 +193,16 @@ GET    /api/agents/tasks              # list tasks
 | `turf-monster-enrich-news` | turf-monster | every 10 min | none | ⚠️ error |
 | `edit-post (x_post)` | mason | every 15 min | none | ⚠️ error |
 | `edit-reply-post (x_reply)` | alex | every 15 min | none | ✅ |
-| `emoji-approval` | alex | every 2 min | none | ⚠️ error |
-| `mason-task-refinement` | mason | every 20 min | none | ⚠️ error |
+| `mason-task-refinement` | mason | every 60 min | none | ⚠️ error |
 | `opinion-news (turf-monster)` | alex | every 15 min | none | ✅ |
 | `post-reply-to-x (x_reply)` | alex | every 10 min | none | ✅ |
 | `post-to-x (x_post)` | alex | every 30 min | none | ✅ |
 | `TM X Session Health Check` | mack | 9am MDT daily | none | ✅ |
 | `House Burns Down Protocol` | alex | 3am MDT nightly | none | ✅ |
+| `Mack Daily Ops` | mack | 4am MDT | `#lobster-tank` | 🆕 new |
 | `Alex Daily Brief` | alex | 5am MDT | `#lobster-tank` | ⚠️ error |
+| `Mason Dev Report` | mason | 6am MDT | `#lobster-tank` | 🆕 new |
+| `TM GM Check-in` | turf-monster | 7am MDT | `#lobster-tank` | 🆕 new |
 
 **Discord delivery format** (correct):
 ```json
@@ -247,9 +249,9 @@ GET    /api/agents/tasks              # list tasks
 - **2026-03-12** — Pipeline cadence tightened: opinion every 15 min, post-to-x every 30 min.
 - **2026-03-12** — Task board established as source of truth. Discord = comms only.
 - **2026-03-13** — `hashtag` column added to News + Teams table seeded with 32 NFL teams + hashtags.
-- **2026-03-13** — `edit-post.js` added as Stage 4: hashtag lookup + team match → `edited`. Cron: every 5 min (mason).
+- **2026-03-13** — `edit-post.js` added as Stage 4: hashtag lookup + team match → `edited`. Cron: every 15 min (mason).
 - **2026-03-13** — Discord templates refactored into shared `scripts/lib/discord-templates.js`.
-- **2026-03-13** — Pipeline cadence tightened: poll every 3 min, enrich every 5 min, opinion every 7 min.
+- **2026-03-13** — Pipeline cadence tightened: poll every 10 min, enrich every 10 min, opinion every 15 min.
 - **2026-03-13** — Mason + Turf Monster agent infrastructure established: heartbeats, task execution loops, mason-task-refinement cron.
 
 ---
