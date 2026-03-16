@@ -163,6 +163,28 @@ Read your role at /home/alex/.openclaw/workspace/boodle_scraper/docs/agents/agen
 3. Refine New tasks → enrich + queue, or @Alex in #lobster-tank with 🐊🔍 questions
 4. Nothing? HEARTBEAT_OK
 ```
+- Agent: mason | Schedule: `*/20 * * * *` | model: `anthropic/claude-sonnet-4-6` | timeoutSeconds: 180 | delivery: none
+
+### sync-cron-usage cron payload
+```
+Run the cron usage sync script:
+cd /home/alex/.openclaw/workspace && set -a && source .secrets && set +a && node scripts/sync-cron-usage.js
+```
+- Agent: alex | Schedule: `0 * * * *` | model: `anthropic/claude-haiku-4-5` | timeoutSeconds: 60 | delivery: none
+
+### Alex Daily Brief cron payload
+```
+You are the Alex Agent, CEO of McRitchie Studio. Compose and post the Daily Brief to #lobster-tank.
+
+SECTION 1 — WEATHER: curl -s 'wttr.in/Denver?format=%l:+%C+%t+(%f+feels+like)+💧%h+💨%w'
+SECTION 2 — TURF MONSTER'S TOP HIT: curl -s 'http://localhost:3000/api/news?stage=posted&per_page=20' — pick most notable from yesterday
+SECTION 3 — BLOCKERS & IDEAS: app health check + any known pipeline issues
+SECTION 4 — HOUSE BURNS DOWN REPORT: cat /home/alex/.openclaw/workspace/boodle_scraper/docs/agents/system/nightly-sync.md
+
+Post to #lobster-tank. Sign off: — Alex 🦞
+```
+- Agent: alex | Schedule: `0 5 * * *` America/Denver | timeoutSeconds: 300 | delivery: `{ "mode": "announce", "to": "channel:1479973077021495478" }`
+- ⚠️ timeoutSeconds must be 300+ — job does weather + API calls + Discord post
 
 ---
 
