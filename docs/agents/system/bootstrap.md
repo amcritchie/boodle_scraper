@@ -60,22 +60,34 @@ docker exec boodle_scraper-web-1 bin/rails runner "load 'db/seed_teams.rb'"
 ### workspace/.secrets
 ```bash
 X_BEARER_TOKEN=...                  # X API v2 Bearer Token (Schefter polling)
-DISCORD_BOT_TOKEN=...               # Turf Monster's Discord bot token
 ANTHROPIC_API_KEY=...               # Claude API key
 TM_X_API_KEY=...                    # Turf Monster X OAuth 1.0a
 TM_X_API_SECRET=...
 TM_X_ACCESS_TOKEN=...
 TM_X_ACCESS_SECRET=...
-KLING_API_KEY_ID=...                # Kling video generation
+KLING_API_KEY_ID=...                # Kling video generation (⚠️ expired 2026-03-15, needs rotation)
 KLING_API_KEY_SECRET=...
 ```
 
+### openclaw.json Discord bot tokens
+Four bots — each agent has its own. All stored under `channels.discord.accounts.<slug>.token`:
+
+| Agent | Slug | Bot Name | Discord ID |
+|-------|------|----------|------------|
+| Alex | `alex` | Alex | `1481150857809760399` |
+| Mason | `mason` | Mason | — |
+| Mack | `mack` | Mack | — |
+| Turf Monster | `turf-monster` | Turf Monster | — |
+
+To get a token: `python3 -c "import json; d=json.load(open('/home/alex/.openclaw/openclaw.json')); print(d['channels']['discord']['accounts']['alex']['token'])"`
+Replace `alex` with `mason`, `mack`, or `turf-monster` as needed.
+
 ### openclaw.json agent config
-Each agent needs:
+Each agent entry needs:
+- `id` — agent slug
 - `model` — their default LLM
 - `workspace` — path to their workspace dir
 - `heartbeat.every` — heartbeat interval
-- Discord bot token under `channels.discord.accounts.<slug>.token`
 
 **Agent models (as of 2026-03-15):**
 | Agent | Model |
