@@ -44,3 +44,41 @@ Every 5 minutes Mason checks the task board:
 1. Any `[PENDING_REVIEW]` tasks with Alex's Discord reply? → Finalize and queue
 2. Any `new` tasks? → Enrich, and either queue directly or @alex in #lobster-tank for clarity
 3. Nothing? → Exit quietly
+
+---
+
+## Development Standard — Token Usage Logging
+
+**Every script that makes an LLM API call must log token usage to the Rails API before exiting.**
+
+This is non-negotiable. Any PR or task that adds or modifies an LLM call must include the logging callback.
+
+### How to do it
+
+1. Import the shared tracker:
+   ```js
+   const { logUsage } = require('./lib/usage-tracker');
+   ```
+
+2. After every Claude/OpenAI/xAI API call, pass the response to the tracker:
+   ```js
+   const response = await callClaude(prompt);
+   await logUsage('agent-slug', 'claude-haiku-4-5', response.usage, 'script-name');
+   ```
+
+3. The tracker handles the rollup POST to `POST /api/agents/usages` automatically.
+
+### What gets logged
+
+- `tokens_in` / `tokens_out` — from `response.usage.input_tokens` / `output_tokens`
+- `api_calls` — incremented +1 per call
+- `cost` — calculated from known model pricing
+- `model` — the model string used
+- `agent_slug` — which agent made the call
+- `period_date` — today's date (daily rollup)
+
+### Acceptance criteria for any LLM task
+
+- [ ] `logUsage()` called after every API response
+- [ ] No silent token consumption — if the call happens, it gets logged
+- [ ] Errors still attempt to log (wrap in try/catch, don't let logging failure block the script)

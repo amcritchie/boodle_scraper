@@ -134,3 +134,30 @@ MACK OPS — [time]
 ```
 
 Clean report = nothing needed. If something's on the todo list, it belongs there.
+
+---
+
+## Development Standard — Token Usage Logging
+
+**Every script that makes an LLM API call must log token usage to the Rails API before exiting.**
+
+See Mason's role.md for the full standard. Mack's additional responsibilities:
+
+### For cron-triggered scripts
+
+- Cron scripts are no different — log usage at the end of each run
+- The `logUsage()` call should be in the `finally` block so it fires even on error
+
+### For new scripts
+
+When writing any new script that calls an LLM:
+1. Add `require('./lib/usage-tracker')` at the top
+2. Capture usage from the raw API response
+3. Call `logUsage()` before process exit
+
+### Token spike alerting
+
+Mack's monitoring role extends to token usage:
+- If any agent logs > 2x their daily average in a single day, post a flag to #lobster-tank
+- Use `GET /api/agents/usages` to compare current day vs 7-day average
+- This is part of LLM Connection Guardian responsibilities
