@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_03_12_230000) do
+ActiveRecord::Schema[7.0].define(version: 2026_03_16_043103) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -65,6 +65,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_12_230000) do
     t.string "error_message"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "archived_at"
     t.index ["agent_slug"], name: "index_agent_tasks_on_agent_slug"
     t.index ["slug"], name: "index_agent_tasks_on_slug", unique: true
     t.index ["stage"], name: "index_agent_tasks_on_stage"
@@ -178,6 +179,20 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_12_230000) do
     t.index ["sportsradar_id"], name: "index_coaches_on_sportsradar_id"
     t.index ["team_slug"], name: "index_coaches_on_team_slug"
     t.index ["updated_at"], name: "index_coaches_on_updated_at"
+  end
+
+  create_table "contents", force: :cascade do |t|
+    t.text "prompt"
+    t.text "caption"
+    t.text "script"
+    t.jsonb "prompts", default: [], null: false
+    t.jsonb "video_parts", default: [], null: false
+    t.jsonb "video_choice", default: [], null: false
+    t.string "video_url"
+    t.string "stage", default: "idea", null: false
+    t.integer "rank"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "drives", force: :cascade do |t|
@@ -389,6 +404,18 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_12_230000) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "memes", force: :cascade do |t|
+    t.string "path"
+    t.string "feeling"
+    t.jsonb "feeling_array"
+    t.string "team_slug"
+    t.string "player_slug"
+    t.datetime "last_used_at"
+    t.integer "rank"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "news", force: :cascade do |t|
     t.string "stage", default: "new", null: false
     t.string "url"
@@ -413,6 +440,11 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_12_230000) do
     t.string "x_post_id"
     t.string "x_post_url"
     t.integer "rank"
+    t.string "hashtag"
+    t.string "content_type", default: "x_post"
+    t.integer "meme_id"
+    t.string "discord_message_id"
+    t.string "video_path"
     t.index ["rank"], name: "index_news_on_rank"
     t.index ["stage"], name: "index_news_on_stage"
     t.index ["x_post_id"], name: "index_news_on_x_post_id", unique: true, where: "(x_post_id IS NOT NULL)"
@@ -744,6 +776,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_12_230000) do
     t.string "color_rule"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "hashtag"
     t.index ["active"], name: "index_teams_on_active"
     t.index ["alias"], name: "index_teams_on_alias"
     t.index ["created_at"], name: "index_teams_on_created_at"

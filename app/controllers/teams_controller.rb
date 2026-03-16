@@ -2,7 +2,7 @@ class TeamsController < ApplicationController
   layout 'application'
   
   # Skip CSRF token verification for API endpoints
-  skip_before_action :verify_authenticity_token, only: [:api_show, :api_week_collection]
+  skip_before_action :verify_authenticity_token, only: [:api_show, :api_week_collection, :api_search]
   
   def index
     @teams = Team.active.includes(:venue).order(:conference, :division, :name)
@@ -160,6 +160,26 @@ class TeamsController < ApplicationController
     render json: { success: true, message: 'Substitution successful' }
   rescue => e
     render json: { error: e.message }, status: :unprocessable_entity
+  end
+
+  # GET /api/teams?name=<team_name>
+  # Returns team JSON (including hashtag) for the matching team name
+  def api_search
+    name = params[:name].to_s.strip
+    if name.blank?
+      render json: { teams: Team.active.order(:name).map { |t| { id: t.id, slug: t.slug, name: t.name, alias: t.alias, hashtag: t.hashtag } } }
+      return
+    end
+
+    team = Team.where("LOWER(name) = LOWER(?)", name).first
+    team ||= Team.where("LOWER(alias) = LOWER(?)", name).first
+    team ||= Team.where("LOWER(name) LIKE LOWER(?)", "%#{name}%").first
+
+    if team
+      render json: { team: { id: team.id, slug: team.slug, name: team.name, alias: team.alias, hashtag: team.hashtag } }
+    else
+      render json: { error: "Team not found: #{name}" }, status: :not_found
+    end
   end
 
   def api_show

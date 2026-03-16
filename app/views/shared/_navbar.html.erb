@@ -31,6 +31,14 @@
           <a href="<%= news_index_path %>" class="<%= news_active ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30' : 'theme-text-secondary' %> hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
             News
           </a>
+          <% memes_active = controller_name == 'memes' %>
+          <a href="<%= memes_path %>" class="<%= memes_active ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30' : 'theme-text-secondary' %> hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            Memes
+          </a>
+          <% content_active = controller_name == 'contents' %>
+          <a href="<%= contents_path %>" class="<%= content_active ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30' : 'theme-text-secondary' %> hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
+            Content
+          </a>
           <% unless Rails.env.production? %>
             <% agents_active = controller_name == 'agents_dashboard' %>
             <a href="<%= agents_dashboard_path %>" class="<%= agents_active ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30' : 'theme-text-secondary' %> hover:theme-text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">

@@ -13,6 +13,7 @@ class AgentTask < ApplicationRecord
   scope :active, -> { where(stage: "in_progress") }
   scope :completed, -> { where(stage: "done") }
   scope :failed, -> { where(stage: "failed") }
+  scope :archived, -> { where(stage: "archived") }
   scope :high_priority, -> { where("priority >= ?", 1) }
 
   PRIORITY_LABELS = { 0 => "Normal", 1 => "High", 2 => "Urgent" }.freeze
@@ -39,6 +40,10 @@ class AgentTask < ApplicationRecord
 
   def fail!(message = nil)
     update!(stage: "failed", failed_at: Time.current, error_message: message)
+  end
+
+  def archive!
+    update!(stage: "archived", archived_at: Time.current)
   end
 
   private

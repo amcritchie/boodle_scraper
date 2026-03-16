@@ -1,3 +1,5 @@
+require 'open3'
+
 class AgentsDashboardController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [
     :api_dashboard,
@@ -7,7 +9,9 @@ class AgentsDashboardController < ApplicationController
     :api_skills_index, :api_skills_show, :api_skills_create, :api_skills_destroy,
     :api_skill_assignments_create, :api_skill_assignments_destroy,
     :api_activities_index, :api_activities_create,
-    :api_usages_index, :api_usages_create
+    :api_usages_index, :api_usages_create,
+    :api_push,
+    :api_agent_set_model
   ]
 
   # ─── HTML Actions ───────────────────────────────────────────────
@@ -188,6 +192,35 @@ class AgentsDashboardController < ApplicationController
     render json: { message: "Agent deleted" }
   end
 
+  def api_agent_set_model
+    agent = Agent.find_by(slug: params[:slug])
+    return render json: { error: "Agent not found" }, status: :not_found unless agent
+
+    model = params[:model].to_s.strip
+    return render json: { error: "model is required" }, status: :bad_request if model.blank?
+
+    # Update DB
+    agent.update!(config: agent.config.merge("model" => model))
+
+    # Update openclaw.json
+    config_path = File.expand_path("~/.openclaw/openclaw.json")
+    if File.exist?(config_path)
+      begin
+        oc_config = JSON.parse(File.read(config_path))
+        agents_list = oc_config.dig("agents", "list") || []
+        agent_entry = agents_list.find { |a| a["id"] == agent.slug }
+        if agent_entry
+          agent_entry["model"] = model
+          File.write(config_path, JSON.pretty_generate(oc_config))
+        end
+      rescue => e
+        Rails.logger.warn "Could not update openclaw.json: #{e.message}"
+      end
+    end
+
+    render json: { agent: agent_json(agent), model: model, message: "Model updated to #{model}" }
+  end
+
   # --- Tasks API ---
 
   def api_tasks_index
@@ -262,8 +295,10 @@ class AgentsDashboardController < ApplicationController
       task.complete!(params[:result] || {})
     when "fail"
       task.fail!(params[:error_message])
+    when "archive"
+      task.archive!
     else
-      return render json: { error: "Invalid transition. Must be one of: queue, start, complete, fail" }, status: :bad_request
+      return render json: { error: "Invalid transition. Must be one of: queue, start, complete, fail, archive" }, status: :bad_request
     end
 
     # Log activity
@@ -406,6 +441,42 @@ class AgentsDashboardController < ApplicationController
     end
   end
 
+  # ─── Code Push ──────────────────────────────────────────────────
+
+  # POST /api/agents/push
+  # Fires sequential dev-loop cron runs for Mason, Alex, Mack.
+  # Cron IDs are read from ENV (CRON_ID_MASON, CRON_ID_ALEX, CRON_ID_MACK)
+  # with sensible defaults matching the current openclaw.json cron entries.
+  PUSH_AGENTS = [
+    { slug: "mason", cron_id: ENV.fetch("CRON_ID_MASON", "561325c4-70c9-4340-9042-363c92137007") },
+    { slug: "alex",  cron_id: ENV.fetch("CRON_ID_ALEX",  nil) },
+    { slug: "mack",  cron_id: ENV.fetch("CRON_ID_MACK",  nil) },
+  ].freeze
+
+  def api_push
+    triggered = []
+    errors    = []
+    timeout_ms = 180_000 # 3 minutes per agent
+
+    PUSH_AGENTS.each do |agent|
+      next unless agent[:cron_id].present?
+
+      cmd = "openclaw cron run #{agent[:cron_id]} --timeout #{timeout_ms}"
+      Rails.logger.info "[CodePush] Running: #{cmd}"
+
+      output, status = Open3.capture2e(cmd)
+      if status.success?
+        triggered << agent[:slug]
+        Rails.logger.info "[CodePush] #{agent[:slug]} completed. Output: #{output.strip.first(200)}"
+      else
+        errors << { agent: agent[:slug], error: output.strip.first(300) }
+        Rails.logger.warn "[CodePush] #{agent[:slug]} failed: #{output.strip.first(300)}"
+      end
+    end
+
+    render json: { ok: errors.empty?, triggered: triggered, errors: errors }
+  end
+
   private
 
   # ─── HTML Params ────────────────────────────────────────────────
@@ -470,7 +541,7 @@ class AgentsDashboardController < ApplicationController
       agent_slug: task.agent_slug, required_skills: task.required_skills,
       result: task.result, metadata: task.metadata,
       queued_at: task.queued_at, started_at: task.started_at, completed_at: task.completed_at, failed_at: task.failed_at,
-      error_message: task.error_message, created_at: task.created_at, updated_at: task.updated_at
+      error_message: task.error_message, archived_at: task.archived_at, created_at: task.created_at, updated_at: task.updated_at
     }
   end
 

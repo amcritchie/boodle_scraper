@@ -1,0 +1,37 @@
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <div class="mb-6"><%= link_to "← Back to Content", contents_path, class: "text-sm theme-text-secondary hover:theme-text-primary" %></div>
+  <div class="theme-bg-primary rounded-xl border theme-border-primary shadow p-6">
+    <h1 class="text-xl font-bold theme-text-primary mb-6">Edit Content #<%= @content.id %></h1>
+    <%= form_with model: @content, url: content_path(@content), method: :patch, local: true do |f| %>
+      <% if @content.errors.any? %>
+        <div class="bg-red-50 border border-red-200 rounded p-3 mb-4 text-sm text-red-700">
+          <% @content.errors.full_messages.each do |msg| %><p><%= msg %></p><% end %>
+        </div>
+      <% end %>
+      <div class="mb-4">
+        <%= f.label :prompt, class: "block text-sm font-medium theme-text-primary mb-1" %>
+        <%= f.text_area :prompt, rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500" %>
+      </div>
+      <div class="mb-4">
+        <%= f.label :caption, class: "block text-sm font-medium theme-text-primary mb-1" %>
+        <%= f.text_area :caption, rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500" %>
+      </div>
+      <div class="mb-4">
+        <%= f.label :script, class: "block text-sm font-medium theme-text-primary mb-1" %>
+        <%= f.text_area :script, rows: 4, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500" %>
+      </div>
+      <div class="mb-4">
+        <%= f.label :video_url, "Video URL", class: "block text-sm font-medium theme-text-primary mb-1" %>
+        <%= f.text_field :video_url, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500" %>
+      </div>
+      <div class="mb-6">
+        <%= f.label :stage, class: "block text-sm font-medium theme-text-primary mb-1" %>
+        <%= f.select :stage, Content::STAGES.map { |s| [s.humanize, s] }, {}, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500" %>
+      </div>
+      <div class="flex gap-3">
+        <%= f.submit "Update Content", class: "bg-violet-600 hover:bg-violet-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer" %>
+        <%= link_to "Cancel", contents_path, class: "px-4 py-2 text-sm theme-text-secondary hover:theme-text-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

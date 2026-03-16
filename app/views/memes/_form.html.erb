@@ -1,0 +1,83 @@
+<%= form_with(model: meme, class: "space-y-5", data: { controller: "meme-upload" }) do |f| %>
+  <% if meme.errors.any? %>
+    <div class="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
+      <strong>Please fix these errors:</strong>
+      <ul class="mt-1 list-disc list-inside">
+        <% meme.errors.full_messages.each do |msg| %>
+          <li class="text-sm"><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# Hidden field for base64 image data (populated by JS when file is dropped/selected) %>
+  <input type="hidden" name="meme[image_data]" data-meme-upload-target="imageData">
+
+  <%# Live preview %>
+  <div class="rounded-lg overflow-hidden border border-dashed border-gray-600 bg-gray-900 flex items-center justify-center min-h-[120px]">
+    <img data-meme-upload-target="preview"
+         src="<%= meme.path.present? ? meme.path : '' %>"
+         class="max-h-48 object-contain <%= meme.path.present? ? '' : 'hidden' %>"
+         alt="Preview">
+    <div data-meme-upload-target="placeholder"
+         class="text-gray-500 text-sm text-center p-4 <%= meme.path.present? ? 'hidden' : '' %>">
+      <svg class="w-8 h-8 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      Image preview
+    </div>
+  </div>
+
+  <%# File input %>
+  <div>
+    <label class="block text-sm font-medium theme-text-primary mb-1">Upload Image File</label>
+    <input type="file" accept="image/jpeg,image/png,image/gif,image/webp"
+           class="w-full text-sm text-gray-400 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-purple-700 file:text-white file:text-sm file:cursor-pointer hover:file:bg-purple-600"
+           data-meme-upload-target="fileInput"
+           data-action="change->meme-upload#fileChange">
+    <p class="text-xs text-gray-500 mt-1">Or paste a URL below. File upload saves to /images/memes/.</p>
+  </div>
+
+  <div>
+    <%= f.label :path, "Image URL / Path", class: "block text-sm font-medium theme-text-primary mb-1" %>
+    <%= f.text_field :path,
+        class: "w-full bg-gray-800 border border-gray-600 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500",
+        placeholder: "https://example.com/meme.gif or /images/memes/foo.gif",
+        data: { "meme-upload-target": "pathField", action: "input->meme-upload#urlInput" } %>
+  </div>
+
+  <div>
+    <%= f.label :feeling, "Feeling", class: "block text-sm font-medium theme-text-primary mb-1" %>
+    <%= f.text_field :feeling, class: "w-full bg-gray-800 border border-gray-600 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500", placeholder: "e.g. Hyped, Disappointed" %>
+  </div>
+
+  <div>
+    <%= f.label :feeling_array, "Feeling Array", class: "block text-sm font-medium theme-text-primary mb-1" %>
+    <p class="text-xs theme-text-secondary mb-1">Comma-separated list of feelings</p>
+    <%= f.text_field :feeling_array,
+        value: (meme.feeling_array.is_a?(Array) ? meme.feeling_array.join(", ") : meme.feeling_array.to_s),
+        class: "w-full bg-gray-800 border border-gray-600 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500",
+        placeholder: "Hyped, Excited, Pumped" %>
+  </div>
+
+  <div>
+    <%= f.label :team_slug, "Team Slug", class: "block text-sm font-medium theme-text-primary mb-1" %>
+    <%= f.text_field :team_slug, class: "w-full bg-gray-800 border border-gray-600 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500", placeholder: "denver-broncos" %>
+  </div>
+
+  <div>
+    <%= f.label :player_slug, "Player Slug", class: "block text-sm font-medium theme-text-primary mb-1" %>
+    <%= f.text_field :player_slug, class: "w-full bg-gray-800 border border-gray-600 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500", placeholder: "bo-nix" %>
+  </div>
+
+  <div>
+    <%= f.label :rank, "Rank", class: "block text-sm font-medium theme-text-primary mb-1" %>
+    <%= f.number_field :rank, class: "w-full bg-gray-800 border border-gray-600 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500", placeholder: "100" %>
+  </div>
+
+  <div class="flex gap-3 pt-2">
+    <%= f.submit meme.new_record? ? "Create Meme" : "Update Meme",
+        class: "bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer" %>
+    <%= link_to "Cancel", memes_path, class: "px-5 py-2 rounded-lg text-sm font-medium theme-text-secondary hover:theme-text-primary transition-colors" %>
+  </div>
+<% end %>

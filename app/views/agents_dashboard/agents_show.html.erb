@@ -34,6 +34,41 @@
           </div>
         <% end %>
 
+        <!-- Model -->
+        <div data-controller="model-picker" data-model-picker-slug-value="<%= @agent.slug %>">
+          <h3 class="text-sm font-medium theme-text-secondary uppercase mb-2">Model</h3>
+          <% current_model = @agent.config&.dig("model") || "—" %>
+          <div data-model-picker-target="display" class="flex items-center gap-2 cursor-pointer group" data-action="click->model-picker#showPicker">
+            <span class="font-mono text-sm theme-text-primary group-hover:text-emerald-500 transition-colors"><%= current_model %></span>
+            <svg class="w-4 h-4 theme-text-secondary group-hover:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+            <span class="text-xs theme-text-secondary group-hover:text-emerald-500">change</span>
+          </div>
+          <div data-model-picker-target="picker" class="hidden mt-2 space-y-2">
+            <select data-action="change->model-picker#updateModel" class="w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500">
+              <option value="">— type a custom model —</option>
+              <optgroup label="Anthropic">
+                <option value="anthropic/claude-sonnet-4-6" <%= "selected" if current_model == "anthropic/claude-sonnet-4-6" %>>claude-sonnet-4-6</option>
+                <option value="anthropic/claude-haiku-4-5" <%= "selected" if current_model == "anthropic/claude-haiku-4-5" %>>claude-haiku-4-5</option>
+                <option value="anthropic/claude-opus-4-5" <%= "selected" if current_model == "anthropic/claude-opus-4-5" %>>claude-opus-4-5</option>
+              </optgroup>
+              <optgroup label="OpenAI">
+                <option value="openai/gpt-4o" <%= "selected" if current_model == "openai/gpt-4o" %>>gpt-4o</option>
+                <option value="openai/gpt-4o-mini" <%= "selected" if current_model == "openai/gpt-4o-mini" %>>gpt-4o-mini</option>
+              </optgroup>
+              <optgroup label="Google">
+                <option value="google/gemini-3-flash-preview" <%= "selected" if current_model == "google/gemini-3-flash-preview" %>>gemini-3-flash-preview</option>
+                <option value="google/gemini-2.0-flash" <%= "selected" if current_model == "google/gemini-2.0-flash" %>>gemini-2.0-flash</option>
+              </optgroup>
+              <optgroup label="xAI">
+                <option value="xai/grok-3" <%= "selected" if current_model == "xai/grok-3" %>>grok-3</option>
+              </optgroup>
+            </select>
+            <input type="text" data-model-picker-target="customInput" placeholder="or type any model string…" class="hidden w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500" />
+            <div data-model-picker-target="status" class="text-sm hidden"></div>
+            <button data-action="click->model-picker#cancel" class="text-xs theme-text-secondary hover:theme-text-primary">cancel</button>
+          </div>
+        </div>
+
         <!-- Config -->
         <% if @agent.config.present? && @agent.config.any? %>
           <div>

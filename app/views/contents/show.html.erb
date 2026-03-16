@@ -1,0 +1,39 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="flex items-center gap-4 mb-6">
+    <%= link_to "← Back to Content", contents_path, class: "text-sm theme-text-secondary hover:theme-text-primary" %>
+  </div>
+  <div class="theme-bg-primary rounded-xl border theme-border-primary shadow p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-xl font-bold theme-text-primary">Content #<%= @content.id %></h1>
+      <span class="text-xs font-semibold px-2 py-1 rounded bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-200"><%= @content.stage %></span>
+    </div>
+    <% if @content.prompt.present? %>
+      <div class="mb-4">
+        <p class="text-xs font-semibold theme-text-secondary uppercase tracking-wide mb-1">Prompt</p>
+        <p class="text-sm theme-text-primary"><%= @content.prompt %></p>
+      </div>
+    <% end %>
+    <% if @content.caption.present? %>
+      <div class="mb-4">
+        <p class="text-xs font-semibold theme-text-secondary uppercase tracking-wide mb-1">Caption</p>
+        <p class="text-sm theme-text-primary"><%= @content.caption %></p>
+      </div>
+    <% end %>
+    <% if @content.script.present? %>
+      <div class="mb-4">
+        <p class="text-xs font-semibold theme-text-secondary uppercase tracking-wide mb-1">Script</p>
+        <p class="text-sm theme-text-primary whitespace-pre-wrap"><%= @content.script %></p>
+      </div>
+    <% end %>
+    <% if @content.video_url.present? %>
+      <div class="mb-4">
+        <p class="text-xs font-semibold theme-text-secondary uppercase tracking-wide mb-1">Video URL</p>
+        <%= link_to @content.video_url, @content.video_url, target: "_blank", class: "text-sm text-blue-500 hover:underline break-all" %>
+      </div>
+    <% end %>
+    <div class="flex gap-2 mt-6">
+      <%= link_to "Edit", edit_content_path(@content), class: "bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors" %>
+      <%= link_to "Delete", content_path(@content), method: :delete, data: { confirm: "Delete this content?" }, class: "bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors" %>
+    </div>
+  </div>
+</div>

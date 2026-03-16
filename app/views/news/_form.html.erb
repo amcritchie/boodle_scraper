@@ -61,6 +61,11 @@
       <%= f.text_field :primary_team_slug, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
     </div>
 
+    <div>
+      <%= f.label :hashtag, "Hashtag", class: "block text-sm font-medium theme-text-primary mb-1" %>
+      <%= f.text_field :hashtag, placeholder: "#BroncosCountry", class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>
+    </div>
+
     <div class="md:col-span-2">
       <%= f.label :summary, class: "block text-sm font-medium theme-text-primary mb-1" %>
       <%= f.text_area :summary, rows: 3, class: "w-full rounded-lg border theme-border-primary theme-bg-primary theme-text-primary px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" %>

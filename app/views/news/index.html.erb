@@ -4,6 +4,7 @@
     { key: "reviewed", label: "Reviewed", color: "yellow" },
     { key: "content",  label: "Content",  color: "purple" },
     { key: "edited",   label: "Edited",   color: "cyan"   },
+    { key: "queued",   label: "Queued",   color: "orange" },
     { key: "posted",   label: "Posted",   color: "green"  }
   ]
   active_count = stages.sum { |s| (@news_by_stage[s[:key]] || []).length }
@@ -27,9 +28,28 @@
         <h1 class="text-2xl font-bold text-white">News</h1>
         <p class="text-emerald-100 text-sm mt-1"><%= active_count %> active items</p>
       </div>
-      <a href="<%= new_news_path %>" class="bg-white text-emerald-600 hover:bg-emerald-50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow">
-        + New News
-      </a>
+      <div class="flex items-center gap-3">
+        <!-- Filter buttons -->
+        <div class="flex rounded-lg overflow-hidden border border-white/40 text-sm font-semibold shadow">
+          <button onclick="setFilter('all', this)"   id="filter-all"     class="kanban-filter active-filter px-3 py-2 text-white bg-white/30 transition-colors">All</button>
+          <button onclick="setFilter('x_post', this)" id="filter-x_post" class="kanban-filter px-3 py-2 text-white bg-white/10 hover:bg-white/20 transition-colors border-l border-white/40">Posts</button>
+          <button onclick="setFilter('x_reply', this)" id="filter-x_reply" class="kanban-filter px-3 py-2 text-white bg-white/10 hover:bg-white/20 transition-colors border-l border-white/40">Replies</button>
+        </div>
+        <!-- Reverse sort toggle -->
+        <button onclick="toggleReverse(this)"
+                class="bg-white/20 hover:bg-white/30 text-white border border-white/40 px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow"
+                title="Reverse column order">
+          ↑↓
+        </button>
+        <!-- Utility -->
+        <button onclick="organizeRanks(this)"
+                class="bg-white/20 hover:bg-white/30 text-white border border-white/40 px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow">
+          ↕ Organize
+        </button>
+        <a href="<%= new_news_path %>" class="bg-white text-emerald-600 hover:bg-emerald-50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow">
+          + New News
+        </a>
+      </div>
     </div>
   </div>
 
@@ -68,22 +88,50 @@
                  data-stage="<%= stage[:key] %>"
                  data-action="dragover->news-kanban#dragOver dragenter->news-kanban#dragEnter dragleave->news-kanban#dragLeave drop->news-kanban#drop">
 
+              <% first_queued_post  = items.find { |n| n.content_type == 'x_post'  }  if stage[:key] == 'queued' %>
+              <% first_queued_reply = items.find { |n| n.content_type == 'x_reply' } if stage[:key] == 'queued' %>
               <% items.each do |news| %>
                 <%
                   img_src     = news.selected_image.presence || '/images/news-placeholder.svg'
-                  show_image  = %w[reviewed content edited posted].include?(news.stage)
-                  show_opinion = %w[content edited posted].include?(news.stage)
+                  show_image  = %w[reviewed content edited queued posted].include?(news.stage)
+                  card_meme   = news.meme_id.present? ? @meme_lookup[news.meme_id] : nil
+                  show_opinion = %w[content edited queued posted].include?(news.stage)
+                  countdown_type = if stage[:key] == 'queued'
+                    if news == first_queued_post then 'x_post'
+                    elsif news == first_queued_reply then 'x_reply'
+                    end
+                  end
                 %>
-                <div class="rounded-lg border theme-border-primary theme-bg-primary shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-all overflow-hidden"
+                <div class="relative rounded-lg border theme-border-primary theme-bg-primary shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-all overflow-hidden"
                      draggable="true"
                      data-news-kanban-target="card"
                      data-news-id="<%= news.id %>"
                      data-stage="<%= news.stage %>"
                      data-rank="<%= news.rank %>"
+                     data-content-type="<%= news.content_type || 'x_post' %>"
+                     <% if countdown_type %>data-countdown-type="<%= countdown_type %>"<% end %>
                      data-action="dragstart->news-kanban#dragStart dragend->news-kanban#dragEnd click->news-kanban#cardClick dragover->news-kanban#cardDragOver drop->news-kanban#cardDrop">
 
+                  <div class="absolute top-1.5 right-1.5 z-10 bg-black/50 text-white text-[10px] font-mono px-1.5 py-0.5 rounded leading-none">#<%= news.id %></div>
+
+                  <% if news.content_type == 'x_reply' %>
+                    <div class="absolute top-1.5 left-1.5 z-10 bg-blue-500/70 text-white text-[10px] font-mono px-1.5 py-0.5 rounded leading-none">reply</div>
+                  <% end %>
+                  <% if news.video_path.present? %>
+                    <div class="absolute top-6 left-1.5 z-10 bg-purple-600/80 text-white text-[10px] font-mono px-1.5 py-0.5 rounded leading-none">🎬</div>
+                  <% end %>
+                  <% if countdown_type %>
+                    <div class="absolute bottom-1.5 left-1.5 right-1.5 z-10 bg-emerald-600/90 text-white text-[10px] font-mono px-2 py-1 rounded flex items-center justify-between leading-none"
+                         data-countdown-badge="<%= countdown_type %>">
+                      <span><%= countdown_type == 'x_reply' ? '💬 reply in' : '📤 post in' %></span>
+                      <span data-countdown-timer="<%= countdown_type %>">--:--</span>
+                    </div>
+                  <% end %>
+
                   <% if show_image %>
-                    <% if news.selected_image.present? %>
+                    <% if card_meme %>
+                      <img src="<%= card_meme.path %>" alt="" class="w-full h-24 object-contain bg-gray-900">
+                    <% elsif news.selected_image.present? %>
                       <img src="<%= img_src %>" alt="" class="w-full h-24 object-cover">
                     <% else %>
                       <img src="<%= img_src %>" alt="" class="w-full object-cover" style="height:50px;">
@@ -150,14 +198,24 @@
                       <% if news.opinion.present? %>
                         <p class="text-xs theme-text-secondary line-clamp-2 mb-1.5"><%= news.opinion %></p>
                       <% end %>
-                      <div class="flex items-center gap-1.5 mb-1">
+                      <div class="flex items-center gap-1.5 mb-1 flex-wrap">
                         <% if news.what_happened.present? %>
                           <span class="text-[11px] bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded"><%= news.what_happened %></span>
                         <% end %>
                         <% if news.rank.present? %>
                           <span class="text-[11px] bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded font-mono">#<%= news.rank %></span>
                         <% end %>
+                        <% if %w[edited queued posted].include?(news.stage) && news.hashtag.present? %>
+                          <span class="text-[11px] theme-text-secondary opacity-70"><%= news.hashtag %></span>
+                        <% end %>
                       </div>
+                      <% if %w[edited queued posted].include?(news.stage) && (news.primary_team.present? || news.hashtag.present?) %>
+                        <div class="flex items-center gap-1 mt-1 mb-0.5">
+                          <span class="text-[11px] theme-text-secondary truncate">
+                            <% if news.primary_team.present? %>🏈 <%= news.primary_team %><% end %><% if news.primary_team.present? && news.hashtag.present? %> · <% end %><% if news.hashtag.present? %><span class="text-emerald-600 dark:text-emerald-400 font-medium"><%= news.hashtag %></span><% end %>
+                          </span>
+                        </div>
+                      <% end %>
                       <div class="flex justify-between items-center mt-1">
                         <span class="text-[11px] theme-text-secondary"><%= news.published_at&.strftime("%b %d") %></span>
                         <span class="text-[11px] theme-text-secondary">Updated <%= news.updated_at.strftime("%b %d, %H:%M") %></span>
@@ -193,3 +251,126 @@
   <!-- Toast Container -->
   <div data-news-kanban-target="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
 </div>
+
+<script>
+// ── Countdown ────────────────────────────────────────────────────
+let countdownSchedule = null;
+
+async function initCountdowns() {
+  try {
+    const res  = await fetch('/api/news/posting_schedule');
+    countdownSchedule = await res.json();
+    tickCountdowns();
+    setInterval(tickCountdowns, 1000);
+  } catch (e) {
+    console.warn('Countdown fetch failed:', e);
+  }
+}
+
+function tickCountdowns() {
+  if (!countdownSchedule) return;
+  const now = Date.now();
+
+  ['x_post', 'x_reply'].forEach(type => {
+    const key     = type === 'x_post' ? 'x_post_next_ms' : 'x_reply_next_ms';
+    let   msLeft  = countdownSchedule[key] - now;
+    const timers  = document.querySelectorAll(`[data-countdown-timer="${type}"]`);
+    if (!timers.length) return;
+
+    if (msLeft <= 0) {
+      // Refresh schedule — window passed
+      fetch('/api/news/posting_schedule')
+        .then(r => r.json())
+        .then(d => { countdownSchedule = d; });
+      msLeft = 0;
+    }
+
+    const totalSec = Math.floor(msLeft / 1000);
+    const mins     = Math.floor(totalSec / 60);
+    const secs     = totalSec % 60;
+    const label    = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    timers.forEach(el => el.textContent = label);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initCountdowns);
+
+// ── Filter ────────────────────────────────────────────────────────
+const ALWAYS_SHOW_STAGES = ['new', 'reviewed']; // content_type not set yet
+
+let currentFilter = 'all';
+let currentReverse = false;
+
+function setFilter(type, btn) {
+  currentFilter = type;
+
+  // Update button styles
+  document.querySelectorAll('.kanban-filter').forEach(b => {
+    b.classList.remove('bg-white/30', 'active-filter');
+    b.classList.add('bg-white/10', 'hover:bg-white/20');
+  });
+  btn.classList.remove('bg-white/10', 'hover:bg-white/20');
+  btn.classList.add('bg-white/30', 'active-filter');
+
+  applyFilters();
+}
+
+function toggleReverse(btn) {
+  currentReverse = !currentReverse;
+  btn.textContent = currentReverse ? '↓↑' : '↑↓';
+  btn.classList.toggle('bg-white/30', currentReverse);
+  btn.classList.toggle('bg-white/20', !currentReverse);
+  applyFilters();
+}
+
+function applyFilters() {
+  document.querySelectorAll('[data-news-kanban-target="dropZone"]').forEach(zone => {
+    const stage = zone.dataset.stage;
+    const alwaysShow = ALWAYS_SHOW_STAGES.includes(stage);
+    const cards = Array.from(zone.querySelectorAll('[data-news-kanban-target="card"]'));
+
+    // Show/hide cards based on filter
+    let visibleCount = 0;
+    cards.forEach(card => {
+      const ct = card.dataset.contentType;
+      const show = alwaysShow || currentFilter === 'all' || ct === currentFilter;
+      card.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
+    // Reverse order if toggled — work on visible cards only
+    if (currentReverse) {
+      const visible = cards.filter(c => c.style.display !== 'none');
+      visible.reverse().forEach(c => zone.appendChild(c));
+    } else {
+      // Restore rank-based order (DESC)
+      const all = cards.sort((a, b) => (parseInt(b.dataset.rank) || 0) - (parseInt(a.dataset.rank) || 0));
+      all.forEach(c => zone.appendChild(c));
+    }
+
+    // Update column count badge
+    const badge = document.querySelector(`[data-news-kanban-target="columnCount"][data-stage="${stage}"]`);
+    if (badge) badge.textContent = visibleCount;
+  });
+}
+
+// ── Organize Ranks ────────────────────────────────────────────────
+async function organizeRanks(btn) {
+  btn.disabled = true;
+  btn.textContent = '↕ Organizing…';
+  try {
+    const res = await fetch('/api/news/organize_ranks', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    const data = await res.json();
+    if (res.ok) {
+      btn.textContent = '✓ Done';
+      setTimeout(() => window.location.reload(), 600);
+    } else {
+      btn.textContent = '✕ Error';
+      setTimeout(() => { btn.textContent = '↕ Organize Ranks'; btn.disabled = false; }, 2000);
+    }
+  } catch (e) {
+    btn.textContent = '✕ Error';
+    setTimeout(() => { btn.textContent = '↕ Organize Ranks'; btn.disabled = false; }, 2000);
+  }
+}
+</script>

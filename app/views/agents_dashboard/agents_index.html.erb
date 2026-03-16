@@ -27,6 +27,7 @@
             <th class="px-4 py-3 text-left text-xs font-medium theme-text-secondary uppercase tracking-wider">Name</th>
             <th class="px-4 py-3 text-left text-xs font-medium theme-text-secondary uppercase tracking-wider">Status</th>
             <th class="px-4 py-3 text-left text-xs font-medium theme-text-secondary uppercase tracking-wider">Type</th>
+            <th class="px-4 py-3 text-left text-xs font-medium theme-text-secondary uppercase tracking-wider">Model</th>
             <th class="px-4 py-3 text-left text-xs font-medium theme-text-secondary uppercase tracking-wider">Skills</th>
             <th class="px-4 py-3 text-center text-xs font-medium theme-text-secondary uppercase tracking-wider">Tasks</th>
             <th class="px-4 py-3 text-left text-xs font-medium theme-text-secondary uppercase tracking-wider">Last Active</th>
@@ -57,6 +58,38 @@
                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full <%= status_class %>"><%= agent.status %></span>
               </td>
               <td class="px-4 py-3 text-sm theme-text-secondary"><%= agent.agent_type %></td>
+              <td class="px-4 py-3 text-sm" data-controller="model-picker" data-model-picker-slug-value="<%= agent.slug %>">
+                <% current_model = agent.config&.dig("model") || "—" %>
+                <div data-model-picker-target="display" class="flex items-center gap-1 cursor-pointer group" data-action="click->model-picker#showPicker">
+                  <span class="font-mono text-xs theme-text-primary group-hover:text-emerald-500 transition-colors"><%= current_model.split("/").last %></span>
+                  <svg class="w-3 h-3 theme-text-secondary group-hover:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                </div>
+                <div data-model-picker-target="picker" class="hidden mt-1">
+                  <select data-action="change->model-picker#updateModel" class="w-full rounded border theme-border-primary theme-bg-primary theme-text-primary px-2 py-1 text-xs focus:ring-1 focus:ring-emerald-500">
+                    <option value="">— custom —</option>
+                    <optgroup label="Anthropic">
+                      <option value="anthropic/claude-sonnet-4-6" <%= "selected" if current_model == "anthropic/claude-sonnet-4-6" %>>claude-sonnet-4-6</option>
+                      <option value="anthropic/claude-haiku-4-5" <%= "selected" if current_model == "anthropic/claude-haiku-4-5" %>>claude-haiku-4-5</option>
+                      <option value="anthropic/claude-opus-4-5" <%= "selected" if current_model == "anthropic/claude-opus-4-5" %>>claude-opus-4-5</option>
+                    </optgroup>
+                    <optgroup label="OpenAI">
+                      <option value="openai/gpt-4o" <%= "selected" if current_model == "openai/gpt-4o" %>>gpt-4o</option>
+                      <option value="openai/gpt-4o-mini" <%= "selected" if current_model == "openai/gpt-4o-mini" %>>gpt-4o-mini</option>
+                    </optgroup>
+                    <optgroup label="Google">
+                      <option value="google/gemini-3-flash-preview" <%= "selected" if current_model == "google/gemini-3-flash-preview" %>>gemini-3-flash-preview</option>
+                      <option value="google/gemini-2.0-flash" <%= "selected" if current_model == "google/gemini-2.0-flash" %>>gemini-2.0-flash</option>
+                    </optgroup>
+                    <optgroup label="xAI">
+                      <option value="xai/grok-3" <%= "selected" if current_model == "xai/grok-3" %>>grok-3</option>
+                    </optgroup>
+                  </select>
+                  <div class="flex gap-1 mt-1">
+                    <input type="text" data-model-picker-target="customInput" placeholder="or type model…" class="hidden w-full rounded border theme-border-primary theme-bg-primary theme-text-primary px-2 py-1 text-xs focus:ring-1 focus:ring-emerald-500" />
+                  </div>
+                  <div data-model-picker-target="status" class="text-xs mt-1 hidden"></div>
+                </div>
+              </td>
               <td class="px-4 py-3 text-sm theme-text-secondary"><%= agent.agent_skills.count %></td>
               <td class="px-4 py-3 text-sm theme-text-secondary text-center"><%= agent.agent_tasks.count %></td>
               <td class="px-4 py-3 text-sm theme-text-secondary"><%= agent.last_active_at&.strftime("%b %d, %H:%M") || "—" %></td>

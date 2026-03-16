@@ -232,4 +232,36 @@ export default class extends Controller {
       setTimeout(() => toast.remove(), 300)
     }, 3000)
   }
+
+  // ─── Delete Task ─────────────────────────────────────────────
+
+  async deleteTask(event) {
+    event.stopPropagation()
+    const card = event.currentTarget.closest('[data-kanban-board-target="card"]')
+    const taskId = card?.dataset.taskId
+    if (!taskId) return
+
+    if (!confirm("Delete this task?")) return
+
+    const url = `/api/agents/tasks/${taskId}`
+    try {
+      const response = await fetch(url, { method: "DELETE" })
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error || "Delete failed")
+      }
+
+      const dropZone = card.closest('[data-kanban-board-target="dropZone"]')
+      card.remove()
+      if (dropZone) this.addPlaceholderIfEmpty(dropZone)
+      this.updateColumnCounts()
+      this.showToast("Task deleted", "success")
+    } catch (err) {
+      this.showToast(`Failed to delete: ${err.message}`, "error")
+    }
+  }
+
+  stopPropagation(event) {
+    event.stopPropagation()
+  }
 }

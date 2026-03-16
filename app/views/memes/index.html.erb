@@ -1,0 +1,65 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+     data-controller="meme-upload"
+     data-meme-upload-new-url-value="<%= new_meme_path %>"
+     data-action="dragover->meme-upload#dragOver dragleave->meme-upload#dragLeave drop->meme-upload#indexDrop">
+
+  <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-t-xl p-6 shadow-lg">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-white">Memes</h1>
+        <p class="text-purple-100 text-sm mt-1"><%= @memes.count %> memes</p>
+      </div>
+      <%= link_to "+ New Meme", new_meme_path, class: "bg-white text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow" %>
+    </div>
+  </div>
+
+  <% if flash[:notice] %>
+    <div class="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-200 px-4 py-3" role="alert">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
+
+  <div data-meme-upload-target="dropZone"
+       class="mb-4 border-2 border-dashed border-gray-700 rounded-xl p-4 text-center text-gray-500 text-xs transition-all">
+    📎 Drop an image anywhere to create a new meme
+  </div>
+
+  <div class="theme-bg-primary shadow-lg rounded-b-xl border theme-border-primary p-6">
+    <% if @memes.empty? %>
+      <div class="text-center py-16 theme-text-secondary">
+        <p class="text-lg">No memes yet.</p>
+        <%= link_to "Add your first meme →", new_meme_path, class: "text-purple-500 hover:underline mt-2 inline-block" %>
+      </div>
+    <% else %>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <% @memes.each do |meme| %>
+          <div class="theme-bg-primary border theme-border-primary rounded-xl overflow-hidden shadow hover:shadow-md transition-all">
+            <%= link_to meme_path(meme) do %>
+              <img src="<%= meme.path %>" alt="<%= meme.feeling %>" class="w-full object-contain max-h-48 bg-gray-900">
+            <% end %>
+            <div class="p-3">
+              <div class="flex flex-wrap gap-1 mb-2">
+                <% if meme.feeling.present? %>
+                  <span class="text-xs bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full font-medium"><%= meme.feeling %></span>
+                <% end %>
+                <% if meme.team_slug.present? %>
+                  <span class="text-xs bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full">🏈 <%= meme.team_slug %></span>
+                <% end %>
+              </div>
+              <% if meme.last_used_at.present? %>
+                <p class="text-xs theme-text-secondary mb-2">Last used: <%= meme.last_used_at.strftime("%b %d, %Y") %></p>
+              <% end %>
+              <div class="flex gap-2 text-xs">
+                <%= link_to "Edit", edit_meme_path(meme), class: "text-blue-500 hover:underline" %>
+                <%= link_to "Delete", meme_path(meme), method: :delete,
+                    data: { turbo_method: :delete, turbo_confirm: "Delete this meme?" },
+                    class: "text-red-500 hover:underline" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+</div>

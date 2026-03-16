@@ -1,0 +1,249 @@
+<%
+  stages = [
+    { key: "idea",          label: "Idea",          color: "blue"   },
+    { key: "refined",       label: "Refined",       color: "yellow" },
+    { key: "video_created", label: "Video Created", color: "purple" },
+    { key: "edited",        label: "Edited",        color: "cyan"   },
+    { key: "queued",        label: "Queued",        color: "orange" },
+    { key: "posted",        label: "Posted",        color: "green"  }
+  ]
+  total_count = stages.sum { |s| (@contents_by_stage[s[:key]] || []).length }
+%>
+
+<%= content_for :head do %>
+  <meta name="turbo-visit-control" content="reload">
+<% end %>
+
+<div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
+     data-controller="content-kanban content-modal"
+     data-content-kanban-transition-url-value="/api/contents/:id/transition"
+     data-content-kanban-update-url-value="/api/contents/:id"
+     data-content-kanban-delete-url-value="/api/contents/:id"
+     data-content-kanban-content-detail-url-value="/contents/:id"
+     data-content-modal-create-url-value="/api/contents"
+     data-action="keydown@window->content-modal#keydown">
+
+  <%# New Idea Modal %>
+  <div data-content-modal-target="modal"
+       class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+       data-action="click->content-modal#closeOnBackdrop">
+    <div class="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold text-white">💡 New Idea</h2>
+        <button type="button" class="text-gray-400 hover:text-white text-xl leading-none" data-action="click->content-modal#close">&times;</button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Prompt <span class="text-violet-400">*</span></label>
+          <textarea data-content-modal-target="prompt"
+                    rows="3"
+                    placeholder="What's the content idea? Be specific..."
+                    class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Caption <span class="text-gray-600">(optional)</span></label>
+          <textarea data-content-modal-target="caption"
+                    rows="2"
+                    placeholder="Instagram caption draft..."
+                    class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Script <span class="text-gray-600">(optional)</span></label>
+          <textarea data-content-modal-target="script"
+                    rows="2"
+                    placeholder="Voiceover or text overlay script..."
+                    class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 resize-none"></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mt-5">
+        <span class="text-xs text-gray-500">⌘+Enter to save</span>
+        <div class="flex gap-2">
+          <button type="button"
+                  class="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition-colors"
+                  data-action="click->content-modal#close">Cancel</button>
+          <button type="button"
+                  data-content-modal-target="submitBtn"
+                  data-action="click->content-modal#submit"
+                  class="bg-violet-600 hover:bg-violet-500 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50">
+            Save Idea
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-gradient-to-r from-violet-600 to-purple-600 rounded-t-xl p-6 shadow-lg">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-white">Content</h1>
+        <p class="text-violet-100 text-sm mt-1"><%= total_count %> active items</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button type="button"
+                data-action="click->content-modal#open"
+                class="bg-white text-violet-600 hover:bg-violet-50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow">
+          + New Idea
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <% if flash[:notice] %>
+    <div class="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-200 px-4 py-3" role="alert">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
+
+  <div class="theme-bg-primary shadow-lg rounded-b-xl border theme-border-primary">
+    <div class="overflow-x-auto px-4 py-6" data-content-kanban-target="board">
+      <div class="flex gap-4 items-stretch">
+        <% stages.each do |stage| %>
+          <% items = @contents_by_stage[stage[:key]] || [] %>
+          <div class="flex-1 min-w-[200px] flex flex-col" data-content-kanban-target="column" data-stage="<%= stage[:key] %>">
+            <!-- Column Header -->
+            <div class="flex items-center justify-between mb-3 px-1">
+              <h3 class="text-sm font-semibold theme-text-primary"><%= stage[:label] %></h3>
+              <span class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-xs font-bold rounded-full
+                <% case stage[:color]
+                   when "blue" %>bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200<%
+                   when "yellow" %>bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200<%
+                   when "purple" %>bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200<%
+                   when "cyan" %>bg-cyan-100 text-cyan-700 dark:bg-cyan-900 dark:text-cyan-200<%
+                   when "orange" %>bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-200<%
+                   when "green" %>bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200<%
+                   end %>"
+                data-content-kanban-target="columnCount" data-stage="<%= stage[:key] %>">
+                <%= items.length %>
+              </span>
+            </div>
+
+            <!-- Drop Zone -->
+            <div class="flex-1 min-h-[200px] rounded-lg border-2 border-dashed theme-border-primary p-2 space-y-2 transition-colors"
+                 data-content-kanban-target="dropZone"
+                 data-stage="<%= stage[:key] %>"
+                 data-action="dragover->content-kanban#dragOver dragenter->content-kanban#dragEnter dragleave->content-kanban#dragLeave drop->content-kanban#drop">
+
+              <% items.each do |content| %>
+                <div class="relative rounded-lg border theme-border-primary theme-bg-primary shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-all overflow-hidden"
+                     draggable="true"
+                     data-content-kanban-target="card"
+                     data-content-id="<%= content.id %>"
+                     data-stage="<%= content.stage %>"
+                     data-rank="<%= content.rank %>"
+                     data-action="dragstart->content-kanban#dragStart dragend->content-kanban#dragEnd click->content-kanban#cardClick dragover->content-kanban#cardDragOver drop->content-kanban#cardDrop">
+
+                  <!-- ID badge -->
+                  <div class="absolute top-1.5 right-1.5 z-10 bg-black/50 text-white text-[10px] font-mono px-1.5 py-0.5 rounded leading-none">#<%= content.id %></div>
+
+                  <div class="p-3 pt-6">
+                    <!-- Stage-specific card content -->
+                    <% if content.stage == "idea" %>
+                      <% if content.prompt.present? %>
+                        <p class="text-sm font-medium theme-text-primary leading-snug mb-2">
+                          <%= truncate(content.prompt, length: 80) %>
+                        </p>
+                      <% else %>
+                        <p class="text-xs theme-text-secondary italic mb-2">No prompt yet</p>
+                      <% end %>
+                      <% if content.rank.present? %>
+                        <span class="text-[11px] bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded font-mono">rank: <%= content.rank %></span>
+                      <% end %>
+
+                    <% elsif content.stage == "refined" %>
+                      <% if content.prompt.present? %>
+                        <p class="text-sm font-medium theme-text-primary leading-snug mb-1.5">
+                          <%= truncate(content.prompt, length: 80) %>
+                        </p>
+                      <% end %>
+                      <% if content.caption.present? %>
+                        <p class="text-xs theme-text-secondary line-clamp-2 mb-2">
+                          <%= truncate(content.caption, length: 80) %>
+                        </p>
+                      <% end %>
+                      <button type="button"
+                              data-action="click->content-kanban#generateVideo"
+                              data-content-id="<%= content.id %>"
+                              class="mt-1 w-full bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition-colors">
+                        🎬 Generate Video
+                      </button>
+
+                    <% elsif content.stage == "video_created" %>
+                      <% if content.caption.present? %>
+                        <p class="text-sm font-medium theme-text-primary leading-snug mb-1.5">
+                          <%= truncate(content.caption, length: 80) %>
+                        </p>
+                      <% end %>
+                      <% if content.video_parts.present? && content.video_parts.any? %>
+                        <span class="text-[11px] bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded">
+                          🎬 <%= content.video_parts.length %> clips
+                        </span>
+                      <% else %>
+                        <span class="text-[11px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                          <span class="inline-block w-3 h-3 border-2 border-purple-400 border-t-transparent rounded-full animate-spin"></span>
+                          Generating…
+                        </span>
+                      <% end %>
+
+                    <% elsif %w[edited queued].include?(content.stage) %>
+                      <% if content.video_url.present? %>
+                        <div class="mb-1.5">
+                          <a href="<%= content.video_url %>" target="_blank" data-action="click->content-kanban#stopPropagation"
+                             class="text-[11px] bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded hover:underline inline-block truncate max-w-full">
+                            🎥 Video
+                          </a>
+                        </div>
+                      <% end %>
+                      <% if content.caption.present? %>
+                        <p class="text-xs theme-text-secondary line-clamp-2">
+                          <%= truncate(content.caption, length: 80) %>
+                        </p>
+                      <% end %>
+
+                    <% elsif content.stage == "posted" %>
+                      <div class="mb-1.5">
+                        <span class="text-[11px] bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-1.5 py-0.5 rounded font-semibold">
+                          ✅ Posted
+                        </span>
+                      </div>
+                      <% if content.caption.present? %>
+                        <p class="text-xs theme-text-secondary line-clamp-2">
+                          <%= truncate(content.caption, length: 60) %>
+                        </p>
+                      <% end %>
+                      <% if content.video_url.present? %>
+                        <a href="<%= content.video_url %>" target="_blank" data-action="click->content-kanban#stopPropagation"
+                           class="text-[11px] text-blue-500 dark:text-blue-400 hover:underline mt-1 block truncate">
+                          🎥 Video
+                        </a>
+                      <% end %>
+                    <% end %>
+
+                    <!-- Footer row -->
+                    <div class="flex items-center justify-between mt-2">
+                      <span class="text-[10px] theme-text-secondary"><%= content.created_at.strftime("%b %d") %></span>
+                      <button data-action="click->content-kanban#deleteCard"
+                              class="p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors" title="Delete">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+
+              <% if items.empty? %>
+                <div class="flex items-center justify-center h-24 text-xs theme-text-secondary">
+                  Drop items here
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div data-content-kanban-target="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+</div>

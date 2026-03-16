@@ -1,13 +1,14 @@
 class News < ApplicationRecord
   validates :title, presence: true
-  validates :url, uniqueness: true, allow_blank: true, on: :create
+  validates :url, uniqueness: { scope: :content_type }, allow_blank: true, on: :create
 
   scope :by_stage, ->(stage) { where(stage: stage) }
   scope :recent, -> { order(created_at: :desc) }
   scope :by_rank, -> { order(Arel.sql("COALESCE(rank, 999999999) ASC, created_at DESC")) }
 
-  STAGES = %w[new reviewed content edited posted].freeze
-  BOARD_STAGES = %w[new reviewed content edited posted archived].freeze
+  CONTENT_TYPES = %w[x_post x_reply].freeze
+  STAGES = %w[new reviewed content edited queued posted].freeze
+  BOARD_STAGES = %w[new reviewed content edited queued posted archived].freeze
 
   scope :active, -> { where.not(stage: "archived") }
   scope :archived, -> { where(stage: "archived") }
@@ -22,6 +23,10 @@ class News < ApplicationRecord
 
   def edit!
     update!(stage: "edited")
+  end
+
+  def queue!
+    update!(stage: "queued")
   end
 
   def post!

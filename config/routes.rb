@@ -19,7 +19,8 @@ Rails.application.routes.draw do
   patch 'teams/:slug/substitute', to: 'teams#substitute', as: 'team_substitute'
   
   # API endpoints for teams
-  post 'api/teams/:slug', to: 'teams#api_show', as: 'api_team_show'
+  get  'api/teams/search',           to: 'teams#api_search',          as: 'api_teams_search'
+  post 'api/teams/:slug',            to: 'teams#api_show',            as: 'api_team_show'
   post 'api/teams/:year/week/:week', to: 'teams#api_week_collection', as: 'api_teams_week'
   
   get 'players', to: 'players#index', as: 'players_index'
@@ -64,6 +65,28 @@ Rails.application.routes.draw do
   get 'games/:year/week1/:game_slug', to: 'games#show', as: 'game_show'
   get 'games', to: 'games#all_games', as: 'all_games'
   
+  # Memes (HTML)
+  resources :memes
+
+  # Memes (API)
+  get    'api/memes',      to: 'memes#api_index',   as: 'api_memes'
+  post   'api/memes',      to: 'memes#api_create',  as: 'api_memes_create'
+  get    'api/memes/:id',  to: 'memes#api_show',    as: 'api_meme_show'
+  patch  'api/memes/:id',  to: 'memes#api_update',  as: 'api_meme_update'
+  delete 'api/memes/:id',  to: 'memes#api_destroy', as: 'api_meme_destroy'
+
+  # Contents (HTML)
+  resources :contents
+
+  # Contents (API)
+  get    'api/contents',                    to: 'contents#api_index',      as: 'api_contents'
+  post   'api/contents',                    to: 'contents#api_create',     as: 'api_contents_create'
+  get    'api/contents/:id',                to: 'contents#api_show',       as: 'api_content_show'
+  patch  'api/contents/:id',                to: 'contents#api_update',     as: 'api_content_update'
+  patch  'api/contents/:id/transition',     to: 'contents#api_transition', as: 'api_content_transition'
+  patch  'api/contents/:id/rank',           to: 'contents#api_rank',       as: 'api_content_rank'
+  delete 'api/contents/:id',                to: 'contents#api_destroy',    as: 'api_content_destroy'
+
   # News (HTML)
   resources :news, except: [] do
     collection do
@@ -75,14 +98,16 @@ Rails.application.routes.draw do
   end
 
   # News (API)
-  get    'api/news',                  to: 'news#api_index',        as: 'api_news'
-  post   'api/news',                  to: 'news#api_create',       as: 'api_news_create'
-  get    'api/news/:id',              to: 'news#api_show',         as: 'api_news_show'
-  patch  'api/news/:id',              to: 'news#api_update',       as: 'api_news_update'
-  delete 'api/news/:id',              to: 'news#api_destroy',      as: 'api_news_destroy'
-  patch  'api/news/:id/transition',   to: 'news#api_transition',   as: 'api_news_transition'
-  patch  'api/news/:id/select_image', to: 'news#api_select_image', as: 'api_news_select_image'
-  patch  'api/news/:id/rank',         to: 'news#api_rank',         as: 'api_rank_news'
+  get    'api/news',                   to: 'news#api_index',           as: 'api_news'
+  post   'api/news',                   to: 'news#api_create',          as: 'api_news_create'
+  post   'api/news/organize_ranks',    to: 'news#api_organize_ranks',  as: 'api_organize_ranks'
+  get    'api/news/posting_schedule',  to: 'news#api_posting_schedule', as: 'api_posting_schedule'
+  get    'api/news/:id',               to: 'news#api_show',            as: 'api_news_show'
+  patch  'api/news/:id',               to: 'news#api_update',          as: 'api_news_update'
+  delete 'api/news/:id',               to: 'news#api_destroy',         as: 'api_news_destroy'
+  patch  'api/news/:id/transition',    to: 'news#api_transition',      as: 'api_news_transition'
+  patch  'api/news/:id/select_image',  to: 'news#api_select_image',    as: 'api_news_select_image'
+  patch  'api/news/:id/rank',          to: 'news#api_rank',            as: 'api_rank_news'
 
   # Offensive line rankings - SEO optimized
   get 'nfl-offensive-line-rankings', to: 'rankings#offensive_line', as: 'nfl_offensive_line_rankings'
@@ -134,6 +159,7 @@ Rails.application.routes.draw do
   delete 'api/agents/skills/:slug',       to: 'agents_dashboard#api_skills_destroy',           as: 'api_agent_skill_destroy'
   post   'api/agents/skill_assignments',  to: 'agents_dashboard#api_skill_assignments_create', as: 'api_agent_skill_assignments_create'
   delete 'api/agents/skill_assignments/:id', to: 'agents_dashboard#api_skill_assignments_destroy', as: 'api_agent_skill_assignment_destroy'
+  post   'api/agents/push',               to: 'agents_dashboard#api_push',                    as: 'api_agents_push'
   get    'api/agents/activities',         to: 'agents_dashboard#api_activities_index',         as: 'api_agent_activities'
   post   'api/agents/activities',         to: 'agents_dashboard#api_activities_create',        as: 'api_agent_activities_create'
   get    'api/agents/usages',             to: 'agents_dashboard#api_usages_index',             as: 'api_agent_usages'
@@ -142,5 +168,6 @@ Rails.application.routes.draw do
   post   'api/agents',                   to: 'agents_dashboard#api_agents_create',            as: 'api_agents_create'
   get    'api/agents/:slug',              to: 'agents_dashboard#api_agents_show',              as: 'api_agent'
   patch  'api/agents/:slug',              to: 'agents_dashboard#api_agents_update',             as: 'api_agent_update'
+  patch  'api/agents/:slug/model',        to: 'agents_dashboard#api_agent_set_model',            as: 'api_agent_set_model'
   delete 'api/agents/:slug',              to: 'agents_dashboard#api_agents_destroy',            as: 'api_agent_destroy'
 end

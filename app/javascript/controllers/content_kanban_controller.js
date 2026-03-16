@@ -6,17 +6,16 @@ export default class extends Controller {
     transitionUrl: String,
     updateUrl: String,
     deleteUrl: String,
-    newsDetailUrl: String
+    contentDetailUrl: String
   }
 
   // Transition map: fromStage -> toStage -> transition name
   static TRANSITIONS = {
-    new:      { reviewed: "review", archived: "archive" },
-    reviewed: { content: "write_content", archived: "archive" },
-    content:  { edited: "edit", archived: "archive" },
-    edited:   { queued: "queue", posted: "post", archived: "archive" },
-    queued:   { posted: "post", archived: "archive" },
-    posted:   { archived: "archive" }
+    idea:          { refined: "refine" },
+    refined:       { video_created: "video_create" },
+    video_created: { edited: "edit" },
+    edited:        { queued: "queue", posted: "post" },
+    queued:        { posted: "post" }
   }
 
   connect() {
@@ -30,7 +29,7 @@ export default class extends Controller {
     this.draggedCard = event.currentTarget
     this.wasDragging = false
     event.dataTransfer.effectAllowed = "move"
-    event.dataTransfer.setData("text/plain", event.currentTarget.dataset.newsId)
+    event.dataTransfer.setData("text/plain", event.currentTarget.dataset.contentId)
 
     requestAnimationFrame(() => {
       this.draggedCard.classList.add("opacity-40", "scale-95")
@@ -45,7 +44,7 @@ export default class extends Controller {
   dragEnter(event) {
     event.preventDefault()
     const dropZone = event.currentTarget
-    if (dropZone.dataset.newsKanbanTarget === "dropZone") {
+    if (dropZone.dataset.contentKanbanTarget === "dropZone") {
       dropZone.classList.add("border-emerald-400", "bg-emerald-50", "dark:bg-emerald-900/20")
       dropZone.classList.remove("theme-border-primary")
     }
@@ -53,7 +52,7 @@ export default class extends Controller {
 
   dragLeave(event) {
     const dropZone = event.currentTarget
-    if (dropZone.dataset.newsKanbanTarget === "dropZone" && !dropZone.contains(event.relatedTarget)) {
+    if (dropZone.dataset.contentKanbanTarget === "dropZone" && !dropZone.contains(event.relatedTarget)) {
       dropZone.classList.remove("border-emerald-400", "bg-emerald-50", "dark:bg-emerald-900/20")
       dropZone.classList.add("theme-border-primary")
     }
@@ -73,41 +72,36 @@ export default class extends Controller {
     const oldStage = this.draggedCard.dataset.stage
 
     if (newStage === oldStage) {
-      // Same-column drop on empty zone = append to end
       this.clearDropIndicators()
       dropZone.appendChild(this.draggedCard)
-      const newsId = this.draggedCard.dataset.newsId
-      fetch(`/api/news/${newsId}/rank`, {
+      const contentId = this.draggedCard.dataset.contentId
+      fetch(`/api/contents/${contentId}/rank`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({})
       })
       .then(r => r.json())
-      .then(data => { if (data.news) this.showToast("Moved to end", "success") })
+      .then(data => { if (data.content) this.showToast("Moved to end", "success") })
       .catch(() => this.showToast("Failed to reorder", "error"))
       return
     }
 
-    // ── Cross-column drop ─────────────────────────────────────
-    // Read indicator position to determine where in the column the user dropped
     const indicator = dropZone.querySelector("[data-drop-indicator]")
-    let afterCard  = null  // card rendered above indicator (higher rank)
-    let beforeCard = null  // card rendered below indicator (lower rank)
+    let afterCard  = null
+    let beforeCard = null
 
     if (indicator) {
       const prev = indicator.previousElementSibling
       const next = indicator.nextElementSibling
-      if (prev && prev.dataset.newsId) afterCard  = prev
-      if (next && next.dataset.newsId) beforeCard = next
+      if (prev && prev.dataset.contentId) afterCard  = prev
+      if (next && next.dataset.contentId) beforeCard = next
     }
 
     this.clearDropIndicators()
 
-    // Remove "Drop items here" placeholder if present
     const placeholder = dropZone.querySelector(".flex.items-center.justify-center")
     if (placeholder) placeholder.remove()
 
-    // Optimistic move — insert at indicator position, or append if no indicator
     const originalParent = this.draggedCard.parentElement
     if (beforeCard) {
       dropZone.insertBefore(this.draggedCard, beforeCard)
@@ -116,37 +110,34 @@ export default class extends Controller {
     }
     this.draggedCard.dataset.stage = newStage
 
-    // Add placeholder back to source if now empty
     this.addPlaceholderIfEmpty(originalParent)
     this.updateColumnCounts()
 
-    const newsId = this.draggedCard.dataset.newsId
-    const card   = this.draggedCard
-    const stageLabel = newStage.replace("_", " ").replace(/\b\w/g, c => c.toUpperCase())
+    const contentId = this.draggedCard.dataset.contentId
+    const card      = this.draggedCard
+    const stageLabel = newStage.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())
 
-    // Build rank params (only if the user dropped at a specific position)
     const rankBody = {}
-    if (afterCard)  rankBody.after_id  = afterCard.dataset.newsId
-    if (beforeCard) rankBody.before_id = beforeCard.dataset.newsId
+    if (afterCard)  rankBody.after_id  = afterCard.dataset.contentId
+    if (beforeCard) rankBody.before_id = beforeCard.dataset.contentId
     const hasPosition = afterCard || beforeCard
 
-    this.persistTransition(newsId, oldStage, newStage, card, originalParent)
+    this.persistTransition(contentId, oldStage, newStage, card, originalParent)
       .then(() => {
-        // If user dropped at a specific position, override the auto-rank
         if (hasPosition) {
-          return fetch(`/api/news/${newsId}/rank`, {
+          return fetch(`/api/contents/${contentId}/rank`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(rankBody)
           }).then(r => r.json()).then(data => {
-            if (data.news) card.dataset.rank = data.news.rank
+            if (data.content) card.dataset.rank = data.content.rank
           })
         }
       })
-      .then(() => this.showToast(`News moved to ${stageLabel}`, "success"))
+      .then(() => this.showToast(`Content moved to ${stageLabel}`, "success"))
       .catch((err) => {
         this.revertCard(card, originalParent, oldStage, dropZone)
-        this.showToast(`Failed to move news: ${err.message}`, "error")
+        this.showToast(`Failed to move content: ${err.message}`, "error")
       })
   }
 
@@ -154,7 +145,6 @@ export default class extends Controller {
     if (this.draggedCard) {
       this.draggedCard.classList.remove("opacity-40", "scale-95")
     }
-    // Clean up all drop zone highlights
     this.dropZoneTargets.forEach(zone => {
       zone.classList.remove("border-emerald-400", "bg-emerald-50", "dark:bg-emerald-900/20")
       if (!zone.classList.contains("theme-border-primary")) {
@@ -200,11 +190,9 @@ export default class extends Controller {
     const isSameColumn = targetCard.parentElement === this.draggedCard.parentElement
 
     if (!isSameColumn) {
-      // Cross-column drop on a card — let the dropZone drop handler fire
       return
     }
 
-    // Same-column reorder — stop propagation so dropZone doesn't also fire
     event.stopPropagation()
 
     const indicator = targetCard.parentElement.querySelector("[data-drop-indicator]")
@@ -214,8 +202,8 @@ export default class extends Controller {
     if (indicator) {
       const prev = indicator.previousElementSibling
       const next = indicator.nextElementSibling
-      if (prev && prev.dataset.newsId) afterCard = prev
-      if (next && next.dataset.newsId && next !== this.draggedCard) beforeCard = next
+      if (prev && prev.dataset.contentId) afterCard = prev
+      if (next && next.dataset.contentId && next !== this.draggedCard) beforeCard = next
     }
 
     this.clearDropIndicators()
@@ -226,20 +214,20 @@ export default class extends Controller {
       targetCard.parentElement.appendChild(this.draggedCard)
     }
 
-    const newsId = this.draggedCard.dataset.newsId
+    const contentId = this.draggedCard.dataset.contentId
     const body = {}
-    if (afterCard) body.after_id = afterCard.dataset.newsId
-    if (beforeCard) body.before_id = beforeCard.dataset.newsId
+    if (afterCard) body.after_id = afterCard.dataset.contentId
+    if (beforeCard) body.before_id = beforeCard.dataset.contentId
 
-    fetch(`/api/news/${newsId}/rank`, {
+    fetch(`/api/contents/${contentId}/rank`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
     })
     .then(r => r.json())
     .then(data => {
-      if (data.news) {
-        this.draggedCard.dataset.rank = data.news.rank
+      if (data.content) {
+        this.draggedCard.dataset.rank = data.content.rank
         this.showToast("Order updated", "success")
       }
     })
@@ -256,55 +244,25 @@ export default class extends Controller {
   // ─── Card Click ───────────────────────────────────────────────
 
   cardClick(event) {
-    // Don't navigate if we just finished a drag
     if (this.wasDragging) {
       this.wasDragging = false
       return
     }
-    const newsId = event.currentTarget.dataset.newsId
-    const url = this.newsDetailUrlValue.replace(":id", newsId)
+    const contentId = event.currentTarget.dataset.contentId
+    const url = this.contentDetailUrlValue.replace(":id", contentId)
     window.location.href = url
-  }
-
-  // ─── Archive ─────────────────────────────────────────────────
-
-  async archiveCard(event) {
-    event.stopPropagation()
-    const card = event.currentTarget.closest('[data-news-kanban-target="card"]')
-    if (!card) return
-
-    const newsId = card.dataset.newsId
-    const dropZone = card.parentElement
-
-    card.remove()
-    this.addPlaceholderIfEmpty(dropZone)
-    this.updateColumnCounts()
-
-    try {
-      const url = this.transitionUrlValue.replace(":id", newsId)
-      const response = await fetch(url, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transition: "archive" })
-      })
-      if (!response.ok) throw new Error("Archive failed")
-      this.showToast("News archived", "success")
-    } catch (err) {
-      this.showToast(`Failed to archive: ${err.message}`, "error")
-      window.location.reload()
-    }
   }
 
   // ─── Delete ──────────────────────────────────────────────────
 
   async deleteCard(event) {
     event.stopPropagation()
-    const card = event.currentTarget.closest('[data-news-kanban-target="card"]')
+    const card = event.currentTarget.closest([data-content-kanban-target=card])
     if (!card) return
 
-    if (!confirm("Are you sure you want to delete this news item?")) return
+    if (!confirm("Are you sure you want to delete this content item?")) return
 
-    const newsId = card.dataset.newsId
+    const contentId = card.dataset.contentId
     const dropZone = card.parentElement
 
     card.remove()
@@ -312,13 +270,13 @@ export default class extends Controller {
     this.updateColumnCounts()
 
     try {
-      const url = this.deleteUrlValue.replace(":id", newsId)
+      const url = this.deleteUrlValue.replace(":id", contentId)
       const response = await fetch(url, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" }
       })
       if (!response.ok) throw new Error("Delete failed")
-      this.showToast("News deleted", "success")
+      this.showToast("Content deleted", "success")
     } catch (err) {
       this.showToast(`Failed to delete: ${err.message}`, "error")
       window.location.reload()
@@ -327,13 +285,12 @@ export default class extends Controller {
 
   // ─── API Persistence ─────────────────────────────────────────
 
-  async persistTransition(newsId, fromStage, toStage, card, originalParent) {
+  async persistTransition(contentId, fromStage, toStage, card, originalParent) {
     const transitions = this.constructor.TRANSITIONS
     const transitionName = transitions[fromStage] && transitions[fromStage][toStage]
 
     if (transitionName) {
-      // Use named transition endpoint
-      const url = this.transitionUrlValue.replace(":id", newsId)
+      const url = this.transitionUrlValue.replace(":id", contentId)
       const response = await fetch(url, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -344,12 +301,11 @@ export default class extends Controller {
         throw new Error(data.error || "Transition failed")
       }
     } else {
-      // Fall back to general update endpoint (backward moves, etc.)
-      const url = this.updateUrlValue.replace(":id", newsId)
+      const url = this.updateUrlValue.replace(":id", contentId)
       const response = await fetch(url, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ news: { stage: toStage } })
+        body: JSON.stringify({ content: { stage: toStage } })
       })
       if (!response.ok) {
         const data = await response.json().catch(() => ({}))
@@ -361,19 +317,15 @@ export default class extends Controller {
   // ─── Revert ───────────────────────────────────────────────────
 
   revertCard(card, originalParent, oldStage, currentDropZone) {
-    // Remove placeholder from original if present
     const placeholder = originalParent.querySelector(".flex.items-center.justify-center")
     if (placeholder) placeholder.remove()
 
     originalParent.appendChild(card)
     card.dataset.stage = oldStage
 
-    // Add placeholder to current drop zone if now empty
     this.addPlaceholderIfEmpty(currentDropZone)
-
     this.updateColumnCounts()
 
-    // Flash red ring
     card.classList.add("ring-2", "ring-red-500")
     setTimeout(() => card.classList.remove("ring-2", "ring-red-500"), 1500)
   }
@@ -385,7 +337,7 @@ export default class extends Controller {
       const stage = badge.dataset.stage
       const dropZone = this.dropZoneTargets.find(z => z.dataset.stage === stage)
       if (dropZone) {
-        const count = dropZone.querySelectorAll('[data-news-kanban-target="card"]').length
+        const count = dropZone.querySelectorAll([data-content-kanban-target=card]).length
         badge.textContent = count
       }
     })
@@ -394,7 +346,7 @@ export default class extends Controller {
   // ─── Placeholders ─────────────────────────────────────────────
 
   addPlaceholderIfEmpty(dropZone) {
-    const cards = dropZone.querySelectorAll('[data-news-kanban-target="card"]')
+    const cards = dropZone.querySelectorAll([data-content-kanban-target=card])
     if (cards.length === 0 && !dropZone.querySelector(".flex.items-center.justify-center")) {
       const placeholder = document.createElement("div")
       placeholder.className = "flex items-center justify-center h-24 text-xs theme-text-secondary"
@@ -403,7 +355,36 @@ export default class extends Controller {
     }
   }
 
-  // ─── Toast Notifications ──────────────────────────────────────
+
+  // Generate Video
+  async generateVideo(event) {
+    event.stopPropagation()
+    const btn = event.currentTarget
+    const contentId = btn.dataset.contentId
+    if (!contentId) return
+    btn.disabled = true
+    btn.textContent = 'Queuing...'
+    try {
+      const url = this.transitionUrlValue.replace(':id', contentId)
+      const res = await fetch(url, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transition: 'video_create' })
+      })
+      if (!res.ok) throw new Error('HTTP ' + res.status)
+      window.location.reload()
+    } catch (err) {
+      console.error('[ContentKanban] generateVideo error:', err)
+      btn.disabled = false
+      btn.textContent = 'Generate Video'
+    }
+  }
+
+  stopPropagation(event) {
+    event.stopPropagation()
+  }
+
+  // Toast Notifications ──────────────────────────────────────
 
   showToast(message, type = "success") {
     if (!this.hasToastContainerTarget) return
@@ -418,13 +399,11 @@ export default class extends Controller {
 
     this.toastContainerTarget.appendChild(toast)
 
-    // Slide in
     requestAnimationFrame(() => {
       toast.classList.remove("translate-x-full")
       toast.classList.add("translate-x-0")
     })
 
-    // Remove after 3s
     setTimeout(() => {
       toast.classList.remove("translate-x-0")
       toast.classList.add("translate-x-full")

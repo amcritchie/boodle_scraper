@@ -1,0 +1,69 @@
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-t-xl p-6 shadow-lg">
+    <div class="flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-white">Meme #<%= @meme.id %></h1>
+      <div class="flex gap-3">
+        <%= link_to "Edit", edit_meme_path(@meme), class: "bg-white text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow" %>
+        <%= link_to "← Back", memes_path, class: "bg-white/20 text-white hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="theme-bg-primary shadow-lg rounded-b-xl border theme-border-primary overflow-hidden">
+
+    <% if @meme.path.present? %>
+      <div class="bg-gray-900 flex items-center justify-center p-4">
+        <img src="<%= @meme.path %>" alt="<%= @meme.feeling %>" class="max-h-96 object-contain">
+      </div>
+    <% end %>
+
+    <div class="p-6 space-y-4">
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <p class="text-xs theme-text-secondary uppercase tracking-wider mb-1">Feeling</p>
+          <p class="theme-text-primary font-medium"><%= @meme.feeling.presence || "—" %></p>
+        </div>
+        <div>
+          <p class="text-xs theme-text-secondary uppercase tracking-wider mb-1">Team</p>
+          <p class="theme-text-primary font-medium"><%= @meme.team_slug.presence || "—" %></p>
+        </div>
+        <div>
+          <p class="text-xs theme-text-secondary uppercase tracking-wider mb-1">Player</p>
+          <p class="theme-text-primary font-medium"><%= @meme.player_slug.presence || "—" %></p>
+        </div>
+        <div>
+          <p class="text-xs theme-text-secondary uppercase tracking-wider mb-1">Rank</p>
+          <p class="theme-text-primary font-medium"><%= @meme.rank.presence || "—" %></p>
+        </div>
+        <div>
+          <p class="text-xs theme-text-secondary uppercase tracking-wider mb-1">Last Used</p>
+          <p class="theme-text-primary font-medium"><%= @meme.last_used_at&.strftime("%b %d, %Y %H:%M") || "Never" %></p>
+        </div>
+        <div>
+          <p class="text-xs theme-text-secondary uppercase tracking-wider mb-1">Created</p>
+          <p class="theme-text-primary font-medium"><%= @meme.created_at.strftime("%b %d, %Y %H:%M") %></p>
+        </div>
+      </div>
+
+      <% if @meme.feeling_array.present? %>
+        <div>
+          <p class="text-xs theme-text-secondary uppercase tracking-wider mb-2">Feeling Array</p>
+          <div class="flex flex-wrap gap-2">
+            <% Array(@meme.feeling_array).each do |f| %>
+              <span class="text-sm bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-3 py-1 rounded-full"><%= f %></span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div>
+        <p class="text-xs theme-text-secondary uppercase tracking-wider mb-1">Path</p>
+        <p class="text-sm theme-text-secondary break-all font-mono"><%= @meme.path %></p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
