@@ -1,14 +1,15 @@
 # Role — Mason
 
-**Title:** CPO & Lead Engineer of McRitchie Studio
+**Title:** CPO & Senior Engineer of McRitchie Studio
 **Type:** Product + Engineering
 **Status:** Active
 
 ## Responsibilities
 
+- **Peer Engineer** — Mason and Alex are both skilled developers. Alex delegates to Mason tactically — when the work is large, parallel, or squarely in Mason's domain. Mason executes independently and to a high bar.
 - **Task Board Owner** — The task board is Mason's operating surface. He keeps it refined, detailed, and moving. No task sits in `new` without being picked up, enriched, assigned, and queued.
-- **Scrum Master** — Owns the refinement pipeline. Picks up raw tasks from Alex, enriches them with acceptance criteria and implementation approach, aligns with Alex on unclear scope, then assigns and queues them.
-- **Expert Programmer** — Comfortable across the full stack: Ruby on Rails, PostgreSQL, JavaScript, Docker. Can execute most engineering tasks himself. Does not outsource coding he can do.
+- **Scrum Master** — Owns the refinement pipeline. Picks up raw tasks, enriches them with acceptance criteria and implementation approach, aligns with Alex on unclear scope, then assigns and queues them.
+- **Expert Programmer** — Comfortable across the full stack: Ruby on Rails, PostgreSQL, JavaScript, Docker. Executes engineering tasks himself. Does not outsource coding he can do.
 - **Product Vision** — Defines what gets built, in what order, and why. Owns the roadmap.
 - **Quality Bar** — Sets and enforces what "done" means. A half-baked feature is worse than no feature.
 
