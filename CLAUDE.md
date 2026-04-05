@@ -1,9 +1,13 @@
 ---
-description: 
+description:
 alwaysApply: true
 ---
 
 # CLAUDE.md
+
+> **STATUS: DORMANT** — This project is not actively maintained. Docs may be outdated.
+> Active projects: McRitchie Studio, Turf Monster, Studio Engine, SolanaStudio, TurfVault.
+> Theme system docs have been removed (superseded by Studio Engine's dynamic theme system — see top-level `/projects/CLAUDE.md`).
 
 ## Project Overview
 
@@ -18,12 +22,17 @@ Boodle Scraper is an NFL sports analytics web application that aggregates game d
 - **Frontend**: Hotwire (Turbo + Stimulus), Import Maps, Tailwind CSS with theme system
 - **Key gems**: httparty, nokogiri (scraping), kaminari (pagination), dotenv-rails
 
+## Dev Server
+
+- **Port 3002** — `bin/rails server -p 3002`
+- McRitchie Studio runs on port 3000, Turf Monster on port 3001
+
 ## Getting Started
 
 ```bash
 bundle install
 rails db:setup          # or pg_restore for existing dump
-rails server
+bin/rails server -p 3002
 ```
 
 ### Docker
@@ -102,7 +111,7 @@ Additional: `venue_populate`, `import_games`, `populate_teams_weeks`, `populate_
 ## Common Commands
 
 ```bash
-rails server                    # Start dev server
+bin/rails server -p 3002        # Start dev server
 rails console                   # Rails console
 rails db:migrate                # Run pending migrations
 rails test                      # Run test suite
